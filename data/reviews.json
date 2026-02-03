@@ -1,0 +1,216 @@
+[
+  {
+    "sku": "101112",
+    "reviews": [
+      {
+        "_id": "06bc27a333ea4770b7729ec6",
+        "customer_id": "CUS000013",
+        "fullname": "Vũ Văn Khánh",
+        "content": "Đóng gói bị móp méo.",
+        "rating": 4,
+        "time": "2026-01-22T01:26:15.008Z",
+        "order_id": "ORD0001",
+        "images": [],
+        "likes": [],
+        "replies": [
+          {
+            "_id": "9ba4fdd37b7547678808611a",
+            "user_id": "ADMIN_02",
+            "fullname": "Quản trị viên",
+            "avatar": "https://cdn.nhathuoclongchau.com.vn/unsafe/https://cms-prod.s3-sgn09.fptcloud.com/sm_3b36625298.jpg",
+            "content": "Shop sẽ cố gắng cải thiện hơn nữa ạ.",
+            "is_admin": true,
+            "time": "2026-01-22T22:26:15.008Z",
+            "likes": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "sku": "102278",
+    "reviews": [
+      {
+        "_id": "610aca143c3b4c8ea64e0e39",
+        "customer_id": "CUS000013",
+        "fullname": "Vũ Văn Khánh",
+        "content": "Sản phẩm đúng như mô tả.",
+        "rating": 5,
+        "time": "2026-01-25T16:26:15.008Z",
+        "order_id": "ORD0001",
+        "images": [],
+        "likes": [],
+        "replies": []
+      }
+    ]
+  },
+  {
+    "sku": "103190",
+    "reviews": [
+      {
+        "_id": "b001e5cc56434edca9fccb4c",
+        "customer_id": "CUS000013",
+        "fullname": "Vũ Văn Khánh",
+        "content": "Mọi người nên mua nhé, rất đáng tiền.",
+        "rating": 5,
+        "time": "2026-01-22T07:26:15.008Z",
+        "order_id": "ORD0001",
+        "images": [],
+        "likes": [],
+        "replies": []
+      }
+    ]
+  },
+  {
+    "sku": "101384",
+    "reviews": [
+      {
+        "_id": "832e2c4b2e27481eb84837b3",
+        "customer_id": "CUS000021",
+        "fullname": "Dương Hữu Hải",
+        "content": "Dùng rất hiệu quả, cảm ơn shop.",
+        "rating": 5,
+        "time": "2026-01-24T16:26:15.008Z",
+        "order_id": "ORD0002",
+        "images": [],
+        "likes": [],
+        "replies": []
+      }
+    ]
+  },
+  {
+    "sku": "103696",
+    "reviews": [
+      {
+        "_id": "66d13d27a1c0414a8fc781b4",
+        "customer_id": "CUS000021",
+        "fullname": "Dương Hữu Hải",
+        "content": "Giao hàng siêu tốc, sản phẩm date xa.",
+        "rating": 5,
+        "time": "2026-01-24T20:26:15.008Z",
+        "order_id": "ORD0002",
+        "images": [],
+        "likes": [],
+        "replies": []
+      }
+    ]
+  },
+  {
+    "sku": "101014",
+    "reviews": [
+      {
+        "_id": "d4e37bd025f347f2b8d49e14",
+        "customer_id": "CUS000021",
+        "fullname": "Dương Hữu Hải",
+        "content": "Chất lượng tuyệt vời, sẽ ủng hộ tiếp.",
+        "rating": 5,
+        "time": "2026-01-25T11:26:15.008Z",
+        "order_id": "ORD0002",
+        "images": [],
+        "likes": [],
+        "replies": [
+          {
+            "_id": "85036839f55c4fd991cd6a53",
+            "user_id": "ADMIN_01",
+            "fullname": "Quản trị viên",
+            "avatar": "https://cdn.nhathuoclongchau.com.vn/unsafe/https://cms-prod.s3-sgn09.fptcloud.com/sm_3b36625298.jpg",
+            "content": "Cảm ơn bạn đã ủng hộ shop nhé!",
+            "is_admin": true,
+            "time": "2026-01-26T10:26:15.008Z",
+            "likes": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "sku": "102912",
+    "reviews": [
+      {
+        "_id": "5da5cb93f5654b3f96d4694f",
+        "customer_id": "CUS000015",
+        "fullname": "Ngô Minh An",
+        "content": "Dùng rất hiệu quả, cảm ơn shop.",
+        "rating": 4,
+        "time": "2026-01-23T23:26:15.008Z",
+        "order_id": "ORD0003",
+        "images": [],
+        "likes": [],
+        "replies": []
+      }
+    ]
+  },
+  {
+    "sku": "100443",
+    "reviews": [
+      {
+        "_id": "e4341daeeddf4037b24f7311",
+        "customer_id": "CUS000001",
+        "fullname": "Phạm Bảo Nghĩa",
+        "content": "Dùng rất hiệu quả, cảm ơn shop.",
+        "rating": 4,
+        "time": "2026-01-21T07:26:15.008Z",
+        "order_id": "ORD0004",
+        "images": [],
+        "likes": [],
+        "replies": []
+      }
+    ]
+  },
+  {
+    "sku": "102942",
+    "reviews": [
+      {
+        "_id": "a182e74d40dd49cd90fb317c",
+        "customer_id": "CUS000024",
+        "fullname": "Phan Thanh Hùng",
+        "content": "Giá cả hợp lý, chất lượng ổn.",
+        "rating": 4,
+        "time": "2026-01-24T09:26:15.008Z",
+        "order_id": "ORD0005",
+        "images": [],
+        "likes": [],
+        "replies": [
+          {
+            "_id": "bfbdabbe9bbb45a0951f128e",
+            "user_id": "ADMIN_02",
+            "fullname": "Quản trị viên",
+            "avatar": "https://cdn.nhathuoclongchau.com.vn/unsafe/https://cms-prod.s3-sgn09.fptcloud.com/sm_3b36625298.jpg",
+            "content": "Shop rất vui vì bạn hài lòng ạ!",
+            "is_admin": true,
+            "time": "2026-01-24T23:26:15.008Z",
+            "likes": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "sku": "108123",
+    "reviews": [
+      {
+        "_id": "bf92354c5c19419c896cd8ed",
+        "customer_id": "CUS000024",
+        "fullname": "Phan Thanh Hùng",
+        "content": "Giao hàng quá lâu.",
+        "rating": 3,
+        "time": "2026-01-22T02:26:15.008Z",
+        "order_id": "ORD0005",
+        "images": [],
+        "likes": [],
+        "replies": [
+          {
+            "_id": "c70de498e80545afb620ef16",
+            "user_id": "ADMIN_01",
+            "fullname": "Quản trị viên",
+            "avatar": "https://cdn.nhathuoclongchau.com.vn/unsafe/https://cms-prod.s3-sgn09.fptcloud.com/sm_3b36625298.jpg",
+            "content": "Shop rất lấy làm tiếc vì trải nghiệm không tốt này, chúng mình sẽ cố gắng khắc phục ạ!",
+            "is_admin": true,
+            "time": "2026-01-22T06:26:15.008Z",
+            "likes": []
+          }
+        ]
+      }
+    ]
+  }
+]

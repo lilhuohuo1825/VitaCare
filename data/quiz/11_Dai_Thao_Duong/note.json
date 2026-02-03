@@ -1,0 +1,19 @@
+{
+    "category": "Đánh giá nguy cơ đái tháo đường",
+    "category_short": "Đái tháo đường",
+    "url": "https://www.pharmacity.vn/kiem-tra-suc-khoe/dai-thao-duong",
+    "crawled_at": "2026-01-15T23:00:00+07:00",
+    "status": "INTEGRATED",
+    "note": "Quiz Đái tháo đường không tồn tại dưới dạng standalone quiz. URL tự động redirect về trang chủ kiểm tra sức khỏe. Các câu hỏi về Đái tháo đường đã được tích hợp vào bộ câu hỏi 'Đánh giá yếu tố nguy cơ tim mạch - thận - chuyển hóa' (Quiz 10), bao gồm câu hỏi về tiền sử đái tháo đường và các biến chứng.",
+    "integrated_quiz": {
+        "name": "Đánh giá yếu tố nguy cơ tim mạch - thận - chuyển hóa",
+        "url": "https://www.pharmacity.vn/kiem-tra-suc-khoe/danh-gia-yeu-to-nguy-co-tim-mach-than-chuyen-hoa",
+        "related_questions": [
+            "Đái tháo đường (Có/Không/Không biết)",
+            "Mắc đái tháo đường trên 10 năm (Có/Không/Không biết)",
+            "Mờ mắt - biến chứng tiểu đường",
+            "Tiểu đạm (protein/albumin niệu)",
+            "Loét/tê bì bàn chân"
+        ]
+    }
+}

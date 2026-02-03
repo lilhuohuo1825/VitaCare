@@ -1,0 +1,27 @@
+{
+  "disease_id": "05_Suy_Gian_Tinh_Mach",
+  "source_url": "https://www.pharmacity.vn/kiem-tra-suc-khoe/danh-gia-nguy-co-suy-gian-tinh-mach",
+  "logic_type": "score_count_yes",
+  "results": [
+    {
+      "id": "low_risk",
+      "condition": {
+        "operator": "<=",
+        "value": 3
+      },
+      "title": "Nguy cơ THẤP mắc Đánh giá nguy cơ suy giãn tĩnh mạch",
+      "description": "Bạn có khả năng phát triển Đánh giá nguy cơ suy giãn tĩnh mạch THẤP hơn so với mức trung bình. (Dữ liệu mô phỏng)",
+      "image_url": "https://prod-cdn.pharmacity.io/e-com/images/ecommerce/20240520103330-0-20240403091737-0-new-bagde.png"
+    },
+    {
+      "id": "high_risk",
+      "condition": {
+        "operator": ">",
+        "value": 3
+      },
+      "title": "Nguy cơ CAO mắc Đánh giá nguy cơ suy giãn tĩnh mạch",
+      "description": "Bạn có khả năng cao mắc Đánh giá nguy cơ suy giãn tĩnh mạch. Hãy đến bác sĩ để được tư vấn thêm. (Dữ liệu mô phỏng)",
+      "image_url": ""
+    }
+  ]
+}

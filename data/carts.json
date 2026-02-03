@@ -1,0 +1,40 @@
+[
+    {
+        "_id": "68f1de3a44d747b5d5d88799",
+        "user_id": "CUS000026",
+        "items": [
+            {
+                "_id": "6963b1a24d747b5d5d881234",
+                "sku": "100000",
+                "productName": "Thực phẩm bảo vệ sức khỏe Corbiere Calcium Plus Sanofi giúp bổ sung calci, vitamin D3 (3 vỉ x 10 ống)",
+                "quantity": 1,
+                "discount": 17000,
+                "price": 218000,
+                "hasPromotion": true,
+                "image": "https://cdn.nhathuoclongchau.com.vn/unsafe/https://cms-prod.s3-sgn09.fptcloud.com/DSC_01895_76680fa06d.jpg",
+                "unit": "Hộp",
+                "category": "Cơ xương khớp",
+                "addedAt": "2026-01-28T14:40:01Z",
+                "updatedAt": "2026-01-28T14:40:01Z"
+            },
+            {
+                "_id": "6963b1a24d747b5d5d881235",
+                "sku": "100001",
+                "productName": "Thực phẩm bảo vệ sức khỏe Pharmaton Energy Fizzi Sanofi giúp tăng cường sức khỏe, sức đề kháng và giảm mệt mỏi (10 viên)",
+                "quantity": 1,
+                "discount": 20,
+                "price": 99000,
+                "hasPromotion": false,
+                "image": "https://cdn.nhathuoclongchau.com.vn/unsafe/https://cms-prod.s3-sgn09.fptcloud.com/DSC_01942_50076ec075.jpg",
+                "unit": "Hộp",
+                "category": "Tăng sức đề kháng, miễn dịch",
+                "addedAt": "2026-01-28T14:42:01Z",
+                "updatedAt": "2026-01-28T14:42:01Z"
+            }
+        ],
+        "itemCount": 2,
+        "totalQuantity": 2,
+        "createdAt": "2026-01-28T14:40:01Z",
+        "updatedAt": "2026-01-28T14:42:01Z"
+    }
+]

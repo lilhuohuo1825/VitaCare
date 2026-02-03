@@ -1,0 +1,83 @@
+{
+  "category": "Đánh giá nguy cơ mắc bệnh hen",
+  "category_short": "Tầm soát hen",
+  "url": "https://www.pharmacity.vn/kiem-tra-suc-khoe/tam-soat-hen",
+  "crawled_at": "2026-01-11T16:55:00+07:00",
+  "total_questions": 8,
+  "structure_type": "linear",
+  "note": "Tất cả câu hỏi xuất hiện theo trình tự cố định, không phụ thuộc vào câu trả lời. Kết quả được tính dựa trên tổng số câu trả lời 'Có'.",
+  "questions": [
+    {
+      "id": 1,
+      "question": "Có khò khè/thở rít hay những đợt khò khè/thở rít tái đi tái lại?",
+      "options": [
+        {"value": "A", "text": "Có"},
+        {"value": "B", "text": "Không"}
+      ],
+      "condition": "Luôn xuất hiện (Câu hỏi đầu tiên)"
+    },
+    {
+      "id": 2,
+      "question": "Bị ho gây khó chịu lúc về đêm?",
+      "options": [
+        {"value": "A", "text": "Có"},
+        {"value": "B", "text": "Không"}
+      ],
+      "condition": "Luôn xuất hiện sau Câu 1"
+    },
+    {
+      "id": 3,
+      "question": "Bị thức giấc đêm vì ho hay khó thở?",
+      "options": [
+        {"value": "A", "text": "Có"},
+        {"value": "B", "text": "Không"}
+      ],
+      "condition": "Luôn xuất hiện sau Câu 2"
+    },
+    {
+      "id": 4,
+      "question": "Bị ho, khò khè/thở rít sau khi vận động thể lực (chạy, tập thể dục)?",
+      "options": [
+        {"value": "A", "text": "Có"},
+        {"value": "B", "text": "Không"}
+      ],
+      "condition": "Luôn xuất hiện sau Câu 3"
+    },
+    {
+      "id": 5,
+      "question": "Có vấn đề hô hấp vào mùa nhất định nào đó trong năm?",
+      "options": [
+        {"value": "A", "text": "Có"},
+        {"value": "B", "text": "Không"}
+      ],
+      "condition": "Luôn xuất hiện sau Câu 4"
+    },
+    {
+      "id": 6,
+      "question": "Bị ho, khò khè hay nặng ngực khi hít phải chất kích thích trong không khí?",
+      "options": [
+        {"value": "A", "text": "Có"},
+        {"value": "B", "text": "Không"}
+      ],
+      "condition": "Luôn xuất hiện sau Câu 5"
+    },
+    {
+      "id": 7,
+      "question": "Có những đợt cảm lạnh \"nhập vào phổi\" hoặc phải điều trị hơn mười ngày mới khỏi?",
+      "options": [
+        {"value": "A", "text": "Có"},
+        {"value": "B", "text": "Không"}
+      ],
+      "condition": "Luôn xuất hiện sau Câu 6"
+    },
+    {
+      "id": 8,
+      "question": "Các triệu chứng hô hấp được cải thiện khi dùng thuốc điều trị hen?",
+      "options": [
+        {"value": "A", "text": "Có"},
+        {"value": "B", "text": "Không"}
+      ],
+      "condition": "Luôn xuất hiện sau Câu 7"
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "disease_id": "10_Tim_Mach_Than_Chuyen_Hoa",
+  "source_url": "https://www.pharmacity.vn/kiem-tra-suc-khoe/danh-gia-yeu-to-nguy-co-tim-mach-than-chuyen-hoa",
+  "logic_type": "score_count_yes",
+  "results": [
+    {
+      "id": "low_risk",
+      "condition": {
+        "operator": "<=",
+        "value": 3
+      },
+      "title": "Nguy cơ THẤP mắc Đánh giá yếu tố nguy cơ tim mạch - thận - chuyển hóa",
+      "description": "Bạn có khả năng phát triển Đánh giá yếu tố nguy cơ tim mạch - thận - chuyển hóa THẤP hơn so với mức trung bình. (Dữ liệu mô phỏng)",
+      "image_url": "https://prod-cdn.pharmacity.io/e-com/images/ecommerce/20240520103330-0-20240403091737-0-new-bagde.png"
+    },
+    {
+      "id": "high_risk",
+      "condition": {
+        "operator": ">",
+        "value": 3
+      },
+      "title": "Nguy cơ CAO mắc Đánh giá yếu tố nguy cơ tim mạch - thận - chuyển hóa",
+      "description": "Bạn có khả năng cao mắc Đánh giá yếu tố nguy cơ tim mạch - thận - chuyển hóa. Hãy đến bác sĩ để được tư vấn thêm. (Dữ liệu mô phỏng)",
+      "image_url": ""
+    }
+  ]
+}

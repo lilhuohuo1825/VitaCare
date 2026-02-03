@@ -1,0 +1,50 @@
+[
+    {
+        "_id": "65af8b9c2d1234567890abcd",
+        "user_id": "CUS000026",
+        "is_completed": false,
+        "last_completed_date": "2026-01-28T08:00:00Z",
+        "start_date": "2026-01-28T00:00:00Z",
+        "end_date": "2026-02-04T00:00:00Z",
+        "frequency": "Daily",
+        "times_per_day": 3,
+        "reminder_times": [
+            "08:00",
+            "13:00",
+            "19:00"
+        ],
+        "config_status": "Active",
+        "med_id": "MED-001",
+        "med_name": "Paracetamol",
+        "dosage": "1 viên, 500mg",
+        "unit": "Viên",
+        "route": "Uống",
+        "instruction": "Sau ăn",
+        "note": "Uống nhiều nước",
+        "schedule_status": "Active",
+        "reminder_sound": true
+    },
+    {
+        "_id": "65af8b9c2d1234567890abce",
+        "user_id": "CUS000026",
+        "is_completed": false,
+        "last_completed_date": null,
+        "start_date": "2026-01-28T00:00:00Z",
+        "end_date": "2026-02-28T00:00:00Z",
+        "frequency": "Daily",
+        "times_per_day": 1,
+        "reminder_times": [
+            "07:00"
+        ],
+        "config_status": "Active",
+        "med_id": "MED-002",
+        "med_name": "Vitamin C",
+        "dosage": "1 viên",
+        "unit": "Viên",
+        "route": "Uống",
+        "instruction": "Sau ăn",
+        "note": "Uống buổi sáng",
+        "schedule_status": "Active",
+        "reminder_sound": true
+    }
+]

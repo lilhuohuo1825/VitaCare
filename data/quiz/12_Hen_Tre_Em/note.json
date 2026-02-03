@@ -1,0 +1,23 @@
+{
+    "category": "Đánh giá nguy cơ mắc bệnh hen ở trẻ em",
+    "category_short": "Hen ở trẻ em",
+    "url": "https://www.pharmacity.vn/kiem-tra-suc-khoe/benh-hen-o-tre-em",
+    "crawled_at": "2026-01-16T09:00:00+07:00",
+    "status": "REDIRECT",
+    "note": "Quiz Hen ở trẻ em không còn tồn tại dưới dạng standalone. URL tự động redirect về quiz 'Đánh giá nguy cơ mắc bệnh hen' thông thường (Quiz 01). Các câu hỏi trong quiz hen có thể áp dụng cho cả người lớn và trẻ em.",
+    "redirected_to": {
+        "name": "Đánh giá nguy cơ mắc bệnh hen",
+        "url": "https://www.pharmacity.vn/kiem-tra-suc-khoe/tam-soat-hen",
+        "quiz_folder": "01_Benh_Hen"
+    },
+    "original_quiz_questions": [
+        "Có khò khè/thở rít hay những đợt khò khè/thở rít tái đi tái lại?",
+        "Bị ho gây khó chịu lúc về đêm?",
+        "Bị thức giấc đêm vì ho hay khó thở?",
+        "Bị ho, khò khè/thở rít sau khi vận động thể lực (chạy, tập thể dục)?",
+        "Có vấn đề hô hấp vào mùa nhất định nào đó trong năm?",
+        "Bị ho, khò khè hay nặng ngực khi hít phải chất kích thích trong không khí?",
+        "Có những đợt cảm lạnh 'nhập vào phổi' hoặc phải điều trị hơn mười ngày mới khỏi?",
+        "Các triệu chứng hô hấp được cải thiện khi dùng thuốc điều trị hen?"
+    ]
+}

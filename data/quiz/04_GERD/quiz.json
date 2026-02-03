@@ -1,0 +1,149 @@
+{
+    "category": "Đánh giá nguy cơ mắc bệnh trào ngược dạ dày thực quản (GERD)",
+    "category_short": "Tầm soát GERD",
+    "url": "https://www.pharmacity.vn/kiem-tra-suc-khoe/tam-soat-gerd",
+    "crawled_at": "2026-01-11T17:10:00+07:00",
+    "total_questions": 6,
+    "structure_type": "linear",
+    "note": "Bộ câu hỏi GERDQ chuẩn, tất cả câu hỏi xuất hiện theo trình tự cố định với 4 lựa chọn về tần suất trong 7 ngày qua.",
+    "questions": [
+        {
+            "id": 1,
+            "question": "Trong 7 ngày qua, bạn buồn nôn trong bao nhiêu ngày?",
+            "options": [
+                {
+                    "value": "A",
+                    "text": "0 ngày"
+                },
+                {
+                    "value": "B",
+                    "text": "1 ngày"
+                },
+                {
+                    "value": "C",
+                    "text": "Từ 2-3 ngày"
+                },
+                {
+                    "value": "D",
+                    "text": "Từ 4-7 ngày"
+                }
+            ],
+            "condition": "Luôn xuất hiện (Câu hỏi đầu tiên)"
+        },
+        {
+            "id": 2,
+            "question": "Trong 7 ngày qua, bạn bị đau phần giữa bụng trong bao nhiêu ngày?",
+            "options": [
+                {
+                    "value": "A",
+                    "text": "0 ngày"
+                },
+                {
+                    "value": "B",
+                    "text": "1 ngày"
+                },
+                {
+                    "value": "C",
+                    "text": "Từ 2-3 ngày"
+                },
+                {
+                    "value": "D",
+                    "text": "Từ 4-7 ngày"
+                }
+            ],
+            "condition": "Luôn xuất hiện sau Câu 1"
+        },
+        {
+            "id": 3,
+            "question": "Trong 7 ngày qua, bạn có cảm giác nóng rát sau xương ức (ợ nóng) trong bao nhiêu ngày?",
+            "options": [
+                {
+                    "value": "A",
+                    "text": "0 ngày"
+                },
+                {
+                    "value": "B",
+                    "text": "1 ngày"
+                },
+                {
+                    "value": "C",
+                    "text": "Từ 2-3 ngày"
+                },
+                {
+                    "value": "D",
+                    "text": "Từ 4-7 ngày"
+                }
+            ],
+            "condition": "Luôn xuất hiện sau Câu 2"
+        },
+        {
+            "id": 4,
+            "question": "Trong 7 ngày qua, bạn bị ợ nước chua hay thức ăn từ dạ dày lên cổ họng/miệng (trào ngược) trong bao nhiêu ngày?",
+            "options": [
+                {
+                    "value": "A",
+                    "text": "0 ngày"
+                },
+                {
+                    "value": "B",
+                    "text": "1 ngày"
+                },
+                {
+                    "value": "C",
+                    "text": "Từ 2-3 ngày"
+                },
+                {
+                    "value": "D",
+                    "text": "Từ 4-7 ngày"
+                }
+            ],
+            "condition": "Luôn xuất hiện sau Câu 3"
+        },
+        {
+            "id": 5,
+            "question": "Trong 7 ngày qua, bạn bị khó ngủ về đêm do chứng ợ nóng và/hoặc trào ngược trong bao nhiêu ngày?",
+            "options": [
+                {
+                    "value": "A",
+                    "text": "0 ngày"
+                },
+                {
+                    "value": "B",
+                    "text": "1 ngày"
+                },
+                {
+                    "value": "C",
+                    "text": "Từ 2-3 ngày"
+                },
+                {
+                    "value": "D",
+                    "text": "Từ 4-7 ngày"
+                }
+            ],
+            "condition": "Luôn xuất hiện sau Câu 4"
+        },
+        {
+            "id": 6,
+            "question": "Trong 7 ngày qua, bạn dùng thêm thuốc điều trị chứng ợ nóng và/hoặc trào ngược ngoài những thuốc mà bác sĩ kê trong toa bao nhiêu ngày?",
+            "options": [
+                {
+                    "value": "A",
+                    "text": "0 ngày"
+                },
+                {
+                    "value": "B",
+                    "text": "1 ngày"
+                },
+                {
+                    "value": "C",
+                    "text": "Từ 2-3 ngày"
+                },
+                {
+                    "value": "D",
+                    "text": "Từ 4-7 ngày"
+                }
+            ],
+            "condition": "Luôn xuất hiện sau Câu 5 (câu hỏi cuối)"
+        }
+    ]
+}

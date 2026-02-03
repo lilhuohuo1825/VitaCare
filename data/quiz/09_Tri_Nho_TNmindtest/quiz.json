@@ -1,0 +1,59 @@
+{
+    "category": "Đánh giá trí nhớ và mức độ tập trung chú ý",
+    "category_short": "Trí nhớ TNmindtest",
+    "url": "https://www.pharmacity.vn/kiem-tra-suc-khoe/tri-nho-va-muc-do-tap-trung-chu-y-tnmindtest",
+    "source_url": "https://tnmindtest.com/test/channel/pharmacity",
+    "crawled_at": "2026-01-14T22:50:00+07:00",
+    "total_steps": 3,
+    "structure_type": "interactive_game",
+    "note": "Đây là quiz dạng trò chơi tương tác, không phải câu hỏi trắc nghiệm thông thường. Quiz được embed từ TNmindtest.com.",
+    "steps": [
+        {
+            "step": 1,
+            "title": "Xem và ghi nhớ hình ảnh",
+            "instruction": "BƯỚC 1: XEM VÀ GHI NHỚ 15 HÌNH ẢNH (mỗi bức hình xuất hiện trong 3 giây)",
+            "task_type": "memory_phase",
+            "description": "Người dùng xem 15 hình ảnh xuất hiện tuần tự, mỗi hình 3 giây"
+        },
+        {
+            "step": 2,
+            "title": "Câu hỏi về video",
+            "question": "CÓ BAO NHIÊU HỘP QUÀ TRONG VIDEO?",
+            "task_type": "attention_video",
+            "options": [
+                {
+                    "value": "1",
+                    "text": "1"
+                },
+                {
+                    "value": "2",
+                    "text": "2"
+                },
+                {
+                    "value": "3",
+                    "text": "3"
+                },
+                {
+                    "value": "4",
+                    "text": "4"
+                }
+            ],
+            "description": "Người dùng xem video ~20 giây và trả lời câu hỏi về nội dung video"
+        },
+        {
+            "step": 3,
+            "title": "Nhớ lại hình ảnh",
+            "instruction": "NHỚ LẠI & CHỌN 15 HÌNH ẢNH ĐÃ XEM Ở BƯỚC 1",
+            "task_type": "recall_phase",
+            "description": "Người dùng chọn 15 hình ảnh đã xem ở Bước 1 từ một gallery lớn hơn"
+        }
+    ],
+    "registration_required": true,
+    "registration_fields": [
+        "name",
+        "phone",
+        "city",
+        "sex",
+        "agree_term_of_use"
+    ]
+}

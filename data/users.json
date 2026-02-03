@@ -1,0 +1,492 @@
+[
+  {
+    "_id": "be854ea7c69ace6adc1df61f",
+    "user_id": "CUS000001",
+    "avatar": null,
+    "full_name": "Phạm Bảo Nghĩa",
+    "email": "osdraiee@gmail.com",
+    "password": "q^VeKnr9",
+    "phone": "0591936993",
+    "birthday": "1978-08-27",
+    "gender": "Female",
+    "address": [
+      "Tỉnh Hải Dương",
+      "Huyện Tứ Kỳ",
+      "Xã Hà Kỳ"
+    ],
+    "registerdate": "2023-02-20T14:30:53Z",
+    "totalspent": 2180000,
+    "tiering": "Bạc"
+  },
+  {
+    "_id": "a0fe19f78d9e2ba4dffc2e54",
+    "user_id": "CUS000002",
+    "avatar": "https://i.pravatar.cc/150?u=c0a2d992abe19a024aa2d25b",
+    "full_name": "Vũ Hữu Hương",
+    "email": "hxejolig@gmail.com",
+    "password": "%&ymZr1T",
+    "phone": "0897393780",
+    "birthday": "1997-02-26",
+    "gender": "Other",
+    "address": [
+      "Tỉnh Cà Mau",
+      "Huyện U Minh",
+      "Xã Nguyễn Phích"
+    ],
+    "registerdate": "2024-11-05T07:50:33Z",
+    "totalspent": 0,
+    "tiering": "Đồng"
+  },
+  {
+    "_id": "019abedcf394d7c2f3dfd6da",
+    "user_id": "CUS000003",
+    "avatar": "https://i.pravatar.cc/150?u=a303f4aeea6b6e3cb4728baa",
+    "full_name": "Ngô Thu Châu",
+    "email": "qucdtfsb@gmail.com",
+    "password": "t@WPe5",
+    "phone": "0822036101",
+    "birthday": "2004-02-19",
+    "gender": "Male",
+    "address": [
+      "Tỉnh Sơn La",
+      "Huyện Sốp Cộp",
+      "Xã Nậm Lạnh"
+    ],
+    "registerdate": "2024-02-21T08:31:36Z",
+    "totalspent": 0,
+    "tiering": "Đồng"
+  },
+  {
+    "_id": "797c97425cabfdb2dd79ed92",
+    "user_id": "CUS000004",
+    "avatar": "https://i.pravatar.cc/150?u=fa5cdcdc1339fc65babdccba",
+    "full_name": "Võ Gia Sơn",
+    "email": "wgpbjgnr@gmail.com",
+    "password": "bI97!I",
+    "phone": "0398090560",
+    "birthday": "1987-08-12",
+    "gender": "Male",
+    "address": [
+      "Tỉnh Đắk Lắk",
+      "Huyện Ea H'leo",
+      "Xã Ea Khal"
+    ],
+    "registerdate": "2024-11-05T10:35:40Z",
+    "totalspent": 0,
+    "tiering": "Đồng"
+  },
+  {
+    "_id": "88b799f12f35b4d8042be56e",
+    "user_id": "CUS000005",
+    "avatar": "https://i.pravatar.cc/150?u=aad5b1d6f294c01defcdedfe",
+    "full_name": "Hoàng Văn Nghĩa",
+    "email": "kgksbzst@gmail.com",
+    "password": "PlFx$ql4",
+    "phone": "0702469811",
+    "birthday": "1979-01-10",
+    "gender": "Other",
+    "address": [
+      "Tỉnh Thanh Hóa",
+      "Huyện Quan Hóa",
+      "Xã Phú Thanh"
+    ],
+    "registerdate": "2023-06-09T18:24:27Z",
+    "totalspent": 0,
+    "tiering": "Đồng"
+  },
+  {
+    "_id": "cb3432dda12dd99bcfdc95c1",
+    "user_id": "CUS000006",
+    "avatar": null,
+    "full_name": "Phan Quốc Khánh",
+    "email": "wwrjnkgh@gmail.com",
+    "password": "h7D1Zv%",
+    "phone": "0548311653",
+    "birthday": "1972-12-02",
+    "gender": "Male",
+    "address": [
+      "Tỉnh Quảng Bình",
+      "Huyện Bố Trạch",
+      "Xã Hải Trạch"
+    ],
+    "registerdate": "2024-09-02T16:25:04Z",
+    "totalspent": 0,
+    "tiering": "Đồng"
+  },
+  {
+    "_id": "4bb277eddf4b7bd687b1caae",
+    "user_id": "CUS000007",
+    "avatar": null,
+    "full_name": "Nguyễn Thanh Nam",
+    "email": "dpznzjmr@gmail.com",
+    "password": "2WCEm#*",
+    "phone": "0915142413",
+    "birthday": "1971-10-26",
+    "gender": "Other",
+    "address": [
+      "Tỉnh Hoà Bình",
+      "Huyện Kim Bôi",
+      "Xã Hùng Tiến"
+    ],
+    "registerdate": "2023-12-28T03:22:04Z",
+    "totalspent": 0,
+    "tiering": "Đồng"
+  },
+  {
+    "_id": "32ba48048a1e8bbb74c632cf",
+    "user_id": "CUS000008",
+    "avatar": "https://i.pravatar.cc/150?u=ed738bcbfaac8da7c68e2fea",
+    "full_name": "Đỗ Quốc Hiếu",
+    "email": "rbgsxrmw@gmail.com",
+    "password": "vg4@1K^Ws",
+    "phone": "0593697054",
+    "birthday": "1993-04-05",
+    "gender": "Other",
+    "address": [
+      "Tỉnh Quảng Ngãi",
+      "Huyện Nghĩa Hành",
+      "Xã Hành Minh"
+    ],
+    "registerdate": "2026-01-09T16:15:27Z",
+    "totalspent": 0,
+    "tiering": "Đồng"
+  },
+  {
+    "_id": "ed16efb5b2aa3fb048e0b2fc",
+    "user_id": "CUS000009",
+    "avatar": "https://i.pravatar.cc/150?u=5ceefbcbd0dcfa157d95b5ba",
+    "full_name": "Trần Văn Nghĩa",
+    "email": "ryjjbwyu@gmail.com",
+    "password": "6Kt2Hw#L",
+    "phone": "0780986629",
+    "birthday": "1972-08-18",
+    "gender": "Male",
+    "address": [
+      "Tỉnh Sơn La",
+      "Huyện Bắc Yên",
+      "Xã Háng Đồng"
+    ],
+    "registerdate": "2025-09-27T00:54:48Z",
+    "totalspent": 0,
+    "tiering": "Đồng"
+  },
+  {
+    "_id": "e57af1c8cde04e0ecd89e9e5",
+    "user_id": "CUS000010",
+    "avatar": "https://i.pravatar.cc/150?u=4cce17d0ed193a676e1c9905",
+    "full_name": "Hoàng Thu Hoàng",
+    "email": "ivwqnqxf@gmail.com",
+    "password": "#039D$Qy",
+    "phone": "0879671424",
+    "birthday": "1994-07-25",
+    "gender": "Male",
+    "address": [
+      "Tỉnh Kiên Giang",
+      "Thành phố Rạch Giá",
+      "Phường Rạch Sỏi"
+    ],
+    "registerdate": "2023-09-04T04:32:14Z",
+    "totalspent": 0,
+    "tiering": "Đồng"
+  },
+  {
+    "_id": "0fd7df4fa9e11a4fced07eae",
+    "user_id": "CUS000011",
+    "avatar": "https://i.pravatar.cc/150?u=9c540aa6c68eebe0efba4d46",
+    "full_name": "Nguyễn Hữu Thắng",
+    "email": "fjgrdhmm@gmail.com",
+    "password": "z%Q3Gt0",
+    "phone": "0535694910",
+    "birthday": "2005-02-08",
+    "gender": "Female",
+    "address": [
+      "Tỉnh Tuyên Quang",
+      "Huyện Yên Sơn",
+      "Xã Lang Quán"
+    ],
+    "registerdate": "2023-03-18T22:42:14Z",
+    "totalspent": 0,
+    "tiering": "Đồng"
+  },
+  {
+    "_id": "72feccf3e11e758dccc55ffe",
+    "user_id": "CUS000012",
+    "avatar": null,
+    "full_name": "Vũ Thành Nghĩa",
+    "email": "kbwzjodz@gmail.com",
+    "password": "FE6%1A",
+    "phone": "0716682016",
+    "birthday": "1972-11-11",
+    "gender": "Male",
+    "address": [
+      "Tỉnh Sóc Trăng",
+      "Huyện Long Phú",
+      "Thị trấn Long Phú"
+    ],
+    "registerdate": "2025-03-23T11:21:45Z",
+    "totalspent": 0,
+    "tiering": "Đồng"
+  },
+  {
+    "_id": "6bc56b06d1d7ea9b7a95fa09",
+    "user_id": "CUS000013",
+    "avatar": "https://i.pravatar.cc/150?u=eb123ba2ddbc3cbcbff4df2f",
+    "full_name": "Vũ Văn Khánh",
+    "email": "xvrozdpp@gmail.com",
+    "password": "5L^JJsR",
+    "phone": "0970729901",
+    "birthday": "2003-06-12",
+    "gender": "Other",
+    "address": [
+      "Tỉnh Hà Nam",
+      "Huyện Lý Nhân",
+      "Xã Xuân Khê"
+    ],
+    "registerdate": "2023-07-12T11:21:22Z",
+    "totalspent": 523000,
+    "tiering": "Đồng"
+  },
+  {
+    "_id": "f3efdf798fddbf9eaec8a1df",
+    "user_id": "CUS000014",
+    "avatar": null,
+    "full_name": "Hoàng Mỹ An",
+    "email": "dsmzdocr@gmail.com",
+    "password": "DZq6#r@",
+    "phone": "0773825939",
+    "birthday": "1998-02-23",
+    "gender": "Female",
+    "address": [
+      "Tỉnh Bắc Kạn",
+      "Huyện Bạch Thông",
+      "Xã Dương Phong"
+    ],
+    "registerdate": "2023-10-16T22:36:24Z",
+    "totalspent": 0,
+    "tiering": "Đồng"
+  },
+  {
+    "_id": "eaebfdb6eb52ba1acede5fde",
+    "user_id": "CUS000015",
+    "avatar": null,
+    "full_name": "Ngô Minh An",
+    "email": "xnrlovdn@gmail.com",
+    "password": "1@jI^$hO",
+    "phone": "0549667473",
+    "birthday": "1982-10-09",
+    "gender": "Other",
+    "address": [
+      "Tỉnh Bắc Giang",
+      "Huyện Yên Thế",
+      "Xã Đông Sơn"
+    ],
+    "registerdate": "2024-05-20T19:54:07Z",
+    "totalspent": 67400.0,
+    "tiering": "Đồng"
+  },
+  {
+    "_id": "bcef8079ff1a24dfebc969ab",
+    "user_id": "CUS000016",
+    "avatar": null,
+    "full_name": "Huỳnh Thị Nghĩa",
+    "email": "caciwxcm@gmail.com",
+    "password": "y!9OxE$",
+    "phone": "0920224652",
+    "birthday": "2003-10-23",
+    "gender": "Other",
+    "address": [
+      "Tỉnh Ninh Thuận",
+      "Huyện Ninh Sơn",
+      "Xã Hòa Sơn"
+    ],
+    "registerdate": "2025-03-27T08:40:26Z",
+    "totalspent": 0,
+    "tiering": "Đồng"
+  },
+  {
+    "_id": "c4b525dd21d7c5129dfe2a40",
+    "user_id": "CUS000017",
+    "avatar": "https://i.pravatar.cc/150?u=b2da8c7df3530da3eaa4d82a",
+    "full_name": "Đỗ Thanh Hiếu",
+    "email": "hekrdfed@gmail.com",
+    "password": "w2I^wH$Ry",
+    "phone": "0751319559",
+    "birthday": "2002-03-07",
+    "gender": "Other",
+    "address": [
+      "Tỉnh Điện Biên",
+      "Huyện Mường Chà",
+      "Xã Ma Thì Hồ"
+    ],
+    "registerdate": "2023-09-27T04:19:50Z",
+    "totalspent": 0,
+    "tiering": "Đồng"
+  },
+  {
+    "_id": "bfea3f5a4e0dbfaabaf6ca14",
+    "user_id": "CUS000018",
+    "avatar": "https://i.pravatar.cc/150?u=bf17aeaffc1a675c72a2ab00",
+    "full_name": "Hoàng Gia Minh",
+    "email": "rbqujqjr@gmail.com",
+    "password": "5g9RF#5",
+    "phone": "0921980428",
+    "birthday": "1976-10-11",
+    "gender": "Male",
+    "address": [
+      "Tỉnh Đắk Nông",
+      "Huyện Đắk Mil",
+      "Thị trấn Đắk Mil"
+    ],
+    "registerdate": "2024-11-01T04:12:47Z",
+    "totalspent": 0,
+    "tiering": "Đồng"
+  },
+  {
+    "_id": "f9421cfe0abfcdde753f363e",
+    "user_id": "CUS000019",
+    "avatar": "https://i.pravatar.cc/150?u=82efa64aa3e8a26dd98afb45",
+    "full_name": "Hoàng Văn Việt",
+    "email": "zacyhxtb@gmail.com",
+    "password": "8bhK!8J",
+    "phone": "0929102698",
+    "birthday": "1989-12-09",
+    "gender": "Other",
+    "address": [
+      "Thành phố Hồ Chí Minh",
+      "Huyện Củ Chi",
+      "Xã Tân Thạnh Đông"
+    ],
+    "registerdate": "2025-01-26T15:31:42Z",
+    "totalspent": 0,
+    "tiering": "Đồng"
+  },
+  {
+    "_id": "d4bd5495ffde35c940ed9fdd",
+    "user_id": "CUS000020",
+    "avatar": null,
+    "full_name": "Phạm Thanh Khánh",
+    "email": "tmawppih@gmail.com",
+    "password": "&IP4!Z4hA",
+    "phone": "0707996545",
+    "birthday": "1984-02-14",
+    "gender": "Other",
+    "address": [
+      "Tỉnh Sơn La",
+      "Huyện Bắc Yên",
+      "Xã Hang Chú"
+    ],
+    "registerdate": "2023-10-20T04:58:46Z",
+    "totalspent": 0,
+    "tiering": "Đồng"
+  },
+  {
+    "_id": "4d84fdb8b1e453befc1a9dff",
+    "user_id": "CUS000021",
+    "avatar": "https://i.pravatar.cc/150?u=23f098eeb95bb1e634f19d60",
+    "full_name": "Dương Hữu Hải",
+    "email": "mmoazrdh@gmail.com",
+    "password": "R5gdQ&q",
+    "phone": "0742271764",
+    "birthday": "1970-06-26",
+    "gender": "Other",
+    "address": [
+      "Tỉnh Tây Ninh",
+      "Huyện Trảng Bàng",
+      "Xã Gia Lộc"
+    ],
+    "registerdate": "2024-11-16T13:07:32Z",
+    "totalspent": 3414000,
+    "tiering": "Vàng"
+  },
+  {
+    "_id": "69dc14fbe49f5a43ee2baab4",
+    "user_id": "CUS000022",
+    "avatar": null,
+    "full_name": "Ngô Thanh Quân",
+    "email": "gfgmrfbo@gmail.com",
+    "password": "GS4&LL",
+    "phone": "0729675816",
+    "birthday": "2004-02-04",
+    "gender": "Female",
+    "address": [
+      "Tỉnh Nam Định",
+      "Huyện Vụ Bản",
+      "Thị trấn Gôi"
+    ],
+    "registerdate": "2025-11-01T20:19:59Z",
+    "totalspent": 0,
+    "tiering": "Đồng"
+  },
+  {
+    "_id": "de3df35fd0a8deb1111adbb3",
+    "user_id": "CUS000023",
+    "avatar": null,
+    "full_name": "Bùi Mỹ Huy",
+    "email": "ofndeuqo@gmail.com",
+    "password": "y%4S92JZ",
+    "phone": "0706960921",
+    "birthday": "1990-07-21",
+    "gender": "Other",
+    "address": [
+      "Tỉnh Thanh Hóa",
+      "Huyện Thọ Xuân",
+      "Xã Tây Hồ"
+    ],
+    "registerdate": "2025-09-11T05:45:51Z",
+    "totalspent": 0,
+    "tiering": "Đồng"
+  },
+  {
+    "_id": "e9f594ad1ecfb66c098ca1dd",
+    "user_id": "CUS000024",
+    "avatar": null,
+    "full_name": "Phan Thanh Hùng",
+    "email": "myrhhsyn@gmail.com",
+    "password": "*H60NNb",
+    "phone": "0960549072",
+    "birthday": "1992-11-15",
+    "gender": "Male",
+    "address": [
+      "Tỉnh Thái Bình",
+      "Huyện Quỳnh Phụ",
+      "Xã Quỳnh Nguyên"
+    ],
+    "registerdate": "2023-07-22T15:32:24Z",
+    "totalspent": 132600.0,
+    "tiering": "Đồng"
+  },
+  {
+    "_id": "bc5511fc2e833cbebfdbf14f",
+    "user_id": "CUS000025",
+    "avatar": null,
+    "full_name": "Nguyễn Thu Phương",
+    "email": "inuxikgj@gmail.com",
+    "password": "4BIHa2&",
+    "phone": "0872974896",
+    "birthday": "1990-10-19",
+    "gender": "Other",
+    "address": [
+      "Thành phố Hồ Chí Minh",
+      "Huyện Nhà Bè",
+      "Xã Nhơn Đức"
+    ],
+    "registerdate": "2025-06-04T17:29:04Z",
+    "totalspent": 0,
+    "tiering": "Đồng"
+  },
+  {
+    "_id": "b90d12ad5b2c47c3a6fb7a02",
+    "user_id": "CUS000026",
+    "avatar": null,
+    "full_name": "Phạm Thái Huỳnh Hương",
+    "email": "huynhhuong1825@gmail.com",
+    "password": "Huong@1234567890",
+    "phone": "0965813408",
+    "birthday": null,
+    "gender": "Female",
+    "address": [],
+    "registerdate": "2026-01-28T21:40:01Z",
+    "totalspent": 466000,
+    "tiering": "Đồng"
+  }
+]

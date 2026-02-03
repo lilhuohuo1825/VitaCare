@@ -1,0 +1,27 @@
+{
+  "disease_id": "11_Dai_Thao_Duong",
+  "source_url": "",
+  "logic_type": "score_count_yes",
+  "results": [
+    {
+      "id": "low_risk",
+      "condition": {
+        "operator": "<=",
+        "value": 3
+      },
+      "title": "Nguy cơ THẤP mắc 11 Dai Thao Duong",
+      "description": "Bạn có khả năng phát triển 11 Dai Thao Duong THẤP hơn so với mức trung bình. (Dữ liệu mô phỏng)",
+      "image_url": "https://prod-cdn.pharmacity.io/e-com/images/ecommerce/20240520103330-0-20240403091737-0-new-bagde.png"
+    },
+    {
+      "id": "high_risk",
+      "condition": {
+        "operator": ">",
+        "value": 3
+      },
+      "title": "Nguy cơ CAO mắc 11 Dai Thao Duong",
+      "description": "Bạn có khả năng cao mắc 11 Dai Thao Duong. Hãy đến bác sĩ để được tư vấn thêm. (Dữ liệu mô phỏng)",
+      "image_url": ""
+    }
+  ]
+}

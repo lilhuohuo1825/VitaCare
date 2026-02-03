@@ -1,0 +1,10 @@
+[
+    {
+        "_id": "690b1361ca42a26c89d2e86a",
+        "promotion_id": "PROMO_CAT20",
+        "target_type": "Category",
+        "target_ref": [
+            "2fa507577edaa8f29eac706d"
+        ]
+    }
+]

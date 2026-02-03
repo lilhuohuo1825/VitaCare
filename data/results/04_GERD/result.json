@@ -1,0 +1,27 @@
+{
+  "disease_id": "04_GERD",
+  "source_url": "https://www.pharmacity.vn/kiem-tra-suc-khoe/tam-soat-gerd",
+  "logic_type": "score_count_yes",
+  "results": [
+    {
+      "id": "low_risk",
+      "condition": {
+        "operator": "<=",
+        "value": 3
+      },
+      "title": "Nguy cơ THẤP mắc Đánh giá nguy cơ mắc bệnh trào ngược dạ dày thực quản (GERD)",
+      "description": "Bạn có khả năng phát triển Đánh giá nguy cơ mắc bệnh trào ngược dạ dày thực quản (GERD) THẤP hơn so với mức trung bình. (Dữ liệu mô phỏng)",
+      "image_url": "https://prod-cdn.pharmacity.io/e-com/images/ecommerce/20240520103330-0-20240403091737-0-new-bagde.png"
+    },
+    {
+      "id": "high_risk",
+      "condition": {
+        "operator": ">",
+        "value": 3
+      },
+      "title": "Nguy cơ CAO mắc Đánh giá nguy cơ mắc bệnh trào ngược dạ dày thực quản (GERD)",
+      "description": "Bạn có khả năng cao mắc Đánh giá nguy cơ mắc bệnh trào ngược dạ dày thực quản (GERD). Hãy đến bác sĩ để được tư vấn thêm. (Dữ liệu mô phỏng)",
+      "image_url": ""
+    }
+  ]
+}
