@@ -1,2 +1,7 @@
 .DS_Store
-.DS_Store
+
+# Large data files (imported to MongoDB, too large for GitHub)
+data/benh.json
+data/blogs.json
+data/products.json
+*.json.backup
