@@ -1,1 +1,88 @@
-<p>header works!</p>
+<header class="vc_header">
+  <!-- TOP STRIP -->
+  <div class="vc_top_strip">
+    <div class="vc_container vc_top_strip_inner">
+      <div class="vc_top_left">
+        <span class="vc_top_text">Tìm hiểu về VitaCare</span>
+        <a class="vc_top_link font-inter" href="#" (click)="onLearnMore($event)">Tìm hiểu ngay</a>
+      </div>
+
+      <div class="vc_top_right">
+        <span class="vc_top_text">Tư vấn ngay:</span>
+        <a class="vc_hotline font-inter" href="tel:18006928">1800 6928</a>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- MAIN BAR -->
+  <div class="vc_main_bar">
+    <div class="vc_container vc_main_inner">
+      <!-- Logo -->
+      <a class="vc_logo" href="#" (click)="goHome($event)">
+        <!-- Logo ảnh -->
+        <div class="vc_logo_mark" aria-hidden="true">
+          <img class="vc_logo_img" src="/assets/images/logo/header_logo.png" alt="VitaCare logo">
+        </div>
+
+        <div class="vc_logo_text">
+          <div class="vc_logo_name">VitaCare</div>
+          <div class="vc_logo_tagline">Chuẩn y khoa - Cho sức khỏe toàn diện</div>
+        </div>
+      </a>
+
+
+      <!-- Search -->
+      <div class="vc_search_wrap">
+        <!-- mascot (tuỳ chọn) -->
+        <img class="vc_mascot" src="/assets/images/mascot/1.png" alt="" (error)="hideMascot($event)" />
+
+        <div class="vc_search">
+          <input type="text" class="vc_search_input" placeholder="Đổi trả trong 30 ngày" [(ngModel)]="search_value"
+            (keydown.enter)="onSearch()" />
+        </div>
+      </div>
+
+      <!-- Right actions -->
+      <div class="vc_actions">
+        <a class="vc_action" href="#" (click)="onLogin($event)">
+          <span class="vc_action_icon" aria-hidden="true">
+            <i class="bi bi-person-fill"></i>
+          </span>
+          <span class="vc_action_text">Đăng nhập</span>
+        </a>
+
+        <a class="vc_action vc_action_cart" href="#" (click)="onCart($event)">
+          <span class="vc_action_icon" aria-hidden="true">
+            <i class="bi bi-basket2-fill"></i>
+          </span>
+          <span class="vc_action_text">Giỏ thuốc</span>
+          <span class="vc_badge" *ngIf="cart_count > 0">{{ cart_count }}</span>
+        </a>
+
+        <a class="vc_action" href="#" (click)="onNotify($event)" aria-label="Thông báo">
+          <span class="vc_action_icon" aria-hidden="true">
+            <i class="bi bi-bell-fill"></i>
+          </span>
+        </a>
+      </div>
+
+    </div>
+
+    <!-- MAIN NAV (trong nền gradient) -->
+    <div class="vc_container vc_nav">
+      <a class="vc_nav_item" href="#" *ngFor="let item of main_nav" (click)="onMainNavClick($event, item)">
+        {{ item }}
+      </a>
+    </div>
+  </div>
+
+  <!-- CATEGORY PILLS (nền trắng) -->
+  <div class="vc_categories">
+    <div class="vc_container vc_categories_inner">
+      <button class="vc_pill" type="button" *ngFor="let c of category_pills" (click)="onCategoryClick(c)">
+        {{ c }}
+      </button>
+    </div>
+  </div>
+</header>

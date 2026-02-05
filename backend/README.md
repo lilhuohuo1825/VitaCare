@@ -1,134 +1,300 @@
-# VitaCare Backend - MongoDB Setup
+# VitaCare Backend - MongoDB
 
-## 📋 Yêu cầu
-- Node.js (đã cài đặt)
-- MongoDB (cần cài đặt)
+Backend cho dự án VitaCare sử dụng MongoDB làm cơ sở dữ liệu.
 
-## 🚀 Hướng dẫn Setup
+## 📋 Yêu cầu hệ thống
 
-### 1. Cài đặt MongoDB
+- Node.js (version 14 trở lên)
+- MongoDB (version 4.4 trở lên)
+- macOS/Linux/Windows
 
-#### Cách 1: Sử dụng Homebrew (macOS - Khuyến nghị)
+## 🚀 Hướng dẫn cài đặt trên máy mới
+
+### Bước 1: Cài đặt MongoDB
+
+#### Trên macOS (sử dụng Homebrew):
+
 ```bash
 # Cài đặt MongoDB
 brew tap mongodb/brew
 brew install mongodb-community
 
-# Khởi động MongoDB với port 27019
-mongod --port 27019 --dbpath ~/VitaCareDB/db
+# Kiểm tra phiên bản
+mongod --version
 ```
 
-#### Cách 2: Download trực tiếp
-- Truy cập: https://www.mongodb.com/try/download/community
-- Tải version phù hợp với hệ điều hành
-- Cài đặt và chạy MongoDB
+#### Trên Ubuntu/Debian:
 
-### 2. Khởi động MongoDB
-
-Mở terminal mới và chạy:
 ```bash
-# Tạo thư mục lưu trữ database cho MongoDB (nếu chưa có)
+# Import MongoDB public key
+wget -qO - https://www.mongodb.org/static/pgp/server-7.0.asc | sudo apt-key add -
+
+# Tạo source list
+echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/7.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-7.0.list
+
+# Cài đặt
+sudo apt-get update
+sudo apt-get install -y mongodb-org
+```
+
+#### Trên Windows:
+
+Tải và cài đặt MongoDB từ: https://www.mongodb.com/try/download/community
+
+### Bước 2: Tạo thư mục lưu trữ dữ liệu MongoDB
+
+```bash
+# Tạo thư mục cho MongoDB data
 mkdir -p ~/VitaCareDB/db
 
-# Khởi động MongoDB trên port 27019
+# Kiểm tra thư mục đã tạo
+ls -la ~/VitaCareDB
+```
+
+### Bước 3: Khởi động MongoDB trên cổng 27019
+
+```bash
+# Khởi động MongoDB với cổng tùy chỉnh
 mongod --port 27019 --dbpath ~/VitaCareDB/db
 ```
 
-**Lưu ý**: Giữ terminal này mở khi đang sử dụng database!
+**Lưu ý:** Để MongoDB chạy ở chế độ nền, mở terminal mới để tiếp tục các bước tiếp theo.
 
-### 3. Cài đặt dependencies
+### Bước 4: Clone project và cài đặt dependencies
 
 ```bash
-cd backend
+# Di chuyển vào thư mục backend
+cd /path/to/VitaCare/backend
+
+# Cài đặt các package cần thiết
 npm install
 ```
 
-### 4. Import dữ liệu vào MongoDB
+### Bước 5: Import dữ liệu vào MongoDB
 
-Sau khi MongoDB đã chạy, mở terminal mới và chạy:
+#### Option 1: Import tất cả dữ liệu (ngoại trừ blogs)
+
 ```bash
+# Chạy script import tự động
 npm run import
 ```
 
-Script sẽ:
-- ✅ Kết nối với MongoDB (localhost:27019)
-- 📁 Quét tất cả file JSON trong thư mục `data/`
-- 📤 Import vào database `VitaCare`
-- 📋 Hiển thị danh sách collections đã tạo
+Script này sẽ:
+- Quét tất cả file JSON trong thư mục `../data`
+- Tạo collections tương ứng
+- Import dữ liệu vào MongoDB
+- **Lưu ý:** File `blogs.json` (2.2GB) sẽ bị bỏ qua do quá lớn
 
-### 5. Khởi động server (tùy chọn)
+#### Option 2: Import blogs.json riêng (75,224 bài viết)
 
 ```bash
-npm start
+# Import blogs bằng mongoimport (nhanh và hiệu quả hơn)
+mongoimport --port 27019 --db VitaCare --collection blogs --file ../data/blogs.json --jsonArray --drop
 ```
 
-## 📂 Cấu trúc Backend
+**Giải thích tham số:**
+- `--port 27019`: Cổng MongoDB
+- `--db VitaCare`: Tên database
+- `--collection blogs`: Tên collection
+- `--file ../data/blogs.json`: Đường dẫn file
+- `--jsonArray`: File chứa mảng JSON
+- `--drop`: Xóa collection cũ trước khi import
 
-```
-backend/
-├── package.json          # Cấu hình project và dependencies
-├── db.js                 # Cấu hình kết nối MongoDB
-├── server.js             # File server chính
-├── importData.js         # Script import dữ liệu
-└── README.md             # File này
-```
+#### Option 3: Import tất cả (bao gồm blogs)
 
-## 🔧 Cấu hình MongoDB
-
-- **Host**: localhost
-- **Port**: 27019
-- **Database**: VitaCare
-- **Connection String**: `mongodb://localhost:27019/VitaCare`
-
-## 📊 Collections được tạo
-
-Script sẽ tự động import các collections từ:
-- Root JSON files: admins, users, products, orders, categories, etc.
-- Promotion folder: promotion_*.json
-- Quiz folder: quiz_*.json
-- Results folder: results_*.json
-- Vinmec folder: vinmec_*.json
-
-## ⚠️ Xử lý lỗi thường gặp
-
-### Lỗi: "ECONNREFUSED ::1:27019"
-**Nguyên nhân**: MongoDB chưa chạy hoặc chạy sai port
-
-**Giải quyết**:
-1. Kiểm tra MongoDB đang chạy: `ps aux | grep mongod`
-2. Đảm bảo chạy với port 27019: `mongod --port 27019 --dbpath ~/VitaCareDB/db`
-
-### Lỗi: "Data directory not found"
-**Nguyên nhân**: Chưa tạo thư mục lưu database
-
-**Giải quyết**:
 ```bash
-mkdir -p ~/VitaCareDB/db
+# Bước 1: Import dữ liệu thông thường
+npm run import
+
+# Bước 2: Import blogs riêng
+mongoimport --port 27019 --db VitaCare --collection blogs --file ../data/blogs.json --jsonArray --drop
 ```
 
-## 🎯 Kiểm tra kết nối
+### Bước 6: Kiểm tra dữ liệu đã import
 
-Sử dụng MongoDB Shell để kiểm tra:
 ```bash
-# Kết nối với MongoDB
+# Kết nối vào MongoDB shell
 mongosh --port 27019
 
-# Chọn database VitaCare
+# Trong MongoDB shell, chạy các lệnh sau:
 use VitaCare
 
 # Xem danh sách collections
 show collections
 
-# Đếm số documents trong collection
-db.users.countDocuments()
+# Đếm số documents trong mỗi collection
+db.blogs.countDocuments()      // 75,224 blogs
+db.products.countDocuments()   // 8,327 sản phẩm
+db.benh.countDocuments()       // 1,659 bệnh
+db.users.countDocuments()      // 26 người dùng
+db.quiz.countDocuments()       // 7 bộ câu hỏi
+db.results.countDocuments()    // 12 kết quả
+db.vinmec_playlists.countDocuments()  // 995 videos
+
+# Thoát MongoDB shell
+exit
 ```
 
-## 📝 Scripts NPM
+## 📊 Cấu trúc dữ liệu
 
-- `npm start` - Khởi động server
-- `npm run import` - Import dữ liệu từ folder data vào MongoDB
+Sau khi import thành công, database `VitaCare` sẽ có các collections sau:
+
+| Collection | Số lượng | Mô tả |
+|-----------|----------|-------|
+| `blogs` | 75,224 | Bài viết sức khỏe |
+| `products` | 8,327 | Sản phẩm |
+| `benh` | 1,659 | Thông tin bệnh |
+| `users` | 26 | Người dùng |
+| `admins` | 5 | Quản trị viên |
+| `quiz` | 7 | Bộ câu hỏi sức khỏe |
+| `results` | 12 | Kết quả đánh giá |
+| `vinmec_playlists` | 995 | Video sức khỏe |
+| `categories` | - | Danh mục sản phẩm |
+| `orders` | 9 | Đơn hàng |
+| `carts` | - | Giỏ hàng |
+| `consultations_product` | 8,327 | Tư vấn sản phẩm |
+| `consultations_prescription` | - | Tư vấn đơn thuốc |
+| `promotion_*` | - | Khuyến mãi |
+| `storesystem_full` | 632 | Hệ thống cửa hàng |
+
+## 🔧 Các lệnh NPM Scripts hữu ích
+
+```bash
+# Khởi động server
+npm start
+
+# Import dữ liệu (ngoại trừ blogs)
+npm run import
+
+# Gộp dữ liệu quiz, results, vinmec
+npm run merge
+
+# Sửa lỗi $oid trong JSON files
+npm run fix-json
+
+# Import blogs riêng (sử dụng streaming - chậm)
+npm run import-blogs
+```
+
+## ⚠️ Xử lý lỗi thường gặp
+
+### Lỗi: `ECONNREFUSED`
+
+```bash
+# Nguyên nhân: MongoDB chưa chạy
+# Giải pháp: Khởi động MongoDB
+mongod --port 27019 --dbpath ~/VitaCareDB/db
+```
+
+### Lỗi: `address already in use`
+
+```bash
+# Nguyên nhân: Cổng 27019 đã được sử dụng
+# Giải pháp: Tìm và dừng process đang dùng cổng
+lsof -i :27019
+kill -9 <PID>
+```
+
+### Lỗi: `Cannot create a string longer than...`
+
+```bash
+# Nguyên nhân: File quá lớn (blogs.json)
+# Giải pháp: Dùng mongoimport thay vì npm run import
+mongoimport --port 27019 --db VitaCare --collection blogs --file ../data/blogs.json --jsonArray --drop
+```
+
+### Lỗi: `_id fields may not contain '$'-prefixed fields`
+
+```bash
+# Nguyên nhân: Dữ liệu có trường $oid
+# Giải pháp: Chạy script fix trước khi import
+npm run fix-json
+npm run import
+```
+
+## 🔄 Cập nhật dữ liệu
+
+Nếu cần cập nhật dữ liệu:
+
+```bash
+# Import lại tất cả (ghi đè dữ liệu cũ)
+npm run import
+
+# Import lại blogs
+mongoimport --port 27019 --db VitaCare --collection blogs --file ../data/blogs.json --jsonArray --drop
+```
+
+## 📝 Kết nối từ ứng dụng
+
+```javascript
+const mongoose = require('mongoose');
+
+mongoose.connect('mongodb://localhost:27019/VitaCare', {
+  // Các options đã được Mongoose tự động xử lý
+});
+```
+
+## 🎯 Tóm tắt nhanh (Quick Start)
+
+```bash
+# 1. Cài MongoDB (nếu chưa có)
+brew install mongodb-community
+
+# 2. Tạo thư mục data
+mkdir -p ~/VitaCareDB/db
+
+# 3. Khởi động MongoDB (terminal 1)
+mongod --port 27019 --dbpath ~/VitaCareDB/db
+
+# 4. Mở terminal mới, cài dependencies
+cd /path/to/VitaCare/backend
+npm install
+
+# 5. Import dữ liệu
+npm run import
+
+# 6. Import blogs riêng (QUAN TRỌNG!)
+mongoimport --port 27019 --db VitaCare --collection blogs --file ../data/blogs.json --jsonArray --drop
+
+# 7. Kiểm tra
+mongosh --port 27019
+use VitaCare
+show collections
+db.blogs.countDocuments()
+exit
+```
+
+## 🌐 Thông tin kết nối MongoDB
+
+- **MongoDB URI**: `mongodb://localhost:27019/VitaCare`
+- **Database**: `VitaCare`
+- **Port**: `27019`
+- **Data Directory**: `~/VitaCareDB/db`
+
+## 📂 Cấu trúc Backend
+
+```
+backend/
+├── package.json          # Cấu hình project
+├── db.js                 # Kết nối MongoDB
+├── server.js             # Server chính
+├── importData.js         # Import dữ liệu tự động
+├── importBlogs.js        # Import blogs (streaming)
+├── mergeData.js          # Gộp dữ liệu quiz/results/vinmec
+├── fixJsonFiles.js       # Sửa lỗi $oid
+└── README.md             # File này
+```
+
+## 📞 Hỗ trợ
+
+Nếu gặp vấn đề, kiểm tra:
+1. MongoDB đã chạy chưa: `ps aux | grep mongod`
+2. Cổng 27019 có sẵn không: `lsof -i :27019`
+3. Thư mục data có quyền truy cập: `ls -la ~/VitaCareDB/db`
+4. Logs của MongoDB để xem chi tiết lỗi
 
 ## 🔗 Tài liệu tham khảo
 
 - [MongoDB Documentation](https://docs.mongodb.com/)
 - [Mongoose Documentation](https://mongoosejs.com/)
+- [MongoDB Import/Export](https://docs.mongodb.com/database-tools/mongoimport/)

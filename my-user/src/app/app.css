@@ -1,0 +1,159 @@
+/* Global App Styles */
+/* VitaCare Brand Colors */
+/* Primary: #00589F | Light: #43A2E6 | Soft: #AACEF2 | Purple: #BAA7DE */
+/* Hover: #2B3E66 | Background: #DAECFF | Secondary BG: #FFFFFF */
+/* Neutrals: #0A0A0A to #FFFFFF */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Arimo:wght@400;500;600&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arimo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #F5F5F5;
+    color: #424242;
+    line-height: 1.6;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: 'Inter', sans-serif;
+    color: #00589F;
+}
+
+.page-container {
+    min-height: 100vh;
+    background-color: #F5F5F5;
+}
+
+/* Container */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 15px;
+}
+
+/* Breadcrumb Styles */
+.breadcrumb-wrapper {
+    background-color: #F5F5F5;
+    padding: 15px 0;
+    margin-bottom: 20px;
+}
+
+.breadcrumb {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    background-color: transparent;
+}
+
+.breadcrumb-item {
+    font-size: 14px;
+    font-family: 'Arimo', sans-serif;
+}
+
+.breadcrumb-item+.breadcrumb-item::before {
+    content: "/";
+    padding: 0 8px;
+    color: #9E9E9E;
+}
+
+.breadcrumb-item a {
+    color: #00589F;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.breadcrumb-item a:hover {
+    color: #43A2E6;
+    text-decoration: underline;
+}
+
+.breadcrumb-item.active {
+    color: #757575;
+}
+
+/* Link Styles */
+a {
+    color: #00589F;
+    text-decoration: none;
+}
+
+a:hover {
+    color: #43A2E6;
+}
+
+/* Form Elements */
+input:focus,
+select:focus,
+textarea:focus {
+    outline: none;
+}
+
+/* Button Styles */
+.btn-primary {
+    background-color: #00589F;
+    border-color: #00589F;
+    color: #fff;
+}
+
+.btn-primary:hover {
+    background-color: #43A2E6;
+    border-color: #43A2E6;
+}
+
+/* Status Colors */
+.text-success {
+    color: #00589F !important;
+}
+
+.text-warning {
+    color: #F59E0B !important;
+}
+
+.text-danger {
+    color: #C42326 !important;
+}
+
+.text-info {
+    color: #B9A6DC !important;
+}
+
+/* Background Colors */
+.bg-primary {
+    background-color: #00589F !important;
+}
+
+.bg-light {
+    background-color: #DAECFF !important;
+}
+
+/* Scrollbar Styles */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #EDEDED;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #C2C2C2;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #9E9E9E;
+}

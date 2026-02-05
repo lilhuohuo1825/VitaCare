@@ -1,1 +1,127 @@
-/* You can add global styles to this file, and also import other style files */
+/**
+ * VitaCare Admin Global Styles
+ * Import thứ tự: Variables -> Utilities -> Icons -> Custom Styles
+ */
+
+/* Import Google Fonts - Inter & Arimo */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Arimo:wght@400;500;600;700&display=swap');
+
+/* Import Design System */
+@import './styles/variables.css';
+@import './styles/utilities.css';
+@import './styles/icons.css';
+
+/* ========== GLOBAL STYLES ========== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+    font-family: var(--font-family-base);
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-normal);
+    color: var(--color-text-primary);
+    background-color: var(--color-bg-light);
+}
+
+/* Headings - sử dụng Inter font */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: var(--font-family-title);
+    font-weight: var(--font-weight-bold);
+    line-height: var(--line-height-tight);
+    color: var(--color-text-primary);
+    margin-bottom: var(--spacing-4);
+}
+
+h1 {
+    font-size: var(--font-size-4xl);
+}
+
+h2 {
+    font-size: var(--font-size-3xl);
+}
+
+h3 {
+    font-size: var(--font-size-2xl);
+}
+
+h4 {
+    font-size: var(--font-size-xl);
+}
+
+h5 {
+    font-size: var(--font-size-lg);
+}
+
+h6 {
+    font-size: var(--font-size-base);
+}
+
+/* Links */
+a {
+    color: var(--color-primary);
+    text-decoration: none;
+    transition: var(--transition-base);
+}
+
+a:hover {
+    color: var(--color-primary-hover);
+    text-decoration: underline;
+}
+
+/* Buttons - reset default styles */
+button {
+    font-family: inherit;
+    cursor: pointer;
+}
+
+/* Form elements */
+input,
+textarea,
+select {
+    font-family: var(--font-family-base);
+}
+
+/* Smooth scrolling */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Selection color */
+::selection {
+    background-color: var(--color-primary-light);
+    color: var(--color-text-inverse);
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--color-neutral-20);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--color-neutral-60);
+    border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--color-neutral-80);
+}
