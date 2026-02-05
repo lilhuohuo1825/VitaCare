@@ -1,0 +1,1062 @@
+[
+  {
+    "category": "Đánh giá nguy cơ mắc bệnh hen",
+    "category_short": "Tầm soát hen",
+    "url": "https://www.pharmacity.vn/kiem-tra-suc-khoe/tam-soat-hen",
+    "crawled_at": "2026-01-11T16:55:00+07:00",
+    "total_questions": 8,
+    "structure_type": "linear",
+    "note": "Tất cả câu hỏi xuất hiện theo trình tự cố định, không phụ thuộc vào câu trả lời. Kết quả được tính dựa trên tổng số câu trả lời 'Có'.",
+    "questions": [
+      {
+        "id": 1,
+        "question": "Có khò khè/thở rít hay những đợt khò khè/thở rít tái đi tái lại?",
+        "options": [
+          {
+            "value": "A",
+            "text": "Có"
+          },
+          {
+            "value": "B",
+            "text": "Không"
+          }
+        ],
+        "condition": "Luôn xuất hiện (Câu hỏi đầu tiên)"
+      },
+      {
+        "id": 2,
+        "question": "Bị ho gây khó chịu lúc về đêm?",
+        "options": [
+          {
+            "value": "A",
+            "text": "Có"
+          },
+          {
+            "value": "B",
+            "text": "Không"
+          }
+        ],
+        "condition": "Luôn xuất hiện sau Câu 1"
+      },
+      {
+        "id": 3,
+        "question": "Bị thức giấc đêm vì ho hay khó thở?",
+        "options": [
+          {
+            "value": "A",
+            "text": "Có"
+          },
+          {
+            "value": "B",
+            "text": "Không"
+          }
+        ],
+        "condition": "Luôn xuất hiện sau Câu 2"
+      },
+      {
+        "id": 4,
+        "question": "Bị ho, khò khè/thở rít sau khi vận động thể lực (chạy, tập thể dục)?",
+        "options": [
+          {
+            "value": "A",
+            "text": "Có"
+          },
+          {
+            "value": "B",
+            "text": "Không"
+          }
+        ],
+        "condition": "Luôn xuất hiện sau Câu 3"
+      },
+      {
+        "id": 5,
+        "question": "Có vấn đề hô hấp vào mùa nhất định nào đó trong năm?",
+        "options": [
+          {
+            "value": "A",
+            "text": "Có"
+          },
+          {
+            "value": "B",
+            "text": "Không"
+          }
+        ],
+        "condition": "Luôn xuất hiện sau Câu 4"
+      },
+      {
+        "id": 6,
+        "question": "Bị ho, khò khè hay nặng ngực khi hít phải chất kích thích trong không khí?",
+        "options": [
+          {
+            "value": "A",
+            "text": "Có"
+          },
+          {
+            "value": "B",
+            "text": "Không"
+          }
+        ],
+        "condition": "Luôn xuất hiện sau Câu 5"
+      },
+      {
+        "id": 7,
+        "question": "Có những đợt cảm lạnh \"nhập vào phổi\" hoặc phải điều trị hơn mười ngày mới khỏi?",
+        "options": [
+          {
+            "value": "A",
+            "text": "Có"
+          },
+          {
+            "value": "B",
+            "text": "Không"
+          }
+        ],
+        "condition": "Luôn xuất hiện sau Câu 6"
+      },
+      {
+        "id": 8,
+        "question": "Các triệu chứng hô hấp được cải thiện khi dùng thuốc điều trị hen?",
+        "options": [
+          {
+            "value": "A",
+            "text": "Có"
+          },
+          {
+            "value": "B",
+            "text": "Không"
+          }
+        ],
+        "condition": "Luôn xuất hiện sau Câu 7"
+      }
+    ],
+    "quiz_id": "01_Benh_Hen",
+    "order": 1
+  },
+  {
+    "category": "Đánh giá nguy cơ mắc bệnh phổi tắc nghẽn mạn tính (COPD)",
+    "category_short": "Tầm soát COPD",
+    "url": "https://www.pharmacity.vn/kiem-tra-suc-khoe/tam-soat-copd",
+    "crawled_at": "2026-01-11T17:00:00+07:00",
+    "total_questions": 5,
+    "structure_type": "linear",
+    "note": "Tất cả câu hỏi xuất hiện theo trình tự cố định, không phụ thuộc vào câu trả lời.",
+    "questions": [
+      {
+        "id": 1,
+        "question": "Ông/bà có ho vài lần trong ngày ở hầu hết các ngày?",
+        "options": [
+          {
+            "value": "A",
+            "text": "Có"
+          },
+          {
+            "value": "B",
+            "text": "Không"
+          }
+        ],
+        "condition": "Luôn xuất hiện (Câu hỏi đầu tiên)"
+      },
+      {
+        "id": 2,
+        "question": "Ông/bà có khạc đờm trong hầu hết các ngày?",
+        "options": [
+          {
+            "value": "A",
+            "text": "Có"
+          },
+          {
+            "value": "B",
+            "text": "Không"
+          }
+        ],
+        "condition": "Luôn xuất hiện sau Câu 1"
+      },
+      {
+        "id": 3,
+        "question": "Ông/bà có dễ bị khó thở hơn những người cùng tuổi?",
+        "options": [
+          {
+            "value": "A",
+            "text": "Có"
+          },
+          {
+            "value": "B",
+            "text": "Không"
+          }
+        ],
+        "condition": "Luôn xuất hiện sau Câu 2"
+      },
+      {
+        "id": 4,
+        "question": "Ông/bà có trên 40 tuổi?",
+        "options": [
+          {
+            "value": "A",
+            "text": "Có"
+          },
+          {
+            "value": "B",
+            "text": "Không"
+          }
+        ],
+        "condition": "Luôn xuất hiện sau Câu 3"
+      },
+      {
+        "id": 5,
+        "question": "Ông/bà vẫn còn hút thuốc lá hoặc đã từng hút thuốc lá?",
+        "options": [
+          {
+            "value": "A",
+            "text": "Có"
+          },
+          {
+            "value": "B",
+            "text": "Không"
+          }
+        ],
+        "condition": "Luôn xuất hiện sau Câu 4 (câu hỏi cuối)"
+      }
+    ],
+    "quiz_id": "02_COPD_Man_Tinh",
+    "order": 2
+  },
+  {
+    "category": "Đánh giá nguy cơ lạm dụng thuốc cắt cơn hen",
+    "category_short": "Lạm dụng thuốc cắt cơn hen",
+    "url": "https://www.pharmacity.vn/kiem-tra-suc-khoe/danh-gia-nguy-co-lam-dung-thuoc-cat-con-hen",
+    "crawled_at": "2026-01-11T17:05:00+07:00",
+    "total_questions": 5,
+    "structure_type": "linear",
+    "scale_type": "Likert 5-point",
+    "note": "Tất cả câu hỏi sử dụng thang đo Likert 5 điểm và xuất hiện theo trình tự cố định.",
+    "questions": [
+      {
+        "id": 1,
+        "question": "Dùng bình xịt cắt cơn hen để giảm triệu chứng là cách tốt nhất để kiểm soát hen",
+        "options": [
+          {
+            "value": "A",
+            "text": "Hoàn toàn không đồng ý"
+          },
+          {
+            "value": "B",
+            "text": "Không đồng ý"
+          },
+          {
+            "value": "C",
+            "text": "Không chắc"
+          },
+          {
+            "value": "D",
+            "text": "Đồng ý"
+          },
+          {
+            "value": "E",
+            "text": "Hoàn toàn đồng ý"
+          }
+        ],
+        "condition": "Luôn xuất hiện (Câu hỏi đầu tiên)"
+      },
+      {
+        "id": 2,
+        "question": "Tôi không lo ngại gì về hen khi tôi có bình xịt cắt cơn bên cạnh",
+        "options": [
+          {
+            "value": "A",
+            "text": "Hoàn toàn không đồng ý"
+          },
+          {
+            "value": "B",
+            "text": "Không đồng ý"
+          },
+          {
+            "value": "C",
+            "text": "Không chắc"
+          },
+          {
+            "value": "D",
+            "text": "Đồng ý"
+          },
+          {
+            "value": "E",
+            "text": "Hoàn toàn đồng ý"
+          }
+        ],
+        "condition": "Luôn xuất hiện sau Câu 1"
+      },
+      {
+        "id": 3,
+        "question": "Bình xịt cắt cơn hen là điều trị duy nhất mà tôi thật sự tin tưởng",
+        "options": [
+          {
+            "value": "A",
+            "text": "Hoàn toàn không đồng ý"
+          },
+          {
+            "value": "B",
+            "text": "Không đồng ý"
+          },
+          {
+            "value": "C",
+            "text": "Không chắc"
+          },
+          {
+            "value": "D",
+            "text": "Đồng ý"
+          },
+          {
+            "value": "E",
+            "text": "Hoàn toàn đồng ý"
+          }
+        ],
+        "condition": "Luôn xuất hiện sau Câu 2"
+      },
+      {
+        "id": 4,
+        "question": "Lợi ích của bình xịt cắt cơn hen thật sự nhiều hơn so với nguy cơ",
+        "options": [
+          {
+            "value": "A",
+            "text": "Hoàn toàn không đồng ý"
+          },
+          {
+            "value": "B",
+            "text": "Không đồng ý"
+          },
+          {
+            "value": "C",
+            "text": "Không chắc"
+          },
+          {
+            "value": "D",
+            "text": "Đồng ý"
+          },
+          {
+            "value": "E",
+            "text": "Hoàn toàn đồng ý"
+          }
+        ],
+        "condition": "Luôn xuất hiện sau Câu 3"
+      },
+      {
+        "id": 5,
+        "question": "Tôi ưu tiên lựa chọn bình xịt cắt cơn hen hơn dùng ống hít duy trì",
+        "options": [
+          {
+            "value": "A",
+            "text": "Hoàn toàn không đồng ý"
+          },
+          {
+            "value": "B",
+            "text": "Không đồng ý"
+          },
+          {
+            "value": "C",
+            "text": "Không chắc"
+          },
+          {
+            "value": "D",
+            "text": "Đồng ý"
+          },
+          {
+            "value": "E",
+            "text": "Hoàn toàn đồng ý"
+          }
+        ],
+        "condition": "Luôn xuất hiện sau Câu 4 (câu hỏi cuối)"
+      }
+    ],
+    "quiz_id": "03_Lam_Dung_Thuoc_Hen",
+    "order": 3
+  },
+  {
+    "category": "Đánh giá nguy cơ mắc bệnh trào ngược dạ dày thực quản (GERD)",
+    "category_short": "Tầm soát GERD",
+    "url": "https://www.pharmacity.vn/kiem-tra-suc-khoe/tam-soat-gerd",
+    "crawled_at": "2026-01-11T17:10:00+07:00",
+    "total_questions": 6,
+    "structure_type": "linear",
+    "note": "Bộ câu hỏi GERDQ chuẩn, tất cả câu hỏi xuất hiện theo trình tự cố định với 4 lựa chọn về tần suất trong 7 ngày qua.",
+    "questions": [
+      {
+        "id": 1,
+        "question": "Trong 7 ngày qua, bạn buồn nôn trong bao nhiêu ngày?",
+        "options": [
+          {
+            "value": "A",
+            "text": "0 ngày"
+          },
+          {
+            "value": "B",
+            "text": "1 ngày"
+          },
+          {
+            "value": "C",
+            "text": "Từ 2-3 ngày"
+          },
+          {
+            "value": "D",
+            "text": "Từ 4-7 ngày"
+          }
+        ],
+        "condition": "Luôn xuất hiện (Câu hỏi đầu tiên)"
+      },
+      {
+        "id": 2,
+        "question": "Trong 7 ngày qua, bạn bị đau phần giữa bụng trong bao nhiêu ngày?",
+        "options": [
+          {
+            "value": "A",
+            "text": "0 ngày"
+          },
+          {
+            "value": "B",
+            "text": "1 ngày"
+          },
+          {
+            "value": "C",
+            "text": "Từ 2-3 ngày"
+          },
+          {
+            "value": "D",
+            "text": "Từ 4-7 ngày"
+          }
+        ],
+        "condition": "Luôn xuất hiện sau Câu 1"
+      },
+      {
+        "id": 3,
+        "question": "Trong 7 ngày qua, bạn có cảm giác nóng rát sau xương ức (ợ nóng) trong bao nhiêu ngày?",
+        "options": [
+          {
+            "value": "A",
+            "text": "0 ngày"
+          },
+          {
+            "value": "B",
+            "text": "1 ngày"
+          },
+          {
+            "value": "C",
+            "text": "Từ 2-3 ngày"
+          },
+          {
+            "value": "D",
+            "text": "Từ 4-7 ngày"
+          }
+        ],
+        "condition": "Luôn xuất hiện sau Câu 2"
+      },
+      {
+        "id": 4,
+        "question": "Trong 7 ngày qua, bạn bị ợ nước chua hay thức ăn từ dạ dày lên cổ họng/miệng (trào ngược) trong bao nhiêu ngày?",
+        "options": [
+          {
+            "value": "A",
+            "text": "0 ngày"
+          },
+          {
+            "value": "B",
+            "text": "1 ngày"
+          },
+          {
+            "value": "C",
+            "text": "Từ 2-3 ngày"
+          },
+          {
+            "value": "D",
+            "text": "Từ 4-7 ngày"
+          }
+        ],
+        "condition": "Luôn xuất hiện sau Câu 3"
+      },
+      {
+        "id": 5,
+        "question": "Trong 7 ngày qua, bạn bị khó ngủ về đêm do chứng ợ nóng và/hoặc trào ngược trong bao nhiêu ngày?",
+        "options": [
+          {
+            "value": "A",
+            "text": "0 ngày"
+          },
+          {
+            "value": "B",
+            "text": "1 ngày"
+          },
+          {
+            "value": "C",
+            "text": "Từ 2-3 ngày"
+          },
+          {
+            "value": "D",
+            "text": "Từ 4-7 ngày"
+          }
+        ],
+        "condition": "Luôn xuất hiện sau Câu 4"
+      },
+      {
+        "id": 6,
+        "question": "Trong 7 ngày qua, bạn dùng thêm thuốc điều trị chứng ợ nóng và/hoặc trào ngược ngoài những thuốc mà bác sĩ kê trong toa bao nhiêu ngày?",
+        "options": [
+          {
+            "value": "A",
+            "text": "0 ngày"
+          },
+          {
+            "value": "B",
+            "text": "1 ngày"
+          },
+          {
+            "value": "C",
+            "text": "Từ 2-3 ngày"
+          },
+          {
+            "value": "D",
+            "text": "Từ 4-7 ngày"
+          }
+        ],
+        "condition": "Luôn xuất hiện sau Câu 5 (câu hỏi cuối)"
+      }
+    ],
+    "quiz_id": "04_GERD",
+    "order": 4
+  },
+  {
+    "category": "Đánh giá nguy cơ suy giãn tĩnh mạch",
+    "category_short": "Suy giãn tĩnh mạch",
+    "url": "https://www.pharmacity.vn/kiem-tra-suc-khoe/danh-gia-nguy-co-suy-gian-tinh-mach",
+    "crawled_at": "2026-01-11T17:25:00+07:00",
+    "total_questions": 7,
+    "structure_type": "linear",
+    "note": "Tất cả câu hỏi xuất hiện theo trình tự cố định, không phụ thuộc vào câu trả lời.",
+    "questions": [
+      {
+        "id": 1,
+        "question": "Bạn có thường xuyên cảm thấy nặng chân, đau mỏi, chuột rút ban đêm hoặc tê nhức chân không?",
+        "options": [
+          {
+            "value": "A",
+            "text": "Có"
+          },
+          {
+            "value": "B",
+            "text": "Không"
+          }
+        ],
+        "condition": "Luôn xuất hiện (Câu hỏi đầu tiên)"
+      },
+      {
+        "id": 2,
+        "question": "Bạn có nhận thấy các mạch máu nhỏ nổi rõ, màu xanh tím hoặc mạng nhện ở cổ chân, bắp chân, đầu gối không?",
+        "options": [
+          {
+            "value": "A",
+            "text": "Có"
+          },
+          {
+            "value": "B",
+            "text": "Không"
+          }
+        ],
+        "condition": "Luôn xuất hiện sau Câu 1"
+      },
+      {
+        "id": 3,
+        "question": "Bạn có thấy tĩnh mạch giãn lớn, nổi rõ trên da vùng chân không?",
+        "options": [
+          {
+            "value": "A",
+            "text": "Có"
+          },
+          {
+            "value": "B",
+            "text": "Không"
+          }
+        ],
+        "condition": "Luôn xuất hiện sau Câu 2"
+      },
+      {
+        "id": 4,
+        "question": "Chân bạn có bị sưng phù, đặc biệt vào cuối ngày hoặc sau khi đứng lâu không?",
+        "options": [
+          {
+            "value": "A",
+            "text": "Có"
+          },
+          {
+            "value": "B",
+            "text": "Không"
+          }
+        ],
+        "condition": "Luôn xuất hiện sau Câu 3"
+      },
+      {
+        "id": 5,
+        "question": "Vùng da chân của bạn có bị thay đổi màu sắc (sạm da, da cứng, da sần hoặc viêm chàm) không?",
+        "options": [
+          {
+            "value": "A",
+            "text": "Có"
+          },
+          {
+            "value": "B",
+            "text": "Không"
+          }
+        ],
+        "condition": "Luôn xuất hiện sau Câu 4"
+      },
+      {
+        "id": 6,
+        "question": "Bạn có từng bị vết loét nhỏ ở chân (thường ở cổ chân) nhưng khó lành hoặc khô lâu ngày không?",
+        "options": [
+          {
+            "value": "A",
+            "text": "Có"
+          },
+          {
+            "value": "B",
+            "text": "Không"
+          }
+        ],
+        "condition": "Luôn xuất hiện sau Câu 5"
+      },
+      {
+        "id": 7,
+        "question": "Hiện tại bạn có vết loét đang hình thành hoặc tái phát nhiều lần trên da vùng chân không?",
+        "options": [
+          {
+            "value": "A",
+            "text": "Có"
+          },
+          {
+            "value": "B",
+            "text": "Không"
+          }
+        ],
+        "condition": "Luôn xuất hiện sau Câu 6 (câu hỏi cuối)"
+      }
+    ],
+    "quiz_id": "05_Suy_Gian_Tinh_Mach",
+    "order": 5
+  },
+  {
+    "category": "Đánh giá trí nhớ và mức độ tập trung chú ý",
+    "category_short": "Trí nhớ TNmindtest",
+    "url": "https://www.pharmacity.vn/kiem-tra-suc-khoe/tri-nho-va-muc-do-tap-trung-chu-y-tnmindtest",
+    "source_url": "https://tnmindtest.com/test/channel/pharmacity",
+    "crawled_at": "2026-01-14T22:50:00+07:00",
+    "total_steps": 3,
+    "structure_type": "interactive_game",
+    "note": "Đây là quiz dạng trò chơi tương tác, không phải câu hỏi trắc nghiệm thông thường. Quiz được embed từ TNmindtest.com.",
+    "steps": [
+      {
+        "step": 1,
+        "title": "Xem và ghi nhớ hình ảnh",
+        "instruction": "BƯỚC 1: XEM VÀ GHI NHỚ 15 HÌNH ẢNH (mỗi bức hình xuất hiện trong 3 giây)",
+        "task_type": "memory_phase",
+        "description": "Người dùng xem 15 hình ảnh xuất hiện tuần tự, mỗi hình 3 giây"
+      },
+      {
+        "step": 2,
+        "title": "Câu hỏi về video",
+        "question": "CÓ BAO NHIÊU HỘP QUÀ TRONG VIDEO?",
+        "task_type": "attention_video",
+        "options": [
+          {
+            "value": "1",
+            "text": "1"
+          },
+          {
+            "value": "2",
+            "text": "2"
+          },
+          {
+            "value": "3",
+            "text": "3"
+          },
+          {
+            "value": "4",
+            "text": "4"
+          }
+        ],
+        "description": "Người dùng xem video ~20 giây và trả lời câu hỏi về nội dung video"
+      },
+      {
+        "step": 3,
+        "title": "Nhớ lại hình ảnh",
+        "instruction": "NHỚ LẠI & CHỌN 15 HÌNH ẢNH ĐÃ XEM Ở BƯỚC 1",
+        "task_type": "recall_phase",
+        "description": "Người dùng chọn 15 hình ảnh đã xem ở Bước 1 từ một gallery lớn hơn"
+      }
+    ],
+    "registration_required": true,
+    "registration_fields": [
+      "name",
+      "phone",
+      "city",
+      "sex",
+      "agree_term_of_use"
+    ],
+    "quiz_id": "09_Tri_Nho_TNmindtest",
+    "order": 9
+  },
+  {
+    "category": "Đánh giá yếu tố nguy cơ tim mạch - thận - chuyển hóa",
+    "category_short": "Tim mạch - Thận - Chuyển hóa",
+    "url": "https://www.pharmacity.vn/kiem-tra-suc-khoe/danh-gia-yeu-to-nguy-co-tim-mach-than-chuyen-hoa",
+    "crawled_at": "2026-01-14T23:00:00+07:00",
+    "total_questions": 17,
+    "structure_type": "conditional",
+    "note": "Quiz có nhiều sections với logic điều kiện. Một số câu hỏi chỉ xuất hiện nếu chọn 'Có' ở các câu trước (vd: biến chứng đái tháo đường chỉ xuất hiện khi có đái tháo đường).",
+    "sections": [
+      {
+        "section_id": 1,
+        "title": "Thông tin chung",
+        "questions": [
+          {
+            "id": 1,
+            "question": "Giới tính",
+            "options": [
+              {
+                "value": "A",
+                "text": "Nam"
+              },
+              {
+                "value": "B",
+                "text": "Nữ"
+              }
+            ],
+            "type": "dropdown",
+            "condition": "Luôn xuất hiện"
+          },
+          {
+            "id": 2,
+            "question": "Tuổi",
+            "options": [],
+            "type": "input_number",
+            "condition": "Luôn xuất hiện"
+          },
+          {
+            "id": 3,
+            "question": "Hút thuốc lá",
+            "options": [
+              {
+                "value": "yes",
+                "text": "Có"
+              },
+              {
+                "value": "no",
+                "text": "Không"
+              }
+            ],
+            "condition": "Luôn xuất hiện"
+          },
+          {
+            "id": 4,
+            "question": "Đái tháo đường",
+            "options": [
+              {
+                "value": "yes",
+                "text": "Có"
+              },
+              {
+                "value": "no",
+                "text": "Không"
+              },
+              {
+                "value": "unknown",
+                "text": "Không biết"
+              }
+            ],
+            "condition": "Luôn xuất hiện"
+          },
+          {
+            "id": 5,
+            "question": "Mắc đái tháo đường trên 10 năm",
+            "options": [
+              {
+                "value": "yes",
+                "text": "Có"
+              },
+              {
+                "value": "no",
+                "text": "Không"
+              },
+              {
+                "value": "unknown",
+                "text": "Không biết"
+              }
+            ],
+            "condition": "Luôn xuất hiện"
+          },
+          {
+            "id": 6,
+            "question": "Tăng huyết áp",
+            "options": [
+              {
+                "value": "yes",
+                "text": "Có"
+              },
+              {
+                "value": "no",
+                "text": "Không"
+              },
+              {
+                "value": "unknown",
+                "text": "Không biết"
+              }
+            ],
+            "condition": "Luôn xuất hiện"
+          },
+          {
+            "id": 7,
+            "question": "Rối loạn mỡ máu",
+            "options": [
+              {
+                "value": "yes",
+                "text": "Có"
+              },
+              {
+                "value": "no",
+                "text": "Không"
+              },
+              {
+                "value": "unknown",
+                "text": "Không biết"
+              }
+            ],
+            "condition": "Luôn xuất hiện"
+          }
+        ]
+      },
+      {
+        "section_id": 2,
+        "title": "Bệnh lý tim mạch do xơ vữa",
+        "questions": [
+          {
+            "id": 8,
+            "question": "Đột quỵ hoặc cơn thiếu máu não cục bộ thoáng qua",
+            "options": [
+              {
+                "value": "yes",
+                "text": "Có"
+              },
+              {
+                "value": "no",
+                "text": "Không"
+              },
+              {
+                "value": "unknown",
+                "text": "Không biết"
+              }
+            ],
+            "condition": "Luôn xuất hiện sau Section 1"
+          },
+          {
+            "id": 9,
+            "question": "Nhồi máu cơ tim",
+            "options": [
+              {
+                "value": "yes",
+                "text": "Có"
+              },
+              {
+                "value": "no",
+                "text": "Không"
+              },
+              {
+                "value": "unknown",
+                "text": "Không biết"
+              }
+            ],
+            "condition": "Luôn xuất hiện"
+          },
+          {
+            "id": 10,
+            "question": "Đã từng thông tim (đặt stent/mổ bắc cầu mạch vành)",
+            "options": [
+              {
+                "value": "yes",
+                "text": "Có"
+              },
+              {
+                "value": "no",
+                "text": "Không"
+              },
+              {
+                "value": "unknown",
+                "text": "Không biết"
+              }
+            ],
+            "condition": "Luôn xuất hiện"
+          },
+          {
+            "id": 11,
+            "question": "Đau thắt ngực",
+            "options": [
+              {
+                "value": "yes",
+                "text": "Có"
+              },
+              {
+                "value": "no",
+                "text": "Không"
+              },
+              {
+                "value": "unknown",
+                "text": "Không biết"
+              }
+            ],
+            "condition": "Luôn xuất hiện"
+          },
+          {
+            "id": 12,
+            "question": "Bệnh lý khác: phình/tách động mạch chủ, tắc động mạch chân",
+            "options": [
+              {
+                "value": "yes",
+                "text": "Có"
+              },
+              {
+                "value": "no",
+                "text": "Không"
+              },
+              {
+                "value": "unknown",
+                "text": "Không biết"
+              }
+            ],
+            "condition": "Luôn xuất hiện"
+          }
+        ]
+      },
+      {
+        "section_id": 3,
+        "title": "Biến chứng của Đái tháo đường",
+        "condition": "Chỉ xuất hiện khi chọn 'Có' ở câu Đái tháo đường (Question 4)",
+        "questions": [
+          {
+            "id": 13,
+            "question": "Mờ mắt",
+            "options": [
+              {
+                "value": "yes",
+                "text": "Có"
+              },
+              {
+                "value": "no",
+                "text": "Không"
+              },
+              {
+                "value": "unknown",
+                "text": "Không biết"
+              }
+            ],
+            "condition": "Xuất hiện khi có Đái tháo đường"
+          },
+          {
+            "id": 14,
+            "question": "Tiểu đạm (protein/albumin niệu)",
+            "options": [
+              {
+                "value": "yes",
+                "text": "Có"
+              },
+              {
+                "value": "no",
+                "text": "Không"
+              },
+              {
+                "value": "unknown",
+                "text": "Không biết"
+              }
+            ],
+            "condition": "Xuất hiện khi có Đái tháo đường"
+          },
+          {
+            "id": 15,
+            "question": "Loét/tê bì bàn chân",
+            "options": [
+              {
+                "value": "yes",
+                "text": "Có"
+              },
+              {
+                "value": "no",
+                "text": "Không"
+              },
+              {
+                "value": "unknown",
+                "text": "Không biết"
+              }
+            ],
+            "condition": "Xuất hiện khi có Đái tháo đường"
+          }
+        ]
+      },
+      {
+        "section_id": 4,
+        "title": "Bệnh thận mạn",
+        "questions": [
+          {
+            "id": 16,
+            "question": "Có bị bệnh thận mạn hoặc suy giảm chức năng thận?",
+            "options": [
+              {
+                "value": "stage3",
+                "text": "Có (Giai đoạn 3)"
+              },
+              {
+                "value": "stage45",
+                "text": "Có (Giai đoạn 4, 5)"
+              },
+              {
+                "value": "no",
+                "text": "Không"
+              },
+              {
+                "value": "unknown",
+                "text": "Không biết"
+              }
+            ],
+            "condition": "Luôn xuất hiện sau Section 3"
+          }
+        ]
+      },
+      {
+        "section_id": 5,
+        "title": "Lịch sử đánh giá",
+        "questions": [
+          {
+            "id": 17,
+            "question": "Ông/Bà đã thực hiện đánh giá này bao nhiêu lần?",
+            "options": [
+              {
+                "value": "first",
+                "text": "Lần đầu tiên"
+              },
+              {
+                "value": "second",
+                "text": "Lần thứ 2"
+              },
+              {
+                "value": "more",
+                "text": "Nhiều hơn 2 lần"
+              }
+            ],
+            "condition": "Câu hỏi cuối cùng"
+          }
+        ]
+      }
+    ],
+    "registration_fields": [
+      "Họ và tên",
+      "Tỉnh/Thành phố",
+      "Số điện thoại",
+      "Ngày sinh",
+      "Giới tính",
+      "Mã giới thiệu"
+    ],
+    "quiz_id": "10_Tim_Mach_Than_Chuyen_Hoa",
+    "order": 10
+  }
+]

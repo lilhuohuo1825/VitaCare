@@ -1,0 +1,338 @@
+[
+  {
+    "disease_id": "01_Benh_Hen",
+    "source_url": "https://www.pharmacity.vn/kiem-tra-suc-khoe/tam-soat-hen",
+    "logic_type": "score_count_yes",
+    "results": [
+      {
+        "id": "low_risk",
+        "condition": {
+          "operator": "<=",
+          "value": 3
+        },
+        "title": "Nguy cơ THẤP mắc hen",
+        "description": "Bạn có khả năng phát triển bệnh hen THẤP hơn so với mức trung bình.",
+        "image_url": "https://prod-cdn.pharmacity.io/e-com/images/ecommerce/20240520103330-0-20240403091737-0-new-bagde.png"
+      },
+      {
+        "id": "high_risk",
+        "condition": {
+          "operator": ">",
+          "value": 3
+        },
+        "title": "Nguy cơ CAO mắc hen",
+        "description": "Bạn có khả năng cao mắc bệnh hen. Hãy đến bác sĩ để được tư vấn thêm.",
+        "image_url": ""
+      }
+    ],
+    "order": 1
+  },
+  {
+    "disease_id": "02_COPD_Man_Tinh",
+    "source_url": "https://www.pharmacity.vn/kiem-tra-suc-khoe/tam-soat-copd",
+    "logic_type": "score_count_yes",
+    "results": [
+      {
+        "id": "low_risk",
+        "condition": {
+          "operator": "<=",
+          "value": 3
+        },
+        "title": "Nguy cơ THẤP mắc Đánh giá nguy cơ mắc bệnh phổi tắc nghẽn mạn tính (COPD)",
+        "description": "Bạn có khả năng phát triển Đánh giá nguy cơ mắc bệnh phổi tắc nghẽn mạn tính (COPD) THẤP hơn so với mức trung bình. (Dữ liệu mô phỏng)",
+        "image_url": "https://prod-cdn.pharmacity.io/e-com/images/ecommerce/20240520103330-0-20240403091737-0-new-bagde.png"
+      },
+      {
+        "id": "high_risk",
+        "condition": {
+          "operator": ">",
+          "value": 3
+        },
+        "title": "Nguy cơ CAO mắc Đánh giá nguy cơ mắc bệnh phổi tắc nghẽn mạn tính (COPD)",
+        "description": "Bạn có khả năng cao mắc Đánh giá nguy cơ mắc bệnh phổi tắc nghẽn mạn tính (COPD). Hãy đến bác sĩ để được tư vấn thêm. (Dữ liệu mô phỏng)",
+        "image_url": ""
+      }
+    ],
+    "order": 2
+  },
+  {
+    "disease_id": "03_Lam_Dung_Thuoc_Hen",
+    "source_url": "https://www.pharmacity.vn/kiem-tra-suc-khoe/danh-gia-nguy-co-lam-dung-thuoc-cat-con-hen",
+    "logic_type": "score_count_yes",
+    "results": [
+      {
+        "id": "low_risk",
+        "condition": {
+          "operator": "<=",
+          "value": 3
+        },
+        "title": "Nguy cơ THẤP mắc Đánh giá nguy cơ lạm dụng thuốc cắt cơn hen",
+        "description": "Bạn có khả năng phát triển Đánh giá nguy cơ lạm dụng thuốc cắt cơn hen THẤP hơn so với mức trung bình. (Dữ liệu mô phỏng)",
+        "image_url": "https://prod-cdn.pharmacity.io/e-com/images/ecommerce/20240520103330-0-20240403091737-0-new-bagde.png"
+      },
+      {
+        "id": "high_risk",
+        "condition": {
+          "operator": ">",
+          "value": 3
+        },
+        "title": "Nguy cơ CAO mắc Đánh giá nguy cơ lạm dụng thuốc cắt cơn hen",
+        "description": "Bạn có khả năng cao mắc Đánh giá nguy cơ lạm dụng thuốc cắt cơn hen. Hãy đến bác sĩ để được tư vấn thêm. (Dữ liệu mô phỏng)",
+        "image_url": ""
+      }
+    ],
+    "order": 3
+  },
+  {
+    "disease_id": "04_GERD",
+    "source_url": "https://www.pharmacity.vn/kiem-tra-suc-khoe/tam-soat-gerd",
+    "logic_type": "score_count_yes",
+    "results": [
+      {
+        "id": "low_risk",
+        "condition": {
+          "operator": "<=",
+          "value": 3
+        },
+        "title": "Nguy cơ THẤP mắc Đánh giá nguy cơ mắc bệnh trào ngược dạ dày thực quản (GERD)",
+        "description": "Bạn có khả năng phát triển Đánh giá nguy cơ mắc bệnh trào ngược dạ dày thực quản (GERD) THẤP hơn so với mức trung bình. (Dữ liệu mô phỏng)",
+        "image_url": "https://prod-cdn.pharmacity.io/e-com/images/ecommerce/20240520103330-0-20240403091737-0-new-bagde.png"
+      },
+      {
+        "id": "high_risk",
+        "condition": {
+          "operator": ">",
+          "value": 3
+        },
+        "title": "Nguy cơ CAO mắc Đánh giá nguy cơ mắc bệnh trào ngược dạ dày thực quản (GERD)",
+        "description": "Bạn có khả năng cao mắc Đánh giá nguy cơ mắc bệnh trào ngược dạ dày thực quản (GERD). Hãy đến bác sĩ để được tư vấn thêm. (Dữ liệu mô phỏng)",
+        "image_url": ""
+      }
+    ],
+    "order": 4
+  },
+  {
+    "disease_id": "05_Suy_Gian_Tinh_Mach",
+    "source_url": "https://www.pharmacity.vn/kiem-tra-suc-khoe/danh-gia-nguy-co-suy-gian-tinh-mach",
+    "logic_type": "score_count_yes",
+    "results": [
+      {
+        "id": "low_risk",
+        "condition": {
+          "operator": "<=",
+          "value": 3
+        },
+        "title": "Nguy cơ THẤP mắc Đánh giá nguy cơ suy giãn tĩnh mạch",
+        "description": "Bạn có khả năng phát triển Đánh giá nguy cơ suy giãn tĩnh mạch THẤP hơn so với mức trung bình. (Dữ liệu mô phỏng)",
+        "image_url": "https://prod-cdn.pharmacity.io/e-com/images/ecommerce/20240520103330-0-20240403091737-0-new-bagde.png"
+      },
+      {
+        "id": "high_risk",
+        "condition": {
+          "operator": ">",
+          "value": 3
+        },
+        "title": "Nguy cơ CAO mắc Đánh giá nguy cơ suy giãn tĩnh mạch",
+        "description": "Bạn có khả năng cao mắc Đánh giá nguy cơ suy giãn tĩnh mạch. Hãy đến bác sĩ để được tư vấn thêm. (Dữ liệu mô phỏng)",
+        "image_url": ""
+      }
+    ],
+    "order": 5
+  },
+  {
+    "disease_id": "06_Roi_Loan_Lo_Au",
+    "source_url": "",
+    "logic_type": "score_count_yes",
+    "results": [
+      {
+        "id": "low_risk",
+        "condition": {
+          "operator": "<=",
+          "value": 3
+        },
+        "title": "Nguy cơ THẤP mắc 06 Roi Loan Lo Au",
+        "description": "Bạn có khả năng phát triển 06 Roi Loan Lo Au THẤP hơn so với mức trung bình. (Dữ liệu mô phỏng)",
+        "image_url": "https://prod-cdn.pharmacity.io/e-com/images/ecommerce/20240520103330-0-20240403091737-0-new-bagde.png"
+      },
+      {
+        "id": "high_risk",
+        "condition": {
+          "operator": ">",
+          "value": 3
+        },
+        "title": "Nguy cơ CAO mắc 06 Roi Loan Lo Au",
+        "description": "Bạn có khả năng cao mắc 06 Roi Loan Lo Au. Hãy đến bác sĩ để được tư vấn thêm. (Dữ liệu mô phỏng)",
+        "image_url": ""
+      }
+    ],
+    "order": 6
+  },
+  {
+    "disease_id": "07_Tram_Cam",
+    "source_url": "",
+    "logic_type": "score_count_yes",
+    "results": [
+      {
+        "id": "low_risk",
+        "condition": {
+          "operator": "<=",
+          "value": 3
+        },
+        "title": "Nguy cơ THẤP mắc 07 Tram Cam",
+        "description": "Bạn có khả năng phát triển 07 Tram Cam THẤP hơn so với mức trung bình. (Dữ liệu mô phỏng)",
+        "image_url": "https://prod-cdn.pharmacity.io/e-com/images/ecommerce/20240520103330-0-20240403091737-0-new-bagde.png"
+      },
+      {
+        "id": "high_risk",
+        "condition": {
+          "operator": ">",
+          "value": 3
+        },
+        "title": "Nguy cơ CAO mắc 07 Tram Cam",
+        "description": "Bạn có khả năng cao mắc 07 Tram Cam. Hãy đến bác sĩ để được tư vấn thêm. (Dữ liệu mô phỏng)",
+        "image_url": ""
+      }
+    ],
+    "order": 7
+  },
+  {
+    "disease_id": "08_Mo_Mau",
+    "source_url": "",
+    "logic_type": "score_count_yes",
+    "results": [
+      {
+        "id": "low_risk",
+        "condition": {
+          "operator": "<=",
+          "value": 3
+        },
+        "title": "Nguy cơ THẤP mắc 08 Mo Mau",
+        "description": "Bạn có khả năng phát triển 08 Mo Mau THẤP hơn so với mức trung bình. (Dữ liệu mô phỏng)",
+        "image_url": "https://prod-cdn.pharmacity.io/e-com/images/ecommerce/20240520103330-0-20240403091737-0-new-bagde.png"
+      },
+      {
+        "id": "high_risk",
+        "condition": {
+          "operator": ">",
+          "value": 3
+        },
+        "title": "Nguy cơ CAO mắc 08 Mo Mau",
+        "description": "Bạn có khả năng cao mắc 08 Mo Mau. Hãy đến bác sĩ để được tư vấn thêm. (Dữ liệu mô phỏng)",
+        "image_url": ""
+      }
+    ],
+    "order": 8
+  },
+  {
+    "disease_id": "09_Tri_Nho_TNmindtest",
+    "source_url": "https://www.pharmacity.vn/kiem-tra-suc-khoe/tri-nho-va-muc-do-tap-trung-chu-y-tnmindtest",
+    "logic_type": "score_count_yes",
+    "results": [
+      {
+        "id": "low_risk",
+        "condition": {
+          "operator": "<=",
+          "value": 3
+        },
+        "title": "Nguy cơ THẤP mắc Đánh giá trí nhớ và mức độ tập trung chú ý",
+        "description": "Bạn có khả năng phát triển Đánh giá trí nhớ và mức độ tập trung chú ý THẤP hơn so với mức trung bình. (Dữ liệu mô phỏng)",
+        "image_url": "https://prod-cdn.pharmacity.io/e-com/images/ecommerce/20240520103330-0-20240403091737-0-new-bagde.png"
+      },
+      {
+        "id": "high_risk",
+        "condition": {
+          "operator": ">",
+          "value": 3
+        },
+        "title": "Nguy cơ CAO mắc Đánh giá trí nhớ và mức độ tập trung chú ý",
+        "description": "Bạn có khả năng cao mắc Đánh giá trí nhớ và mức độ tập trung chú ý. Hãy đến bác sĩ để được tư vấn thêm. (Dữ liệu mô phỏng)",
+        "image_url": ""
+      }
+    ],
+    "order": 9
+  },
+  {
+    "disease_id": "10_Tim_Mach_Than_Chuyen_Hoa",
+    "source_url": "https://www.pharmacity.vn/kiem-tra-suc-khoe/danh-gia-yeu-to-nguy-co-tim-mach-than-chuyen-hoa",
+    "logic_type": "score_count_yes",
+    "results": [
+      {
+        "id": "low_risk",
+        "condition": {
+          "operator": "<=",
+          "value": 3
+        },
+        "title": "Nguy cơ THẤP mắc Đánh giá yếu tố nguy cơ tim mạch - thận - chuyển hóa",
+        "description": "Bạn có khả năng phát triển Đánh giá yếu tố nguy cơ tim mạch - thận - chuyển hóa THẤP hơn so với mức trung bình. (Dữ liệu mô phỏng)",
+        "image_url": "https://prod-cdn.pharmacity.io/e-com/images/ecommerce/20240520103330-0-20240403091737-0-new-bagde.png"
+      },
+      {
+        "id": "high_risk",
+        "condition": {
+          "operator": ">",
+          "value": 3
+        },
+        "title": "Nguy cơ CAO mắc Đánh giá yếu tố nguy cơ tim mạch - thận - chuyển hóa",
+        "description": "Bạn có khả năng cao mắc Đánh giá yếu tố nguy cơ tim mạch - thận - chuyển hóa. Hãy đến bác sĩ để được tư vấn thêm. (Dữ liệu mô phỏng)",
+        "image_url": ""
+      }
+    ],
+    "order": 10
+  },
+  {
+    "disease_id": "11_Dai_Thao_Duong",
+    "source_url": "",
+    "logic_type": "score_count_yes",
+    "results": [
+      {
+        "id": "low_risk",
+        "condition": {
+          "operator": "<=",
+          "value": 3
+        },
+        "title": "Nguy cơ THẤP mắc 11 Dai Thao Duong",
+        "description": "Bạn có khả năng phát triển 11 Dai Thao Duong THẤP hơn so với mức trung bình. (Dữ liệu mô phỏng)",
+        "image_url": "https://prod-cdn.pharmacity.io/e-com/images/ecommerce/20240520103330-0-20240403091737-0-new-bagde.png"
+      },
+      {
+        "id": "high_risk",
+        "condition": {
+          "operator": ">",
+          "value": 3
+        },
+        "title": "Nguy cơ CAO mắc 11 Dai Thao Duong",
+        "description": "Bạn có khả năng cao mắc 11 Dai Thao Duong. Hãy đến bác sĩ để được tư vấn thêm. (Dữ liệu mô phỏng)",
+        "image_url": ""
+      }
+    ],
+    "order": 11
+  },
+  {
+    "disease_id": "12_Hen_Tre_Em",
+    "source_url": "",
+    "logic_type": "score_count_yes",
+    "results": [
+      {
+        "id": "low_risk",
+        "condition": {
+          "operator": "<=",
+          "value": 3
+        },
+        "title": "Nguy cơ THẤP mắc 12 Hen Tre Em",
+        "description": "Bạn có khả năng phát triển 12 Hen Tre Em THẤP hơn so với mức trung bình. (Dữ liệu mô phỏng)",
+        "image_url": "https://prod-cdn.pharmacity.io/e-com/images/ecommerce/20240520103330-0-20240403091737-0-new-bagde.png"
+      },
+      {
+        "id": "high_risk",
+        "condition": {
+          "operator": ">",
+          "value": 3
+        },
+        "title": "Nguy cơ CAO mắc 12 Hen Tre Em",
+        "description": "Bạn có khả năng cao mắc 12 Hen Tre Em. Hãy đến bác sĩ để được tư vấn thêm. (Dữ liệu mô phỏng)",
+        "image_url": ""
+      }
+    ],
+    "order": 12
+  }
+]

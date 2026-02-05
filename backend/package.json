@@ -1,0 +1,22 @@
+{
+    "name": "vitacare-backend",
+    "version": "1.0.0",
+    "description": "VitaCare Backend with MongoDB",
+    "main": "server.js",
+    "scripts": {
+        "start": "node server.js",
+        "import": "node importData.js",
+        "merge": "node mergeData.js",
+        "fix-json": "node fixJsonFiles.js"
+    },
+    "keywords": [
+        "mongodb",
+        "vitacare",
+        "backend"
+    ],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "mongoose": "^8.0.0"
+    }
+}
