@@ -1,0 +1,381 @@
+<div class="page-wrapper">
+
+  <!-- PAGE HEADER -->
+  <div class="page-header-vc">
+    <div class="breadcrumb">
+      <a href="/">Trang chủ</a>
+      <span class="sep">›</span>
+      <span>Hệ thống nhà thuốc VitaCare</span>
+    </div>
+    <h1 class="page-title">Hệ thống nhà thuốc VitaCare</h1>
+    <p class="page-subtitle">
+      Tìm nhà thuốc gần bạn –
+      <span class="highlight">{{ totalStores }} cơ sở</span>
+      trên toàn quốc, luôn sẵn sàng phục vụ
+    </p>
+  </div>
+
+  <div class="content-grid">
+    <!-- ==================== LEFT PANEL ==================== -->
+    <aside class="search-panel">
+
+      <!-- TABS -->
+      <div class="tab-strip">
+        <button class="tab" [class.active]="activeTab === 'search'" (click)="switchTab('search')">
+          <span class="material-symbols-rounded">search</span> Tìm kiếm
+        </button>
+        <button class="tab" [class.active]="activeTab === 'nearby'" (click)="switchTab('nearby')">
+          <span class="material-symbols-rounded">near_me</span> Gần tôi
+        </button>
+      </div>
+
+      <!-- SEARCH TAB -->
+      <div *ngIf="activeTab === 'search'">
+        <div class="panel-body">
+          <!-- Keyword search -->
+          <div class="kw-wrap">
+            <span class="material-symbols-rounded kw-icon">search</span>
+            <input id="kwInput" class="kw-input" type="text" placeholder="Nhập tên, địa chỉ, tỉnh thành..."
+              [(ngModel)]="keyword" (ngModelChange)="onKeywordChange()" />
+          </div>
+
+          <div class="divider-or">hoặc lọc theo</div>
+
+          <!-- Province dropdown -->
+          <div class="loc-select" (click)="toggleDropdown('tinh')">
+            <span>{{ selectedTinh }}</span>
+            <span class="material-symbols-rounded">{{ showDropdown ? 'expand_less' : 'expand_more' }}</span>
+          </div>
+          <div class="loc-dropdown" [class.open]="showDropdown">
+            <div class="loc-item" *ngFor="let tinh of tinhThanhList" [class.sel]="selectedTinh === tinh"
+              (click)="selectTinh(tinh)">{{ tinh }}</div>
+          </div>
+
+          <!-- District dropdown (shown when province selected) -->
+          <ng-container *ngIf="selectedTinh !== 'Tất cả'">
+            <div class="loc-select" style="margin-top: 10px;" (click)="toggleDropdown('quan')">
+              <span>{{ selectedQuan }}</span>
+              <span class="material-symbols-rounded">{{ showQuanDropdown ? 'expand_less' : 'expand_more' }}</span>
+            </div>
+            <div class="loc-dropdown" [class.open]="showQuanDropdown">
+              <div class="loc-item" [class.sel]="selectedQuan === 'Tất cả'" (click)="selectQuan('Tất cả')">Tất cả</div>
+              <div class="loc-item" *ngFor="let q of availableQuans" [class.sel]="selectedQuan === q.ten"
+                (click)="selectQuan(q.ten)">{{ q.ten }}</div>
+            </div>
+          </ng-container>
+
+          <!-- Ward dropdown (shown when district selected) -->
+          <ng-container *ngIf="selectedQuan !== 'Tất cả'">
+            <div class="loc-select" style="margin-top: 10px;" (click)="toggleDropdown('phuong')">
+              <span>{{ selectedPhuong }}</span>
+              <span class="material-symbols-rounded">{{ showPhuongDropdown ? 'expand_less' : 'expand_more' }}</span>
+            </div>
+            <div class="loc-dropdown" [class.open]="showPhuongDropdown">
+              <div class="loc-item" *ngFor="let p of availablePhuongs" [class.sel]="selectedPhuong === p"
+                (click)="selectPhuong(p)">{{ p }}</div>
+            </div>
+          </ng-container>
+        </div>
+
+        <!-- STORE LIST -->
+        <div class="panel-body" style="padding-top:0">
+          <div class="section-label">
+            {{ keyword || selectedTinh !== 'Tất cả' ? 'Kết quả tìm kiếm' : 'Nhà thuốc gợi ý' }}
+          </div>
+          <div class="store-count" *ngIf="!loading">Tìm thấy {{ totalStores }} cửa hàng</div>
+
+          <!-- Loading -->
+          <div class="loading-wrap" *ngIf="loading">
+            <div class="spinner"></div>
+            <p>Đang tải...</p>
+          </div>
+
+          <!-- Error -->
+          <div class="error-wrap" *ngIf="error && !loading">
+            <span class="material-symbols-rounded">error_outline</span>
+            <p>{{ error }}</p>
+            <button class="btn-retry" (click)="retryLoad()">
+              <span class="material-symbols-rounded">refresh</span> Thử lại
+            </button>
+          </div>
+
+          <!-- Empty -->
+          <div class="empty" *ngIf="!loading && !error && stores.length === 0">
+            <span class="material-symbols-rounded">store_mall_directory</span>
+            <p>Không tìm thấy nhà thuốc phù hợp</p>
+          </div>
+
+          <!-- Store items -->
+          <div class="store-list" *ngIf="!loading && !error">
+            <div class="store-item" *ngFor="let store of stores"
+              [class.active]="selectedStore?.ma_cua_hang === store.ma_cua_hang" (click)="selectStore(store)">
+              <div class="radio-dot">
+                <div class="radio-dot-fill" *ngIf="selectedStore?.ma_cua_hang === store.ma_cua_hang"></div>
+              </div>
+              <div class="store-info">
+                <div class="store-name">{{ store.ten_cua_hang }}</div>
+                <div class="store-addr">{{ store.dia_chi?.dia_chi_day_du }}</div>
+                <div class="store-meta">
+                  <span class="badge-ship" *ngIf="store.giao_hang">
+                    <span class="material-symbols-rounded">local_shipping</span> Giao hàng
+                  </span>
+                  <span class="badge-status" [class.is-open]="isOpen(store)" [class.is-closed]="!isOpen(store)">
+                    {{ isOpen(store) ? 'Đang mở' : 'Đóng cửa' }}
+                  </span>
+                  <span class="rating" *ngIf="store.danh_gia">
+                    <span class="material-symbols-rounded star-icon">star</span>
+                    {{ store.danh_gia.diem_tb | number:'1.1-1' }}
+                    ({{ store.danh_gia.so_luot }})
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- PAGINATION -->
+          <div class="pagination" *ngIf="totalPages > 1 && !loading">
+            <button class="page-btn" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">‹</button>
+            <button class="page-btn" *ngFor="let p of getPages()" [class.active]="p === currentPage"
+              (click)="goToPage(p)">{{ p }}</button>
+            <button class="page-btn" (click)="goToPage(currentPage + 1)"
+              [disabled]="currentPage === totalPages">›</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- NEARBY TAB -->
+      <div *ngIf="activeTab === 'nearby'" class="nearby-panel">
+        <span class="material-symbols-rounded nearby-icon">near_me</span>
+        <p>Cho phép truy cập vị trí để tìm nhà thuốc gần bạn nhất</p>
+        <button class="btn btn-primary-vc">
+          <span class="material-symbols-rounded">my_location</span> Chia sẻ vị trí
+        </button>
+      </div>
+    </aside>
+
+    <!-- ==================== RIGHT PANEL ==================== -->
+    <main class="info-panel">
+
+      <!-- FEATURES VIEW (default when no store selected) -->
+      <div *ngIf="!selectedStore" class="features-view">
+        <div class="info-intro">
+          <strong>VitaCare</strong> là hệ thống nhà thuốc bán lẻ &amp; phân phối trải khắp 34 tỉnh thành luôn mở rộng để
+          phục vụ Khách hàng trên toàn quốc, cung cấp dịch vụ bán hàng và phục vụ hàng đầu:
+        </div>
+        <div class="features-grid">
+          <div class="feat-card">
+            <div class="feat-icon blue"><span class="material-symbols-rounded">verified</span></div>
+            <div class="feat-body">
+              <h4>Nhà thuốc chính hãng</h4>
+              <p>Sở hữu danh mục thuốc chính hãng vừa đa dạng, phong phú lại vừa chuyên sâu.</p>
+            </div>
+          </div>
+          <div class="feat-card">
+            <div class="feat-icon orange"><span class="material-symbols-rounded">receipt_long</span></div>
+            <div class="feat-body">
+              <h4>Chuyên thuốc theo toa</h4>
+              <p>VitaCare có đầy đủ các loại thuốc để có thể đáp ứng đầy đủ nhu cầu của người dùng.</p>
+            </div>
+          </div>
+          <div class="feat-card">
+            <div class="feat-icon green"><span class="material-symbols-rounded">support_agent</span></div>
+            <div class="feat-body">
+              <h4>Dược sĩ tư vấn tại chỗ</h4>
+              <p>Với kinh nghiệm và chuyên môn cao: đúng thuốc, đúng liều, đúng cách và đúng giá.</p>
+            </div>
+          </div>
+          <div class="feat-card">
+            <div class="feat-icon purple"><span class="material-symbols-rounded">sell</span></div>
+            <div class="feat-body">
+              <h4>Mua lẻ với giá sỉ</h4>
+              <p>Sản phẩm đúng chất lượng với giá thấp hơn so với thị trường chung.</p>
+            </div>
+          </div>
+          <div class="feat-card">
+            <div class="feat-icon blue"><span class="material-symbols-rounded">local_shipping</span></div>
+            <div class="feat-body">
+              <h4>Giao hàng tận nơi</h4>
+              <p>Giao hàng cực nhanh trong khu vực TP.HCM và chuyển hàng đến tận nhà tại các tỉnh thành khác.</p>
+            </div>
+          </div>
+          <div class="feat-card">
+            <div class="feat-icon orange"><span class="material-symbols-rounded">cached</span></div>
+            <div class="feat-body">
+              <h4>Đổi trả nguyên giá</h4>
+              <p>Chỉ cần đọc SĐT hoặc giữ lại hóa đơn, bạn sẽ được đổi trả / hoàn tiền trong vòng 30 ngày.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STORE DETAIL VIEW -->
+      <div *ngIf="selectedStore" class="detail-view">
+        <button class="back-btn" (click)="clearSelection()">
+          <span class="material-symbols-rounded">arrow_back_ios</span> Quay lại danh sách
+        </button>
+
+        <!-- Header -->
+        <div class="detail-header">
+          <div>
+            <div class="detail-badge" [class.is-open]="isOpen(selectedStore)"
+              [class.is-closed]="!isOpen(selectedStore)">
+              {{ isOpen(selectedStore) ? '● Đang mở cửa' : '● Đóng cửa' }}
+            </div>
+            <h2 class="detail-title">{{ selectedStore.ten_cua_hang }}</h2>
+            <span class="loai-hinh-badge">{{ selectedStore.loai_hinh }}</span>
+          </div>
+        </div>
+
+        <!-- Map + Info row -->
+        <div class="map-info-row">
+          <div class="map-placeholder" (click)="openMap(selectedStore)">
+            <span class="material-symbols-rounded">map</span>
+            <span>Xem bản đồ</span>
+            <span class="map-coords" *ngIf="selectedStore.toa_do">
+              {{ selectedStore.toa_do.lat | number:'1.4-4' }}, {{ selectedStore.toa_do.lng | number:'1.4-4' }}
+            </span>
+          </div>
+
+          <div class="store-info-block">
+            <div class="status-line">
+              <span [class.open-tag]="isOpen(selectedStore)" [class.closed-tag]="!isOpen(selectedStore)">
+                {{ isOpen(selectedStore) ? 'Đang mở cửa' : 'Đóng cửa' }}
+              </span>
+              <span class="dot">·</span>
+              <span class="close-time">{{ getTodayHours(selectedStore) }}</span>
+            </div>
+
+            <div class="detail-row" *ngIf="selectedStore.dia_chi">
+              <span class="material-symbols-rounded">location_on</span>
+              <span>{{ selectedStore.dia_chi.dia_chi_day_du }}</span>
+            </div>
+
+            <div class="detail-row" *ngIf="selectedStore.thong_tin_lien_he?.so_dien_thoai?.length">
+              <span class="material-symbols-rounded">phone</span>
+              <span>
+                <a *ngFor="let phone of selectedStore.thong_tin_lien_he!.so_dien_thoai; let last = last"
+                  (click)="callPhone(phone)" style="cursor:pointer">
+                  {{ phone }}{{ !last ? ', ' : '' }}
+                </a>
+              </span>
+            </div>
+
+            <div class="detail-row" *ngIf="selectedStore.thong_tin_lien_he?.hotline">
+              <span class="material-symbols-rounded">headset_mic</span>
+              <span><strong>Hotline:</strong> {{ selectedStore.thong_tin_lien_he!.hotline }}</span>
+            </div>
+
+            <div class="detail-row" *ngIf="selectedStore.giao_hang">
+              <span class="material-symbols-rounded">local_shipping</span>
+              <span>Giao hàng trong bán kính <strong>{{ selectedStore.ban_kinh_giao_hang }} km</strong></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Rating -->
+        <div class="rating-section" *ngIf="selectedStore.danh_gia">
+          <div class="rating-big">
+            <div class="rating-num">{{ selectedStore.danh_gia.diem_tb | number:'1.1-1' }}</div>
+            <div class="rating-stars">
+              <ng-container *ngFor="let s of getStarArray(selectedStore.danh_gia.diem_tb ?? 0)">
+                <span class="material-symbols-rounded star-rate" [class.half]="s==='half'" [class.empty-star]="s==='empty'">
+                  {{ s === 'full' ? 'star' : s === 'half' ? 'star_half' : 'star_border' }}
+                </span>
+              </ng-container>
+            </div>
+            <div class="rating-votes">{{ selectedStore.danh_gia.so_luot }} đánh giá</div>
+          </div>
+          <div class="rating-comments">
+            <div class="rating-comment" *ngFor="let c of selectedStore.danh_gia.binh_luan_noi_bat">
+              "{{ c }}"
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-btns">
+          <button class="action-btn-primary" (click)="openMap(selectedStore)">
+            <span class="material-symbols-rounded">navigation</span> Chỉ đường
+          </button>
+          <button class="action-btn-secondary" *ngIf="selectedStore.thong_tin_lien_he?.so_dien_thoai?.length"
+            (click)="callPhone(selectedStore.thong_tin_lien_he?.so_dien_thoai?.[0] || '')">
+            <span class="material-symbols-rounded">call</span> Gọi ngay
+          </button>
+        </div>
+
+        <!-- Description -->
+        <div class="desc-section" *ngIf="selectedStore.mo_ta">
+          <p>{{ selectedStore.mo_ta }}</p>
+        </div>
+
+        <!-- Services -->
+        <div class="services-section" *ngIf="selectedStore.dich_vu?.length">
+          <h4>Dịch vụ</h4>
+          <div class="tags">
+            <span class="tag" *ngFor="let dv of selectedStore.dich_vu">{{ dv }}</span>
+          </div>
+        </div>
+
+        <!-- Pharmacist -->
+        <div class="pharmacist-card" *ngIf="selectedStore.duoc_si?.ho_ten">
+          <h4>Dược sĩ phụ trách</h4>
+          <div class="pharmacist-name">{{ selectedStore.duoc_si!.ho_ten }}</div>
+          <div class="pharmacist-meta">
+            {{ selectedStore.duoc_si!.trinh_do }} · {{ selectedStore.duoc_si!.kinh_nghiem }} kinh nghiệm
+          </div>
+          <div class="tags" style="margin-top:6px" *ngIf="selectedStore.duoc_si!.chuyen_mon?.length">
+            <span class="tag green" *ngFor="let cm of selectedStore.duoc_si!.chuyen_mon">{{ cm }}</span>
+          </div>
+        </div>
+
+        <!-- License -->
+        <div class="license-section" *ngIf="selectedStore.giay_phep?.so_giay_phep">
+          <h4>Giấy phép hoạt động</h4>
+          <p>
+            Số GP: <strong>{{ selectedStore.giay_phep!.so_giay_phep }}</strong><br />
+            Cấp bởi: {{ selectedStore.giay_phep!.noi_cap }}<br />
+            Hiệu lực đến: {{ selectedStore.giay_phep!.ngay_het_han }}
+          </p>
+        </div>
+
+        <!-- Amenities -->
+        <div *ngIf="selectedStore.tien_nghi?.length" class="amenities-row">
+          <span class="amenity" *ngFor="let t of selectedStore.tien_nghi">{{ t }}</span>
+        </div>
+
+        <!-- Payment -->
+        <div class="payment-row" *ngIf="selectedStore.phuong_thuc_thanh_toan?.length">
+          <span class="payment-tag" *ngFor="let p of selectedStore.phuong_thuc_thanh_toan">{{ p }}</span>
+        </div>
+
+        <!-- Hours detail -->
+        <div class="hours-section" *ngIf="selectedStore.thoi_gian_hoat_dong">
+          <h4>Giờ mở cửa</h4>
+          <div class="hours-row" *ngIf="selectedStore.thoi_gian_hoat_dong.thu_2_6">
+            <span>Thứ 2 – Thứ 6</span>
+            <span>{{ selectedStore.thoi_gian_hoat_dong.thu_2_6.mo_cua }} – {{
+              selectedStore.thoi_gian_hoat_dong.thu_2_6.dong_cua }}</span>
+          </div>
+          <div class="hours-row" *ngIf="selectedStore.thoi_gian_hoat_dong.thu_7">
+            <span>Thứ 7</span>
+            <span>{{ selectedStore.thoi_gian_hoat_dong.thu_7.mo_cua }} – {{
+              selectedStore.thoi_gian_hoat_dong.thu_7.dong_cua }}</span>
+          </div>
+          <div class="hours-row" *ngIf="selectedStore.thoi_gian_hoat_dong.chu_nhat">
+            <span>Chủ nhật</span>
+            <span>{{ selectedStore.thoi_gian_hoat_dong.chu_nhat.mo_cua }} – {{
+              selectedStore.thoi_gian_hoat_dong.chu_nhat.dong_cua }}</span>
+          </div>
+          <div class="hours-row" *ngIf="selectedStore.thoi_gian_hoat_dong.ngay_le">
+            <span>Ngày lễ</span>
+            <span>{{ selectedStore.thoi_gian_hoat_dong.ngay_le }}</span>
+          </div>
+          <div class="hours-note" *ngIf="selectedStore.thoi_gian_hoat_dong.ghi_chu">
+            ℹ️ {{ selectedStore.thoi_gian_hoat_dong.ghi_chu }}
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+</div>

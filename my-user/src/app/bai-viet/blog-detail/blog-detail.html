@@ -1,0 +1,62 @@
+<div class="bd-page">
+  <!-- Breadcrumb -->
+  <div class="bd-container pt-3 mb-3">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item">
+          <a routerLink="/" class="text-decoration-none text-muted">Trang chủ</a>
+        </li>
+        <li class="breadcrumb-item">
+          <a routerLink="/bai-viet" class="text-decoration-none text-muted">Chuyên trang sức khoẻ</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page" *ngIf="blog">
+          <span class="text-dark">{{ blog.title || blog.name }}</span>
+        </li>
+      </ol>
+    </nav>
+  </div>
+
+  <!-- Content -->
+  <div *ngIf="!loading && !error && blog" class="bd-container">
+    <article class="bd-article">
+      <div class="bd-hero-img-wrap" *ngIf="getImageUrl()">
+        <img [src]="getImageUrl()" [alt]="blog.title || blog.name" class="bd-hero-img" (error)="$any($event.target).src='assets/images/homepage/blogs/an_gi.jpg'" />
+        <span class="bd-badge">{{ getCategoryName() }}</span>
+      </div>
+
+      <header class="bd-header">
+        <h1 class="bd-title">{{ blog.title || blog.name || 'Bài viết sức khỏe' }}</h1>
+        <div class="bd-meta">
+          <span *ngIf="blog.display_author?.fullName || blog.author?.fullName" class="bd-meta-author">
+            {{ blog.display_author?.fullName || blog.author?.fullName }}
+          </span>
+          <span *ngIf="blog.updated_at || blog.published_at" class="bd-meta-date">
+            {{ (blog.updated_at || blog.published_at) | date:'dd/MM/yyyy' }}
+          </span>
+        </div>
+      </header>
+
+      <div class="bd-summary" *ngIf="blog.shortDescription">
+        <p>{{ blog.shortDescription }}</p>
+      </div>
+
+      <div class="bd-content" [innerHTML]="getSafeHtml(getContentHtml())"></div>
+    </article>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="bd-loading">
+    <div class="spinner-border text-primary" role="status"></div>
+    <p class="mt-3 text-muted">Đang tải bài viết...</p>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="!loading && error" class="bd-error">
+    <i class="bi bi-exclamation-triangle-fill text-warning" style="font-size: 3rem;"></i>
+    <h2 class="mt-3 text-dark">Không tìm thấy bài viết</h2>
+    <p class="text-muted">Bài viết bạn tìm kiếm không tồn tại hoặc đã bị xóa.</p>
+    <button class="btn btn-primary mt-2" (click)="goBack()">
+      <i class="bi bi-arrow-left me-2"></i>Quay lại danh sách bài viết
+    </button>
+  </div>
+</div>

@@ -1,10 +1,9 @@
 /**
  * VitaCare Design System - TypeScript Theme Constants
- * Sử dụng trong TypeScript components
+ * Đồng bộ với variables.css (source of truth). Dùng trong TS khi cần.
  */
 
 export const VitaCareTheme = {
-    // Colors
     colors: {
         primary: {
             main: '#00589F',
@@ -16,7 +15,7 @@ export const VitaCareTheme = {
         secondary: {
             main: '#BAA7DE',
             hover: '#7B63C8',
-            bg: '#FECFA'
+            bg: '#F1ECFA'
         },
         success: {
             main: '#00589F',
@@ -34,21 +33,21 @@ export const VitaCareTheme = {
             main: '#C42326',
             hover: '#8B1E19',
             light: '#EF4444',
-            bg: '#FEEAD'
+            bg: '#FEEAE9'
         },
         info: {
-            main: '#5A5BDC',
-            hover: '#7B63C8',
-            bg: '#FECFA'
+            main: '#B9A6DC',
+            hover: '#7B63C6',
+            bg: '#F1ECFA'
         },
         neutral: {
             100: '#0A0A0A',
-            90: '#242242',
+            90: '#424242',
             80: '#616161',
             70: '#757575',
             60: '#9E9E9E',
             50: '#C2C2C2',
-            40: '#ECECED',
+            40: '#E0E0E0',
             30: '#EDEDED',
             20: '#F5F5F5',
             10: '#FFFFFF'

@@ -14,7 +14,8 @@
 
 body {
     font-family: 'Arimo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #F5F5F5;
+    background-color: #F5F5F5 !important;
+    background-image: none !important;
     color: #424242;
     line-height: 1.6;
 }
@@ -29,9 +30,203 @@ h6 {
     color: #00589F;
 }
 
+/* Popup xác nhận đăng xuất */
+.logout-confirm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10002;
+  animation: logout-overlay-in 0.2s ease-out;
+}
+.logout-confirm-modal {
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px 28px;
+  min-width: 320px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+  animation: logout-modal-in 0.25s ease-out;
+}
+.logout-confirm-title {
+  margin: 0 0 20px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  text-align: center;
+}
+.logout-confirm-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+.logout-confirm-btn {
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: background 0.2s;
+}
+.logout-confirm-cancel {
+  background: #f0f0f0;
+  color: #333;
+}
+.logout-confirm-cancel:hover {
+  background: #e0e0e0;
+}
+.logout-confirm-ok {
+  background: #00589F;
+  color: #fff;
+}
+.logout-confirm-ok:hover {
+  background: #004080;
+}
+@keyframes logout-overlay-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes logout-modal-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* Banner thành công (đăng nhập / đăng xuất) - màu xanh Success */
+.logout-success-toast {
+  position: fixed;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10001;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 24px;
+  background: var(--color-success);
+  color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(52, 120, 199, 0.4);
+  font-size: 15px;
+  font-weight: 600;
+  animation: logout-toast-in 0.3s ease-out;
+}
+.logout-success-toast .bi {
+  font-size: 22px;
+}
+@keyframes logout-toast-in {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* Global toast (success / error / info) */
+.app-toast {
+  position: fixed;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10001;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 20px 14px 24px;
+  color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  font-size: 15px;
+  font-weight: 600;
+  animation: logout-toast-in 0.3s ease-out;
+}
+.app-toast .bi:first-child {
+  font-size: 22px;
+}
+.app-toast-close {
+  margin-left: 4px;
+  padding: 4px;
+  background: transparent;
+  border: none;
+  color: inherit;
+  opacity: 0.85;
+  cursor: pointer;
+  line-height: 1;
+}
+.app-toast-close:hover {
+  opacity: 1;
+}
+.app-toast--success {
+  background: var(--color-success);
+  box-shadow: 0 4px 20px rgba(52, 120, 199, 0.4);
+}
+.app-toast--error {
+  background: #c62828;
+  box-shadow: 0 4px 20px rgba(198, 40, 40, 0.4);
+}
+.app-toast--info {
+  background: #00589F;
+  box-shadow: 0 4px 20px rgba(0, 88, 159, 0.4);
+}
+
+/* Layout: header cố định đầu, footer cố định cuối */
+.app-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #F5F5F5 !important;
+}
+
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  flex-shrink: 0;
+}
+
+/* Trang đặt hàng: nền xám nhạt giống tài khoản cá nhân */
+body.vitacare-order-page,
+body.vitacare-order-page .app-layout {
+  background-color: #F5F5F5 !important;
+  background-image: none !important;
+}
+
+.app-main {
+  flex: 1;
+  min-height: 0;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Tránh logo/ảnh trong main tràn full màn hình */
+.app-main img {
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+.app-footer {
+  flex-shrink: 0;
+}
+
 .page-container {
     min-height: 100vh;
-    background-color: #F5F5F5;
+    background-color: #F5F5F5 !important;
+    background-image: none !important;
+    isolation: isolate;
+}
+
+/* Đồng nhất nền - loại bỏ mọi background ẩn từ thư viện */
+.page-container .container,
+.page-container .account-wrapper,
+.page-container .account-content,
+.page-container .info-wrapper,
+.page-container .breadcrumb-wrapper {
+    background-image: none !important;
 }
 
 /* Container */
@@ -41,46 +236,65 @@ h6 {
     padding: 0 15px;
 }
 
-/* Breadcrumb Styles */
+/* Breadcrumb: link xanh, "/" xám đen, mục hiện tại tím lavender; giảm khoảng trống xuống content */
 .breadcrumb-wrapper {
-    background-color: #F5F5F5;
-    padding: 15px 0;
-    margin-bottom: 20px;
+    background: transparent;
+    border-bottom: 1px solid #e0e0e0;
+    padding: 10px 0;
+    margin-bottom: 12px;
+}
+
+.breadcrumb-wrapper .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 15px;
 }
 
 .breadcrumb {
     display: flex;
     flex-wrap: wrap;
+    align-items: center;
     padding: 0;
     margin: 0;
     list-style: none;
-    background-color: transparent;
+    background: transparent;
+    gap: 2px;
 }
 
 .breadcrumb-item {
-    font-size: 14px;
-    font-family: 'Arimo', sans-serif;
+    display: inline-flex;
+    align-items: center;
+    font-size: var(--font-size-sm);
+    font-family: var(--font-content-title-family);
+    font-weight: 400;
+    line-height: 1.4;
 }
 
-.breadcrumb-item+.breadcrumb-item::before {
+/* Dấu "/" xám đen, khoảng cách rất gọn */
+.breadcrumb-item + .breadcrumb-item::before {
     content: "/";
-    padding: 0 8px;
-    color: #9E9E9E;
+    padding: 0 2px;
+    color: #333;
+    font-weight: 400;
+    font-size: 14px;
 }
 
 .breadcrumb-item a {
-    color: #00589F;
+    color: #275AAB;
     text-decoration: none;
-    transition: color 0.3s ease;
+    font-weight: 400;
+    transition: color 0.2s ease;
 }
 
 .breadcrumb-item a:hover {
-    color: #43A2E6;
-    text-decoration: underline;
+    color: #1e4290;
+    text-decoration: none;
 }
 
+/* Mục hiện tại: tím lavender, in đậm */
 .breadcrumb-item.active {
-    color: #757575;
+    color: #9b8ab8;
+    font-weight: 600;
 }
 
 /* Link Styles */
@@ -91,6 +305,11 @@ a {
 
 a:hover {
     color: #43A2E6;
+}
+
+/* Required asterisk - màu đỏ */
+.required {
+    color: #C42326 !important;
 }
 
 /* Form Elements */

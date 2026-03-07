@@ -1,1 +1,335 @@
-<p>promotionmanage works!</p>
+<div class="container promotion-manage-container">
+    <!-- Breadcrumb -->
+    <div class="breadcrumb text-sm mb-2 font-medium">
+        Quản lý khuyến mãi <span class="mx-1">/</span> <span class="text-primary">Danh sách khuyến
+            mãi</span>
+    </div>
+
+    <!-- Header -->
+    <div class="page-header py-4">
+        <h1 class="content-title">Danh sách khuyến mãi</h1>
+        <button class="btn-add-action" (click)="openAddPromotionModal()">
+            <i class="bi bi-plus-lg"></i>
+            Thêm khuyến mãi
+        </button>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="summary-cards">
+        <div class="summary-card" (click)="filterByStatus('all')" style="cursor: pointer; transition: 0.2s;"
+            [style.border]="filterStatus === 'all' ? '2px solid var(--color-primary)' : 'none'">
+            <div class="summary-card-title">TỔNG KHUYẾN MÃI</div>
+            <div class="summary-card-value">{{ summary.total }}</div>
+        </div>
+        <div class="summary-card" (click)="filterByStatus('ended')" style="cursor: pointer; transition: 0.2s;"
+            [style.border]="filterStatus === 'ended' ? '2px solid var(--color-primary)' : 'none'">
+            <div class="summary-card-title">ĐÃ KẾT THÚC</div>
+            <div class="summary-card-value">{{ summary.ended }}</div>
+        </div>
+        <div class="summary-card" (click)="filterByStatus('ongoing')" style="cursor: pointer; transition: 0.2s;"
+            [style.border]="filterStatus === 'ongoing' ? '2px solid var(--color-primary)' : 'none'">
+            <div class="summary-card-title">ĐANG DIỄN RA</div>
+            <div class="summary-card-value">{{ summary.ongoing }}</div>
+        </div>
+        <div class="summary-card" (click)="filterByStatus('upcoming')" style="cursor: pointer; transition: 0.2s;"
+            [style.border]="filterStatus === 'upcoming' ? '2px solid var(--color-primary)' : 'none'">
+            <div class="summary-card-title">SẮP DIỄN RA</div>
+            <div class="summary-card-value">{{ summary.upcoming }}</div>
+        </div>
+    </div>
+
+    <!-- Filter & Toolbar -->
+    <div class="filter-bar py-4">
+        <div class="flex items-center gap-4" style="display: flex; gap: 16px; align-items: center;">
+            <div class="search-wrapper">
+                <input type="text" class="search-input" placeholder="Tìm kiếm tên, mã khuyến mãi..."
+                    (input)="onSearch($event)">
+                <i class="bi bi-search search-icon"></i>
+            </div>
+            <div class="selection-info" *ngIf="selectedCount > 0">
+                <span class="highlight" style="color: var(--color-primary); font-weight: bold;">{{ selectedCount
+                    }}</span> đã chọn
+            </div>
+        </div>
+
+        <div class="actions-group">
+            <button class="btn btn-sm action-btn icon-text" (click)="openEditPromotionModal()"
+                [disabled]="selectedCount !== 1" [class.disabled]="selectedCount !== 1">
+                <i class="bi bi-pencil"></i> Chỉnh
+            </button>
+
+            <div class="dropdown-container">
+                <button class="btn btn-sm action-btn icon-text" (click)="toggleFilterDropdown()">
+                    <i class="bi bi-sliders"></i> Lọc
+                </button>
+                <div class="dropdown-popup" *ngIf="isFilterDropdownOpen">
+                    <div class="dropdown-header">
+                        <span class="dropdown-title">Lọc Trạng Thái</span>
+                    </div>
+                    <div class="dropdown-body">
+                        <select class="form-control" [(ngModel)]="filterStatus">
+                            <option value="all">Tất cả</option>
+                            <option value="upcoming">Sắp diễn ra</option>
+                            <option value="ongoing">Đang diễn ra</option>
+                            <option value="ended">Đã kết thúc</option>
+                        </select>
+                    </div>
+                    <div class="dropdown-footer">
+                        <button class="btn btn-primary btn-sm" style="width: 100%;" (click)="applyFilter()">Áp
+                            dụng</button>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn btn-sm action-btn icon-text" (click)="onDeleteClick()" [disabled]="selectedCount === 0"
+                [class.disabled]="selectedCount === 0">
+                <i class="bi bi-trash"></i> Xóa
+            </button>
+
+            <div class="dropdown-container">
+                <button class="btn btn-sm action-btn icon-text" (click)="toggleSortDropdown()">
+                    <i class="bi bi-arrow-down-up"></i> Sắp xếp
+                </button>
+                <div class="dropdown-popup" *ngIf="isSortDropdownOpen">
+                    <div class="dropdown-header">
+                        <span class="dropdown-title">Sắp Xếp</span>
+                    </div>
+                    <div class="dropdown-body">
+                        <select class="form-control mb-2" [(ngModel)]="sortCriteria">
+                            <option value="date">Ngày bắt đầu</option>
+                            <option value="usage">Lượt sử dụng</option>
+                        </select>
+                        <select class="form-control" [(ngModel)]="sortDirection">
+                            <option value="desc">Giảm dần</option>
+                            <option value="asc">Tăng dần</option>
+                        </select>
+                    </div>
+                    <div class="dropdown-footer">
+                        <button class="btn btn-primary btn-sm" style="width: 100%;" (click)="applySort()">Áp
+                            dụng</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-scrollable">
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 40px;">
+                        <input type="checkbox" [checked]="selectAll" (change)="toggleSelectAll($event)">
+                    </th>
+                    <th>Tên khuyến mãi</th>
+                    <th>Lượt sử dụng</th>
+                    <th>Trạng thái</th>
+                    <th>Bắt đầu</th>
+                    <th>Kết thúc</th>
+                    <th>Cập nhật gần nhất</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let p of filteredPromotions" [class.selected]="p.selected">
+                    <td>
+                        <input type="checkbox" [(ngModel)]="p.selected" (change)="onSelectChange()">
+                    </td>
+                    <td>
+                        <div class="promo-info">
+                            <span class="promo-name">{{ p.name }}</span>
+                            <span class="promo-code">{{ p.code }}</span>
+                        </div>
+                    </td>
+                    <td>{{ p.usage_count }} / {{ p.usage_limit }}</td>
+                    <td>
+                        <div class="status-indicator">
+                            <div class="status-dot" [ngClass]="p.statusClass"></div>
+                            {{ p.statusTitle }}
+                        </div>
+                    </td>
+                    <td>{{ p.start_date | date:'dd/MM/yyyy' }}</td>
+                    <td>{{ p.end_date | date:'dd/MM/yyyy' }}</td>
+                    <td>{{ p.updated_at | date:'dd/MM/yyyy' }}</td>
+                </tr>
+                <tr *ngIf="filteredPromotions.length === 0">
+                    <td colspan="7" class="text-center"
+                        style="padding: 40px; text-align: center; color: var(--color-text-tertiary);">
+                        Không có khuyến mãi nào phù hợp.
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal-wrapper" *ngIf="isDeleteConfirmModalOpen">
+        <div class="modal-backdrop" (click)="closeDeleteConfirmModal()"></div>
+        <div class="modal-content-wrapper compact">
+            <div class="modal-header compact-header">
+                <h5 class="modal-title danger">
+                    <i class="bi bi-exclamation-triangle-fill"></i> Xác nhận xóa
+                </h5>
+                <button type="button" class="close-btn" (click)="closeDeleteConfirmModal()">&times;</button>
+            </div>
+            <div class="modal-body compact-body">
+                <p>Bạn có chắc chắn muốn xóa <strong>{{ selectedCount }}</strong> khuyến mãi đã chọn?</p>
+                <p class="sub-text">Thao tác này không thể hoàn tác.</p>
+            </div>
+            <div class="modal-footer compact-footer">
+                <button type="button" class="btn btn-cancel" (click)="closeDeleteConfirmModal()">Hủy</button>
+                <button type="button" class="btn btn-primary" style="background: var(--color-danger); border: none;"
+                    (click)="confirmDelete()">Xóa ngay</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Promotion Modal -->
+    <div class="modal-wrapper" *ngIf="isModalOpen">
+        <div class="modal-backdrop" (click)="closeModal()"></div>
+        <div class="modal-content-wrapper modal-lg">
+            <div class="modal-header">
+                <button type="button" class="back-btn" (click)="closeModal()">
+                    <i class="bi bi-arrow-left" style="margin-right: 8px;"></i>
+                </button>
+                <h5 class="modal-title">{{ isEditMode ? 'Quay lại trang khuyến mãi' : 'Thêm khuyến mãi' }}</h5>
+            </div>
+            <div class="modal-body scrollable">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Mã khuyến mãi*</label>
+                        <input type="text" class="form-control" [(ngModel)]="currentPromotion.code"
+                            placeholder="Nhập mã khuyến mãi">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Tên khuyến mãi*</label>
+                        <input type="text" class="form-control" [(ngModel)]="currentPromotion.name"
+                            placeholder="Nhập tên khuyến mãi">
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label class="form-label">Mô tả</label>
+                        <textarea class="form-control" [(ngModel)]="currentPromotion.description" rows="3"
+                            placeholder="Nhập mô tả khuyến mãi"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Loại khuyến mãi*</label>
+                        <select class="form-control" [(ngModel)]="currentPromotion.type">
+                            <option value="customer">Khách hàng (Customer)</option>
+                            <option value="product">Sản phẩm (Product)</option>
+                        </select>
+                    </div>
+
+                    <!-- Target Customer Group (for Customer type) -->
+                    <div class="form-group" *ngIf="currentPromotion.type === 'customer'">
+                        <label class="form-label">Nhóm khách hàng áp dụng</label>
+                        <select class="form-control" [(ngModel)]="currentPromotion.customer_group_id">
+                            <option value="">Tất cả khách hàng</option>
+                            <option *ngFor="let g of customerGroups" [value]="g._id">{{ g.name }}</option>
+                        </select>
+                    </div>
+
+                    <!-- Target Product Group/Category (for Product type) -->
+                    <ng-container *ngIf="currentPromotion.type === 'product'">
+                        <div class="form-group">
+                            <label class="form-label">Áp dụng cho Nhóm sản phẩm</label>
+                            <select class="form-control" [(ngModel)]="currentPromotion.product_group_id">
+                                <option value="">Không chọn nhóm</option>
+                                <option *ngFor="let g of productGroups" [value]="g._id">{{ g.name }}</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Hoặc áp dụng cho Danh mục</label>
+                            <select class="form-control" [(ngModel)]="currentPromotion.target_category_id">
+                                <option value="">Tất cả danh mục</option>
+                                <option *ngFor="let cat of categories" [value]="cat._id">{{ cat.name }}</option>
+                            </select>
+                        </div>
+                    </ng-container>
+
+                    <div class="form-group">
+                        <label class="form-label">Phạm vi áp dụng*</label>
+                        <select class="form-control" [(ngModel)]="currentPromotion.scope">
+                            <option value="order">Đơn hàng (Order)</option>
+                            <option value="product">Sản phẩm (Product)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Loại giảm giá*</label>
+                        <select class="form-control" [(ngModel)]="currentPromotion.discount_type">
+                            <option value="percent">Phần trăm (%)</option>
+                            <option value="amount">Số tiền</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Giá trị giảm*</label>
+                        <input type="number" class="form-control" [(ngModel)]="currentPromotion.discount_value"
+                            placeholder="0">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Giá trị đơn hàng tối thiểu</label>
+                        <input type="number" class="form-control" [(ngModel)]="currentPromotion.min_order_value"
+                            placeholder="0">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Giá trị tối đa (đ)</label>
+                        <input type="number" class="form-control" [(ngModel)]="currentPromotion.max_discount_value"
+                            placeholder="0">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Ngày bắt đầu*</label>
+                        <input type="date" class="form-control" [(ngModel)]="currentPromotion.start_date">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Ngày kết thúc*</label>
+                        <input type="date" class="form-control" [(ngModel)]="currentPromotion.end_date">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Giới hạn sử dụng</label>
+                        <input type="number" class="form-control" [(ngModel)]="currentPromotion.usage_limit"
+                            placeholder="0">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Giới hạn mỗi người dùng</label>
+                        <input type="number" class="form-control" [(ngModel)]="currentPromotion.user_limit"
+                            placeholder="0">
+                    </div>
+
+                    <div class="form-group full-width">
+                        <div class="form-check">
+                            <input type="checkbox" id="firstOrderOnly"
+                                [(ngModel)]="currentPromotion.is_first_order_only">
+                            <label class="form-check-label" for="firstOrderOnly">Chỉ áp dụng cho đơn hàng đầu
+                                tiên</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-cancel" (click)="closeModal()">HUỶ</button>
+                <button type="button" class="btn btn-primary" (click)="savePromotion()">LƯU THAY ĐỔI</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div class="notification-toast" *ngIf="notification.show" [ngClass]="notification.type">
+        <i class="bi" [ngClass]="{
+            'bi-check-circle-fill': notification.type === 'success',
+            'bi-x-circle-fill': notification.type === 'error',
+            'bi-exclamation-triangle-fill': notification.type === 'warning'
+        }"></i>
+        <span>{{ notification.message }}</span>
+    </div>
+
+</div>

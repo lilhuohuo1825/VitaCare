@@ -1,0 +1,329 @@
+<div class="health-wrapper">
+  <!-- Banner CÔNG CỤ SỨC KHOẺ (full-width) -->
+  <section class="health-banner">
+    <div class="container health-banner-inner">
+      <div class="health-banner-content">
+        <h1 class="health-banner-title">CÔNG CỤ SỨC KHOẺ</h1>
+        <p class="health-banner-desc">
+          Với các công cụ đánh giá sức khỏe tiện lợi từ VitaCare, giúp bạn cải thiện sức khoẻ và nâng cao chất lượng
+          cuộc sống cho bản thân và gia đình.
+        </p>
+      </div>
+      <div class="health-banner-icon" aria-hidden="true">
+        <i class="bi bi-heart-plus"></i>
+      </div>
+    </div>
+  </section>
+
+  <!-- Cards -->
+  <div class="container">
+    @if (loadError()) {
+    <div class="health-error">
+      <p>{{ loadError() }}</p>
+    </div>
+    } @else if (loading()) {
+    <div class="health-loading">
+      <span class="health-spinner" aria-hidden="true"></span>
+      <p>Đang tải sổ sức khỏe...</p>
+    </div>
+    } @else {
+    <div class="health-blocks">
+
+      <!-- ===== Chỉ số BMI ===== -->
+      <div class="health-block">
+        <article class="health-card health-card--bmi health-card--clickable" routerLink="/health/bmi">
+          @if (p?.bmi != null) {
+          <!-- CÓ DATA -->
+          <a href="#" class="health-card-update">Cập nhật: {{ formatUpdatedAt(p?.updatedAt) }} &gt;</a>
+          <div class="health-card-body">
+            <div class="health-card-content">
+              <h3 class="health-card-title">Chỉ số BMI</h3>
+              <p class="health-card-value">{{ p!.bmi | number:'1.2-2' }}</p>
+              @if (p?.bmiStatus) {
+              <p class="health-card-status" [ngClass]="getStatusClass(p?.bmiStatus)">{{ p!.bmiStatus }}</p>
+              }
+            </div>
+            <div class="health-card-icon-wrap">
+              <img [src]="icons.bmi" alt="" class="health-card-icon" />
+            </div>
+          </div>
+          } @else {
+          <!-- KHÔNG CÓ DATA -->
+          <div class="health-card-empty">
+            <div class="health-card-empty-header">
+              <div class="health-card-empty-icon health-card-empty-icon--bmi">
+                <img [src]="icons.bmi" alt="" />
+              </div>
+              <div class="health-card-empty-title-wrap">
+                <h3 class="health-card-title">Chỉ số BMI</h3>
+              </div>
+              <i class="bi bi-chevron-right health-card-arrow"></i>
+            </div>
+            <p class="health-card-desc">BMI đánh giá tình trạng dinh dưỡng và nguy cơ bệnh lý dựa trên mức độ phù hợp
+              giữa
+              cân nặng và chiều cao.</p>
+          </div>
+          }
+        </article>
+      </div>
+
+      <!-- ===== Chỉ số BMR ===== -->
+      <div class="health-block">
+        <article class="health-card health-card--bmr health-card--clickable" routerLink="/health/bmi">
+          @if (p?.bmr != null) {
+          <a href="#" class="health-card-update">Cập nhật: {{ formatUpdatedAt(p?.updatedAt) }} &gt;</a>
+          <div class="health-card-body">
+            <div class="health-card-content">
+              <h3 class="health-card-title">Chỉ số BMR</h3>
+              <p class="health-card-value">{{ p!.bmr | number:'1.0-0' }} kcal</p>
+              @if (p?.bmrStatus) {
+              <p class="health-card-status" [ngClass]="getStatusClass(p?.bmrStatus)">{{ p!.bmrStatus }}</p>
+              }
+            </div>
+            <div class="health-card-icon-wrap">
+              <img [src]="icons.bmr" alt="" class="health-card-icon" />
+            </div>
+          </div>
+          } @else {
+          <div class="health-card-empty">
+            <div class="health-card-empty-header">
+              <div class="health-card-empty-icon health-card-empty-icon--bmr">
+                <img [src]="icons.bmr" alt="" />
+              </div>
+              <div class="health-card-empty-title-wrap">
+                <h3 class="health-card-title">Chỉ số BMR</h3>
+              </div>
+              <i class="bi bi-chevron-right health-card-arrow"></i>
+            </div>
+            <p class="health-card-desc">BMR là chỉ số để tính toán lượng calo cần thiết giúp xác định lượng calo tiêu
+              thụ
+              cho các hoạt động hằng ngày để duy trì cân nặng.</p>
+          </div>
+          }
+        </article>
+      </div>
+
+
+
+      <!-- ===== Theo dõi huyết áp ===== -->
+      <div class="health-block">
+        <article class="health-card health-card--blood health-card--image-clickable"
+          (click)="openDetail('bloodPressure')">
+          @if (p?.bloodPressure) {
+          <a href="#" class="health-card-update" (click)="$event.stopPropagation()">Cập nhật: {{
+            formatUpdatedAt(p?.updatedAt) }} &gt;</a>
+          <div class="health-card-body">
+            <div class="health-card-content">
+              <h3 class="health-card-title">Theo dõi huyết áp</h3>
+              <p class="health-card-value">{{ p!.bloodPressure }}</p>
+              @if (p?.bloodPressureStatus) {
+              <p class="health-card-status" [ngClass]="getStatusClass(p?.bloodPressureStatus)">{{ p!.bloodPressureStatus
+                }}</p>
+              }
+            </div>
+            <div class="health-card-icon-wrap">
+              <img [src]="icons.bloodPressure" alt="" class="health-card-icon" />
+            </div>
+          </div>
+          } @else {
+          <div class="health-card-empty">
+            <div class="health-card-empty-header">
+              <div class="health-card-empty-icon health-card-empty-icon--blood">
+                <img [src]="icons.bloodPressure" alt="" />
+              </div>
+              <div class="health-card-empty-title-wrap">
+                <h3 class="health-card-title">Theo dõi huyết áp</h3>
+              </div>
+              <i class="bi bi-chevron-right health-card-arrow"></i>
+            </div>
+            <p class="health-card-desc">Theo dõi Huyết Áp giúp chăm sóc sức khỏe dễ dàng và tiện lợi hơn. Công cụ không
+              những ghi nhận chỉ số huyết áp mà có thể đánh giá chỉ số nhịp tim.</p>
+          </div>
+          }
+        </article>
+      </div>
+
+      <!-- ===== Theo dõi đường huyết ===== -->
+      <div class="health-block">
+        <article class="health-card health-card--blood health-card--image-clickable" (click)="openDetail('bloodSugar')">
+          @if (p?.bloodSugar) {
+          <a href="#" class="health-card-update" (click)="$event.stopPropagation()">Cập nhật: {{
+            formatUpdatedAt(p?.updatedAt) }} &gt;</a>
+          <div class="health-card-body">
+            <div class="health-card-content">
+              <h3 class="health-card-title">Theo dõi đường huyết</h3>
+              <p class="health-card-value">{{ p!.bloodSugar }}</p>
+              @if (p?.bloodSugarStatus) {
+              <p class="health-card-status" [ngClass]="getStatusClass(p?.bloodSugarStatus)">{{ p!.bloodSugarStatus }}
+              </p>
+              }
+            </div>
+            <div class="health-card-icon-wrap">
+              <img [src]="icons.bloodSugar" alt="" class="health-card-icon" />
+            </div>
+          </div>
+          } @else {
+          <div class="health-card-empty">
+            <div class="health-card-empty-header">
+              <div class="health-card-empty-icon health-card-empty-icon--sugar">
+                <img [src]="icons.bloodSugar" alt="" />
+              </div>
+              <div class="health-card-empty-title-wrap">
+                <h3 class="health-card-title">Theo dõi đường huyết</h3>
+              </div>
+              <i class="bi bi-chevron-right health-card-arrow"></i>
+            </div>
+            <p class="health-card-desc">Tính năng Đo Đường Huyết hỗ trợ người dùng dễ dàng lập lịch đo và phân tích số
+              liệu sức khỏe về đường huyết bản thân.</p>
+          </div>
+          }
+        </article>
+      </div>
+
+      <!-- ===== Theo dõi mỡ máu ===== -->
+      <div class="health-block">
+        <article class="health-card health-card--fat health-card--image-clickable" (click)="openDetail('bloodFat')">
+          @if (p?.bloodFat) {
+          <a href="#" class="health-card-update" (click)="$event.stopPropagation()">Cập nhật: {{
+            formatUpdatedAt(p?.updatedAt) }} &gt;</a>
+          <div class="health-card-body">
+            <div class="health-card-content">
+              <h3 class="health-card-title">Theo dõi mỡ máu</h3>
+              <p class="health-card-value">{{ p!.bloodFat }}</p>
+              @if (p?.bloodFatStatus) {
+              <p class="health-card-status" [ngClass]="getStatusClass(p?.bloodFatStatus)">{{ p!.bloodFatStatus }}</p>
+              }
+            </div>
+            <div class="health-card-icon-wrap">
+              <img [src]="icons.bloodFat" alt="" class="health-card-icon" />
+            </div>
+          </div>
+          } @else {
+          <div class="health-card-empty">
+            <div class="health-card-empty-header">
+              <div class="health-card-empty-icon health-card-empty-icon--fat">
+                <img [src]="icons.bloodFat" alt="" />
+              </div>
+              <div class="health-card-empty-title-wrap">
+                <h3 class="health-card-title">Theo dõi mỡ máu</h3>
+              </div>
+              <i class="bi bi-chevron-right health-card-arrow"></i>
+            </div>
+            <p class="health-card-desc">Đo mỡ máu giúp phát hiện nguy cơ bệnh tim mạch và các vấn đề sức khỏe liên quan.
+            </p>
+          </div>
+          }
+        </article>
+      </div>
+
+      <!-- ===== Theo dõi loãng xương ===== -->
+      <div class="health-block">
+        <article class="health-card health-card--fat health-card--image-clickable" (click)="openDetail('osteoporosis')">
+          @if (p?.osteoporosis) {
+          <a href="#" class="health-card-update" (click)="$event.stopPropagation()">Cập nhật: {{
+            formatUpdatedAt(p?.updatedAt) }} &gt;</a>
+          <div class="health-card-body">
+            <div class="health-card-content">
+              <h3 class="health-card-title">Theo dõi loãng xương</h3>
+              <p class="health-card-value">{{ p!.osteoporosis }}</p>
+              @if (p?.osteoporosisStatus) {
+              <p class="health-card-status" [ngClass]="getStatusClass(p?.osteoporosisStatus)">{{ p!.osteoporosisStatus
+                }}</p>
+              }
+            </div>
+            <div class="health-card-icon-wrap">
+              <img [src]="icons.osteoporosis" alt="" class="health-card-icon" />
+            </div>
+          </div>
+          } @else {
+          <div class="health-card-empty">
+            <div class="health-card-empty-header">
+              <div class="health-card-empty-icon health-card-empty-icon--bone">
+                <img [src]="icons.osteoporosis" alt="" />
+              </div>
+              <div class="health-card-empty-title-wrap">
+                <h3 class="health-card-title">Theo dõi loãng xương</h3>
+              </div>
+              <i class="bi bi-chevron-right health-card-arrow"></i>
+            </div>
+            <p class="health-card-desc">Tính năng này giúp bạn theo dõi tình trạng xương và phát hiện sớm các dấu hiệu
+              loãng xương.</p>
+          </div>
+          }
+        </article>
+      </div>
+
+      <!-- ===== Theo dõi kinh nguyệt ===== -->
+      <div class="health-block">
+        <article class="health-card health-card--menstruation health-card--image-clickable"
+          (click)="openDetail('menstruation')">
+          @if (p?.menstruation) {
+          <a href="#" class="health-card-update" (click)="$event.stopPropagation()">Cập nhật: {{
+            formatUpdatedAt(p?.updatedAt) }} &gt;</a>
+          <div class="health-card-body">
+            <div class="health-card-content">
+              <h3 class="health-card-title">Theo dõi kinh nguyệt</h3>
+              <p class="health-card-value">{{ p!.menstruation }}</p>
+            </div>
+            <div class="health-card-icon-wrap">
+              <img [src]="icons.menstruation" alt="" class="health-card-icon" />
+            </div>
+          </div>
+          } @else {
+          <div class="health-card-empty">
+            <div class="health-card-empty-header">
+              <div class="health-card-empty-icon health-card-empty-icon--menstruation">
+                <img [src]="icons.menstruation" alt="" />
+              </div>
+              <div class="health-card-empty-title-wrap">
+                <h3 class="health-card-title">Theo dõi kinh nguyệt</h3>
+              </div>
+              <i class="bi bi-chevron-right health-card-arrow"></i>
+            </div>
+            <p class="health-card-desc">Bằng cách ghi lại ngày bắt đầu và kết thúc của chu kỳ, cũng như các triệu chứng,
+              phụ nữ có thể dự đoán chu kỳ kinh nguyệt tiếp theo.</p>
+          </div>
+          }
+        </article>
+      </div>
+
+      <!-- ===== Theo dõi thai kì ===== -->
+      <div class="health-block">
+        <article class="health-card health-card--pregnancy health-card--image-clickable"
+          (click)="openDetail('pregnancy')">
+          @if (p?.pregnancy) {
+          <a href="#" class="health-card-update" (click)="$event.stopPropagation()">Cập nhật: {{
+            formatUpdatedAt(p?.updatedAt) }} &gt;</a>
+          <div class="health-card-body">
+            <div class="health-card-content">
+              <h3 class="health-card-title">Theo dõi thai kì</h3>
+              <p class="health-card-value">{{ p!.pregnancy }}</p>
+            </div>
+            <div class="health-card-icon-wrap">
+              <img [src]="icons.pregnancy" alt="" class="health-card-icon" />
+            </div>
+          </div>
+          } @else {
+          <div class="health-card-empty">
+            <div class="health-card-empty-header">
+              <div class="health-card-empty-icon health-card-empty-icon--pregnancy">
+                <img [src]="icons.pregnancy" alt="" />
+              </div>
+              <div class="health-card-empty-title-wrap">
+                <h3 class="health-card-title">Theo dõi thai kì</h3>
+              </div>
+              <i class="bi bi-chevron-right health-card-arrow"></i>
+            </div>
+            <p class="health-card-desc">Hỗ trợ đo số cân nặng tiêu chuẩn giúp các mẹ bầu theo dõi cân nặng của mình
+              trong
+              suốt thai kỳ.</p>
+          </div>
+          }
+        </article>
+      </div>
+
+    </div>
+    }
+  </div>
+
+</div>

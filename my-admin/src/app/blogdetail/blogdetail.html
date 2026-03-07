@@ -1,0 +1,230 @@
+<div class="container h-full flex flex-col pt-4">
+    <!-- Breadcrumb -->
+    <div class="breadcrumb text-sm mb-2 font-medium" style="color: var(--color-neutral-60);">
+        <span class="cursor-pointer" (click)="goBack()">Blog & tin tức</span> / Chi tiết bài viết
+    </div>
+
+    <!-- Header Box -->
+    <div class="detail-header-card">
+        <div class="header-left-group" style="display: flex; align-items: center; gap: 20px;">
+            <button class="btn-back" (click)="goBack()"
+                style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; background: #F5F5F5; border: none; color: #7B7A7A; cursor: pointer; transition: all 0.3s;">
+                <i class="bi bi-arrow-left" style="font-size: 20px;"></i>
+            </button>
+            <h1 class="header-title">
+                {{ isEditMode ? 'CHI TIẾT BÀI VIẾT' : 'THÊM BÀI VIẾT' }}
+            </h1>
+        </div>
+        <button class="btn btn-save" (click)="saveBlog()">Lưu</button>
+    </div>
+
+    <div *ngIf="isLoading" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-2 text-secondary">Đang tải chi tiết...</p>
+    </div>
+
+    <div *ngIf="!isLoading" class="blog-detail-content">
+        <!-- Top Info Section -->
+        <div class="top-info-section">
+            <div class="image-wrapper" (click)="triggerImageInput()" style="cursor: pointer;">
+                <input type="file" (change)="onFileSelected($event)" accept="image/*" style="display: none;">
+                <img *ngIf="blogData.primaryImage?.url" [src]="blogData.primaryImage.url" class="blog-cover" alt="Cover"
+                    referrerpolicy="no-referrer" onerror="this.src='https://placehold.co/600x400?text=VitaCare+Blog'">
+                <div *ngIf="!blogData.primaryImage?.url" class="image-placeholder">
+                    <i class="bi bi-image" style="font-size: 40px; color: var(--color-neutral-40)"></i>
+                    <p class="text-xs text-secondary mt-2">Nhấn để tải ảnh</p>
+                </div>
+                <button class="btn-like" (click)="likeBlog(); $event.stopPropagation()">
+                    <i class="bi bi-heart"></i>
+                </button>
+                <!-- Image Overlay for Upload -->
+                <div class="image-overlay">
+                    <i class="bi bi-camera-fill"></i>
+                </div>
+            </div>
+
+            <div class="info-wrapper">
+                <input class="input-title" type="text" [(ngModel)]="blogData.title" placeholder="TITLE">
+
+                <div style="margin-bottom: 24px;">
+                    <label class="text-xs font-bold text-neutral-50 block mb-1">Chuyên mục:</label>
+                    <select class="form-select" [(ngModel)]="blogData.categoryId"
+                        style="border: 1px solid var(--color-neutral-30); border-radius: 6px; padding: 8px 12px; font-size: 14px; width: 100%; outline: none; background: var(--color-bg-secondary); color: var(--color-text-primary); cursor: pointer;">
+                        <option value="">---- Chọn chuyên mục ----</option>
+                        <option *ngFor="let cat of categories" [value]="cat.id">{{ cat.name }}</option>
+                    </select>
+                </div>
+
+                <input class="input-author" type="text" [(ngModel)]="blogData.author.fullName" placeholder="Tác giả">
+
+                <input class="input-email" type="text" [(ngModel)]="blogData.author.email"
+                    placeholder="Tacgia@gmail.com">
+
+                <div class="date-group">
+                    <input type="date" class="form-control" [(ngModel)]="blogData.publishedAt"
+                        placeholder="Ngày đăng bài">
+                </div>
+
+                <div style="margin-top: 16px;" *ngIf="blogData.url">
+                    <label class="text-xs font-bold text-neutral-50 block mb-1">Link bài viết gốc:</label>
+                    <a [href]="blogData.url" target="_blank" rel="noopener noreferrer"
+                        style="display: flex; align-items: center; gap: 6px; color: var(--color-primary); font-size: 13px; word-break: break-all; text-decoration: none;"
+                        onmouseenter="this.style.textDecoration='underline'"
+                        onmouseleave="this.style.textDecoration='none'">
+                        <i class="bi bi-box-arrow-up-right"></i>
+                        <span>{{ blogData.url }}</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Section -->
+        <div class="editor-section">
+            <h3 class="section-heading">Nội dung bài viết</h3>
+            <div class="editor-container">
+                <!-- Word-like Toolbar -->
+                <div class="editor-toolbar">
+                    <button class="tool-btn" (click)="execCommand('undo')" title="Hoàn tác"><i
+                            class="bi bi-arrow-counterclockwise"></i></button>
+                    <button class="tool-btn" (click)="execCommand('redo')" title="Khôi phục"><i
+                            class="bi bi-arrow-clockwise"></i></button>
+
+                    <div class="tool-divider"></div>
+
+                    <select class="tool-select format-block" (change)="formatBlock($event)" #formatBlockSelect
+                        title="Định dạng">
+                        <option value="p">Đoạn văn</option>
+                        <option value="h1">Tiêu đề 1</option>
+                        <option value="h2">Tiêu đề 2</option>
+                        <option value="h3">Tiêu đề 3</option>
+                        <option value="h4">Tiêu đề 4</option>
+                        <option value="h5">Tiêu đề 5</option>
+                        <option value="h6">Tiêu đề 6</option>
+                    </select>
+
+                    <div class="tool-divider"></div>
+
+                    <select class="tool-select font-family" (change)="changeFontFamily($event)" title="Phông chữ">
+                        <option value="Arial, Helvetica, sans-serif">Mặc định</option>
+                        <option value="'Lexend', sans-serif">Lexend</option>
+                        <option value="'Times New Roman', Times, serif">Times New Roman</option>
+                        <option value="'Courier New', Courier, monospace">Courier New</option>
+                        <option value="Georgia, serif">Georgia</option>
+                        <option value="'Comic Sans MS', cursive, sans-serif">Comic Sans</option>
+                    </select>
+
+                    <select class="tool-select font-size" (change)="changeFontSize($event)" #fontSizeSelect
+                        title="Cỡ chữ">
+                        <option value="1">8pt</option>
+                        <option value="2">10pt</option>
+                        <option value="3" selected>12pt</option>
+                        <option value="4">14pt</option>
+                        <option value="5">18pt</option>
+                        <option value="6">24pt</option>
+                        <option value="7">36pt</option>
+                    </select>
+
+                    <div class="tool-divider"></div>
+
+                    <button class="tool-btn" (click)="execCommand('bold')" title="In đậm"><i
+                            class="bi bi-type-bold"></i></button>
+                    <button class="tool-btn" (click)="execCommand('italic')" title="In nghiêng"><i
+                            class="bi bi-type-italic"></i></button>
+                    <button class="tool-btn" (click)="execCommand('underline')" title="Gạch chân"><i
+                            class="bi bi-type-underline"></i></button>
+                    <button class="tool-btn" (click)="execCommand('strikeThrough')" title="Gạch ngang"><i
+                            class="bi bi-type-strikethrough"></i></button>
+
+                    <div class="tool-divider"></div>
+
+                    <div class="color-picker-wrapper tool-btn" title="Màu chữ">
+                        <i class="bi bi-palette"></i>
+                        <input type="color" class="color-picker" (change)="changeTextColor($event)" value="#000000">
+                    </div>
+
+                    <div class="tool-divider"></div>
+
+                    <!-- Alignment -->
+                    <button class="tool-btn" (click)="execCommand('justifyLeft')" title="Căn trái"><i
+                            class="bi bi-text-left"></i></button>
+                    <button class="tool-btn" (click)="execCommand('justifyCenter')" title="Căn giữa"><i
+                            class="bi bi-text-center"></i></button>
+                    <button class="tool-btn" (click)="execCommand('justifyRight')" title="Căn phải"><i
+                            class="bi bi-text-right"></i></button>
+                    <button class="tool-btn" (click)="execCommand('justifyFull')" title="Căn đều"><i
+                            class="bi bi-justify"></i></button>
+
+                    <div class="tool-divider"></div>
+
+                    <button class="tool-btn" (click)="execCommand('insertUnorderedList')" title="Danh sách chấm"><i
+                            class="bi bi-list-ul"></i></button>
+                    <button class="tool-btn" (click)="execCommand('insertOrderedList')" title="Danh sách số"><i
+                            class="bi bi-list-ol"></i></button>
+
+                    <div class="tool-divider"></div>
+
+                    <button class="tool-btn" (click)="execCommand('outdent')" title="Giảm lề"><i
+                            class="bi bi-text-indent-right"></i></button>
+                    <button class="tool-btn" (click)="execCommand('indent')" title="Tăng lề"><i
+                            class="bi bi-text-indent-left"></i></button>
+
+                    <div class="tool-divider"></div>
+
+                    <button class="tool-btn" (click)="insertLink()" title="Chèn liên kết"><i
+                            class="bi bi-link-45deg"></i></button>
+                    <button class="tool-btn" (click)="insertImage()" title="Chèn ảnh (URL)"><i
+                            class="bi bi-image"></i></button>
+                </div>
+
+                <div class="editor-content" #contentEditor contenteditable="true" (input)="updateBlogContent($event)"
+                    (click)="updateToolbarDropdowns()" (keyup)="updateToolbarDropdowns()"
+                    (keydown)="handleKeyboardShortcuts($event)" placeholder="Nhập nội dung bài viết..." dir="ltr"
+                    lang="vi">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Review Section (Mocks) -->
+    <div *ngIf="!isLoading && isEditMode" class="review-section mt-5">
+        <h3 class="section-heading mb-4">Đánh giá</h3>
+
+        <div class="review-grid">
+            <div class="review-card" *ngFor="let m of [1,2,3]">
+                <div class="stars mb-2">
+                    <i class="bi bi-star"></i>
+                    <i class="bi bi-star"></i>
+                    <i class="bi bi-star"></i>
+                    <i class="bi bi-star"></i>
+                    <i class="bi bi-star"></i>
+                </div>
+                <h4 class="review-title">Đáng xem</h4>
+                <p class="review-comment">Hay</p>
+                <div class="review-user mt-4 flex items-center gap-3">
+                    <div class="user-avatar">
+                        <img src="assets/images/user-icon.png" alt="Avatar"
+                            onerror="this.src='https://ui-avatars.com/api/?name=User&background=random'">
+                    </div>
+                    <div class="user-info">
+                        <div class="user-name">Hạt dẻ ngào đường</div>
+                        <div class="user-date text-neutral-50 text-xs">1/1/2026</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div style="height: 100px;"></div>
+
+    <!-- Notification Toast -->
+    <div class="notification-toast" *ngIf="notification.show" [ngClass]="notification.type">
+        <i class="bi" [ngClass]="{
+            'bi-check-circle-fill': notification.type === 'success',
+            'bi-x-circle-fill': notification.type === 'error',
+            'bi-exclamation-triangle-fill': notification.type === 'warning'
+        }"></i>
+        <span>{{ notification.message }}</span>
+    </div>
+</div>

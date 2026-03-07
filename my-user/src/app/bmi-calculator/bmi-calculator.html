@@ -1,0 +1,169 @@
+<div class="bmi-page">
+    <!-- Breadcrumb -->
+    <div class="breadcrumb-wrapper">
+        <div class="container">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a routerLink="/">Trang chủ</a></li>
+                    <li class="breadcrumb-item"><a routerLink="/health">Sổ sức khoẻ</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Chỉ số BMI/BMR</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="container bmi-container">
+        <!-- CALCULATOR CARD -->
+        <div class="bmi-card">
+            <!-- LEFT: Body image + result -->
+            <div class="bmi-visual">
+                <img [src]="currentImagePath()" [class.img-switching]="imgSwitching()" alt="Body silhouette"
+                    class="bmi-body-img" />
+                <div class="bmi-result-row">
+                    <div class="bmi-result-item">
+                        <span class="bmi-result-label">BMI:</span>
+                        <span class="bmi-result-value" [class]="bmiColorClass">
+                            {{ bmiValue !== null ? (bmiValue | number:'1.2-2') : '&nbsp;&nbsp;&nbsp;&nbsp;' }}
+                        </span>
+                    </div>
+                    <div class="bmi-result-item">
+                        <span class="bmi-result-label">BMR:</span>
+                        <span class="bmi-result-value" [class]="bmiColorClass">
+                            {{ bmrValue !== null ? (bmrValue | number:'1.0-0') : '&nbsp;&nbsp;&nbsp;&nbsp;' }}
+                            <span *ngIf="bmrValue !== null" class="bmi-result-unit">kcal</span>
+                        </span>
+                    </div>
+                </div>
+                <button *ngIf="bmiStatus" class="bmi-status-badge" [class]="'bmi-status-' + bmiStatusKey">
+                    {{ bmiStatus }}
+                </button>
+            </div>
+
+            <!-- RIGHT: Form -->
+            <div class="bmi-form">
+                <!-- Gender toggle -->
+                <div class="bmi-gender-toggle">
+                    <button type="button" class="bmi-gender-btn" [class.active]="gender === 'male'"
+                        (click)="setGender('male')">
+                        <i class="bi bi-gender-male"></i> Nam
+                    </button>
+                    <button type="button" class="bmi-gender-btn" [class.active]="gender === 'female'"
+                        (click)="setGender('female')">
+                        <i class="bi bi-gender-female"></i> Nữ
+                    </button>
+                </div>
+
+                <!-- Date of birth -->
+                <div class="bmi-field">
+                    <label class="bmi-label">Ngày sinh:</label>
+                    <div class="bmi-input-wrap">
+                        <input type="date" class="bmi-input" [(ngModel)]="dob" (change)="calculate()"
+                            placeholder="dd/mm/yyyy" />
+                    </div>
+                </div>
+
+                <!-- Height -->
+                <div class="bmi-field">
+                    <label class="bmi-label">Chiều cao:</label>
+                    <div class="bmi-input-wrap bmi-input-wrap--number">
+                        <input type="number" class="bmi-input bmi-input--small" [(ngModel)]="height"
+                            (ngModelChange)="calculate()" min="100" max="250" />
+                        <span class="bmi-unit">cm</span>
+                    </div>
+                    <input type="range" class="bmi-slider" [(ngModel)]="height" (ngModelChange)="calculate()" min="100"
+                        max="250" step="1" />
+                </div>
+
+                <!-- Weight -->
+                <div class="bmi-field">
+                    <label class="bmi-label">Cân nặng:</label>
+                    <div class="bmi-input-wrap bmi-input-wrap--number">
+                        <input type="number" class="bmi-input bmi-input--small" [(ngModel)]="weight"
+                            (ngModelChange)="calculate()" min="20" max="300" />
+                        <span class="bmi-unit">kg</span>
+                    </div>
+                    <input type="range" class="bmi-slider" [(ngModel)]="weight" (ngModelChange)="calculate()" min="20"
+                        max="200" step="0.5" />
+                </div>
+
+                <!-- Actions -->
+                <div class="bmi-actions">
+                    <button type="button" class="bmi-btn bmi-btn--reset" (click)="reset()">Đặt lại</button>
+                    <button type="button" class="bmi-btn bmi-btn--save" *ngIf="authService.currentUser()" (click)="save()">Lưu kết quả</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Góc sức khỏe - BMI -->
+        @if (bmiBlogs().length) {
+        <section class="bmi-related-blogs">
+            <div class="bmi-blogs-header">
+                <h2 class="bmi-blogs-title">Góc sức khỏe</h2>
+                <a routerLink="/products" [queryParams]="{ keyword: 'BMI', mode: 'article' }" class="bmi-blogs-more">Xem thêm</a>
+            </div>
+            <div class="bmi-blogs-layout">
+                @if (bmiBlogs()[0]; as mainBlog) {
+                <a [href]="mainBlog.url" target="_blank" rel="noopener" class="bmi-blog-main">
+                    <div class="bmi-blog-main-img">
+                        <img [src]="getBlogImageUrl(mainBlog)" [alt]="mainBlog.title" />
+                        <span class="bmi-blog-tag">{{ mainBlog.categoryName || 'Sức khỏe' }}</span>
+                    </div>
+                    <div class="bmi-blog-main-body">
+                        <h3 class="bmi-blog-main-title">{{ mainBlog.title }}</h3>
+                        <p class="bmi-blog-main-desc">{{ mainBlog.shortDescription }}</p>
+                    </div>
+                </a>
+                }
+                <div class="bmi-blog-side">
+                    @for (blog of bmiBlogs().slice(1, 5); track blog._id || blog.url) {
+                    <a [href]="blog.url" target="_blank" rel="noopener" class="bmi-blog-side-item">
+                        <div class="bmi-blog-side-img"><img [src]="getBlogImageUrl(blog)" [alt]="blog.title" /></div>
+                        <div class="bmi-blog-side-content">
+                            <span class="bmi-blog-tag bmi-blog-tag--inline">{{ blog.categoryName || 'Sức khỏe' }}</span>
+                            <h4 class="bmi-blog-side-title">{{ blog.title }}</h4>
+                            <p class="bmi-blog-side-desc">{{ blog.shortDescription }}</p>
+                        </div>
+                    </a>
+                    }
+                </div>
+            </div>
+        </section>
+        }
+
+        <!-- Góc sức khỏe - BMR -->
+        @if (bmrBlogs().length) {
+        <section class="bmi-related-blogs">
+            <div class="bmi-blogs-header">
+                <h2 class="bmi-blogs-title">Góc sức khỏe</h2>
+                <a routerLink="/products" [queryParams]="{ keyword: 'BMR', mode: 'article' }" class="bmi-blogs-more">Xem thêm</a>
+            </div>
+            <div class="bmi-blogs-layout">
+                @if (bmrBlogs()[0]; as mainBlog) {
+                <a [href]="mainBlog.url" target="_blank" rel="noopener" class="bmi-blog-main">
+                    <div class="bmi-blog-main-img">
+                        <img [src]="getBlogImageUrl(mainBlog)" [alt]="mainBlog.title" />
+                        <span class="bmi-blog-tag">{{ mainBlog.categoryName || 'Sức khỏe' }}</span>
+                    </div>
+                    <div class="bmi-blog-main-body">
+                        <h3 class="bmi-blog-main-title">{{ mainBlog.title }}</h3>
+                        <p class="bmi-blog-main-desc">{{ mainBlog.shortDescription }}</p>
+                    </div>
+                </a>
+                }
+                <div class="bmi-blog-side">
+                    @for (blog of bmrBlogs().slice(1, 5); track blog._id || blog.url) {
+                    <a [href]="blog.url" target="_blank" rel="noopener" class="bmi-blog-side-item">
+                        <div class="bmi-blog-side-img"><img [src]="getBlogImageUrl(blog)" [alt]="blog.title" /></div>
+                        <div class="bmi-blog-side-content">
+                            <span class="bmi-blog-tag bmi-blog-tag--inline">{{ blog.categoryName || 'Sức khỏe' }}</span>
+                            <h4 class="bmi-blog-side-title">{{ blog.title }}</h4>
+                            <p class="bmi-blog-side-desc">{{ blog.shortDescription }}</p>
+                        </div>
+                    </a>
+                    }
+                </div>
+            </div>
+        </section>
+        }
+    </div>
+</div>

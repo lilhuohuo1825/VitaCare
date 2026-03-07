@@ -1,42 +1,199 @@
+<!-- Modal thêm / chỉnh sửa địa chỉ -->
+@if (isDialogOpen) {
+<div class="address-modal-overlay" (click)="closeDialog()">
+  <div class="address-modal" (click)="$event.stopPropagation()" role="dialog"
+    [attr.aria-label]="dialogMode === 'edit' ? 'Chỉnh sửa địa chỉ' : 'Thêm địa chỉ mới'">
+    <button type="button" class="address-modal-close" aria-label="Đóng" (click)="closeDialog()">
+      <i class="bi bi-x-lg"></i>
+    </button>
+
+    <h3 class="address-modal-title">
+      {{ dialogMode === 'edit' ? 'CHỈNH SỬA ĐỊA CHỈ' : 'THÊM ĐỊA CHỈ MỚI' }}
+    </h3>
+
+    <form class="address-modal-form" (ngSubmit)="submitDialog()">
+      <!-- Thông tin cá nhân -->
+      <div class="address-modal-section">
+        <div class="address-modal-section-header">
+          <i class="bi bi-person-circle"></i>
+          <span>Thông tin cá nhân</span>
+        </div>
+        <div class="address-modal-grid address-modal-grid-2">
+          <div class="address-form-group">
+            <label class="address-form-label">Họ và tên <span class="required">*</span></label>
+            <input type="text" class="address-input" [(ngModel)]="form.name" name="name" required
+              placeholder="Họ và tên *" />
+          </div>
+          <div class="address-form-group">
+            <label class="address-form-label">Số điện thoại <span class="required">*</span></label>
+            <input type="tel" class="address-input" [(ngModel)]="form.phone" name="phone" required
+              placeholder="Số điện thoại (ít nhất 10 chữ số)"
+              (blur)="validateFormPhone()"
+              (ngModelChange)="formPhoneError && validateFormPhone()"
+              [class.address-input-error]="formPhoneError" />
+            @if (formPhoneError) {
+              <span class="address-field-error">{{ formPhoneError }}</span>
+            }
+          </div>
+        </div>
+        <div class="address-form-group">
+          <label class="address-form-label">Email (Không bắt buộc)</label>
+          <input type="email" class="address-input" [(ngModel)]="form.email" name="email"
+            placeholder="Email (Không bắt buộc)" />
+        </div>
+      </div>
+
+      <!-- Địa chỉ nhận hàng -->
+      <div class="address-modal-section">
+        <div class="address-modal-section-header">
+          <i class="bi bi-geo-alt"></i>
+          <span>Địa chỉ nhận hàng</span>
+        </div>
+        <div class="address-modal-grid address-modal-grid-2">
+          <div class="address-form-group">
+            <label class="address-form-label">Tỉnh/Thành phố <span class="required">*</span></label>
+            <select class="address-input" [(ngModel)]="form.provinceCode" name="province" required
+              (ngModelChange)="onProvinceChange($event)">
+              <option value="" disabled selected>Chọn Tỉnh/Thành phố *</option>
+              <option *ngFor="let p of provinces" [value]="p.code">
+                {{ p.name_with_type }}
+              </option>
+            </select>
+          </div>
+          <div class="address-form-group">
+            <label class="address-form-label">Quận/Huyện <span class="required">*</span></label>
+            <select class="address-input" [(ngModel)]="form.districtCode" name="district" required
+              (ngModelChange)="onDistrictChange($event)" [disabled]="!form.provinceCode">
+              <option value="" disabled selected>Chọn Quận/Huyện *</option>
+              <option *ngFor="let d of districts" [value]="d.code">
+                {{ d.name_with_type }}
+              </option>
+            </select>
+          </div>
+        </div>
+        <div class="address-form-group">
+          <label class="address-form-label">Phường/Xã <span class="required">*</span></label>
+          <select class="address-input" [(ngModel)]="form.wardCode" name="ward" required
+            [disabled]="!form.districtCode">
+            <option value="" disabled selected>Chọn Phường/Xã *</option>
+            <option *ngFor="let w of wards" [value]="w.code">
+              {{ w.name_with_type }}
+            </option>
+          </select>
+        </div>
+        <div class="address-form-group">
+          <label class="address-form-label">Địa chỉ cụ thể <span class="required">*</span></label>
+          <input class="address-input" [(ngModel)]="form.detail" name="detail" required
+            placeholder="Nhập địa chỉ cụ thể *" />
+        </div>
+        <label class="address-modal-default">
+          <input type="checkbox" [(ngModel)]="form.isDefault" name="isDefault" />
+          <span>Đặt làm địa chỉ mặc định</span>
+        </label>
+      </div>
+
+      <div class="address-modal-actions">
+        <button type="button" class="btn-modal btn-modal-secondary" (click)="closeDialog()">Hủy</button>
+        <button type="submit" class="btn-modal btn-modal-primary">Hoàn thành</button>
+      </div>
+    </form>
+  </div>
+</div>
+}
+
 <!-- Addresses Component - Quản lý số địa chỉ -->
 <div class="addresses-wrapper">
-    <h2 class="addresses-title">QUẢN LÝ SỐ ĐỊA CHỈ</h2>
-
-    <!-- Addresses List -->
-    <div class="addresses-list">
-        <div class="address-card" *ngFor="let address of addresses" [class.is-default]="address.isDefault">
-            <div class="address-header">
-                <h3 class="address-name">{{ address.name }}</h3>
-                <span class="badge-default" *ngIf="address.isDefault">Địa chỉ mặc định</span>
-            </div>
-
-            <div class="address-body">
-                <p class="address-full">{{ address.fullAddress }}</p>
-                <div class="address-contacts">
-                    <span class="contact-item">Số điện thoại: {{ address.phone }}</span>
-                    <span class="contact-item" *ngIf="address.email">Email: {{ address.email }}</span>
-                </div>
-            </div>
-
-            <div class="address-actions">
-                <button class="btn-action btn-edit" (click)="editAddress(address.id)">
-                    <img src="assets/icon/edit.png" alt="Edit" class="icon-sm">
-                    Chỉnh sửa
-                </button>
-                <button class="btn-action btn-delete" (click)="deleteAddress(address.id)">
-                    <img src="assets/icon/delete.png" alt="Delete" class="icon-sm">
-                </button>
-                <button class="btn-action btn-set-default" *ngIf="!address.isDefault"
-                    (click)="setDefaultAddress(address.id)">
-                    Đặt làm mặc định
-                </button>
-            </div>
-        </div>
+  <div class="addresses-header">
+    <div>
+      <h2 class="addresses-title">QUẢN LÝ SỐ ĐỊA CHỈ</h2>
+      <p>Quản lý các địa chỉ giao hàng của bạn</p>
     </div>
+  </div>
 
-    <!-- Add New Button -->
-    <button class="btn-add-new" (click)="addNewAddress()">
-        <img src="assets/icon/add_circle.png" alt="Add" class="icon-add">
-        THÊM ĐỊA CHỈ MỚI
-    </button>
+  <!-- Lỗi tải danh sách -->
+  @if (loadError) {
+  <div class="addresses-error">
+    <p>{{ loadError }}</p>
+    <button type="button" class="btn-retry" (click)="retryLoad()">Thử lại</button>
+  </div>
+  }
+
+  <!-- Đang tải -->
+  @if (loading && !loadError) {
+  <div class="addresses-loading">
+    <span class="loading-spinner" aria-hidden="true"></span>
+    <p>Đang tải danh sách địa chỉ...</p>
+  </div>
+  }
+
+  <!-- Addresses List (chỉ hiện khi không loading và không lỗi) -->
+  @if (!loading && !loadError) {
+  <div class="addresses-list">
+    @if (addresses.length > 0) {
+    <div class="address-card" *ngFor="let address of addresses" [class.is-default]="address.isDefault">
+      <div class="address-header">
+        <h3 class="address-name">{{ address.name }}</h3>
+        <span class="badge-default" *ngIf="address.isDefault">Địa chỉ mặc định</span>
+      </div>
+
+      <div class="address-body">
+        <div class="address-body-content">
+          <div class="address-location">
+            <p class="address-full">{{ address.fullAddress }}</p>
+          </div>
+          <div class="address-contacts">
+            <div class="contact-item">
+              <span class="contact-label">Số điện thoại:</span>
+              <span class="contact-value">{{ address.phone }}</span>
+            </div>
+            <div class="contact-item" *ngIf="address.email">
+              <span class="contact-label">Email:</span>
+              <span class="contact-value">{{ address.email }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="address-actions">
+        <div class="address-actions-row address-actions-row-1">
+          <button type="button" class="btn-action btn-edit" (click)="editAddress(address.id)">
+            <i class="bi bi-pencil icon-action"></i>
+            Chỉnh sửa
+          </button>
+          <button type="button" class="btn-action btn-delete" (click)="deleteAddress(address.id)" title="Xóa">
+            <i class="bi bi-trash icon-action"></i>
+          </button>
+        </div>
+        <div class="address-actions-row address-actions-row-2" *ngIf="!address.isDefault">
+          <button type="button" class="btn-action btn-set-default" (click)="setDefaultAddress(address.id)">
+            Đặt làm mặc định
+          </button>
+        </div>
+      </div>
+    </div>
+    } @else {
+    <div class="addresses-empty">
+      <div class="addresses-empty-icon">
+        <i class="bi bi-pencil"></i>
+      </div>
+      <h3 class="addresses-empty-title">Chưa có địa chỉ nào</h3>
+      <p class="addresses-empty-text">
+        Bạn chưa có địa chỉ giao hàng nào. Hãy thêm địa chỉ để đặt hàng dễ dàng hơn.
+      </p>
+      <button type="button" class="btn-empty-primary" (click)="addNewAddress()">
+        <i class="bi bi-plus-circle"></i>
+        Thêm địa chỉ đầu tiên
+      </button>
+    </div>
+    }
+  </div>
+
+  <!-- Add New Button (chỉ hiển thị khi đã có ít nhất 1 địa chỉ) -->
+  @if (addresses.length > 0) {
+  <button type="button" class="btn-add-new" (click)="addNewAddress()">
+    <i class="bi bi-plus-circle icon-add"></i>
+    THÊM ĐỊA CHỈ MỚI
+  </button>
+  }
+  }
 </div>

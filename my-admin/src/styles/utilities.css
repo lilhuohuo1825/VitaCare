@@ -92,6 +92,16 @@
     font-weight: var(--font-weight-bold);
 }
 
+/* Content title (tiêu đề trang) - thống nhất toàn web */
+.content-title {
+    font-family: var(--font-content-title-family);
+    font-size: var(--font-content-title-size);
+    font-weight: var(--font-content-title-weight);
+    color: var(--font-content-title-color);
+    margin: 0 0 var(--spacing-6) 0;
+    letter-spacing: 0.02em;
+}
+
 /* Text Alignment */
 .text-left {
     text-align: left;
@@ -576,4 +586,301 @@
     margin-right: auto;
     padding-left: var(--container-padding);
     padding-right: var(--container-padding);
+}
+
+/* ========== ICONS (Bootstrap Icons: bi bi-*, xem https://icons.getbootstrap.com/) ========== */
+
+.bi-xs {
+    font-size: 12px;
+}
+
+.bi-sm {
+    font-size: 16px;
+}
+
+.bi-md {
+    font-size: 20px;
+}
+
+.bi-lg {
+    font-size: 24px;
+}
+
+.bi-xl {
+    font-size: 32px;
+}
+
+.bi-2xl {
+    font-size: 48px;
+}
+
+.icon-primary {
+    color: var(--color-primary);
+}
+
+.icon-secondary {
+    color: var(--color-text-secondary);
+}
+
+.icon-success {
+    color: var(--color-success);
+}
+
+.icon-warning {
+    color: var(--color-warning);
+}
+
+.icon-danger {
+    color: var(--color-danger);
+}
+
+.icon-info {
+    color: var(--color-info);
+}
+
+.icon-white {
+    color: var(--color-neutral-10);
+}
+
+.icon-black {
+    color: var(--color-neutral-100);
+}
+
+.btn .bi {
+    margin-right: var(--spacing-2);
+}
+
+.btn .bi:last-child {
+    margin-right: 0;
+    margin-left: var(--spacing-2);
+}
+
+.icon-img {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.icon-img-xs {
+    width: 12px;
+    height: 12px;
+}
+
+.icon-img-sm {
+    width: 16px;
+    height: 16px;
+}
+
+.icon-img-md {
+    width: 20px;
+    height: 20px;
+}
+
+.icon-img-lg {
+    width: 24px;
+    height: 24px;
+}
+
+.icon-img-xl {
+    width: 32px;
+    height: 32px;
+}
+
+.icon-img-2xl {
+    width: 48px;
+    height: 48px;
+}
+
+.icon-img-3xl {
+    width: 64px;
+    height: 64px;
+}
+
+.btn .icon-img {
+    margin-right: var(--spacing-2);
+}
+
+.btn .icon-img:last-child {
+    margin-right: 0;
+    margin-left: var(--spacing-2);
+}
+
+.icon-text {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-2);
+}
+
+.icon-badge {
+    position: relative;
+    display: inline-block;
+}
+
+.icon-badge::after {
+    content: attr(data-badge);
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background-color: var(--color-danger);
+    color: var(--color-text-inverse);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-bold);
+    padding: 2px 6px;
+    border-radius: var(--radius-full);
+    min-width: 18px;
+    text-align: center;
+}
+
+.icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-full);
+    border: none;
+    background-color: var(--color-bg-light);
+    cursor: pointer;
+    transition: var(--transition-base);
+}
+
+.icon-btn:hover {
+    background-color: var(--color-primary-bg);
+    color: var(--color-primary);
+}
+
+.icon-btn-sm {
+    width: 32px;
+    height: 32px;
+}
+
+.icon-btn-lg {
+    width: 48px;
+    height: 48px;
+}
+
+.icon-btn-primary {
+    background-color: var(--color-primary);
+    color: var(--color-text-inverse);
+}
+
+.icon-btn-primary:hover {
+    background-color: var(--color-primary-hover);
+}
+
+.icon-spin {
+    animation: icon-spin 1s linear infinite;
+}
+
+@keyframes icon-spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.icon-pulse {
+    animation: icon-pulse 2s ease-in-out infinite;
+}
+
+@keyframes icon-pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+}
+
+.icon-tooltip {
+    position: relative;
+    cursor: help;
+}
+
+.icon-tooltip::before {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: var(--spacing-2) var(--spacing-3);
+    background-color: var(--color-neutral-100);
+    color: var(--color-text-inverse);
+    font-size: var(--font-size-xs);
+    border-radius: var(--radius-base);
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--transition-base);
+    margin-bottom: var(--spacing-2);
+}
+
+.icon-tooltip:hover::before {
+    opacity: 1;
+}
+
+/* ========== TABLE SCROLLING UTILITIES ========== */
+
+.table-scrollable {
+    max-height: calc(100vh - 300px);
+    overflow-y: auto;
+    overflow-x: auto;
+    border: 1px solid var(--color-neutral-30);
+    border-radius: var(--radius-lg);
+    background-color: var(--color-bg-secondary);
+}
+
+.table-scrollable table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.table-scrollable table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background-color: var(--color-primary);
+    color: white !important;
+}
+
+/* Fix for rounded corners with sticky header */
+.table-scrollable table thead tr:first-child th:first-child {
+    border-top-left-radius: var(--radius-lg);
+}
+
+.table-scrollable table thead tr:first-child th:last-child {
+    border-top-right-radius: var(--radius-lg);
+}
+
+.table-scrollable tr:last-child td:first-child {
+    border-bottom-left-radius: var(--radius-lg);
+}
+
+.table-scrollable tr:last-child td:last-child {
+    border-bottom-right-radius: var(--radius-lg);
+}
+
+.table-scrollable::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.table-scrollable::-webkit-scrollbar-track {
+    background: var(--color-bg-light);
+    border-radius: 4px;
+}
+
+.table-scrollable::-webkit-scrollbar-thumb {
+    background: var(--color-neutral-50);
+    border-radius: 4px;
+}
+
+.table-scrollable::-webkit-scrollbar-thumb:hover {
+    background: var(--color-neutral-60);
 }

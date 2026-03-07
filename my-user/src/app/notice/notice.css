@@ -1,0 +1,441 @@
+/* Notice - Thông báo tài khoản | Đồng bộ với Orders (padding, header, tab, session) */
+
+/* ===== CONTAINER - cùng padding với orders ===== */
+.notice-container {
+  width: 100%;
+  max-width: var(--container-max-width);
+  margin: 0 auto;
+  padding: 0 40px;
+  font-family: var(--font-family-base);
+  color: var(--color-text-primary);
+}
+
+/* ===== HEADER - giống orders-header / orders-title ===== */
+.notice-header {
+  margin-bottom: 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.notice-title {
+  font-family: var(--font-content-title-family);
+  font-size: var(--font-content-title-size);
+  font-weight: var(--font-content-title-weight);
+  color: var(--font-content-title-color);
+  margin: 0 0 8px;
+  letter-spacing: 0.02em;
+}
+
+.notice-header p {
+  color: var(--color-text-secondary);
+  font-size: 16px;
+  margin: 0;
+  font-family: var(--font-family-base);
+}
+
+.notice-mark-all-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: var(--radius-md, 8px);
+  background: var(--color-primary);
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: var(--font-family-base);
+  cursor: pointer;
+  transition: background 0.2s ease, opacity 0.2s ease;
+  white-space: nowrap;
+}
+
+.notice-mark-all-btn:hover:not(:disabled) {
+  background: var(--color-primary-hover, #0d6e4a);
+}
+
+.notice-mark-all-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ===== TAB NAVIGATION - giống orders ===== */
+.notice-container .tab-navigation {
+  margin-bottom: 12px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: white;
+  border-radius: 12px;
+  padding: 4px;
+  box-shadow: var(--shadow-sm);
+}
+
+.notice-container .tab-list {
+  display: flex;
+  gap: 0;
+  justify-content: flex-start;
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  background: transparent;
+  border-radius: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.notice-container .tab-list::-webkit-scrollbar {
+  display: none;
+}
+
+.notice-container .tab-button {
+  flex: 1;
+  padding: 16px 24px;
+  border: none;
+  background: transparent;
+  color: var(--color-text-primary);
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  font-family: var(--font-family-base);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.notice-container .tab-button:hover {
+  color: var(--color-primary);
+}
+
+.notice-container .tab-button.active {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.notice-container .tab-button.active::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 3px;
+  background: var(--color-primary);
+  border-radius: 2px;
+}
+
+.notice-container .tab-badge {
+  background: var(--color-danger);
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 50%;
+  min-width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+/* ===== SESSION - nền xám nhạt, chiều rộng bằng thanh tab ===== */
+.notice-content-wrapper {
+  background: var(--color-neutral-20);
+  border-radius: 16px;
+  padding: 12px 0 32px 0;
+  box-shadow: var(--shadow-sm);
+  min-height: 400px;
+  overflow-y: auto;
+  max-height: calc(100vh - 300px);
+}
+
+.notice-content-wrapper::-webkit-scrollbar {
+  width: 8px;
+}
+
+.notice-content-wrapper::-webkit-scrollbar-track {
+  background: var(--color-neutral-30);
+  border-radius: 4px;
+}
+
+.notice-content-wrapper::-webkit-scrollbar-thumb {
+  background: var(--color-primary);
+  border-radius: 4px;
+}
+
+.notice-content-wrapper::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary-hover);
+}
+
+.notice-content {
+  width: 100%;
+}
+
+/* ===== LIST - từng item có status bar như order-wrapper ===== */
+.notice-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  width: 100%;
+}
+
+.notice-item-wrapper {
+  width: 100%;
+  margin-bottom: 24px;
+  background: var(--color-neutral-10);
+  border-radius: 15px 15px 0 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+  min-height: 140px;
+  box-sizing: border-box;
+}
+
+.notice-item-wrapper:last-child {
+  margin-bottom: 0;
+}
+
+.notice-item-wrapper:hover {
+  box-shadow: 0 6px 20px rgba(0, 88, 159, 0.15);
+  transform: translateY(-2px);
+}
+
+/* Thanh trạng thái (Chưa đọc / Đã đọc) giống order-status-card */
+.notice-status-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: var(--font-family-base);
+  border: none;
+  min-width: 200px;
+}
+
+.notice-status-left,
+.notice-status-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.notice-status-text {
+  font-weight: 600;
+}
+
+.notice-status-sep {
+  color: rgba(0, 0, 0, 0.3);
+  font-weight: 300;
+}
+
+.notice-status-time,
+.notice-status-meta {
+  color: rgba(0, 0, 0, 0.6);
+  font-weight: 500;
+}
+
+.notice-status-unread {
+  background: var(--color-warning-bg);
+  color: var(--color-warning);
+}
+
+.notice-status-read {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+}
+
+/* Nội dung thông báo (phần dưới status bar) - padding text thu gọn */
+.notice-card {
+  display: flex;
+  gap: var(--spacing-3);
+  align-items: flex-start;
+  padding: 16px 16px;
+  min-height: 100px;
+  background: var(--color-neutral-10);
+  border: none;
+  border-top: 1px solid var(--color-neutral-30);
+  border-radius: 0;
+  box-shadow: none;
+  transition: none;
+}
+
+.notice-card:hover {
+  border-color: var(--color-neutral-30);
+  box-shadow: none;
+}
+
+.notice-card.is-read {
+  background: var(--color-neutral-10);
+}
+
+.notice-card.is-read .notice-card-title {
+  font-weight: var(--font-weight-medium);
+}
+
+.notice-card-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 1.5rem;
+}
+
+.notice-icon-order {
+  background: var(--color-primary-bg);
+  color: var(--color-primary);
+}
+
+.notice-icon-prescription {
+  background: var(--color-secondary-bg);
+  color: var(--color-secondary-hover);
+}
+
+.notice-icon-health {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+}
+
+.notice-card-body {
+  flex: 1;
+  min-width: 0;
+  max-width: 75%;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.notice-card-title {
+  font-family: var(--font-family-title);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin: 0 0 12px;
+  line-height: var(--line-height-tight);
+}
+
+.notice-card-message {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin: 0 0 14px;
+  line-height: 1.55;
+}
+
+.notice-card-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.notice-card-time {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-tertiary);
+}
+
+.notice-card-meta-code {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-primary);
+  background: var(--color-primary-bg);
+  padding: 2px var(--spacing-2);
+  border-radius: var(--radius-sm);
+}
+
+.notice-card-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  margin-top: 4px;
+  transition: color var(--transition-fast);
+}
+
+.notice-card-link:hover {
+  color: var(--color-primary-hover);
+}
+
+.notice-card-link .bi {
+  font-size: 0.875rem;
+}
+
+/* ===== EMPTY STATE (trong session) ===== */
+.notice-empty {
+  text-align: center;
+  padding: var(--spacing-12) var(--spacing-6);
+  background: var(--color-neutral-10);
+  border-radius: var(--radius-lg);
+  border: 1px dashed var(--color-neutral-40);
+}
+
+.notice-empty-icon {
+  font-size: 3rem;
+  color: var(--color-neutral-50);
+  margin-bottom: var(--spacing-4);
+  display: block;
+}
+
+.notice-loading-spin {
+  animation: notice-spin 1s linear infinite;
+}
+
+@keyframes notice-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.notice-empty-title {
+  font-family: var(--font-family-title);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin: 0 0 var(--spacing-2);
+}
+
+.notice-empty-desc {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin: 0;
+  max-width: 360px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .notice-container {
+    padding: 0 16px;
+  }
+
+  .notice-title {
+    font-size: var(--font-size-xl);
+  }
+
+  .notice-card {
+    flex-direction: column;
+    padding: var(--spacing-3);
+  }
+
+  .notice-content-wrapper {
+    padding: 20px;
+  }
+}

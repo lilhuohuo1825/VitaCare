@@ -1,1 +1,238 @@
-<p>blogmanage works!</p>
+<div class="container h-full flex flex-col pt-4">
+    <!-- Breadcrumb -->
+    <div class="breadcrumb text-sm mb-2 font-medium" style="color: var(--color-neutral-60);">
+        Quản lý Blog & tin tức
+    </div>
+
+    <!-- Header -->
+    <div class="page-header py-4"
+        style="background: var(--color-bg-light); border-radius: 20px; padding: 20px 30px; box-shadow: var(--shadow-sm); display: flex; justify-content: space-between; align-items: center;">
+        <h1 class="content-title"
+            style="margin: 0; font-size: 28px; text-transform: uppercase; color: var(--color-primary); font-weight: bold;">
+            Quản lý Blog
+        </h1>
+        <button class="btn-add-action" (click)="createBlog()">
+            <i class="bi bi-plus-lg"></i> Thêm bài viết mới
+        </button>
+    </div>
+
+    <!-- Filter & Toolbar -->
+    <div class="filter-bar py-4">
+        <div class="flex items-center gap-4">
+            <div class="search-wrapper">
+                <input type="text" class="search-input" placeholder="Tìm kiếm bài viết...." (input)="onSearch($event)">
+                <i class="bi bi-search search-icon"></i>
+            </div>
+            <div class="selection-info" *ngIf="selectedCount > 0">
+                <span class="highlight">{{ selectedCount }}</span> đã chọn
+            </div>
+        </div>
+
+        <div class="actions-group">
+            <button class="btn btn-sm action-btn icon-text" (click)="editSelected()" [disabled]="selectedCount !== 1"
+                [class.disabled]="selectedCount !== 1">
+                <i class="bi bi-pencil"></i> Chỉnh
+            </button>
+            <div class="dropdown-container">
+                <button class="btn btn-sm action-btn icon-text"
+                    [class.active]="isFilterOpen || selectedCategoryId || selectedStatus"
+                    (click)="toggleFilter($event)">
+                    <i class="bi bi-sliders"></i> Lọc
+                    <span class="selected-badge" *ngIf="selectedCategoryId || selectedStatus">{{ (selectedCategoryId ? 1
+                        : 0) + (selectedStatus ? 1 : 0) }}</span>
+                </button>
+                <!-- Filter Dropdown Panel -->
+                <div class="dropdown-menu-multilevel" *ngIf="isFilterOpen" (click)="$event.stopPropagation()">
+                    <div class="dropdown-item-parent">
+                        <div class="dropdown-item">
+                            <span>Chuyên mục</span>
+                            <span style="font-size: 10px; color: #ccc;">›</span>
+                        </div>
+                        <div class="dropdown-submenu">
+                            <label class="dropdown-option" *ngFor="let cat of categories">
+                                <input type="radio" name="category" [checked]="selectedCategoryId === cat.id"
+                                    (change)="onCategorySelect(cat.id)">
+                                <span>{{ cat.name }}</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="dropdown-item-parent">
+                        <div class="dropdown-item">
+                            <span>Trạng thái duyệt</span>
+                            <span style="font-size: 10px; color: #ccc;">›</span>
+                        </div>
+                        <div class="dropdown-submenu">
+                            <label class="dropdown-option">
+                                <input type="radio" name="status" [checked]="selectedStatus === 'approved'"
+                                    (change)="onStatusSelect('approved')">
+                                <span>Đã duyệt</span>
+                            </label>
+                            <label class="dropdown-option">
+                                <input type="radio" name="status" [checked]="selectedStatus === 'pending'"
+                                    (change)="onStatusSelect('pending')">
+                                <span>Chưa duyệt</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-actions">
+                        <button class="btn-clear-filter" (click)="clearAllFilters()">
+                            <i class="bi bi-trash"></i>
+                            <span>Xóa tất cả bộ lọc</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <button class="btn btn-sm action-btn icon-text" (click)="deleteSelected()" [disabled]="selectedCount === 0"
+                [class.disabled]="selectedCount === 0">
+                <i class="bi bi-trash"></i> Xóa
+            </button>
+            <div class="dropdown-container" style="position: relative;">
+                <button class="btn btn-sm action-btn icon-text" (click)="toggleSortDropdown($event)">
+                    <i class="bi bi-arrow-down-up"></i> Sắp xếp
+                </button>
+                <div class="dropdown-popup" *ngIf="isSortDropdownOpen" (click)="$event.stopPropagation()"
+                    style="position: absolute; top: 100%; right: 0; background-color: var(--color-bg-secondary); border: 1px solid var(--color-neutral-40); box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-radius: 8px; z-index: 100; min-width: 150px; margin-top: 8px;">
+                    <div style="display: flex; flex-direction: column;">
+                        <button (click)="onSortSelect('publishedAtDesc')"
+                            style="padding: 10px 15px; text-align: left; background: transparent; border: none; border-bottom: 1px solid var(--color-neutral-30); cursor: pointer; display: flex; justify-content: space-between; align-items: center;"
+                            [class.active]="sortColumn === 'publishedAt' && sortDirection === 'desc'">
+                            <i class="bi bi-sort-numeric-down-alt"></i> Mới nhất
+                        </button>
+                        <button (click)="onSortSelect('publishedAtAsc')"
+                            style="padding: 10px 15px; text-align: left; background: transparent; border: none; border-bottom: 1px solid var(--color-neutral-30); cursor: pointer; display: flex; justify-content: space-between; align-items: center;"
+                            [class.active]="sortColumn === 'publishedAt' && sortDirection === 'asc'">
+                            <i class="bi bi-sort-numeric-down"></i> Cũ nhất
+                        </button>
+                        <button (click)="onSortSelect('titleDesc')"
+                            style="padding: 10px 15px; text-align: left; background: transparent; border: none; border-bottom: 1px solid var(--color-neutral-30); cursor: pointer; display: flex; justify-content: space-between; align-items: center;"
+                            [class.active]="sortColumn === 'title' && sortDirection === 'desc'">
+                            <i class="bi bi-sort-alpha-down-alt"></i> Tựa đề (Z-A)
+                        </button>
+                        <button (click)="onSortSelect('titleAsc')"
+                            style="padding: 10px 15px; text-align: left; background: transparent; border: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center;"
+                            [class.active]="sortColumn === 'title' && sortDirection === 'asc'">
+                            <i class="bi bi-sort-alpha-down"></i> Tựa đề (A-Z)
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-2 text-secondary">Đang tải dữ liệu...</p>
+    </div>
+
+    <!-- Table -->
+    <div class="table-scrollable" *ngIf="!isLoading">
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 40px;">
+                        <input type="checkbox" [checked]="selectAll" (change)="toggleSelectAll($event)">
+                    </th>
+                    <th style="width: 100px;">Ảnh bìa</th>
+                    <th>Tựa đề</th>
+                    <th>Chuyên mục</th>
+                    <th>Tác giả</th>
+                    <th>Ngày đăng</th>
+                    <th class="text-center">Trạng thái</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let b of filteredBlogs" [class.selected]="b.selected" (click)="viewDetail(b._id)">
+                    <td (click)="$event.stopPropagation()">
+                        <input type="checkbox" [(ngModel)]="b.selected" (change)="onSelectChange()">
+                    </td>
+                    <td>
+                        <img *ngIf="b.primaryImage?.url" [src]="b.primaryImage.url" alt="Cover"
+                            referrerpolicy="no-referrer" onerror="this.src='https://placehold.co/100x100?text=Empty'"
+                            style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;">
+                        <div *ngIf="!b.primaryImage?.url"
+                            style="width: 60px; height: 60px; background: var(--color-neutral-30); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                            <i class="bi bi-image text-secondary"></i>
+                        </div>
+                    </td>
+                    <td class="font-bold" style="max-width: 300px; white-space: normal;">
+                        <span class="blog-title">{{ b.title }}</span>
+                    </td>
+                    <td>{{ b.category?.name || 'Không có' }}</td>
+                    <td>{{ b.author?.fullName || 'Ẩn danh' }}</td>
+                    <td>{{ b.publishedAt | date:'dd/MM/yyyy HH:mm' }}</td>
+                    <td class="text-center">
+                        <div class="status-badge" [ngClass]="b.isApproved ? 'status-active' : 'status-inactive'">
+                            <span class="status-dot"></span>
+                            <span class="status-text">{{ b.isApproved ? 'Đã duyệt' : 'Chưa duyệt' }}</span>
+                        </div>
+                    </td>
+                </tr>
+                <tr *ngIf="filteredBlogs.length === 0">
+                    <td colspan="7" class="text-center text-secondary py-5">
+                        Không có bài viết nào.
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Pagination Controls -->
+        <div class="pagination-controls"
+            style="display: flex; justify-content: space-between; align-items: center; padding: 16px;">
+            <div style="font-size: 14px; color: var(--color-text-secondary);">
+                Trang {{ currentPage }} / {{ totalPages }}
+            </div>
+            <div style="display: flex; gap: 8px;">
+                <button class="btn btn-sm action-btn icon-text" (click)="prevPage()" [disabled]="currentPage === 1">
+                    <i class="bi bi-chevron-left"></i> Trước
+                </button>
+                <button class="btn btn-sm action-btn icon-text" (click)="nextPage()"
+                    [disabled]="currentPage === totalPages">
+                    Sau <i class="bi bi-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal-wrapper" *ngIf="isConfirmModalOpen">
+        <div class="modal-backdrop" (click)="closeConfirmModal()"></div>
+        <div class="modal-content-wrapper compact">
+            <div class="modal-header compact-header"
+                style="background: transparent; border-bottom: none; padding-bottom: 0;">
+                <h5 class="modal-title danger"
+                    style="color: var(--color-danger); display: flex; align-items: center; gap: 10px;">
+                    <i class="bi bi-exclamation-triangle-fill"></i> Xác nhận xóa
+                </h5>
+                <button type="button" class="close-btn" (click)="closeConfirmModal()">&times;</button>
+            </div>
+            <div class="modal-body compact-body" style="padding-top: 10px; padding-bottom: 10px;">
+                <p>Bạn có chắc chắn muốn xóa <strong>{{ selectedCount }}</strong> bài viết đã chọn?</p>
+                <p class="sub-text" style="color: var(--color-text-secondary); font-size: 14px;">Thao tác này không thể
+                    hoàn tác.</p>
+            </div>
+            <div class="modal-footer compact-footer" style="background: transparent; border-top: none;">
+                <button type="button" class="btn action-btn bg-neutral" (click)="closeConfirmModal()"
+                    style="background: var(--color-neutral-20); color: var(--color-text-primary); border: none;">Hủy</button>
+                <button type="button" class="btn btn-danger" (click)="confirmDelete()"
+                    style="background-color: var(--color-danger); color: white; border: none; padding: 8px 20px; border-radius: 8px; font-weight: bold;">Xóa
+                    ngay</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div class="notification-toast" *ngIf="notification.show" [ngClass]="notification.type">
+        <i class="bi" [ngClass]="{
+            'bi-check-circle-fill': notification.type === 'success',
+            'bi-x-circle-fill': notification.type === 'error',
+            'bi-exclamation-triangle-fill': notification.type === 'warning'
+        }"></i>
+        <span>{{ notification.message }}</span>
+    </div>
+</div>

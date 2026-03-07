@@ -1,99 +1,377 @@
-<!-- Prescriptions Component - Đơn thuốc của tôi -->
-<div class="prescriptions-wrapper">
+<!-- Prescriptions Management Component -->
+<div class="prescriptions-container">
+    <!-- Header Section -->
     <div class="prescriptions-header">
-        <h2 class="prescriptions-title">ĐƠN THUỐC CỦA TÔI</h2>
-        <button class="btn-upload" (click)="uploadPrescription()">
-            GỬI YÊU CẦU MỚI
-        </button>
-    </div>
-
-    <!-- Tabs -->
-    <div class="prescriptions-tabs">
-        <button class="tab-btn" [class.active]="activeTab === 'all'" (click)="setActiveTab('all')">
-            Tất cả
-            <span class="tab-badge" *ngIf="getPrescriptionCount('all') > 0">{{ getPrescriptionCount('all') }}</span>
-        </button>
-        <button class="tab-btn" [class.active]="activeTab === 'pending'" (click)="setActiveTab('pending')">
-            Chờ tư vấn
-            <span class="tab-badge" *ngIf="getPrescriptionCount('pending') > 0">{{ getPrescriptionCount('pending')
-                }}</span>
-        </button>
-        <button class="tab-btn" [class.active]="activeTab === 'completed'" (click)="setActiveTab('completed')">
-            Đã tư vấn
-            <span class="tab-badge" *ngIf="getPrescriptionCount('completed') > 0">{{ getPrescriptionCount('completed')
-                }}</span>
-        </button>
-        <button class="tab-btn" [class.active]="activeTab === 'unreachable'" (click)="setActiveTab('unreachable')">
-            Chưa thể liên hệ
-            <span class="tab-badge" *ngIf="getPrescriptionCount('unreachable') > 0">{{
-                getPrescriptionCount('unreachable') }}</span>
-        </button>
-        <button class="tab-btn" [class.active]="activeTab === 'cancelled'" (click)="setActiveTab('cancelled')">
-            Đã hủy
-            <span class="tab-badge" *ngIf="getPrescriptionCount('cancelled') > 0">{{ getPrescriptionCount('cancelled')
-                }}</span>
-        </button>
-    </div>
-
-    <!-- Filter Bar -->
-    <div class="filter-bar">
-        <span class="filter-label">Trạng thái đơn thuốc</span>
-        <span class="filter-label">Ngày đặt</span>
-        <span class="filter-label">n sản phẩm (số lượng)</span>
-        <span class="filter-label">Mã đơn đặt thuốc</span>
-        <img src="assets/icon/edit.png" alt="Edit" class="filter-icon">
-    </div>
-
-    <!-- Prescriptions List -->
-    <div class="prescriptions-list">
-        <div class="prescription-card" *ngFor="let prescription of filteredPrescriptions">
-            <div class="prescription-header">
-                <div class="prescription-info">
-                    <span class="prescription-status">{{ prescription.statusText }}</span>
-                </div>
-                <div class="prescription-meta">
-                    <span class="prescription-date">{{ prescription.date }}</span>
-                    <span class="prescription-id">#{{ prescription.id }}</span>
-                </div>
-            </div>
-
-            <div class="prescription-items">
-                <div class="prescription-item" *ngFor="let item of prescription.items">
-                    <div class="item-image">
-                        <img [src]="item.image" [alt]="item.name" onerror="this.src='assets/icon/medical_16660084.png'">
-                    </div>
-                    <div class="item-details">
-                        <h4 class="item-name">{{ item.name }}</h4>
-                        <p class="item-desc">{{ item.description }}</p>
-                        <p class="item-price">{{ item.price | number:'1.0-0' }} ₫/viên</p>
-                    </div>
-                    <div class="item-summary">
-                        <p class="item-quantity">Số lượng: {{ item.quantity }}</p>
-                        <p class="item-total">Giá tổng</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="prescription-footer">
-                <button class="btn-expand" (click)="togglePrescriptionDetails(prescription.id)">
-                    Thu gọn
-                    <img src="assets/icon/arrowup_circle.png" alt="collapse" class="icon-sm">
+        <div>
+            <h1 class="prescriptions-title">ĐƠN THUỐC CỦA TÔI</h1>
+            <p>Theo dõi yêu cầu tư vấn đơn thuốc của bạn</p>
+        </div>
+        <div class="search-container">
+            <div class="search-box">
+                <button type="button" class="search-icon-btn" (click)="performSearch()">
+                    <i class="bi bi-search search-icon"></i>
                 </button>
-                <div class="prescription-total">
-                    <span class="total-label">Tổng số tiền:</span>
-                    <span class="total-amount">{{ prescription.total | number:'1.0-0' }} ₫</span>
-                </div>
-                <button class="btn-consult" *ngIf="prescription.status === 'completed'"
-                    (click)="requestConsultation(prescription.id)">
-                    Huy yêu cầu
+                <input #searchInput type="text" [(ngModel)]="searchQuery"
+                    placeholder="Tìm kiếm theo mã đơn hàng hoặc tên sản phẩm" class="search-input"
+                    (keyup.enter)="performSearch()" />
+                <button *ngIf="searchQuery" type="button" class="clear-btn" (click)="clearSearch()">
+                    <i class="bi bi-x-circle-fill clear-icon"></i>
                 </button>
             </div>
         </div>
+    </div>
 
-        <!-- Empty State -->
-        <div class="empty-state" *ngIf="filteredPrescriptions.length === 0">
-            <img src="assets/icon/medical_16660084.png" alt="No prescriptions" class="empty-icon">
-            <p class="empty-text">Không có đơn thuốc nào</p>
+    <!-- Tab Navigation -->
+    <div class="tab-navigation">
+        <div class="tab-list">
+            <button *ngFor="let tab of tabs" class="tab-button" [class.active]="activeTab === tab.id"
+                (click)="setActiveTab(tab.id)">
+                <span class="tab-label">{{ tab.label }}</span>
+                <span class="tab-badge" *ngIf="tab.count > 0 && tab.id !== 'all'">{{ tab.count }}</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Prescriptions Content -->
+    <div class="prescriptions-content-wrapper">
+        <div class="prescriptions-content">
+            <!-- Prescriptions List -->
+            <div *ngIf="filteredPrescriptions.length > 0" class="prescriptions-list">
+                <div *ngFor="let prescription of filteredPrescriptions" class="prescription-wrapper">
+                    <!-- Status Card - Header -->
+                    <div class="prescription-status-card" [class]="getStatusClass(prescription.status)">
+                        <div class="status-left">
+                            <span class="status-text">{{ getStatusLabel(prescription.status) }}</span>
+                        </div>
+                        <div class="status-right">
+                            <span class="status-date">{{ formatDate(prescription.createdAt) }}</span>
+                            <span class="status-separator">|</span>
+                            <span class="status-prescription-code">{{ prescription.prescriptionId }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Prescription Card -->
+                    <div class="prescription-card" (click)="viewDetails(prescription)" style="cursor: pointer">
+                        <!-- Products/Medicines List -->
+                        <div class="products-section">
+                            <!-- Display requested medicines -->
+                            <div *ngFor="let medicine of prescription.medicines_requested; let i = index">
+                                <div class="product-item" *ngIf="i < 3 || isExpanded(prescription)">
+                                    <div class="product-left">
+                                        <div class="product-image">
+                                            <ng-container *ngIf="getMedicineImage(medicine)">
+                                                <img [src]="getMedicineImage(medicine)" alt="Thuốc" class="product-img"
+                                                    (error)="$any($event.target).style.display='none'; $any($event.target).nextElementSibling.style.display='flex'" />
+                                                <div class="product-img product-img-icon" style="display:none">
+                                                    <i class="bi bi-capsule-pill"></i>
+                                                </div>
+                                            </ng-container>
+                                            <div *ngIf="!getMedicineImage(medicine)" class="product-img product-img-icon">
+                                                <i class="bi bi-capsule-pill"></i>
+                                            </div>
+                                        </div>
+                                        <div class="product-details">
+                                            <h3 class="product-name">{{ getMedicineName(medicine) || 'Thuốc' }}</h3>
+                                            <p class="product-price">Đang cập nhật</p>
+                                        </div>
+                                    </div>
+                                    <div class="product-right">
+                                        <div class="product-quantity">Số lượng: {{ getMedicineQuantity(medicine) }}</div>
+                                        <div class="product-total">-</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- If no medicines, show image representation -->
+                            <div
+                                *ngIf="!prescription.medicines_requested || prescription.medicines_requested.length === 0">
+                                <div class="product-item">
+                                    <div class="product-left">
+                                        <div class="product-image">
+                                            <ng-container *ngIf="prescription.images.length && prescription.images[0]">
+                                                <img [src]="prescription.images[0]" alt="Đơn thuốc" class="product-img"
+                                                    (error)="$any($event.target).style.display='none'; $any($event.target).nextElementSibling.style.display='flex'" />
+                                                <div class="product-img product-img-icon" style="display:none">
+                                                    <i class="bi bi-capsule-pill"></i>
+                                                </div>
+                                            </ng-container>
+                                            <div *ngIf="!prescription.images.length || !prescription.images[0]" class="product-img product-img-icon">
+                                                <i class="bi bi-capsule-pill"></i>
+                                            </div>
+                                        </div>
+                                        <div class="product-details">
+                                            <h3 class="product-name">Đơn thuốc (hình ảnh)</h3>
+                                            <p class="product-price">{{ prescription.note || 'Đang chờ xử lý' }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="product-right">
+                                        <div class="product-quantity">{{ prescription.images.length || 0 }} ảnh</div>
+                                        <div class="product-total">-</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Prescription Summary - Bar 1: View More / Total -->
+                    <div class="prescription-summary">
+                        <div class="summary-left">
+                            <button *ngIf="hasMoreMedicines(prescription)" class="action-btn view-more"
+                                (click)="toggleExpand(prescription)">
+                                <span>{{ isExpanded(prescription) ? 'Thu gọn' : 'Xem thêm' }}</span>
+                                <i class="bi bi-chevron-down arrow-icon" [class.rotated]="isExpanded(prescription)"></i>
+                            </button>
+                        </div>
+                        <div class="summary-center">
+                            <div class="total-section">
+                                <span class="total-label">Tổng số thuốc yêu cầu:</span>
+                                <span class="total-amount">{{ prescription.medicines_requested.length || 0 }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Prescription Summary - Bar 2: Action Buttons -->
+                    <div class="prescription-summary"
+                        *ngIf="prescription.status !== 'waiting'">
+                        <div class="summary-right">
+                            <!-- Chờ xử lý: chỉ có Hủy tư vấn -->
+                            <button *ngIf="prescription.status === 'pending'" class="action-btn cancel-btn"
+                                (click)="openCancelModal(prescription); $event.stopPropagation()">
+                                Hủy tư vấn
+                            </button>
+
+                            <!-- Đã tư vấn / Đã hủy / Chưa thể liên hệ: chỉ có Tư vấn lại -->
+                            <button *ngIf="prescription.status === 'advised' || prescription.status === 'cancelled' || prescription.status === 'unreachable'"
+                                class="action-btn repurchase-btn"
+                                (click)="reconsult(prescription); $event.stopPropagation()">
+                                Tư vấn lại
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div *ngIf="filteredPrescriptions.length === 0" class="empty-state">
+                <div class="empty-icon">
+                    <img src="assets/icon/no-order.png" alt="No prescriptions" class="empty-icon-img" />
+                </div>
+                <p class="empty-message">Bạn không có đơn thuốc nào</p>
+            </div>
+        </div>
+    </div>
+<!-- Cancel Consultation Request Modal -->
+<div class="modal-overlay" *ngIf="showCancelModal" (click)="closeCancelModal()">
+    <div class="cancel-modal-content" (click)="$event.stopPropagation()">
+        <div class="warning-icon">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="10" fill="#ffc107" />
+                <path d="M12 8v4M12 16h.01" stroke="white" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round" />
+            </svg>
+        </div>
+        <div class="cancel-message">
+            <h3 class="cancel-title">Xác nhận hủy tư vấn</h3>
+            <p class="cancel-text">Bạn có chắc chắn muốn hủy yêu cầu tư vấn đơn thuốc này không?</p>
+        </div>
+        <div class="cancel-footer">
+            <button class="cancel-modal-btn cancel-no-btn" (click)="closeCancelModal()">Hủy</button>
+            <button class="cancel-modal-btn cancel-yes-btn" (click)="confirmCancelFromModal()">OK</button>
+        </div>
+    </div>
+</div>
+
+<!-- Prescription Detail Modal -->
+<div class="modal-overlay prescription-detail-overlay" *ngIf="showDetailModal" (click)="closeDetailModal()">
+    <div class="modal-content prescription-detail-modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h2 class="modal-title">Chi tiết đơn thuốc</h2>
+            <button class="close-btn" type="button" (click)="closeDetailModal()">&times;</button>
+        </div>
+
+        <div class="modal-body prescription-detail-body">
+            <!-- Left column: prescriptions list -->
+            <div class="prescription-list-column">
+                <div class="search-section">
+                    <div class="search-box">
+                        <input type="text" [(ngModel)]="detailSearchQuery" (input)="onDetailSearchChange()"
+                            placeholder="Nhập mã đơn thuốc hoặc tên thuốc..." class="search-input" />
+                        <button type="button" class="search-icon-btn" (click)="onDetailSearchChange()">
+                            <i class="bi bi-search search-icon"></i>
+                        </button>
+                        <button *ngIf="detailSearchQuery" type="button" class="clear-btn"
+                            (click)="detailSearchQuery=''; onDetailSearchChange()">
+                            <i class="bi bi-x-circle-fill clear-icon"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="prescription-list">
+                    <div *ngFor="let p of detailFilteredPrescriptions" class="prescription-list-item"
+                        (click)="selectDetailPrescription(p)"
+                        [class.selected]="selectedPrescription?._id === p._id">
+                        <div class="prescription-item-header">
+                            <span class="prescription-code">{{ p.prescriptionId }}</span>
+                            <span class="prescription-status-badge" [class]="getStatusClass(p.status)">
+                                {{ getStatusLabel(p.status) }}
+                            </span>
+                        </div>
+                        <div class="prescription-item-body">
+                            <span class="prescription-date">{{ formatDate(p.createdAt) }}</span>
+                            <span class="prescription-note-preview">
+                                {{ p.note || 'Không có ghi chú' }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div *ngIf="detailFilteredPrescriptions.length === 0" class="empty-state">
+                        <p class="empty-detail-text">Không tìm thấy đơn thuốc nào</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right column: prescription detail -->
+            <div class="prescription-detail-column" *ngIf="selectedPrescription as detail; else emptyDetail">
+                <div class="detail-content prescription-detail-content">
+                    <div class="detail-section">
+                        <h3 class="section-title">Thông tin đơn thuốc</h3>
+                        <div class="detail-row">
+                            <span class="detail-label">Mã đơn thuốc:</span>
+                            <span class="detail-value detail-code">{{ detail.prescriptionId }}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Trạng thái:</span>
+                            <span class="detail-value">
+                                <span class="status-badge" [class]="getStatusClass(detail.status)">
+                                    {{ getStatusLabel(detail.status) }}
+                                </span>
+                            </span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Thời gian tạo:</span>
+                            <span class="detail-value">{{ formatDateTime(detail.createdAt) }}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Cập nhật lần cuối:</span>
+                            <span class="detail-value">{{ formatDateTime(detail.updatedAt) }}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Hình thức tư vấn:</span>
+                            <span class="detail-value">{{ getConsultationTypeLabel(detail.consultation_type) }}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Loại đơn:</span>
+                            <span class="detail-value">{{ detail.is_follow_up ? 'Đơn tái tư vấn' : 'Đơn tư vấn mới' }}</span>
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3 class="section-title">Thông tin khách hàng</h3>
+                        <div class="detail-row">
+                            <span class="detail-label">Họ và tên:</span>
+                            <span class="detail-value">{{ detail.full_name }}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Số điện thoại:</span>
+                            <span class="detail-value">{{ detail.phone }}</span>
+                        </div>
+                    </div>
+
+                    <div class="detail-section" *ngIf="detail.pharmacistName || detail.pharmacistPhone">
+                        <h3 class="section-title">Thông tin dược sĩ</h3>
+                        <div class="detail-row">
+                            <span class="detail-label">Dược sĩ phụ trách:</span>
+                            <span class="detail-value">{{ detail.pharmacistName || 'Đang cập nhật' }}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Số điện thoại:</span>
+                            <span class="detail-value">{{ detail.pharmacistPhone || '-' }}</span>
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3 class="section-title">Ghi chú</h3>
+                        <div class="detail-note">
+                            {{ detail.note || 'Không có ghi chú' }}
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3 class="section-title">Thuốc yêu cầu</h3>
+                        <div class="medicines-list" *ngIf="detail.medicines_requested.length; else noMedicines">
+                            <div class="medicine-item"
+                                *ngFor="let medicine of detail.medicines_requested; let i = index">
+                                <div class="medicine-index">#{{ i + 1 }}</div>
+                                <div class="medicine-main">
+                                    <div class="product-image">
+                                        <ng-container *ngIf="getMedicineImage(medicine); else medicineIconOnly">
+                                            <img [src]="getMedicineImage(medicine)" alt="Thuốc" class="product-img"
+                                                (error)="$any($event.target).style.display='none'; $any($event.target).nextElementSibling.style.display='flex'" />
+                                            <div class="product-img product-img-icon" style="display: none">
+                                                <i class="bi bi-capsule-pill"></i>
+                                            </div>
+                                        </ng-container>
+                                        <ng-template #medicineIconOnly>
+                                            <div class="product-img product-img-icon">
+                                                <i class="bi bi-capsule-pill"></i>
+                                            </div>
+                                        </ng-template>
+                                    </div>
+                                    <div class="medicine-info">
+                                        <div class="medicine-name">{{ getMedicineName(medicine) || 'Thuốc' }}</div>
+                                        <div class="medicine-quantity">Số lượng: {{ getMedicineQuantity(medicine) }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <ng-template #noMedicines>
+                            <p class="empty-detail-text">Chưa có danh sách thuốc, dược sĩ sẽ tư vấn sau.</p>
+                        </ng-template>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3 class="section-title">Hình ảnh đơn thuốc</h3>
+                        <div class="images-grid" *ngIf="detail.images.length; else noImages">
+                            <div class="image-item" *ngFor="let img of detail.images">
+                                <div class="product-image">
+                                    <ng-container *ngIf="img">
+                                        <img [src]="img" alt="Ảnh đơn thuốc" class="product-img"
+                                            (error)="$any($event.target).style.display='none'; $any($event.target).nextElementSibling.style.display='flex'" />
+                                        <div class="product-img product-img-icon" style="display: none">
+                                            <i class="bi bi-capsule-pill"></i>
+                                        </div>
+                                    </ng-container>
+                                </div>
+                            </div>
+                        </div>
+                        <ng-template #noImages>
+                            <p class="empty-detail-text">Không có hình ảnh đơn thuốc.</p>
+                        </ng-template>
+                    </div>
+                </div>
+            </div>
+
+            <ng-template #emptyDetail>
+                <div class="prescription-detail-column empty-detail">
+                    <div class="empty-detail-message">
+                        <p class="empty-detail-text">Chọn một đơn thuốc để xem chi tiết</p>
+                    </div>
+                </div>
+            </ng-template>
+        </div>
+        <!-- Footer actions inside modal -->
+        <div class="modal-footer" *ngIf="selectedPrescription as detail">
+            <div class="footer-action-buttons">
+                <button *ngIf="detail.status === 'pending'" class="action-btn cancel-btn"
+                    (click)="openCancelModal(detail)">
+                    Hủy tư vấn
+                </button>
+
+                <button *ngIf="detail.status === 'advised' || detail.status === 'cancelled' || detail.status === 'unreachable'"
+                    class="action-btn repurchase-btn" (click)="reconsult(detail)">
+                    Tư vấn lại
+                </button>
+            </div>
         </div>
     </div>
 </div>

@@ -9,7 +9,14 @@
     "consultation_type": "symptom",
     "images": [],
     "medicines_requested": [
-      "Thuốc Dimenhydrinat 50mg Traphaco chống nôn, chống say tàu xe (10 vỉ x 10 viên)"
+      {
+        "id": {
+          "$oid": "68f1de3b44d747b5d5d897f4"
+        },
+        "name": "Thuốc Dimenhydrinat 50mg Traphaco chống nôn, chống say tàu xe (10 vỉ x 10 viên)",
+        "sku": "104335",
+        "image": "https://cdn.nhathuoclongchau.com.vn/unsafe/256x0/filters:quality(90)/IMG_7312_4749e5da70.jpg"
+      }
     ],
     "status": "unreachable",
     "current_status": {
@@ -172,8 +179,22 @@
       "https://example.com/img98.jpg"
     ],
     "medicines_requested": [
-      "Viên uống Maca M Male Power hỗ trợ bổ thận, tráng dương (60 viên)",
-      "Dung dịch tiêm Dexamethasone 4mg/1ml điều trị trạng thái hen, bệnh dị ứng nặng, phản ứng sau truyền máu (50 ống)"
+      {
+        "id": {
+          "$oid": "68f1de3a44d747b5d5d88905"
+        },
+        "name": "Viên uống Maca M Male Power hỗ trợ bổ thận, tráng dương (60 viên)",
+        "sku": "100513",
+        "image": "https://cdn.nhathuoclongchau.com.vn/unsafe/256x0/filters:quality(90)/00028718_maca_m_male_power_60v_7335_5f62_large_ee96a5fd36.JPG"
+      },
+      {
+        "id": {
+          "$oid": "68f1de3a44d747b5d5d891af"
+        },
+        "name": "Dung dịch tiêm Dexamethasone 4mg/1ml điều trị trạng thái hen, bệnh dị ứng nặng, phản ứng sau truyền máu (50 ống)",
+        "sku": "102731",
+        "image": "https://cdn.nhathuoclongchau.com.vn/unsafe/256x0/filters:quality(90)/DSC_03671_9ff551e12f.jpg"
+      }
     ],
     "status": "advised",
     "current_status": {
@@ -219,7 +240,14 @@
       "https://example.com/img72.jpg"
     ],
     "medicines_requested": [
-      "Nước tẩy trang JMSolution Derma Care Centella cho da dầu mụn, nhạy cảm (500ml)"
+      {
+        "id": {
+          "$oid": "68f1de3a44d747b5d5d889a3"
+        },
+        "name": "Nước tẩy trang JMSolution Derma Care Centella cho da dầu mụn, nhạy cảm (500ml)",
+        "sku": "100671",
+        "image": "https://cdn.nhathuoclongchau.com.vn/unsafe/256x0/filters:quality(90)/DSC_04740_8ade38f685.jpg"
+      }
     ],
     "status": "advised",
     "current_status": {
@@ -263,9 +291,30 @@
     "consultation_type": "symptom",
     "images": [],
     "medicines_requested": [
-      "Kem bôi Biotrade Acnaut Active Cream hỗ trợ cải thiện mụn viêm (15ml)",
-      "Siro ATessen An Thiên hỗ trợ giảm ho khan, ho không đờm, ho mạn tính (30 ống x 5ml)",
-      "Sữa rửa mặt Reihaku Hatomugi Acne Care and Facial Washing giúp ngừa mụn, dưỡng ẩm và làm sáng da (130g)"
+      {
+        "id": {
+          "$oid": "68f1de3a44d747b5d5d889b8"
+        },
+        "name": "Kem bôi Biotrade Acnaut Active Cream hỗ trợ cải thiện mụn viêm (15ml)",
+        "sku": "100692",
+        "image": "https://cdn.nhathuoclongchau.com.vn/unsafe/256x0/filters:quality(90)/DSC_00989_7ff75ed358.jpg"
+      },
+      {
+        "id": {
+          "$oid": "68f1de3a44d747b5d5d890ce"
+        },
+        "name": "Siro ATessen An Thiên hỗ trợ giảm ho khan, ho không đờm, ho mạn tính (30 ống x 5ml)",
+        "sku": "102506",
+        "image": "https://cdn.nhathuoclongchau.com.vn/unsafe/256x0/filters:quality(90)/00501375_e23ce2bfb1.jpg"
+      },
+      {
+        "id": {
+          "$oid": "68f1de3a44d747b5d5d88a23"
+        },
+        "name": "Sữa rửa mặt Reihaku Hatomugi Acne Care and Facial Washing giúp ngừa mụn, dưỡng ẩm và làm sáng da (130g)",
+        "sku": "100799",
+        "image": "https://cdn.nhathuoclongchau.com.vn/unsafe/256x0/filters:quality(90)/00503325_sua_rua_mat_ngua_mun_duong_am_va_lam_sang_da_reihaku_hatomugi_acne_care_and_facial_washing_130g_9270_63ed_large_3f5868bde7.jpg"
+      }
     ],
     "status": "unreachable",
     "current_status": {
@@ -311,7 +360,14 @@
       "https://example.com/img72.jpg"
     ],
     "medicines_requested": [
-      "Thuốc Bequantene 100mg Mediplantex điều trị chứng rụng tóc lan tỏa (2 vỉ x 10 viên)"
+      {
+        "id": {
+          "$oid": "68f1de3b44d747b5d5d8990a"
+        },
+        "name": "Thuốc Bequantene 100mg Mediplantex điều trị chứng rụng tóc lan tỏa (2 vỉ x 10 viên)",
+        "sku": "104613",
+        "image": "https://cdn.nhathuoclongchau.com.vn/unsafe/256x0/filters:quality(90)/IMG_3930_18d0d8c807.jpg"
+      }
     ],
     "status": "advised",
     "current_status": {
@@ -593,9 +649,30 @@
       "https://example.com/img55.jpg"
     ],
     "medicines_requested": [
-      "Thuốc Tiram 100mg Shinpoong Deawoo điều trị co thắt dạ dày ruột (10 vỉ x 10 viên)",
-      "Dầu xả hoa bưởi La Beauty mượt tóc và giảm gãy rụng (300ml)",
-      "Dung dịch tiêm Heparin-Belmed 5ml chống đông máu (5 lọ)"
+      {
+        "id": {
+          "$oid": "68f1de3b44d747b5d5d892bc"
+        },
+        "name": "Thuốc Tiram 100mg Shinpoong Deawoo điều trị co thắt dạ dày ruột (10 vỉ x 10 viên)",
+        "sku": "102999",
+        "image": "https://cdn.nhathuoclongchau.com.vn/unsafe/256x0/filters:quality(90)/DSC_04055_3fdbc3fe39.png"
+      },
+      {
+        "id": {
+          "$oid": "68f1de3a44d747b5d5d889f8"
+        },
+        "name": "Dầu xả hoa bưởi La Beauty mượt tóc và giảm gãy rụng (300ml)",
+        "sku": "100756",
+        "image": "https://cdn.nhathuoclongchau.com.vn/unsafe/256x0/filters:quality(90)/DSC_09226_25086dae48.png"
+      },
+      {
+        "id": {
+          "$oid": "68f1de3a44d747b5d5d88f5f"
+        },
+        "name": "Dung dịch tiêm Heparin-Belmed 5ml chống đông máu (5 lọ)",
+        "sku": "102139",
+        "image": "https://cdn.nhathuoclongchau.com.vn/unsafe/256x0/filters:quality(90)/00503779_837d0d567f.jpg"
+      }
     ],
     "status": "advised",
     "current_status": {
@@ -639,9 +716,30 @@
     "consultation_type": "symptom",
     "images": [],
     "medicines_requested": [
-      "Thuốc Propranolol 40mg TV.Pharm điều trị tăng huyết áp, đau thắt ngực (10 vỉ x 10 viên)",
-      "Thuốc Zestril 5mg AstraZeneca điều trị tăng huyết áp, suy tim (2 vỉ x 14 viên)",
-      "Hỗn dịch uống Fexihist điều trị viêm mũi dị ứng (60ml)"
+      {
+        "id": {
+          "$oid": "68f1de3c44d747b5d5d8a1ba"
+        },
+        "name": "Thuốc Propranolol 40mg TV.Pharm điều trị tăng huyết áp, đau thắt ngực (10 vỉ x 10 viên)",
+        "sku": "106837",
+        "image": "https://cdn.nhathuoclongchau.com.vn/unsafe/256x0/filters:quality(90)/00030240_propranolol_40mg_tvpharm_10x10_4574_61c9_large_3c17e2406a.jpg"
+      },
+      {
+        "id": {
+          "$oid": "68f1de3b44d747b5d5d893b0"
+        },
+        "name": "Thuốc Zestril 5mg AstraZeneca điều trị tăng huyết áp, suy tim (2 vỉ x 14 viên)",
+        "sku": "103243",
+        "image": "https://cdn.nhathuoclongchau.com.vn/unsafe/256x0/filters:quality(90)/IMG_1427_30c21fdaa6.jpg"
+      },
+      {
+        "id": {
+          "$oid": "68f1de3c44d747b5d5d8a0bd"
+        },
+        "name": "Hỗn dịch uống Fexihist điều trị viêm mũi dị ứng (60ml)",
+        "sku": "106584",
+        "image": "https://cdn.nhathuoclongchau.com.vn/unsafe/256x0/filters:quality(90)/00029237_fexihist_60ml_9032_616c_large_0c6cbec1b1.jpg"
+      }
     ],
     "status": "pending",
     "current_status": {
@@ -675,9 +773,30 @@
     "consultation_type": "symptom",
     "images": [],
     "medicines_requested": [
-      "Mặt nạ xông hơi mắt MegRhythm KAO hương hoa cúc dễ chịu, thư giãn đôi mắt (5 miếng)",
-      "Viên uống Liverwell Nutrimed hỗ trợ giải độc gan giúp hỗ trợ giải độc gan, bảo vệ tế bào gan (60 viên)",
-      "Viên sủi Napharangan 500mg Nam Hà hạ nhiệt, giảm đau, điều trị sốt từ nhẹ đến vừa (4 vỉ x 4 viên) "
+      {
+        "id": {
+          "$oid": "68f1de3a44d747b5d5d88a8e"
+        },
+        "name": "Mặt nạ xông hơi mắt MegRhythm KAO hương hoa cúc dễ chịu, thư giãn đôi mắt (5 miếng)",
+        "sku": "100906",
+        "image": "https://cdn.nhathuoclongchau.com.vn/unsafe/256x0/filters:quality(90)/00033674_mat_na_xong_hoi_mat_megrhythm_huong_hoa_cuc_5363_6417_large_8785dfe680.jpg"
+      },
+      {
+        "id": {
+          "$oid": "68f1de3a44d747b5d5d888f9"
+        },
+        "name": "Viên uống Liverwell Nutrimed hỗ trợ giải độc gan giúp hỗ trợ giải độc gan, bảo vệ tế bào gan (60 viên)",
+        "sku": "100501",
+        "image": "https://cdn.nhathuoclongchau.com.vn/unsafe/256x0/filters:quality(90)/DSC_09561_716c521238.jpg"
+      },
+      {
+        "id": {
+          "$oid": "68f1de3c44d747b5d5d89ec9"
+        },
+        "name": "Viên sủi Napharangan 500mg Nam Hà hạ nhiệt, giảm đau, điều trị sốt từ nhẹ đến vừa (4 vỉ x 4 viên) ",
+        "sku": "106084",
+        "image": "https://cdn.nhathuoclongchau.com.vn/unsafe/256x0/filters:quality(90)/IMG_5973_5d2bd11223.jpg"
+      }
     ],
     "status": "unreachable",
     "current_status": {
@@ -802,9 +921,30 @@
     "consultation_type": "symptom",
     "images": [],
     "medicines_requested": [
-      "Găng tay cao su y tế có bột Latex ASAP Malaysia Size S (100 cái)",
-      "Thuốc Elovess 500mg USP dùng trong sạm da do mỹ phẩm, viêm da do thuốc, dị ứng (12 vỉ x 5 viên)",
-      "Thuốc Cttzil 500 Eloge điều trị nhiễm trùng nhẹ tới trung bình (1 vỉ x 10 viên) "
+      {
+        "id": {
+          "$oid": "68f1de3c44d747b5d5d8a647"
+        },
+        "name": "Găng tay cao su y tế có bột Latex ASAP Malaysia Size S (100 cái)",
+        "sku": "108002",
+        "image": "https://cdn.nhathuoclongchau.com.vn/unsafe/256x0/filters:quality(90)/00029584_gang_tay_cao_su_y_te_co_bot_latex_asap_malaysia_size_s_hop_100_cai_1305_600a_large_531aa0d1a1.JPG"
+      },
+      {
+        "id": {
+          "$oid": "68f1de3c44d747b5d5d89f67"
+        },
+        "name": "Thuốc Elovess 500mg USP dùng trong sạm da do mỹ phẩm, viêm da do thuốc, dị ứng (12 vỉ x 5 viên)",
+        "sku": "106242",
+        "image": "https://cdn.nhathuoclongchau.com.vn/unsafe/256x0/filters:quality(90)/00022733_elovess_500mg_uspharma_12x5_9198_6093_large_c4ba274762.jpg"
+      },
+      {
+        "id": {
+          "$oid": "68f1de3a44d747b5d5d89076"
+        },
+        "name": "Thuốc Cttzil 500 Eloge điều trị nhiễm trùng nhẹ tới trung bình (1 vỉ x 10 viên) ",
+        "sku": "102418",
+        "image": "https://cdn.nhathuoclongchau.com.vn/unsafe/256x0/filters:quality(90)/00502060_c9c84c6981.jpg"
+      }
     ],
     "status": "waiting",
     "current_status": {
@@ -880,7 +1020,14 @@
     "consultation_type": "symptom",
     "images": [],
     "medicines_requested": [
-      "Thuốc Hà Thủ Ô Domesco bổ thận, bổ huyết, chữa thận suy (3 vỉ x 10 viên)"
+      {
+        "id": {
+          "$oid": "68f1de3a44d747b5d5d89286"
+        },
+        "name": "Thuốc Hà Thủ Ô Domesco bổ thận, bổ huyết, chữa thận suy (3 vỉ x 10 viên)",
+        "sku": "102946",
+        "image": "https://cdn.nhathuoclongchau.com.vn/unsafe/256x0/filters:quality(90)/00003586_ha_thu_o_domesco_8712_60f0_large_9174c88f97.jpg"
+      }
     ],
     "status": "advised",
     "current_status": {
@@ -926,7 +1073,14 @@
       "https://example.com/img70.jpg"
     ],
     "medicines_requested": [
-      "Thuốc tiêm Vitamin B6 100Mg/Ml Vinphaco điều trị thiếu vitamin B6, nhiễm độc thai nghén, bệnh Parkinson (100 ống x 1ml)"
+      {
+        "id": {
+          "$oid": "68f1de3c44d747b5d5d8a296"
+        },
+        "name": "Thuốc tiêm Vitamin B6 100Mg/Ml Vinphaco điều trị thiếu vitamin B6, nhiễm độc thai nghén, bệnh Parkinson (100 ống x 1ml)",
+        "sku": "107057",
+        "image": "https://cdn.nhathuoclongchau.com.vn/unsafe/256x0/filters:quality(90)/00031241_vitamin_b6_100mgml_vinphaco_hop_100_ong_x_1ml_2401_6315_large_ab27f8bf32.jpg"
+      }
     ],
     "status": "unreachable",
     "current_status": {
@@ -970,8 +1124,22 @@
     "consultation_type": "symptom",
     "images": [],
     "medicines_requested": [
-      "Bột pha tiêm Vancomycin 500mg Bidiphar điều trị các nhiễm khuẩn nặng, bệnh thận và tim (10 lọ)",
-      "Hỗn dịch xịt mũi Wizosone DK Pharma điều trị viêm mũi dị ứng, polyp mũi (120 liều xịt)"
+      {
+        "id": {
+          "$oid": "68f1de3c44d747b5d5d8a208"
+        },
+        "name": "Bột pha tiêm Vancomycin 500mg Bidiphar điều trị các nhiễm khuẩn nặng, bệnh thận và tim (10 lọ)",
+        "sku": "106915",
+        "image": "https://cdn.nhathuoclongchau.com.vn/unsafe/256x0/filters:quality(90)/00030580_vancomycin_500mg_bidiphar_10_lo_bot_dong_kho_pha_tiem_5388_6126_large_f76b56c32c.jpg"
+      },
+      {
+        "id": {
+          "$oid": "68f1de3a44d747b5d5d89043"
+        },
+        "name": "Hỗn dịch xịt mũi Wizosone DK Pharma điều trị viêm mũi dị ứng, polyp mũi (120 liều xịt)",
+        "sku": "102367",
+        "image": "https://cdn.nhathuoclongchau.com.vn/unsafe/256x0/filters:quality(90)/wizosone_96b0b90b90.jpg"
+      }
     ],
     "status": "advised",
     "current_status": {
@@ -1054,7 +1222,14 @@
       "https://example.com/img32.jpg"
     ],
     "medicines_requested": [
-      "Thuốc Calcium Geral 10ml Usa-Nic Pharma hỗ trợ cho trẻ em còi xương, chậm lớn, thiếu calci (20 ống)"
+      {
+        "id": {
+          "$oid": "68f1de3c44d747b5d5d8a23e"
+        },
+        "name": "Thuốc Calcium Geral 10ml Usa-Nic Pharma hỗ trợ cho trẻ em còi xương, chậm lớn, thiếu calci (20 ống)",
+        "sku": "106969",
+        "image": "https://cdn.nhathuoclongchau.com.vn/unsafe/256x0/filters:quality(90)/00030805_CALCIUM_GERAL_USA_NIC_PHARMA_20_ONG_X_10_ML_bb2a0e0b91.png"
+      }
     ],
     "status": "unreachable",
     "current_status": {
@@ -1131,10 +1306,7 @@
     "note": "Bé nhà em bị ho khan",
     "consultation_type": "symptom",
     "images": [],
-    "medicines_requested": [
-      "Siro ho Prospan (100ml)",
-      "Viên ngậm Bảo Thanh (20 viên)"
-    ],
+    "medicines_requested": [],
     "status": "advised",
     "current_status": {
       "status": "advised",

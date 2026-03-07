@@ -2,13 +2,15 @@
 
 Hệ thống thiết kế thống nhất cho toàn bộ ứng dụng VitaCare (User & Admin)
 
-## 📂 Cấu trúc files
+## 📂 Cấu trúc files (đã gọn)
 
 ```
 src/styles/
-├── variables.css    # CSS Variables - Định nghĩa tất cả design tokens
-├── utilities.css    # Utility Classes - Các class tiện ích
-└── theme.ts         # TypeScript Constants - Sử dụng trong components
+├── variables.css   # :root – design tokens (màu, typography, spacing, …)
+├── utilities.css   # Utility classes + Icon classes (text, flex, btn, .bi-*, .icon-*)
+├── theme.ts        # TypeScript theme (sync từ variables.css)
+├── README.md       # Design System + bảng màu root (file này)
+└── icons.md        # Hướng dẫn Icons ngắn gọn
 ```
 
 ## 🎨 Color Palette
@@ -20,16 +22,31 @@ src/styles/
 - **Lighter**: `#AACEF2` - Xanh rất nhạt
 - **Background**: `#DAECFF` - Background xanh nhạt
 
-### Status Colors
-- **Success**: `#00589F` (Xanh - Primary)
+### Status Colors (theo Color System chính thức)
+- **Success**: `#00589F` (Xanh - trùng Primary)
 - **Warning**: `#F59E0B` (Cam)
-- **Danger**: `#C42326` (Đỏ)
-- **Info**: `#5A5BDC` (Tím xanh)
+- **Danger**: `#C42326` (Đỏ), bg `#FEEAE9`
+- **Info (Infor)**: `#B9A6DC` (Light Purple), bg `#F1ECFA`, hover `#7B63C6`
 
 ### Neutral Colors
-- **100**: `#0A0A0A` (Đen đậm nhất)
-- **90-10**: Gradient từ đen → trắng
-- **10**: `#FFFFFF` (Trắng)
+- **100**: `#0A0A0A` | **90**: `#424242` | **80**: `#616161` | **70**: `#757575` | **60**: `#9E9E9E` | **50**: `#C2C2C2` | **40**: `#E0E0E0` | **30**: `#EDEDED` | **20**: `#F5F5F5` | **10**: `#FFFFFF`
+
+---
+
+## 📌 Root & bảng màu chuẩn (variables.css)
+
+**Màu chủ đạo VitaCare:** `--color-primary: #00589F`. Mọi component dùng biến, không ghi cứng HEX.
+
+| Nhóm | Biến / Vai trò | HEX |
+|------|----------------|-----|
+| **Primary** | main / hover / light / bg | #00589F / #2B3E66 / #43A2E6 / #DAECFF |
+| **Secondary** | main / bg / hover | #BAA7DE / #F1ECFA / #7B63C8 |
+| **Danger** | main / bg / hover | #C42326 / #FEEAE9 / #8B1E19 |
+| **Info (Infor)** | main / bg / hover | #B9A6DC / #F1ECFA / #7B63C6 |
+| **Warning** | main / bg / hover | #F59E0B / #FFF7ED / #D97706 |
+
+**Typography:** Title = **Inter** (`--font-family-title`), Content = **Arimo** (`--font-family-base`).  
+Nguồn: `variables.css`; khi đổi bảng quy định màu chỉ sửa file đó.
 
 ## 🔤 Typography
 

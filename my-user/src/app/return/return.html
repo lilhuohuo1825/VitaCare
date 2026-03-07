@@ -1,0 +1,289 @@
+<!-- Return Management - danh sách giống Đơn hàng của tôi, khác hệ thống button -->
+<div class="returns-container">
+    <div class="returns-header">
+        <div>
+            <h1 class="returns-title">QUẢN LÝ ĐỔI TRẢ</h1>
+            <p>Theo dõi và quản lý các yêu cầu đổi trả</p>
+        </div>
+        <div class="search-container">
+            <div class="search-box">
+                <button type="button" class="search-icon-btn" (click)="performSearch()">
+                    <i class="bi bi-search search-icon"></i>
+                </button>
+                <input #searchInput type="text" [(ngModel)]="searchQuery"
+                    placeholder="Tìm kiếm theo mã đơn hàng hoặc tên sản phẩm" class="search-input"
+                    (keyup.enter)="performSearch()" />
+                <button *ngIf="searchQuery" type="button" class="clear-btn" (click)="clearSearch()">
+                    <i class="bi bi-x-circle-fill clear-icon"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="tab-navigation">
+        <button class="tab-scroll-btn tab-scroll-left" (click)="scrollTabs(-200)" [class.hidden]="!canScrollLeft">
+            <i class="bi bi-chevron-left scroll-arrow left"></i>
+        </button>
+        <div class="tab-list" #tabList>
+            <button *ngFor="let tab of tabs" class="tab-button" [class.active]="activeTab === tab.id"
+                (click)="onTabClick(tab.id)">
+                <span class="tab-label">{{ tab.label }}</span>
+                <span class="tab-badge" *ngIf="tab.count > 0">{{ tab.count }}</span>
+            </button>
+        </div>
+        <button class="tab-scroll-btn tab-scroll-right" (click)="scrollTabs(200)" [class.hidden]="!canScrollRight">
+            <i class="bi bi-chevron-right scroll-arrow right"></i>
+        </button>
+    </div>
+
+    <div class="returns-content-wrapper">
+        <div class="returns-content">
+            <div *ngIf="getFilteredReturns().length > 0" class="returns-list">
+                <div *ngFor="let order of getFilteredReturns()" class="return-wrapper">
+                    <!-- Status Card -->
+                    <div class="return-status-card" [class]="'status-' + order.status" (click)="$event.stopPropagation()">
+                        <div class="status-left">
+                            <span class="status-text">{{ getStatusLabel(order.status) }}</span>
+                        </div>
+                        <div class="status-right">
+                            <span class="status-date">{{ formatDate(order.orderDate) }}</span>
+                            <span class="status-separator">|</span>
+                            <span class="status-order-code">{{ order.orderNumber }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Order Card (giống Đơn hàng của tôi) -->
+                    <div class="return-card" (click)="viewOrderDetails(order)" style="cursor: pointer">
+                        <div class="products-section">
+                            <div *ngFor="let product of getDisplayProducts(order)">
+                                <div class="product-item">
+                                    <div class="product-left">
+                                        <div class="product-image" (click)="viewOrderDetails(order); $event.stopPropagation()" style="cursor: pointer">
+                                            <img [src]="product.image" [alt]="product.name" class="product-img"
+                                                onerror="this.src='assets/icon/no-order.png'" />
+                                        </div>
+                                        <div class="product-details" (click)="viewOrderDetails(order); $event.stopPropagation()" style="cursor: pointer">
+                                            <h3 class="product-name">{{ product.name }}</h3>
+                                            <p class="product-price">{{ formatCurrency(product.price) }}/{{ product.unit }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="product-right" (click)="$event.stopPropagation()">
+                                        <div class="product-quantity">Số lượng: {{ product.quantity }}</div>
+                                        <div class="product-total">{{ formatCurrency(product.totalPrice) }}</div>
+                                    </div>
+                                </div>
+                                <div class="free-item-container" *ngIf="hasGiftedProduct(product, order)">
+                                    <div class="free-item-image" *ngIf="getGiftedProduct(product, order) as gifted">
+                                        <img [src]="gifted.image" [alt]="gifted.name" onerror="this.src='assets/icon/no-order.png'" />
+                                    </div>
+                                    <div class="free-item-details" *ngIf="getGiftedProduct(product, order) as gifted">
+                                        <div class="free-item-name"><span class="free-item-badge">Tặng kèm</span>{{ gifted.name }}</div>
+                                        <div class="free-item-price">
+                                            <span class="original-price-striked">{{ formatCurrency(gifted.originalPrice || gifted.price) }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="free-item-right" *ngIf="getGiftedProduct(product, order) as gifted">
+                                        <div class="free-item-quantity">Số lượng: {{ gifted.quantity }}</div>
+                                        <div class="free-item-total">Miễn phí</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Summary: Xem thêm + Tổng tiền -->
+                    <div class="return-summary" (click)="$event.stopPropagation()">
+                        <div class="summary-left">
+                            <button *ngIf="hasMoreProducts(order)" class="action-btn view-more" (click)="onViewMore(order)">
+                                <span>{{ isOrderExpanded(order) ? 'Thu gọn' : 'Xem thêm' }}</span>
+                                <i class="bi bi-chevron-down arrow-icon" [class.rotated]="isOrderExpanded(order)"></i>
+                            </button>
+                        </div>
+                        <div class="summary-center">
+                            <div class="total-section">
+                                <span class="total-label">Tổng tiền ({{ getTotalQuantity(order) }} sản phẩm):</span>
+                                <span class="total-amount">{{ formatCurrency(order.totalAmount) }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Nút theo trạng thái đổi trả -->
+                    <div class="return-summary" *ngIf="order.status === 'processing_return'" (click)="$event.stopPropagation()">
+                        <div class="summary-right">
+                            <button class="action-btn cancel-btn" (click)="openCancelModal(order)">Hủy yêu cầu</button>
+                        </div>
+                    </div>
+                    <div class="return-summary" *ngIf="order.status === 'returning'" (click)="$event.stopPropagation()">
+                        <div class="summary-right">
+                            <button class="action-btn received-btn" (click)="confirmReceivedReturn(order)">Đã nhận hàng</button>
+                        </div>
+                    </div>
+                    <div class="return-summary" *ngIf="order.status === 'returned'" (click)="$event.stopPropagation()">
+                        <div class="summary-right">
+                            <button class="action-btn repurchase-btn" (click)="onRepurchase(order)">Mua lại</button>
+                        </div>
+                    </div>
+                    <div class="return-summary" *ngIf="order.status === 'rejected'" (click)="$event.stopPropagation()">
+                        <div class="summary-right">
+                            <button class="action-btn repurchase-btn" (click)="onRepurchase(order)">Mua lại</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div *ngIf="getFilteredReturns().length === 0 && !isLoading" class="empty-state">
+                <div class="empty-icon">
+                    <img src="assets/icon/no-order.png" alt="No returns" class="empty-icon-img" />
+                </div>
+                <p class="empty-message">Bạn không có yêu cầu trả hàng nào</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal chi tiết đơn đổi trả (2 cột, style giống Chi tiết đơn hàng) -->
+<div *ngIf="showDetailModal" class="detail-modal-overlay" (click)="closeDetailModal()">
+    <div class="detail-modal-container" (click)="$event.stopPropagation()">
+        <div class="detail-modal-header">
+            <h2>Chi tiết đơn hàng</h2>
+            <button class="detail-close-btn" (click)="closeDetailModal()" type="button">✕</button>
+        </div>
+        <div class="detail-modal-body">
+            <!-- Cột trái: danh sách đơn -->
+            <div class="detail-orders-column">
+                <div class="detail-search-section">
+                    <div class="detail-search-box">
+                        <input type="text" [(ngModel)]="detailSearchQuery" (input)="onDetailSearchChange()"
+                            (keyup.enter)="onDetailSearchChange()"
+                            placeholder="Nhập mã đơn hàng hoặc tên sản phẩm..." class="detail-search-input" />
+                        <button type="button" class="detail-search-icon-btn" title="Tìm kiếm">
+                            <i class="bi bi-search"></i>
+                        </button>
+                        <button *ngIf="detailSearchQuery" type="button" class="detail-clear-search-btn"
+                            (click)="clearDetailSearch()" title="Xóa">
+                            <i class="bi bi-x-circle-fill"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="detail-orders-list">
+                    <div *ngFor="let order of filteredOrdersForDetail" class="detail-order-item"
+                        (click)="openOrderDetailInModal(order)"
+                        [class.selected]="selectedDetailOrder?.id === order.id">
+                        <div class="detail-order-item-header">
+                            <span class="detail-order-code">{{ order.orderNumber }}</span>
+                            <span class="detail-order-status" [class]="getStatusClass(order.status)">
+                                {{ getStatusLabel(order.status) }}
+                            </span>
+                        </div>
+                        <div class="detail-order-item-body">
+                            <span class="detail-product-count">{{ order.products.length }} sản phẩm</span>
+                            <div class="detail-order-item-footer">
+                                <span class="detail-order-date">{{ formatDate(order.orderDate) }}</span>
+                                <span class="detail-order-total">{{ formatCurrency(order.totalAmount) }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div *ngIf="filteredOrdersForDetail.length === 0" class="detail-empty-state">
+                        <p>Không tìm thấy đơn hàng nào</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Cột phải: chi tiết đơn -->
+            <div class="detail-content-column" *ngIf="selectedDetailOrder">
+                <div class="detail-content-scroll">
+                    <div class="detail-section">
+                        <div class="detail-row">
+                            <span class="detail-label">Mã đơn hàng:</span>
+                            <span class="detail-value detail-order-code-highlight">{{ selectedDetailOrder.orderNumber }}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Trạng thái:</span>
+                            <span class="detail-value">
+                                <span class="detail-status-badge" [class]="getStatusClass(selectedDetailOrder.status)">
+                                    {{ getStatusLabel(selectedDetailOrder.status) }}
+                                </span>
+                            </span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Thời gian đặt hàng:</span>
+                            <span class="detail-value">{{ formatDateTimeDisplay(selectedDetailOrder.orderDate) }}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Phương thức thanh toán:</span>
+                            <span class="detail-value">{{ getPaymentMethodLabel(selectedDetailOrder.paymentMethod || 'cod') }}</span>
+                        </div>
+                    </div>
+                    <div class="detail-section" *ngIf="selectedDetailOrder.returnReason">
+                        <h3 class="detail-section-title">Lý do đổi trả</h3>
+                        <p class="detail-return-reason">{{ selectedDetailOrder.returnReason }}</p>
+                    </div>
+                    <div class="detail-section">
+                        <h3 class="detail-section-title">Sản phẩm</h3>
+                        <div class="detail-products-list">
+                            <div *ngFor="let product of selectedDetailOrder.products" class="detail-product-item">
+                                <div class="detail-product-image">
+                                    <img [src]="product.image" [alt]="product.name"
+                                        onerror="this.src='assets/icon/no-order.png'" />
+                                </div>
+                                <div class="detail-product-info">
+                                    <div class="detail-product-name">{{ product.name }}</div>
+                                    <div class="detail-product-meta">
+                                        <span>Số lượng: {{ product.quantity }} {{ product.unit }}</span>
+                                    </div>
+                                    <div class="detail-product-price-row">
+                                        <span class="detail-unit-price">Đơn giá: {{ formatCurrency(product.price) }}</span>
+                                        <span class="detail-total-price">Thành tiền: <strong>{{ formatCurrency(product.totalPrice) }}</strong></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="detail-section">
+                        <h3 class="detail-section-title">Tổng kết đơn hàng</h3>
+                        <div class="detail-order-summary">
+                            <div class="detail-summary-row detail-total-row">
+                                <span>Tổng cộng</span>
+                                <span class="detail-total-amount">{{ formatCurrency(selectedDetailOrder.totalAmount) }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="detail-content-column detail-empty-detail" *ngIf="!selectedDetailOrder">
+                <p class="detail-empty-message">Chọn một đơn hàng để xem chi tiết</p>
+            </div>
+        </div>
+        <div class="detail-modal-footer" *ngIf="selectedDetailOrder">
+            <div *ngIf="selectedDetailOrder.status === 'processing_return'" class="detail-footer-actions">
+                <button class="detail-action-btn detail-cancel-btn" (click)="openCancelModal(selectedDetailOrder); closeDetailModal()" type="button">Hủy yêu cầu</button>
+            </div>
+            <div *ngIf="selectedDetailOrder.status === 'returning'" class="detail-footer-actions">
+                <button class="detail-action-btn detail-received-btn" (click)="confirmReceivedReturn(selectedDetailOrder)" type="button">Đã nhận hàng</button>
+            </div>
+            <div *ngIf="selectedDetailOrder.status === 'returned' || selectedDetailOrder.status === 'rejected'" class="detail-footer-actions">
+                <button class="detail-action-btn detail-repurchase-btn" (click)="onRepurchase(selectedDetailOrder)" type="button">Mua lại</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal hủy yêu cầu trả hàng -->
+<div class="modal-overlay" *ngIf="showCancelModal" (click)="closeCancelModal()">
+    <div class="cancel-modal-content" (click)="$event.stopPropagation()">
+        <div class="warning-icon">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="10" fill="#FFA726" stroke="#FF9800" stroke-width="1.5" />
+                <path d="M12 7v6" stroke="white" stroke-width="2" stroke-linecap="round" />
+                <circle cx="12" cy="16.5" r="1" fill="white" />
+            </svg>
+        </div>
+        <div class="cancel-message">
+            <h3 class="cancel-title">Hủy yêu cầu trả hàng/ hoàn tiền?</h3>
+            <p class="cancel-text">Bạn có chắc chắn muốn hủy yêu cầu này không?</p>
+        </div>
+        <div class="cancel-footer">
+            <button type="button" class="cancel-modal-btn btn-secondary" (click)="closeCancelModal()">Không</button>
+            <button type="button" class="cancel-modal-btn btn-primary" (click)="confirmCancelRequest()">Xác nhận</button>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,555 @@
+/* Order Detail Styles */
+
+/* Spinner animation for product modal loading */
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Smooth scroll for product list in modal */
+.product-list {
+    scroll-behavior: smooth;
+}
+
+.product-list::-webkit-scrollbar {
+    width: 4px;
+}
+
+.product-list::-webkit-scrollbar-thumb {
+    background: var(--color-neutral-40);
+    border-radius: 99px;
+}
+
+.product-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.order-detail-container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-6);
+    font-family: var(--font-family-base);
+}
+
+/* Header */
+.page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--color-bg-light);
+    border-radius: 20px;
+    padding: 20px 30px;
+    box-shadow: var(--shadow-sm);
+    margin-bottom: var(--spacing-4);
+}
+
+.header-actions {
+    display: flex;
+    gap: 16px;
+    /* Space between buttons */
+    align-items: center;
+}
+
+.content-title {
+    font-family: var(--font-content-title-family);
+    font-size: var(--font-content-title-size);
+    font-weight: var(--font-content-title-weight);
+    color: var(--color-primary);
+    text-transform: uppercase;
+    margin: 0;
+}
+
+/* Premium Buttons Base */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-2);
+    padding: var(--btn-padding-y) var(--btn-padding-x);
+    border-radius: var(--btn-border-radius);
+    font-size: var(--btn-font-size);
+    font-weight: var(--font-weight-bold);
+    transition: all 0.2s ease;
+    cursor: pointer;
+    border: none;
+    outline: none;
+    font-family: var(--font-family-base);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+.btn-secondary {
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
+    color: var(--color-text-inverse);
+    box-shadow: 0 4px 8px rgba(74, 85, 162, 0.3);
+}
+
+.btn-secondary:hover {
+    background: linear-gradient(135deg, var(--color-primary-hover) 0%, var(--color-primary) 100%);
+    box-shadow: 0 6px 12px rgba(74, 85, 162, 0.4);
+}
+
+/* Layout */
+.layout-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: var(--spacing-6);
+}
+
+/* Common Card Style */
+.order-info-card,
+.info-card {
+    background: var(--color-bg-secondary);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    padding: var(--spacing-6);
+    margin-bottom: var(--spacing-4);
+    border: 1px solid var(--color-neutral-30);
+}
+
+/* LEFT COLUMN */
+.order-id-header {
+    margin-bottom: var(--spacing-6);
+    padding-bottom: var(--spacing-4);
+    border-bottom: 1px dashed var(--color-neutral-30);
+}
+
+.order-id {
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--color-primary);
+    margin: 0 0 4px 0;
+    font-family: var(--font-family-title);
+}
+
+.order-date {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-tertiary);
+    font-weight: 700;
+    margin: 0;
+}
+
+/* Status Steps - Redesigned Timeline */
+.status-steps {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    position: relative;
+    margin-bottom: var(--spacing-8);
+    padding: 0 var(--spacing-4);
+    gap: var(--spacing-4);
+}
+
+/* Timeline line */
+.status-steps::before {
+    content: '';
+    position: absolute;
+    top: 24px;
+    /* Align with checkmark center */
+    left: 40px;
+    right: 40px;
+    height: 4px;
+    background-color: var(--color-neutral-30);
+    z-index: 0;
+}
+
+.step-item {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    z-index: 1;
+    flex: 1;
+}
+
+/* The circle check indicator */
+.step-badge {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background-color: var(--color-bg-secondary);
+    border: 4px solid var(--color-neutral-30);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--color-neutral-60);
+    transition: all 0.3s ease;
+    margin-bottom: var(--spacing-2);
+}
+
+.step-label {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--color-text-tertiary);
+    text-transform: uppercase;
+    transition: color 0.3s ease;
+}
+
+/* Active/Completed States */
+.step-item.active .step-badge,
+.step-item.completed .step-badge {
+    border-color: var(--color-primary);
+    background-color: var(--color-primary);
+    color: var(--color-text-inverse);
+    box-shadow: 0 0 0 4px var(--color-primary-bg);
+}
+
+/* Completed items also make the line green? Tricky in pure CSS without complex selectors, assuming JS classes */
+
+.step-item.active .step-label,
+.step-item.completed .step-label {
+    color: var(--color-primary);
+}
+
+/* Product List */
+.product-list-section {
+    margin-bottom: var(--spacing-6);
+}
+
+.section-title {
+    font-size: var(--font-size-sm);
+    font-weight: 700;
+    color: var(--color-primary);
+    text-transform: uppercase;
+    margin-bottom: var(--spacing-4);
+}
+
+.product-table-header {
+    display: grid;
+    grid-template-columns: 3fr 1fr 1.5fr 1.5fr;
+    background-color: var(--color-primary-bg);
+    padding: var(--spacing-3) var(--spacing-4);
+    font-weight: 700;
+    font-size: var(--font-size-xs);
+    color: var(--color-primary);
+    text-transform: uppercase;
+    border-radius: var(--radius-md);
+    margin-bottom: var(--spacing-2);
+}
+
+.product-item {
+    display: grid;
+    grid-template-columns: 3fr 1fr 1.5fr 1.5fr;
+    align-items: center;
+    padding: var(--spacing-4);
+    border-bottom: 1px solid var(--color-neutral-20);
+    transition: background-color 0.2s;
+}
+
+.product-item:hover {
+    background-color: var(--color-bg-light);
+}
+
+.product-item:last-child {
+    border-bottom: none;
+}
+
+.product-info {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-3);
+}
+
+.product-image {
+    width: 60px;
+    height: 60px;
+    background-color: var(--color-bg-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+    color: var(--color-primary-lighter);
+    overflow: hidden;
+    border: 1px solid var(--color-primary-bg);
+}
+
+.product-details h4 {
+    margin: 0;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-primary);
+    font-family: var(--font-family-base);
+    font-weight: 600;
+}
+
+.product-sku {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-tertiary);
+}
+
+/* Promotion */
+.promotion-section {
+    border-top: 1px solid var(--color-neutral-20);
+    padding-top: var(--spacing-4);
+}
+
+/* Back Button Premium */
+.back-btn {
+    background-color: var(--color-bg-secondary);
+    color: var(--color-text-secondary);
+    border: 1px solid var(--color-neutral-40);
+    padding: 10px 24px;
+    border-radius: var(--radius-md);
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    cursor: pointer;
+    text-transform: uppercase;
+    font-size: 13px;
+    transition: all 0.2s;
+    font-family: var(--font-family-base);
+}
+
+.back-btn:hover {
+    background-color: var(--color-bg-light);
+    color: var(--color-text-primary);
+    border-color: var(--color-neutral-60);
+    transform: translateX(-4px);
+}
+
+
+/* RIGHT SIDEBAR */
+.card-title {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--color-text-primary);
+    border-bottom: 2px solid var(--color-neutral-30);
+    padding-bottom: 8px;
+    margin-bottom: 16px;
+    margin-top: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.info-row {
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+}
+
+.info-label {
+    font-weight: 700;
+    color: var(--color-text-primary);
+}
+
+.info-value.bold {
+    font-weight: 700;
+}
+
+/* Summary specifics */
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+}
+
+.summary-total {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 2px dashed var(--color-neutral-40);
+}
+
+/* Text helpers */
+.text-center {
+    text-align: center;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.font-bold {
+    font-weight: 700;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .layout-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .status-steps {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-4);
+    }
+
+    .status-steps::before {
+        display: none;
+        /* Hide line on mobile */
+    }
+
+    .step-item {
+        flex-direction: row;
+        gap: var(--spacing-4);
+    }
+}
+
+/* Print Styles */
+@media print {
+
+    /* Hide Navigation Sidebar, Top Header, Buttons */
+    /* Use deep selector to reach parent/layout components if needed */
+    ::ng-deep .sidebar,
+    ::ng-deep .top-bar,
+    .page-header button,
+    .back-btn,
+    .navbar,
+    .breadcrumb,
+    .header-actions {
+        display: none !important;
+    }
+
+    /* Adjust Layout */
+    .order-detail-container {
+        width: 100%;
+        margin: 0;
+        padding: 0;
+    }
+
+    .layout-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+        color: black;
+    }
+
+    .main-content {
+        width: 100%;
+    }
+
+    .order-summary-sidebar {
+        display: block !important;
+        width: 100% !important;
+        margin-top: 20px;
+    }
+
+    .sidebar,
+    .header-actions,
+    .breadcrumb,
+    button,
+    .back-btn,
+    .notification-toast,
+    .modal-wrapper,
+    .page-header button,
+    .app-sidebar,
+    .nav-container {
+        display: none !important;
+    }
+
+    .container {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+    }
+
+    .order-info-card,
+    .info-card {
+        margin-top: 20px;
+        page-break-inside: avoid;
+        color: black;
+        border: 1px solid #ddd !important;
+    }
+
+    .card-title {
+        border-bottom: 1px solid #000;
+    }
+
+    /* Improve Contrast */
+    body {
+        background-color: var(--color-bg-secondary);
+        color: black;
+    }
+
+    .order-info-card,
+    .info-card {
+        border: 1px solid #eee !important;
+        box-shadow: none !important;
+        background: white !important;
+    }
+
+    .content-title,
+    h2,
+    h3,
+    h4,
+    p,
+    span,
+    div,
+    td,
+    th {
+        color: black !important;
+    }
+
+    /* Keep background colors for badges if possible, or simplify */
+    .status-badge {
+        border: 1px solid #ccc !important;
+        color: black !important;
+    }
+}
+
+/* Light Cancel Button - HUỶ (White style matching sample) */
+.btn-cancel-light {
+    background: #ffffff !important;
+    border: 1px solid #e0e0e0 !important;
+    color: #1a1a1a !important;
+    text-transform: uppercase;
+    font-weight: 700;
+    padding: 12px 30px;
+    min-width: 140px;
+    border-radius: 12px;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-cancel-light:hover {
+    background: #f8f9fa !important;
+    border-color: #d0d0d0 !important;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Premium Blue Save Button - LƯU THAY ĐỔI */
+.btn-submit-premium {
+    background: #3c4db5 !important;
+    background: linear-gradient(135deg, #3c4db5 0%, #2a3a8f 100%) !important;
+    color: white !important;
+    text-transform: uppercase;
+    font-weight: 700;
+    padding: 12px 32px;
+    min-width: 180px;
+    border-radius: 12px;
+    letter-spacing: 0.5px;
+    border: none !important;
+    box-shadow: 0 4px 10px rgba(60, 77, 181, 0.3);
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-submit-premium:hover {
+    background: linear-gradient(135deg, #4c5cc5 0%, #3c4db5 100%) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 15px rgba(60, 77, 181, 0.4);
+}

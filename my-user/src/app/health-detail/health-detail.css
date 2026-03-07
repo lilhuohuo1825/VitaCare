@@ -1,0 +1,377 @@
+/**
+ * Health Detail - Trang chi tiết chỉ số sức khỏe (style Pharmacity)
+ */
+.health-detail-wrapper {
+  min-height: 100vh;
+  background: #f8f9fa;
+}
+
+/* Breadcrumb */
+.health-detail-breadcrumb {
+  padding: 12px 0;
+  background: #fff;
+  border-bottom: 1px solid #eee;
+}
+
+.health-detail-breadcrumb .breadcrumb {
+  margin: 0;
+  background: transparent;
+  padding: 0;
+}
+
+.health-detail-breadcrumb .breadcrumb-item + .breadcrumb-item::before {
+  content: '';
+  padding: 0 8px;
+  color: #6c757d;
+}
+
+.health-detail-breadcrumb .breadcrumb-item a {
+  color: var(--color-primary, #00589F);
+  text-decoration: none;
+}
+
+.health-detail-breadcrumb .breadcrumb-item a:hover {
+  text-decoration: underline;
+}
+
+.health-detail-breadcrumb .breadcrumb-item.active {
+  color: #495057;
+}
+
+/* Hero section */
+.health-detail-hero {
+  position: relative;
+  padding: 48px 0 56px;
+  overflow: hidden;
+  background: var(--theme-bg, #fde8f4);
+}
+
+.health-detail-hero-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.health-detail-hero-circle {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+  opacity: 0.6;
+}
+
+.health-detail-hero-circle--1 {
+  width: 320px;
+  height: 320px;
+  top: -80px;
+  right: -60px;
+  background: var(--theme-bg, #fde8f4);
+}
+
+.health-detail-hero-circle--2 {
+  width: 200px;
+  height: 200px;
+  bottom: 20%;
+  left: -40px;
+  background: var(--theme-bg, #fde8f4);
+  opacity: 0.5;
+}
+
+.health-detail-hero-circle--3 {
+  width: 120px;
+  height: 120px;
+  top: 30%;
+  right: 15%;
+  background: var(--theme-bg, #fde8f4);
+  opacity: 0.4;
+}
+
+.health-detail-hero-inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 40px;
+  flex-wrap: wrap;
+}
+
+.health-detail-hero-content {
+  flex: 1;
+  min-width: 280px;
+  max-width: 600px;
+}
+
+.health-detail-title {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: var(--theme-color, #e83e8c);
+  margin: 0 0 20px;
+  line-height: 1.2;
+}
+
+.health-detail-desc {
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: #495057;
+  margin: 0 0 28px;
+}
+
+.health-detail-cta {
+  display: inline-block;
+  padding: 12px 24px;
+  background: var(--theme-color, #e83e8c);
+  color: #fff;
+  border-radius: 8px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.health-detail-cta:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+  color: #fff;
+}
+
+.health-detail-hero-visual {
+  flex-shrink: 0;
+  max-width: 420px;
+}
+
+.health-detail-img {
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+}
+
+/* Ảnh chi tiết kích thước lớn */
+.health-detail-image-section {
+  padding: 40px 0 60px;
+}
+
+.health-detail-image-wrap {
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.health-detail-img-large {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  display: block;
+}
+
+/* Góc sức khỏe - layout 1 bài lớn trái + 2 cột bài nhỏ phải */
+.health-detail-blogs {
+  padding: 0 0 60px;
+  background: #fff;
+}
+
+.health-detail-blogs-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.health-detail-blogs-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #00589F;
+  margin: 0;
+}
+
+.health-detail-blogs-more {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #00589F;
+  text-decoration: none;
+}
+
+.health-detail-blogs-more:hover {
+  text-decoration: underline;
+}
+
+.health-detail-blogs-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+
+@media (min-width: 992px) {
+  .health-detail-blogs-layout {
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    align-items: start;
+  }
+}
+
+/* Bài chính: ảnh trên, nội dung dưới - scale nhỏ hơn */
+.health-detail-blog-main {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: box-shadow 0.2s;
+}
+
+.health-detail-blog-main:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+}
+
+.health-detail-blog-main-img {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+}
+
+.health-detail-blog-main-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.health-detail-blog-main-body {
+  padding: 14px 16px 18px;
+}
+
+.health-detail-blog-main-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #000;
+  margin: 0 0 8px;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.health-detail-blog-main-desc {
+  font-size: 0.875rem;
+  color: #666;
+  margin: 0;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Cột phải: bài nhỏ - ảnh trái, nội dung phải */
+.health-detail-blog-side {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.health-detail-blog-side-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  text-decoration: none;
+  color: inherit;
+  padding: 4px 0;
+  transition: color 0.2s;
+}
+
+.health-detail-blog-side-item:hover {
+  color: #00589F;
+}
+
+.health-detail-blog-side-img {
+  flex-shrink: 0;
+  width: 100px;
+  height: 68px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.health-detail-blog-side-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.health-detail-blog-side-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.health-detail-blog-tag {
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #333;
+  background: #f0f0f0;
+  border-radius: 4px;
+  display: inline-block;
+  margin-bottom: 6px;
+}
+
+.health-detail-blog-main-img .health-detail-blog-tag {
+  position: absolute;
+  bottom: 12px;
+  left: 16px;
+  margin-bottom: 0;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.65);
+}
+
+.health-detail-blog-tag--inline {
+  position: static;
+}
+
+.health-detail-blog-side-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #000;
+  margin: 0 0 4px;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.health-detail-blog-side-item:hover .health-detail-blog-side-title {
+  color: #00589F;
+}
+
+.health-detail-blog-side-desc {
+  font-size: 0.85rem;
+  color: #666;
+  margin: 0;
+  line-height: 1.45;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+@media (max-width: 768px) {
+  .health-detail-hero-inner {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .health-detail-hero-content {
+    max-width: 100%;
+  }
+
+  .health-detail-title {
+    font-size: 1.75rem;
+  }
+
+  .health-detail-hero-visual {
+    max-width: 100%;
+  }
+}

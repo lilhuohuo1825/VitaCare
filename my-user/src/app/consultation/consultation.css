@@ -1,0 +1,829 @@
+/**
+ * Consultation – dùng biến và layout local, style gốc từ root (variables.css, utilities.css)
+ */
+.consultation-page {
+  background-color: #F0F2F5;
+  min-height: 100vh;
+  padding: var(--spacing-6) 0;
+  overflow: visible;
+}
+
+.consultation-container {
+  max-width: var(--container-max-width);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--container-padding);
+  padding-right: var(--container-padding);
+  overflow: visible;
+}
+
+.consultation-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-6);
+  overflow: visible;
+}
+
+@media (min-width: 992px) {
+  .consultation-layout {
+    grid-template-columns: 2fr 1fr;
+    align-items: start;
+  }
+}
+
+.consultation-form-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+.consultation-card {
+  margin: 0;
+}
+
+/* Title section – giống order (order-section-title) */
+.consultation-section-title {
+  font-size: var(--order-title-size);
+  font-weight: 700;
+  color: var(--order-title-color);
+  margin: 0 0 var(--spacing-4) 0;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.consultation-section-title .consultation-label-required {
+  color: var(--color-danger);
+  margin-left: 0.25em;
+}
+
+.consultation-title-icon {
+  color: var(--order-title-color);
+  font-size: 1.1em;
+}
+
+.consultation-section-title:only-child,
+.consultation-section-title + .consultation-desc {
+  margin-bottom: 0;
+}
+
+/* Label form – giống order (order-field-label / order-notes-label) */
+.consultation-label {
+  display: block;
+  font-size: var(--order-label-size);
+  font-weight: 600;
+  color: var(--order-label-color);
+  margin-bottom: var(--spacing-2);
+}
+
+.consultation-label .consultation-label-required {
+  color: var(--color-danger);
+  margin-left: 0.25em;
+}
+
+.consultation-input-error {
+  border-color: var(--color-danger) !important;
+}
+
+.consultation-field-error {
+  display: block;
+  margin-top: var(--spacing-1);
+  font-size: var(--font-size-sm);
+  color: var(--color-danger);
+}
+
+.consultation-fields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+.consultation-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-4);
+}
+
+@media (max-width: 575px) {
+  .consultation-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.consultation-note-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.consultation-textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.consultation-hint {
+  margin: 0;
+}
+
+.consultation-card-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-4);
+}
+
+.consultation-desc {
+  margin: 0;
+}
+
+.consultation-desc-space {
+  margin-bottom: var(--spacing-3);
+}
+
+.consultation-add-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-3xl);
+  line-height: 1;
+}
+
+.consultation-card-click {
+  cursor: pointer;
+  transition: var(--transition-base);
+}
+
+.consultation-card-click:hover {
+  box-shadow: var(--card-hover-shadow);
+}
+
+.consultation-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+.consultation-submit {
+  width: 100%;
+  font-weight: var(--font-weight-bold);
+  padding: var(--spacing-4) var(--spacing-6);
+  font-size: var(--font-size-base);
+  border-radius: var(--radius-md);
+  background-color: var(--color-primary);
+  color: var(--color-text-inverse);
+  border: none;
+  cursor: pointer;
+  transition: var(--transition-base);
+  box-shadow: var(--shadow-sm);
+}
+
+.consultation-submit:hover {
+  background-color: var(--color-primary-hover);
+  box-shadow: var(--shadow-base);
+}
+
+.consultation-submit:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-primary-bg);
+}
+
+.consultation-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.consultation-steps {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+.consultation-step {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-3);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  line-height: var(--line-height-normal);
+}
+
+.consultation-step-num {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-primary);
+  color: var(--color-text-inverse);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+}
+
+.consultation-notes {
+  margin: 0;
+  padding-left: var(--spacing-5);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  line-height: var(--line-height-relaxed);
+}
+
+.consultation-notes li {
+  margin-bottom: var(--spacing-2);
+}
+
+.consultation-notes li:last-child {
+  margin-bottom: 0;
+}
+
+/* Nút Xem lại đơn thuốc: nền trắng, viền và chữ xanh */
+.consultation-btn-prescription {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2);
+  padding: var(--spacing-3) var(--spacing-5);
+  background: var(--color-bg-secondary);
+  color: var(--color-primary);
+  border: 2px solid var(--color-primary);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  text-decoration: none;
+  transition: var(--transition-base);
+  cursor: pointer;
+  width: 100%;
+}
+
+.consultation-btn-prescription i {
+  color: var(--color-primary);
+  font-size: 1.2em;
+}
+
+.consultation-btn-prescription:hover {
+  background: var(--color-primary-bg);
+  border-color: var(--color-primary-hover);
+  color: var(--color-primary-hover);
+}
+
+.consultation-btn-prescription:hover i {
+  color: var(--color-primary-hover);
+}
+
+.consultation-btn-prescription:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-primary-bg);
+}
+
+.consultation-product-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 var(--spacing-4) 0;
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.consultation-product-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  padding: var(--spacing-3) var(--spacing-4);
+  background: var(--color-bg-secondary);
+  border-bottom: 1px solid var(--color-neutral-30);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+}
+
+.consultation-product-item:last-child {
+  border-bottom: none;
+}
+
+.consultation-product-img-wrap {
+  flex-shrink: 0;
+}
+
+.consultation-product-img {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: var(--radius-base);
+}
+
+.consultation-product-img-placeholder {
+  background: var(--color-neutral-30);
+  display: block;
+}
+
+.consultation-product-name {
+  flex: 1;
+  min-width: 0;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+}
+
+.consultation-product-qty {
+  flex-shrink: 0;
+  color: var(--color-text-secondary);
+  font-weight: var(--font-weight-normal);
+}
+
+.consultation-product-remove {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+  border-radius: var(--radius-base);
+  transition: var(--transition-base);
+}
+
+.consultation-product-remove:hover {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+}
+
+/* Nút Thêm thuốc / sản phẩm: nền xanh nhạt, viền xanh, chữ xanh */
+/* Base cho 2 nút thêm ảnh / thêm sản phẩm */
+.consultation-add-row {
+  padding: var(--spacing-3) var(--spacing-4);
+  border-radius: var(--radius-md);
+  margin-top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-4);
+}
+
+.consultation-add-row .consultation-add-icon {
+  flex-shrink: 0;
+  font-size: var(--font-size-2xl);
+  line-height: 1;
+}
+
+/* Nút "Thêm ảnh đơn thuốc" – màu Primary (xanh dương) từ root */
+.consultation-btn-add-image {
+  border: 1px solid var(--color-primary);
+  background: var(--color-primary-bg);
+  color: var(--color-primary-hover);
+}
+
+.consultation-btn-add-image .consultation-add-row-text,
+.consultation-btn-add-image .consultation-add-icon {
+  color: var(--color-primary-hover);
+}
+
+.consultation-btn-add-image.consultation-card-click:hover {
+  border-color: var(--color-primary-hover);
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
+}
+
+.consultation-btn-add-image.consultation-card-click:hover .consultation-add-row-text,
+.consultation-btn-add-image.consultation-card-click:hover .consultation-add-icon {
+  color: var(--color-text-inverse);
+}
+
+/* Nút "Thêm thuốc / sản phẩm" – giống "Thêm ảnh" (Primary xanh dương) */
+.consultation-btn-add-product {
+  border: 1px solid var(--color-primary);
+  background: var(--color-primary-bg);
+  color: var(--color-primary-hover);
+}
+
+.consultation-btn-add-product .consultation-add-row-text,
+.consultation-btn-add-product .consultation-add-icon {
+  color: var(--color-primary-hover);
+}
+
+.consultation-btn-add-product.consultation-card-click:hover {
+  border-color: var(--color-primary-hover);
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
+}
+
+.consultation-btn-add-product.consultation-card-click:hover .consultation-add-row-text,
+.consultation-btn-add-product.consultation-card-click:hover .consultation-add-icon {
+  color: var(--color-text-inverse);
+}
+
+/* Ảnh đơn thuốc: input ẩn + preview */
+.consultation-file-input-hidden {
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.consultation-prescription-previews {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-3);
+  margin-bottom: var(--spacing-4);
+}
+
+.consultation-prescription-preview {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid var(--color-neutral-40);
+  flex-shrink: 0;
+}
+
+.consultation-prescription-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.consultation-prescription-remove {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  font-size: 12px;
+  transition: var(--transition-base);
+}
+
+.consultation-prescription-remove:hover {
+  background: var(--color-danger);
+}
+
+/* ========== Popup chọn sản phẩm – style từ root (variables.css) ========== */
+.consultation-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--z-modal);
+  padding: var(--spacing-4);
+}
+
+.consultation-modal {
+  background: var(--color-bg-secondary);
+  border-radius: var(--card-border-radius);
+  box-shadow: var(--shadow-xl);
+  max-width: 800px;
+  width: 100%;
+  min-height: 420px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--color-neutral-30);
+}
+
+.consultation-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-6);
+  border-bottom: 1px solid var(--color-neutral-40);
+  flex-shrink: 0;
+}
+
+.consultation-modal-title {
+  font-size: var(--order-title-size);
+  font-weight: var(--font-weight-bold);
+  color: var(--order-title-color);
+  margin: 0;
+  font-family: var(--font-family-title);
+}
+
+.consultation-modal-close {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  border-radius: var(--radius-base);
+  transition: var(--transition-base);
+}
+
+.consultation-modal-close:hover {
+  background: var(--color-neutral-20);
+  color: var(--color-text-primary);
+}
+
+.consultation-modal-body {
+  padding: var(--spacing-6);
+  overflow-y: auto;
+  flex: 1;
+  min-height: 280px;
+}
+
+.consultation-modal-filters {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  margin-bottom: var(--spacing-5);
+}
+
+.consultation-search-wrap {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  position: relative;
+}
+
+.consultation-search-icon {
+  position: absolute;
+  left: var(--spacing-4);
+  color: var(--color-text-tertiary);
+  pointer-events: none;
+  font-size: var(--font-size-base);
+}
+
+.consultation-search-input {
+  flex: 1;
+  padding-left: 40px;
+  font-size: var(--input-font-size);
+  border-radius: var(--input-border-radius);
+  border: 1px solid var(--input-border-color);
+}
+
+.consultation-search-input:focus {
+  border-color: var(--input-focus-border-color);
+  outline: none;
+}
+
+.consultation-search-btn {
+  flex-shrink: 0;
+  padding: var(--btn-padding-y) var(--btn-padding-x);
+  font-size: var(--btn-font-size);
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--btn-border-radius);
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
+  border: none;
+  cursor: pointer;
+  transition: var(--btn-transition);
+}
+
+.consultation-search-btn:hover {
+  background: var(--color-primary-hover);
+}
+
+.consultation-filter-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-4);
+}
+
+@media (max-width: 575px) {
+  .consultation-filter-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.consultation-filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.consultation-filter-group .consultation-label {
+  font-size: var(--order-label-size);
+  font-weight: var(--font-weight-semibold);
+  color: var(--order-label-color);
+}
+
+.consultation-select {
+  width: 100%;
+  padding: var(--input-padding-y) var(--input-padding-x);
+  font-size: var(--input-font-size);
+  border: 1px solid var(--input-border-color);
+  border-radius: var(--input-border-radius);
+}
+
+.consultation-select:focus {
+  outline: none;
+  border-color: var(--input-focus-border-color);
+}
+
+.consultation-modal-list-wrap {
+  min-height: 240px;
+}
+
+.consultation-modal-hint {
+  margin: 0;
+  padding: var(--spacing-6);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.consultation-modal-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-3);
+  padding: var(--spacing-8);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.consultation-modal-product-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.consultation-modal-product-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  padding: var(--spacing-4);
+  border: 1px solid var(--color-neutral-40);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: var(--transition-base);
+  background: var(--color-bg-secondary);
+}
+
+.consultation-modal-product-item:hover {
+  border-color: var(--color-primary);
+  background: var(--color-primary-bg);
+  box-shadow: var(--shadow-sm);
+}
+
+.consultation-modal-product-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+}
+
+.consultation-modal-add-icon {
+  color: var(--color-primary);
+  font-size: var(--font-size-xl);
+  flex-shrink: 0;
+}
+
+/* ========== Popup đơn thuốc tư vấn thành công (giống popup đặt hàng) ========== */
+.vc-prescription-success-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--z-modal);
+  padding: var(--spacing-4);
+}
+
+.vc-prescription-success-modal {
+  position: relative;
+  max-width: 480px;
+  width: 100%;
+  background: var(--color-bg-secondary);
+  border-radius: var(--card-border-radius);
+  box-shadow: var(--shadow-xl);
+  padding: 1.5rem 2rem 2rem;
+  text-align: center;
+}
+
+.vc-prescription-success-close {
+  position: absolute;
+  top: var(--spacing-4);
+  right: var(--spacing-4);
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-full);
+  border: none;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+  transition: var(--transition-base);
+}
+
+.vc-prescription-success-close:hover {
+  background: var(--color-neutral-20);
+  color: var(--color-text-primary);
+}
+
+.vc-prescription-success-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 1.25rem;
+  border-radius: var(--radius-full);
+  background: var(--color-success-bg, #e6f5ea);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-success, #16a34a);
+  font-size: 32px;
+}
+
+.vc-prescription-success-title {
+  font-size: 20px;
+  font-weight: var(--font-weight-bold);
+  margin-bottom: 1rem;
+  color: var(--order-title-color);
+}
+
+.vc-prescription-success-desc {
+  margin: 0 0 1.5rem;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-relaxed);
+}
+
+.vc-prescription-success-code {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 1rem 1.5rem;
+  border-radius: var(--radius-md);
+  background: var(--color-primary-bg);
+  margin-bottom: 1.5rem;
+}
+
+.vc-prescription-success-code-label {
+  font-size: var(--font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-secondary);
+}
+
+.vc-prescription-success-code-value {
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-lg);
+  color: var(--color-primary);
+}
+
+.vc-prescription-success-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-3);
+  justify-content: center;
+  margin-top: 0.5rem;
+}
+
+.vc-prescription-success-btn {
+  min-width: 160px;
+  padding: var(--spacing-3) var(--spacing-5);
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  transition: var(--transition-base);
+}
+
+.vc-prescription-success-btn-primary {
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
+  border-color: var(--color-primary);
+}
+
+.vc-prescription-success-btn-primary:hover {
+  background: var(--color-primary-hover);
+  border-color: var(--color-primary-hover);
+}
+
+.vc-prescription-success-btn-secondary {
+  background: var(--color-bg-secondary);
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.vc-prescription-success-btn-secondary:hover {
+  background: var(--color-primary-bg);
+}

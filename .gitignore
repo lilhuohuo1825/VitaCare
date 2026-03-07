@@ -1,5 +1,12 @@
 .DS_Store
 
+# Dependencies & env
+**/node_modules/
+backend/.env
+.env
+.env.local
+*.log
+
 # Large data files (imported to MongoDB, too large for GitHub)
 data/benh.json
 data/blogs.json

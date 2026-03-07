@@ -1,0 +1,93 @@
+@if (config) {
+<div class="health-detail-wrapper">
+  <!-- Breadcrumb -->
+  <div class="health-detail-breadcrumb">
+    <div class="container">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a routerLink="/">Trang chủ</a></li>
+          <li class="breadcrumb-item"><a routerLink="/account" [queryParams]="{ menu: 'health' }">Công cụ sức khỏe</a></li>
+          <li class="breadcrumb-item active" aria-current="page">{{ config.title }}</li>
+        </ol>
+      </nav>
+    </div>
+  </div>
+
+  <!-- Hero section (style Pharmacity) -->
+  <section class="health-detail-hero" [style.--theme-color]="config.themeColor" [style.--theme-bg]="config.themeBg">
+    <div class="health-detail-hero-bg">
+      <span class="health-detail-hero-circle health-detail-hero-circle--1"></span>
+      <span class="health-detail-hero-circle health-detail-hero-circle--2"></span>
+      <span class="health-detail-hero-circle health-detail-hero-circle--3"></span>
+    </div>
+    <div class="container health-detail-hero-inner">
+      <div class="health-detail-hero-content">
+        <h1 class="health-detail-title">{{ config.title }}</h1>
+        <p class="health-detail-desc">{{ config.description }}</p>
+        <a routerLink="/account" [queryParams]="{ menu: 'health' }" class="health-detail-cta">
+          Quay lại Sổ sức khỏe
+        </a>
+      </div>
+      <div class="health-detail-hero-visual">
+        <img [src]="config.image" [alt]="config.title" class="health-detail-img" />
+      </div>
+    </div>
+  </section>
+
+  <!-- Ảnh chi tiết kích thước lớn -->
+  <section class="health-detail-image-section">
+    <div class="container">
+      <div class="health-detail-image-wrap">
+        <img [src]="config.image" [alt]="config.title" class="health-detail-img-large" />
+      </div>
+    </div>
+  </section>
+
+  <!-- Góc sức khỏe -->
+  @if (blogs().length) {
+  <section class="health-detail-blogs">
+    <div class="container">
+      <div class="health-detail-blogs-header">
+        <h2 class="health-detail-blogs-title">Góc sức khỏe</h2>
+        <a routerLink="/products" [queryParams]="{ keyword: getBlogKeyword(), mode: 'article' }" class="health-detail-blogs-more">Xem thêm</a>
+      </div>
+      <div class="health-detail-blogs-layout">
+        @if (blogs()[0]; as mainBlog) {
+        <a [href]="mainBlog.url" target="_blank" rel="noopener" class="health-detail-blog-main">
+          <div class="health-detail-blog-main-img">
+            <img [src]="getBlogImageUrl(mainBlog)" [alt]="mainBlog.title" />
+            <span class="health-detail-blog-tag">{{ mainBlog.categoryName || 'Sức khỏe' }}</span>
+          </div>
+          <div class="health-detail-blog-main-body">
+            <h3 class="health-detail-blog-main-title">{{ mainBlog.title }}</h3>
+            <p class="health-detail-blog-main-desc">{{ mainBlog.shortDescription }}</p>
+          </div>
+        </a>
+        }
+        <div class="health-detail-blog-side">
+          @for (blog of blogs().slice(1, 5); track blog._id || blog.url) {
+          <a [href]="blog.url" target="_blank" rel="noopener" class="health-detail-blog-side-item">
+            <div class="health-detail-blog-side-img">
+              <img [src]="getBlogImageUrl(blog)" [alt]="blog.title" />
+            </div>
+            <div class="health-detail-blog-side-content">
+              <span class="health-detail-blog-tag health-detail-blog-tag--inline">{{ blog.categoryName || 'Sức khỏe' }}</span>
+              <h4 class="health-detail-blog-side-title">{{ blog.title }}</h4>
+              <p class="health-detail-blog-side-desc">{{ blog.shortDescription }}</p>
+            </div>
+          </a>
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+  }
+</div>
+} @else {
+<div class="health-detail-wrapper">
+  <div class="container py-5">
+    <p class="text-muted">Không tìm thấy chỉ số sức khỏe.</p>
+    <a routerLink="/account" [queryParams]="{ menu: 'health' }">Quay lại Sổ sức khỏe</a>
+  </div>
+</div>
+}

@@ -1,1 +1,408 @@
-<p>customermanage works!</p>
+<div class="container customer-manage-container">
+    <!-- Breadcrumb -->
+    <div class="breadcrumb text-sm mb-2 font-medium" style="color: var(--color-neutral-60);">
+        Quản lý khách hàng <span class="mx-1">/</span> <span style="color: var(--color-primary);">Danh sách
+            khách hàng</span>
+    </div>
+
+    <!-- Header -->
+    <div class="page-header py-4"
+        style="background: var(--color-bg-light); border-radius: 20px; padding: 20px 30px; box-shadow: var(--shadow-sm); margin-bottom: 20px;">
+        <h1 class="content-title"
+            style="margin: 0; font-size: 28px; text-transform: uppercase; color: var(--color-primary); font-weight: bold;">
+            Danh sách
+            khách hàng</h1>
+    </div>
+
+    <!-- Filter & Toolbar -->
+    <div class="filter-bar py-4">
+        <div class="flex items-center gap-4">
+            <div class="search-wrapper">
+                <input type="text" class="search-input" placeholder="Tìm kiếm...." (input)="onSearch($event)">
+                <i class="bi bi-search search-icon"></i>
+            </div>
+            <div class="selection-info" *ngIf="selectedCount > 0">
+                <span class="highlight">{{ selectedCount }}</span> đã chọn
+            </div>
+        </div>
+
+        <div class="actions-group">
+            <button class="btn btn-sm action-btn icon-text" [disabled]="selectedCount !== 1"
+                [class.disabled]="selectedCount !== 1" (click)="onEditClick()">
+                <i class="bi bi-pencil"></i> Chỉnh
+            </button>
+            <!-- Filter Dropdown -->
+            <div class="dropdown-container">
+                <button class="btn btn-sm action-btn icon-text" [class.active]="isFilterOpen || activeFilterCount > 0"
+                    (click)="toggleFilterDropdown($event)">
+                    <i class="bi bi-sliders"></i> Lọc
+                    <span class="selected-badge" *ngIf="activeFilterCount > 0">{{ activeFilterCount }}</span>
+                </button>
+
+                <div class="dropdown-menu-multilevel" *ngIf="isFilterOpen" [class.show]="isFilterOpen"
+                    (click)="$event.stopPropagation()">
+                    <!-- Tier Submenu -->
+                    <div class="dropdown-item-parent">
+                        <div class="dropdown-item">
+                            <span>Hạng thành viên</span>
+                            <span style="font-size: 10px; color: #ccc;">›</span>
+                        </div>
+                        <div class="dropdown-submenu">
+                            <label class="dropdown-option">
+                                <input type="checkbox" [checked]="isFilterSelected('tier', 'Đồng')"
+                                    (change)="toggleAdvancedFilter('tier', 'Đồng')">
+                                <span>Đồng</span>
+                            </label>
+                            <label class="dropdown-option">
+                                <input type="checkbox" [checked]="isFilterSelected('tier', 'Bạc')"
+                                    (change)="toggleAdvancedFilter('tier', 'Bạc')">
+                                <span>Bạc</span>
+                            </label>
+                            <label class="dropdown-option">
+                                <input type="checkbox" [checked]="isFilterSelected('tier', 'Vàng')"
+                                    (change)="toggleAdvancedFilter('tier', 'Vàng')">
+                                <span>Vàng</span>
+                            </label>
+                            <label class="dropdown-option">
+                                <input type="checkbox" [checked]="isFilterSelected('tier', 'Kim cương')"
+                                    (change)="toggleAdvancedFilter('tier', 'Kim cương')">
+                                <span>Kim cương</span>
+                            </label>
+                            <label class="dropdown-option">
+                                <input type="checkbox" [checked]="isFilterSelected('tier', 'Thành viên')"
+                                    (change)="toggleAdvancedFilter('tier', 'Thành viên')">
+                                <span>Thành viên</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Spending Range -->
+                    <div class="dropdown-item-parent">
+                        <div class="dropdown-item">
+                            <span>Đã chi (VNĐ)</span>
+                            <span style="font-size: 10px; color: #ccc;">›</span>
+                        </div>
+                        <div class="dropdown-submenu" (click)="$event.stopPropagation()">
+                            <div class="price-range-inputs">
+                                <div class="price-input-group">
+                                    <label>Từ:</label>
+                                    <input type="number" [(ngModel)]="advancedFilters.spending_range.min"
+                                        placeholder="0" (input)="applyFilters()">
+                                </div>
+                                <div class="price-input-group">
+                                    <label>Đến:</label>
+                                    <input type="number" [(ngModel)]="advancedFilters.spending_range.max"
+                                        placeholder="Max" (input)="applyFilters()">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-actions">
+                        <button class="btn btn-sm btn-clear-filter" (click)="clearAllFilters()">
+                            <i class="bi bi-trash"></i> Xóa lọc
+                        </button>
+                        <button class="btn btn-sm btn-close-filter" (click)="isFilterOpen = false">
+                            <i class="bi bi-x-lg"></i> Đóng
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <button class="btn btn-sm action-btn icon-text" [disabled]="selectedCount < 2"
+                [class.disabled]="selectedCount < 2" (click)="onGroupClick()" title="Nhóm khách hàng">
+                <i class="bi bi-collection"></i> Nhóm
+            </button>
+            <button class="btn btn-sm action-btn icon-text" [disabled]="selectedCount === 0"
+                [class.disabled]="selectedCount === 0" (click)="onDeleteClick()">
+                <i class="bi bi-trash"></i> Xóa
+            </button>
+            <div class="dropdown-container" style="position: relative;">
+                <button class="btn btn-sm action-btn icon-text" (click)="toggleSortDropdown($event)">
+                    <i class="bi bi-arrow-down-up"></i> Sắp xếp
+                </button>
+                <div class="dropdown-popup sort-dropdown-menu" *ngIf="isSortDropdownOpen"
+                    (click)="$event.stopPropagation()">
+                    <div class="sort-options-list">
+                        <button (click)="onSortSelect('registerdate', 'desc')" class="sort-option-btn"
+                            [class.active]="sortColumn === 'registerdate' && sortDirection === 'desc'">
+                            <i class="bi bi-calendar-event"></i> Ngày tạo: Mới nhất
+                        </button>
+                        <button (click)="onSortSelect('registerdate', 'asc')" class="sort-option-btn"
+                            [class.active]="sortColumn === 'registerdate' && sortDirection === 'asc'">
+                            <i class="bi bi-calendar"></i> Ngày tạo: Cũ nhất
+                        </button>
+                        <button (click)="onSortSelect('total_spending', 'desc')" class="sort-option-btn"
+                            [class.active]="sortColumn === 'total_spending' && sortDirection === 'desc'">
+                            <i class="bi bi-sort-numeric-down-alt"></i> Đã chi: Cao nhất
+                        </button>
+                        <button (click)="onSortSelect('total_spending', 'asc')" class="sort-option-btn"
+                            [class.active]="sortColumn === 'total_spending' && sortDirection === 'asc'">
+                            <i class="bi bi-sort-numeric-down"></i> Đã chi: Thấp nhất
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="spinner-container">
+        <div class="spinner-border" role="status"></div>
+        <p>Đang tải dữ liệu...</p>
+    </div>
+
+    <!-- Table -->
+    <div class="table-scrollable" *ngIf="!isLoading">
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 40px;">
+                        <input type="checkbox" [checked]="selectAll" (change)="toggleSelectAll($event)">
+                    </th>
+                    <th>Mã khách hàng</th>
+                    <th>Thời gian tham gia</th>
+                    <th>Khách hàng</th>
+                    <th>Địa chỉ</th>
+                    <th class="text-center">Hạng thành viên</th>
+                    <th class="text-right">Tổng đơn</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let c of filteredCustomers" [class.selected]="c.selected">
+                    <td (click)="$event.stopPropagation()">
+                        <input type="checkbox" [(ngModel)]="c.selected" (change)="onSelectChange()">
+                    </td>
+                    <td>{{ c.user_id }}</td>
+                    <td>{{ c.registerdate | date:'dd/MM/yyyy' }}</td>
+                    <td class="font-bold">{{ c.full_name }}</td>
+                    <td>{{ c.addressString }}</td>
+                    <td class="text-center">
+                        <span class="tier-pill" [ngClass]="'tier-' + (c.tiering | lowercase)">
+                            {{ c.tiering }}
+                        </span>
+                    </td>
+                    <td class="price text-right">{{ c.totalspent | currency : 'VND' }}</td>
+                </tr>
+                <tr *ngIf="filteredCustomers.length === 0">
+                    <td colspan="7" class="text-center text-secondary py-5">
+                        Không có khách hàng nào.
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Edit Customer Modal -->
+<div class="modal-wrapper" *ngIf="isEditModalOpen && editingCustomer">
+    <div class="modal-backdrop" (click)="closeEditModal()"></div>
+    <div class="modal-content-wrapper customer-edit-modal">
+        <div class="modal-header">
+            <div>
+                <h2 class="modal-title">Chỉnh sửa khách hàng</h2>
+                <p class="modal-subtitle">{{ editingCustomer.user_id }}</p>
+            </div>
+            <button class="close-btn" (click)="closeEditModal()"><i class="bi bi-x-lg"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="edit-form-grid">
+                <!-- Full Name -->
+                <div class="form-group">
+                    <label class="form-label"><i class="bi bi-person"></i> Họ và tên</label>
+                    <input type="text" class="form-control" [(ngModel)]="editingCustomer.full_name"
+                        placeholder="Nhập họ tên">
+                </div>
+                <!-- Email -->
+                <div class="form-group">
+                    <label class="form-label"><i class="bi bi-envelope"></i> Email</label>
+                    <input type="email" class="form-control" [(ngModel)]="editingCustomer.email"
+                        placeholder="Nhập email">
+                </div>
+                <!-- Phone -->
+                <div class="form-group">
+                    <label class="form-label"><i class="bi bi-phone"></i> Số điện thoại</label>
+                    <input type="text" class="form-control" [(ngModel)]="editingCustomer.phone"
+                        placeholder="Nhập số điện thoại">
+                </div>
+                <!-- Gender -->
+                <div class="form-group">
+                    <label class="form-label"><i class="bi bi-gender-ambiguous"></i> Giới tính</label>
+                    <select class="form-control" [(ngModel)]="editingCustomer.gender">
+                        <option value="">-- Chọn --</option>
+                        <option value="Nam">Nam</option>
+                        <option value="Nữ">Nữ</option>
+                        <option value="Khác">Khác</option>
+                    </select>
+                </div>
+                <!-- Date of Birth -->
+                <div class="form-group">
+                    <label class="form-label"><i class="bi bi-calendar"></i> Ngày sinh</label>
+                    <input type="date" class="form-control" [(ngModel)]="editingCustomer.dob">
+                </div>
+                <!-- Tier -->
+                <div class="form-group">
+                    <label class="form-label"><i class="bi bi-award"></i> Hạng thành viên</label>
+                    <select class="form-control" [(ngModel)]="editingCustomer.tiering">
+                        <option value="Thành viên">Thành viên</option>
+                        <option value="Đồng">Đồng</option>
+                        <option value="Bạc">Bạc</option>
+                        <option value="Vàng">Vàng</option>
+                        <option value="Kim cương">Kim cương</option>
+                    </select>
+                </div>
+            </div>
+            <!-- Read-only Info -->
+            <div class="edit-info-row">
+                <div class="info-chip">
+                    <i class="bi bi-calendar-check"></i>
+                    <span>Tham gia: {{ editingCustomer.registerdate | date:'dd/MM/yyyy' }}</span>
+                </div>
+                <div class="info-chip">
+                    <i class="bi bi-cash-stack"></i>
+                    <span>Tổng chi: {{ editingCustomer.totalspent | currency:'VND' }}</span>
+                </div>
+                <div class="info-chip">
+                    <i class="bi bi-geo-alt"></i>
+                    <span>{{ editingCustomer.addressString }}</span>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-cancel" (click)="closeEditModal()">
+                <i class="bi bi-x"></i> Hủy
+            </button>
+            <button class="btn btn-sm btn-primary" (click)="saveCustomer()">
+                <i class="bi bi-check-lg"></i> Lưu
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal-wrapper" *ngIf="isConfirmModalOpen">
+    <div class="modal-backdrop" (click)="closeConfirmModal()"></div>
+    <div class="modal-content-wrapper compact">
+        <div class="modal-header">
+            <h2 class="modal-title">Xác nhận xóa</h2>
+            <button class="close-btn" (click)="closeConfirmModal()"><i class="bi bi-x-lg"></i></button>
+        </div>
+        <div class="modal-body">
+            <p style="font-size:15px; color: var(--color-text-primary);">
+                Bạn có chắc chắn muốn xóa <strong>{{ selectedCount }}</strong> khách hàng đã chọn không?
+            </p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-sm action-btn" (click)="closeConfirmModal()">
+                <i class="bi bi-x"></i> Hủy
+            </button>
+            <button class="btn btn-sm btn-primary" (click)="confirmDelete()"
+                style="background: var(--color-danger); border:none; color:white;">
+                <i class="bi bi-trash"></i> Xóa
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Notification Toast -->
+<div *ngIf="notification.show" class="notification-toast" [ngClass]="notification.type">
+    <i class="bi" [class.bi-check-circle-fill]="notification.type === 'success'"
+        [class.bi-x-circle-fill]="notification.type === 'error'"
+        [class.bi-exclamation-triangle-fill]="notification.type === 'warning'"></i>
+    <span>{{ notification.message }}</span>
+</div>
+
+<!-- Group Naming Modal -->
+<div class="modal-wrapper" *ngIf="isGroupModalOpen" style="z-index: 2100;">
+    <div class="modal-backdrop" (click)="closeGroupModal()"></div>
+    <div class="modal-content-wrapper"
+        style="width: 550px; border-radius: 16px; overflow: hidden; background: var(--color-bg-secondary); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);">
+        <div class="modal-header"
+            style="background: linear-gradient(to right, var(--color-primary), var(--color-primary-hover)); padding: 20px 24px; border: none;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div
+                    style="background: rgba(255,255,255,0.2); width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                    <i class="bi bi-collection" style="color: white; font-size: 20px;"></i>
+                </div>
+                <div>
+                    <h5 class="modal-title" style="color: white; font-size: 18px; letter-spacing: 0.5px;">NHÓM KHÁCH
+                        HÀNG</h5>
+                    <p style="margin: 0; font-size: 12px; color: rgba(255,255,255,0.8);">Tạo và quản lý phân khúc khách
+                        hàng</p>
+                </div>
+            </div>
+            <button class="close-btn" (click)="closeGroupModal()" style="color: white; opacity: 0.8;">&times;</button>
+        </div>
+
+        <div class="modal-body" style="padding: 24px;">
+            <!-- Create New Group Section -->
+            <div
+                style="background: var(--color-bg-light); padding: 16px; border-radius: 12px; border: 1px solid var(--color-neutral-30); margin-bottom: 24px;">
+                <label class="form-label"
+                    style="font-weight: 700; color: var(--color-primary); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                    <i class="bi bi-plus-circle"></i> TẠO NHÓM MỚI TỪ {{selectedCount}} KHÁCH HÀNG ĐÃ CHỌN
+                </label>
+                <div style="display: flex; gap: 12px;">
+                    <input type="text" class="form-control" [(ngModel)]="groupName"
+                        placeholder="Nhập tên nhóm (VD: Khách hàng tiềm năng Q2)"
+                        style="flex: 1; border-radius: 8px; border: 1px solid var(--color-neutral-40); padding: 12px;">
+                    <button class="btn btn-primary" (click)="confirmGroup()" [disabled]="!groupName.trim()"
+                        [style.opacity]="!groupName.trim() ? '0.5' : '1'"
+                        style="min-width: 120px; box-shadow: 0 4px 10px rgba(var(--color-primary-rgb, 0, 88, 159), 0.3);">
+                        TẠO NGAY
+                    </button>
+                </div>
+            </div>
+
+            <!-- Existing Groups Section -->
+            <div class="existing-groups-header"
+                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <h6
+                    style="margin: 0; font-size: 13px; font-weight: 700; color: var(--color-text-secondary); text-transform: uppercase;">
+                    DANH SÁCH NHÓM ĐÃ CÓ</h6>
+                <span style="font-size: 12px; color: var(--color-text-tertiary);">{{existingGroups.length}} nhóm</span>
+            </div>
+
+            <div class="groups-list"
+                style="max-height: 250px; overflow-y: auto; border: 1px solid var(--color-neutral-30); border-radius: 12px; background: var(--color-bg-light);">
+                <div *ngFor="let group of existingGroups" class="group-item"
+                    style="padding: 14px 18px; border-bottom: 1px solid var(--color-neutral-20); display: flex; justify-content: space-between; align-items: center; transition: all 0.2s;">
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <div
+                            style="width: 36px; height: 36px; background: var(--color-primary-bg); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--color-primary);">
+                            <i class="bi bi-people-fill"></i>
+                        </div>
+                        <div>
+                            <div style="font-weight: 600; font-size: 14px; color: var(--color-text-primary);">{{
+                                group.name }}</div>
+                            <div style="font-size: 11px; color: var(--color-text-tertiary); display: flex; gap: 10px;">
+                                <span><i class="bi bi-calendar3"></i> {{ group.date | date:'dd/MM/yyyy' }}</span>
+                                <span><i class="bi bi-person-check"></i> {{ group.count }} thành viên</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn-icon" (click)="deleteGroup(group._id || group.id)" title="Xóa nhóm"
+                            style="background: none; border: none; color: var(--color-danger); cursor: pointer; padding: 5px;">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                <div *ngIf="existingGroups.length === 0"
+                    style="padding: 40px; text-align: center; color: var(--color-text-tertiary);">
+                    <i class="bi bi-folder-x"
+                        style="font-size: 32px; display: block; margin-bottom: 10px; opacity: 0.5;"></i>
+                    <p style="margin: 0; font-style: italic;">Chưa có nhóm nào được tạo.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-footer"
+            style="padding: 16px 24px; background: var(--color-bg-light); border-top: 1px solid var(--color-neutral-30);">
+            <button class="btn btn-sm btn-secondary" (click)="closeGroupModal()"
+                style="min-width: 100px; background: var(--color-neutral-40); border: none; color: var(--color-text-primary);">
+                ĐÓNG
+            </button>
+        </div>
+    </div>
+</div>

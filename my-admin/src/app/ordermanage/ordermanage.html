@@ -1,1 +1,410 @@
-<p>ordermanage works!</p>
+<div class="container order-manage-container">
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb text-sm mb-2 font-medium" style="color: var(--color-neutral-60);">
+        Quản lý Đơn hàng <span class="mx-1">/</span> <span style="color: var(--color-primary);">Danh sách đơn
+            hàng</span>
+    </div>
+
+    <!-- Header -->
+    <div class="page-header py-4"
+        style="background: var(--color-bg-light); border-radius: 20px; padding: 20px 30px; box-shadow: var(--shadow-sm); margin-bottom: 20px;">
+        <h1 class="content-title" style="margin: 0; font-size: 28px; text-transform: uppercase;">Danh sách đơn hàng</h1>
+        <button class="btn-add-action" (click)="openAddOrderModal()">
+            <i class="bi bi-plus-lg"></i>
+            Thêm đơn hàng
+        </button>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+        <div class="stat-card stat-all" (click)="filterByStatus('all')" [class.active]="currentStatusFilter === 'all'">
+            <div class="stat-label">Tổng đơn hàng</div>
+            <div class="stat-value">{{ stats.total }}</div>
+        </div>
+        <div class="stat-card stat-pending" (click)="filterByStatus('pending')"
+            [class.active]="currentStatusFilter === 'pending'">
+            <div class="stat-label">Chờ xác nhận</div>
+            <div class="stat-value">{{ stats.pending }}</div>
+        </div>
+        <div class="stat-card stat-shipping" (click)="filterByStatus('shipping')"
+            [class.active]="currentStatusFilter === 'shipping'">
+            <div class="stat-label">Đang giao</div>
+            <div class="stat-value">{{ stats.shipping }}</div>
+        </div>
+        <div class="stat-card stat-unpaid" (click)="filterByStatus('unpaid')"
+            [class.active]="currentStatusFilter === 'unpaid'">
+            <div class="stat-label">Chưa thanh toán</div>
+            <div class="stat-value">{{ stats.unpaid }}</div>
+        </div>
+        <div class="stat-card stat-cancelled" (click)="filterByStatus('cancelled')"
+            [class.active]="currentStatusFilter === 'cancelled'">
+            <div class="stat-label">Đã hủy</div>
+            <div class="stat-value">{{ stats.cancelled }}</div>
+        </div>
+        <div class="stat-card stat-refunded" (click)="filterByStatus('refunded')"
+            [class.active]="currentStatusFilter === 'refunded'">
+            <div class="stat-label">Hoàn tiền</div>
+            <div class="stat-value">{{ stats.refunded }}</div>
+        </div>
+    </div>
+
+    <!-- Filter & Toolbar -->
+    <div class="filter-bar py-4">
+        <div class="flex items-center gap-4">
+            <div class="search-wrapper">
+                <input type="text" class="search-input" placeholder="Tìm kiếm...." (input)="onSearch($event)">
+                <i class="bi bi-search search-icon"></i>
+            </div>
+            <span class="selection-info">{{ selectedCount }} đã chọn</span>
+        </div>
+
+        <div class="actions-group">
+            <button class="btn btn-sm action-btn icon-text" (click)="onEditClick()" [disabled]="selectedCount !== 1"
+                [class.disabled]="selectedCount !== 1">
+                <i class="bi bi-pencil"></i> Chỉnh
+            </button>
+            <div class="dropdown-container">
+                <button class="btn btn-sm action-btn icon-text" [class.active]="isFilterOpen || activeFilterCount > 0"
+                    (click)="toggleFilterDropdown($event)">
+                    <i class="bi bi-sliders"></i> Lọc
+                    <span class="selected-badge" *ngIf="activeFilterCount > 0">{{ activeFilterCount }}</span>
+                </button>
+                <div class="dropdown-menu-multilevel" *ngIf="isFilterOpen" [class.show]="isFilterOpen"
+                    (click)="$event.stopPropagation()">
+                    <!-- Time Submenu -->
+                    <div class="dropdown-item-parent">
+                        <div class="dropdown-item">
+                            <span>Thời gian</span>
+                            <span style="font-size: 10px; color: #ccc;">›</span>
+                        </div>
+                        <div class="dropdown-submenu">
+                            <label class="dropdown-option">
+                                <input type="radio" name="time_filter" [checked]="isFilterSelected('time', 'today')"
+                                    (change)="toggleAdvancedFilter('time', 'today')">
+                                <span>Hôm nay</span>
+                            </label>
+                            <label class="dropdown-option">
+                                <input type="radio" name="time_filter" [checked]="isFilterSelected('time', 'week')"
+                                    (change)="toggleAdvancedFilter('time', 'week')">
+                                <span>7 ngày qua</span>
+                            </label>
+                            <label class="dropdown-option">
+                                <input type="radio" name="time_filter" [checked]="isFilterSelected('time', 'month')"
+                                    (change)="toggleAdvancedFilter('time', 'month')">
+                                <span>30 ngày qua</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Status Submenu -->
+                    <div class="dropdown-item-parent">
+                        <div class="dropdown-item">
+                            <span>Trạng thái đơn hàng</span>
+                            <span style="font-size: 10px; color: #ccc;">›</span>
+                        </div>
+                        <div class="dropdown-submenu">
+                            <label class="dropdown-option">
+                                <input type="checkbox" [checked]="isFilterSelected('status', 'pending')"
+                                    (change)="toggleAdvancedFilter('status', 'pending')">
+                                <span>Chờ xác nhận</span>
+                            </label>
+                            <label class="dropdown-option">
+                                <input type="checkbox" [checked]="isFilterSelected('status', 'confirmed')"
+                                    (change)="toggleAdvancedFilter('status', 'confirmed')">
+                                <span>Đã xác nhận</span>
+                            </label>
+                            <label class="dropdown-option">
+                                <input type="checkbox" [checked]="isFilterSelected('status', 'shipping')"
+                                    (change)="toggleAdvancedFilter('status', 'shipping')">
+                                <span>Đang giao hàng</span>
+                            </label>
+                            <label class="dropdown-option">
+                                <input type="checkbox" [checked]="isFilterSelected('status', 'delivered')"
+                                    (change)="toggleAdvancedFilter('status', 'delivered')">
+                                <span>Đã giao hàng</span>
+                            </label>
+                            <label class="dropdown-option">
+                                <input type="checkbox" [checked]="isFilterSelected('status', 'cancelled')"
+                                    (change)="toggleAdvancedFilter('status', 'cancelled')">
+                                <span>Đã hủy</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Payment Submenu -->
+                    <div class="dropdown-item-parent">
+                        <div class="dropdown-item">
+                            <span>Thanh toán</span>
+                            <span style="font-size: 10px; color: #ccc;">›</span>
+                        </div>
+                        <div class="dropdown-submenu">
+                            <label class="dropdown-option">
+                                <input type="checkbox" [checked]="isFilterSelected('payment', 'paid')"
+                                    (change)="toggleAdvancedFilter('payment', 'paid')">
+                                <span>Đã thanh toán</span>
+                            </label>
+                            <label class="dropdown-option">
+                                <input type="checkbox" [checked]="isFilterSelected('payment', 'unpaid')"
+                                    (change)="toggleAdvancedFilter('payment', 'unpaid')">
+                                <span>Chưa thanh toán</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Total Amount Submenu -->
+                    <div class="dropdown-item-parent">
+                        <div class="dropdown-item">
+                            <span>Khoảng giá (VNĐ)</span>
+                            <span style="font-size: 10px; color: #ccc;">›</span>
+                        </div>
+                        <div class="dropdown-submenu" (click)="$event.stopPropagation()">
+                            <div class="price-range-inputs">
+                                <div class="price-input-group">
+                                    <label>Từ:</label>
+                                    <input type="number" [(ngModel)]="advancedFilters.total_range.min" placeholder="0"
+                                        (input)="applyFilters()">
+                                </div>
+                                <div class="price-input-group">
+                                    <label>Đến:</label>
+                                    <input type="number" [(ngModel)]="advancedFilters.total_range.max" placeholder="Max"
+                                        (input)="applyFilters()">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-actions">
+                        <button class="btn btn-sm btn-clear-filter" (click)="clearAllFilters()">
+                            <i class="bi bi-trash"></i> Xóa lọc
+                        </button>
+                        <button class="btn btn-sm btn-close-filter" (click)="isFilterOpen = false">
+                            <i class="bi bi-x-lg"></i> Đóng
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+
+            <button class="btn btn-sm action-btn icon-text" (click)="onDeleteClick()" [disabled]="selectedCount === 0"
+                [class.disabled]="selectedCount === 0">
+                <i class="bi bi-trash"></i> Xoá
+            </button>
+            <div class="dropdown-container" style="position: relative;">
+                <button class="btn btn-sm action-btn icon-text" (click)="toggleSortDropdown($event)">
+                    <i class="bi bi-arrow-down-up"></i> Sắp xếp
+                </button>
+                <div class="dropdown-popup sort-dropdown-menu" *ngIf="isSortDropdownOpen"
+                    (click)="$event.stopPropagation()">
+                    <div class="sort-options-list">
+                        <button (click)="onSortSelect('date', 'desc')" class="sort-option-btn"
+                            [class.active]="sortColumn === 'date' && sortDirection === 'desc'">
+                            <i class="bi bi-calendar-event"></i> Ngày: Mới nhất
+                        </button>
+                        <button (click)="onSortSelect('date', 'asc')" class="sort-option-btn"
+                            [class.active]="sortColumn === 'date' && sortDirection === 'asc'">
+                            <i class="bi bi-calendar"></i> Ngày: Cũ nhất
+                        </button>
+                        <button (click)="onSortSelect('total', 'desc')" class="sort-option-btn"
+                            [class.active]="sortColumn === 'total' && sortDirection === 'desc'">
+                            <i class="bi bi-sort-numeric-down-alt"></i> Tổng tiền: Cao nhất
+                        </button>
+                        <button (click)="onSortSelect('total', 'asc')" class="sort-option-btn"
+                            [class.active]="sortColumn === 'total' && sortDirection === 'asc'">
+                            <i class="bi bi-sort-numeric-down"></i> Tổng tiền: Thấp nhất
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div *ngIf="notification.show" class="notification-toast" [ngClass]="notification.type">
+        <i class="bi" [class.bi-check-circle-fill]="notification.type === 'success'"
+            [class.bi-x-circle-fill]="notification.type === 'error'"
+            [class.bi-exclamation-triangle-fill]="notification.type === 'warning'"></i>
+        <span>{{ notification.message }}</span>
+    </div>
+
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="spinner-container">
+        <div class="spinner-border" role="status"></div>
+        <p>Đang tải dữ liệu...</p>
+    </div>
+
+    <!-- Data Table -->
+    <div class="table-scrollable" *ngIf="!isLoading">
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 40px;">
+                        <input type="checkbox" [(ngModel)]="selectAll" (change)="toggleSelectAll()">
+                    </th>
+                    <th>Mã đơn</th>
+                    <th>Ngày đặt hàng</th>
+                    <th>Khách hàng</th>
+                    <th>Trạng thái</th>
+                    <th>Thanh toán</th>
+                    <th>Giao hàng</th>
+                    <th class="text-right">Tổng đơn</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Row 1 -->
+                <tr *ngFor="let order of filteredOrders" class="cursor-pointer" (click)="goToDetail(order.id)">
+                    <td><input type="checkbox" [(ngModel)]="order.selected"
+                            (change)="checkAllSelected(); updateSelectionCount()" (click)="$event.stopPropagation()">
+                    </td>
+                    <td>{{ order.code }}</td>
+                    <td>{{ order.date | date:'dd/MM/yyyy' }}</td>
+                    <td>{{ order.customer }}</td>
+                    <td>
+                        <div class="status-badge" [ngClass]="getStatusClass(order.status)">
+                            <span class="status-dot"></span>
+                            <span class="status-text">{{ order.statusText }}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="status-badge" [ngClass]="getPaymentClass(order.paymentStatus)">
+                            <span class="status-dot"></span>
+                            <span class="status-text">{{ order.paymentStatusText }}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="status-badge" [ngClass]="getDeliveryClass(order.deliveryStatus)">
+                            <span class="status-dot"></span>
+                            <span class="status-text">{{ order.deliveryStatusText }}</span>
+                        </div>
+                    </td>
+                    <td class="text-right font-bold">{{ order.total | number:'1.0-0' }}đ</td>
+                </tr>
+            </tbody>
+        </table>
+        <div *ngIf="filteredOrders.length === 0" class="text-center py-5 text-secondary">
+            Không tìm thấy đơn hàng nào.
+        </div>
+    </div>
+
+    <!-- Add Order Modal -->
+    <div class="modal-overlay" *ngIf="isAddOrderModalOpen" [class.show]="isAddOrderModalOpen">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">{{ isEditMode ? 'Cập nhật đơn hàng' : 'Thêm đơn hàng mới' }}</h3>
+                <button class="close-btn" (click)="closeAddOrderModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Tên khách hàng <span style="color: red">*</span></label>
+                    <input type="text" class="form-control" [(ngModel)]="newOrder.shippingInfo.fullName"
+                        placeholder="Nhập tên khách hàng">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Số điện thoại <span style="color: red">*</span></label>
+                    <input type="text" class="form-control" [(ngModel)]="newOrder.shippingInfo.phone"
+                        placeholder="Nhập số điện thoại">
+                </div>
+
+                <label class="form-label">Địa chỉ giao hàng</label>
+                <div class="form-group" style="display: flex; gap: 10px; margin-bottom: 10px;">
+                    <select class="form-control" [(ngModel)]="newOrder.shippingInfo.city" (change)="onCityChange()">
+                        <option value="" disabled selected>Chọn Tỉnh/Thành phố</option>
+                        <option *ngFor="let city of cities" [value]="city.name_with_type">{{ city.name_with_type }}
+                        </option>
+                    </select>
+                    <select class="form-control" [(ngModel)]="newOrder.shippingInfo.district"
+                        (change)="onDistrictChange()" [disabled]="!newOrder.shippingInfo.city">
+                        <option value="" disabled selected>Chọn Quận/Huyện</option>
+                        <option *ngFor="let d of districts" [value]="d.name_with_type">{{ d.name_with_type }}</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <select class="form-control" [(ngModel)]="newOrder.shippingInfo.ward" style="margin-bottom: 10px;"
+                        [disabled]="!newOrder.shippingInfo.district">
+                        <option value="" disabled selected>Chọn Phường/Xã</option>
+                        <option *ngFor="let w of wards" [value]="w.name_with_type">{{ w.name_with_type }}</option>
+                    </select>
+                    <input type="text" class="form-control" [(ngModel)]="newOrder.shippingInfo.address"
+                        placeholder="Số nhà, tên đường...">
+                </div>
+
+                <div style="border-top: 1px dashed var(--color-neutral-30); margin: 20px 0;"></div>
+
+                <h4
+                    style="font-size: 14px; font-weight: 700; color: var(--color-primary); margin-bottom: 15px; text-transform: uppercase;">
+                    Thông tin sản phẩm</h4>
+
+                <div class="form-group">
+                    <label class="form-label">Tên sản phẩm / ID</label>
+                    <input type="text" class="form-control" [(ngModel)]="newOrder.item[0].product"
+                        placeholder="Nhập Product ID hoặc Tên sản phẩm">
+                </div>
+                <div class="flex gap-4" style="display: flex; gap: 16px;">
+                    <div class="form-group" style="flex: 1;">
+                        <label class="form-label">Số lượng</label>
+                        <input type="number" class="form-control" [(ngModel)]="newOrder.item[0].quantity" min="1">
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label class="form-label">Đơn giá (VND)</label>
+                        <input type="number" class="form-control" [(ngModel)]="newOrder.item[0].price"
+                            placeholder="VNĐ">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Phương thức thanh toán</label>
+                    <select class="form-control" [(ngModel)]="newOrder.paymentMethod">
+                        <option value="COD">Thanh toán khi nhận hàng (COD)</option>
+                        <option value="Banking">Chuyển khoản ngân hàng</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer" style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button class="btn btn-cancel" (click)="closeAddOrderModal()"
+                    style="display: flex; align-items: center; justify-content: center; gap: 8px; background-color: white; color: var(--color-text-primary); border: 1px solid var(--color-neutral-40); padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer;">
+                    <i class="bi bi-x"></i> Hủy
+                </button>
+                <button class="btn btn-primary" (click)="saveNewOrder()"
+                    style="display: flex; align-items: center; justify-content: center; gap: 8px; background-color: var(--color-primary); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer;">
+                    <i class="bi bi-save"></i> {{ isEditMode ? 'Cập nhật' : 'Lưu đơn hàng' }}
+                </button>
+            </div>
+        </div>
+    </div><!-- /modal-overlay (add order) -->
+
+    <!-- Delete Confirmation Modal - outside add-order modal -->
+    <div class="modal-wrapper" *ngIf="isConfirmModalOpen">
+        <div class="modal-backdrop" (click)="closeConfirmModal()"></div>
+        <div class="modal-content-wrapper"
+            style="width: 400px; max-width: 90vw; background: var(--color-bg-secondary); border-radius: 12px; box-shadow: var(--shadow-xl); overflow: hidden; animation: fadeIn 0.3s ease-out;">
+            <div class="modal-header" style="border-bottom: none; padding: 20px 24px 0; background: transparent;">
+                <h5 class="modal-title"
+                    style="color: var(--color-danger); display: flex; align-items: center; gap: 10px; font-size: 18px; margin: 0;">
+                    <i class="bi bi-exclamation-triangle-fill"></i> Xác nhận xóa
+                </h5>
+                <button type="button" class="close" (click)="closeConfirmModal()"
+                    style="background: none; border: none; font-size: 24px; color: var(--color-text-secondary); cursor: pointer;">&times;</button>
+            </div>
+            <div class="modal-body" style="padding: 16px 24px; background: transparent;">
+                <p style="margin: 0; color: var(--color-text-primary); font-size: 16px;">
+                    Bạn có chắc chắn muốn xóa <strong style="color: var(--color-danger);">{{ selectedCount
+                        }}</strong> đơn hàng đã chọn?
+                </p>
+                <p style="margin-top: 8px; font-size: 14px; color: var(--color-text-secondary);">Thao tác này không
+                    thể hoàn tác.</p>
+            </div>
+            <div class="modal-footer"
+                style="border-top: none; padding: 0 24px 24px; justify-content: flex-end; gap: 12px; background: transparent;">
+                <button type="button" (click)="closeConfirmModal()"
+                    style="background: var(--color-neutral-30); color: var(--color-text-primary); border: none; padding: 10px 20px; border-radius: 8px; font-weight: 500; cursor: pointer;">Hủy</button>
+                <button type="button" (click)="confirmDelete()"
+                    style="background: var(--color-danger); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 500; display: flex; align-items: center; gap: 8px; cursor: pointer; transition: background 0.2s;">
+                    <i class="bi bi-trash"></i> Xóa ngay
+                </button>
+            </div>
+        </div>
+    </div>
+
+</div>

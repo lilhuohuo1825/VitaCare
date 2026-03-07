@@ -1,7 +1,7 @@
 [
   {
     "ma_cua_hang": "CH001",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 1",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "235",
@@ -106,7 +106,7 @@
   },
   {
     "ma_cua_hang": "CH002",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 2",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "45",
@@ -212,7 +212,7 @@
   },
   {
     "ma_cua_hang": "CH003",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 3",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "78",
@@ -303,17 +303,17 @@
   },
   {
     "ma_cua_hang": "CH004",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 4",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "111",
       "duong": "Nguyễn Huệ",
-      "phuong_xa": "PhÆ°á»ng 11",
+      "phuong_xa": "Phường 11",
       "quan_huyen": "Quận Phú Nhuận",
       "tinh_thanh": "Hồ Chí Minh",
       "ma_tinh": "79",
       "ma_quan": "767",
-      "dia_chi_day_du": "111 Nguyễn Huệ, P. PhÆ°á»ng 11, Quận Phú Nhuận, Hồ Chí Minh"
+      "dia_chi_day_du": "111 Nguyễn Huệ, P. Phường 11, Quận Phú Nhuận, Hồ Chí Minh"
     },
     "toa_do": {
       "lat": 10.8269,
@@ -399,17 +399,17 @@
   },
   {
     "ma_cua_hang": "CH005",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 5",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "329",
       "duong": "Hoàng Văn Thụ",
-      "phuong_xa": "PhÆ°á»ng 10",
+      "phuong_xa": "Phường 10",
       "quan_huyen": "Quận 3",
       "tinh_thanh": "Hồ Chí Minh",
       "ma_tinh": "79",
       "ma_quan": "764",
-      "dia_chi_day_du": "329 Hoàng Văn Thụ, P. PhÆ°á»ng 10, Quận 3, Hồ Chí Minh"
+      "dia_chi_day_du": "329 Hoàng Văn Thụ, P. Phường 10, Quận 3, Hồ Chí Minh"
     },
     "toa_do": {
       "lat": 10.7422,
@@ -497,17 +497,17 @@
   },
   {
     "ma_cua_hang": "CH006",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 6",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "765",
       "duong": "Cách Mạng Tháng 8",
-      "phuong_xa": "PhÆ°á»ng 5",
+      "phuong_xa": "Phường 5",
       "quan_huyen": "Quận 3",
       "tinh_thanh": "Hồ Chí Minh",
       "ma_tinh": "79",
       "ma_quan": "764",
-      "dia_chi_day_du": "765 Cách Mạng Tháng 8, P. PhÆ°á»ng 5, Quận 3, Hồ Chí Minh"
+      "dia_chi_day_du": "765 Cách Mạng Tháng 8, P. Phường 5, Quận 3, Hồ Chí Minh"
     },
     "toa_do": {
       "lat": 10.7688,
@@ -595,17 +595,17 @@
   },
   {
     "ma_cua_hang": "CH007",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 7",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "310",
       "duong": "Điện Biên Phủ",
-      "phuong_xa": "PhÆ°á»ng 5",
+      "phuong_xa": "Phường 5",
       "quan_huyen": "Quận Tân Bình",
       "tinh_thanh": "Hồ Chí Minh",
       "ma_tinh": "79",
       "ma_quan": "766",
-      "dia_chi_day_du": "310 Điện Biên Phủ, P. PhÆ°á»ng 5, Quận Tân Bình, Hồ Chí Minh"
+      "dia_chi_day_du": "310 Điện Biên Phủ, P. Phường 5, Quận Tân Bình, Hồ Chí Minh"
     },
     "toa_do": {
       "lat": 10.8499,
@@ -696,17 +696,17 @@
   },
   {
     "ma_cua_hang": "CH008",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 8",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "251",
       "duong": "Phan Chu Trinh",
-      "phuong_xa": "PhÆ°á»ng 8",
+      "phuong_xa": "Phường 8",
       "quan_huyen": "Quận 5",
       "tinh_thanh": "Hồ Chí Minh",
       "ma_tinh": "79",
       "ma_quan": "768",
-      "dia_chi_day_du": "251 Phan Chu Trinh, P. PhÆ°á»ng 8, Quận 5, Hồ Chí Minh"
+      "dia_chi_day_du": "251 Phan Chu Trinh, P. Phường 8, Quận 5, Hồ Chí Minh"
     },
     "toa_do": {
       "lat": 10.7526,
@@ -799,17 +799,17 @@
   },
   {
     "ma_cua_hang": "CH009",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 9",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "7",
       "duong": "Lê Duẩn",
-      "phuong_xa": "PhÆ°á»ng 12",
+      "phuong_xa": "Phường 12",
       "quan_huyen": "Quận 1",
       "tinh_thanh": "Hồ Chí Minh",
       "ma_tinh": "79",
       "ma_quan": "760",
-      "dia_chi_day_du": "7 Lê Duẩn, P. PhÆ°á»ng 12, Quận 1, Hồ Chí Minh"
+      "dia_chi_day_du": "7 Lê Duẩn, P. Phường 12, Quận 1, Hồ Chí Minh"
     },
     "toa_do": {
       "lat": 10.7461,
@@ -900,17 +900,17 @@
   },
   {
     "ma_cua_hang": "CH010",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 10",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "622",
       "duong": "Võ Văn Kiệt",
-      "phuong_xa": "PhÆ°á»ng 13",
+      "phuong_xa": "Phường 13",
       "quan_huyen": "Quận Thủ Đức",
       "tinh_thanh": "Hồ Chí Minh",
       "ma_tinh": "79",
       "ma_quan": "770",
-      "dia_chi_day_du": "622 Võ Văn Kiệt, P. PhÆ°á»ng 13, Quận Thủ Đức, Hồ Chí Minh"
+      "dia_chi_day_du": "622 Võ Văn Kiệt, P. Phường 13, Quận Thủ Đức, Hồ Chí Minh"
     },
     "toa_do": {
       "lat": 10.8472,
@@ -997,17 +997,17 @@
   },
   {
     "ma_cua_hang": "CH011",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 11",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "498",
       "duong": "Cách Mạng Tháng 8",
-      "phuong_xa": "PhÆ°á»ng 6",
+      "phuong_xa": "Phường 6",
       "quan_huyen": "Quận 3",
       "tinh_thanh": "Hồ Chí Minh",
       "ma_tinh": "79",
       "ma_quan": "764",
-      "dia_chi_day_du": "498 Cách Mạng Tháng 8, P. PhÆ°á»ng 6, Quận 3, Hồ Chí Minh"
+      "dia_chi_day_du": "498 Cách Mạng Tháng 8, P. Phường 6, Quận 3, Hồ Chí Minh"
     },
     "toa_do": {
       "lat": 10.7471,
@@ -1094,17 +1094,17 @@
   },
   {
     "ma_cua_hang": "CH012",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 12",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "524",
       "duong": "Quang Trung",
-      "phuong_xa": "PhÆ°á»ng 7",
+      "phuong_xa": "Phường 7",
       "quan_huyen": "Quận Phú Nhuận",
       "tinh_thanh": "Hồ Chí Minh",
       "ma_tinh": "79",
       "ma_quan": "767",
-      "dia_chi_day_du": "524 Quang Trung, P. PhÆ°á»ng 7, Quận Phú Nhuận, Hồ Chí Minh"
+      "dia_chi_day_du": "524 Quang Trung, P. Phường 7, Quận Phú Nhuận, Hồ Chí Minh"
     },
     "toa_do": {
       "lat": 10.8155,
@@ -1192,17 +1192,17 @@
   },
   {
     "ma_cua_hang": "CH013",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 13",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "585",
       "duong": "Hùng Vương",
-      "phuong_xa": "PhÆ°á»ng 1",
+      "phuong_xa": "Phường 1",
       "quan_huyen": "Quận Gò Vấp",
       "tinh_thanh": "Hồ Chí Minh",
       "ma_tinh": "79",
       "ma_quan": "769",
-      "dia_chi_day_du": "585 Hùng Vương, P. PhÆ°á»ng 1, Quận Gò Vấp, Hồ Chí Minh"
+      "dia_chi_day_du": "585 Hùng Vương, P. Phường 1, Quận Gò Vấp, Hồ Chí Minh"
     },
     "toa_do": {
       "lat": 10.8048,
@@ -1286,17 +1286,17 @@
   },
   {
     "ma_cua_hang": "CH014",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 14",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "986",
       "duong": "Trần Phú",
-      "phuong_xa": "PhÆ°á»ng 1",
+      "phuong_xa": "Phường 1",
       "quan_huyen": "Quận 1",
       "tinh_thanh": "Hồ Chí Minh",
       "ma_tinh": "79",
       "ma_quan": "760",
-      "dia_chi_day_du": "986 Trần Phú, P. PhÆ°á»ng 1, Quận 1, Hồ Chí Minh"
+      "dia_chi_day_du": "986 Trần Phú, P. Phường 1, Quận 1, Hồ Chí Minh"
     },
     "toa_do": {
       "lat": 10.7279,
@@ -1385,17 +1385,17 @@
   },
   {
     "ma_cua_hang": "CH015",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 15",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "309",
       "duong": "Hai Bà Trưng",
-      "phuong_xa": "PhÆ°á»ng 1",
+      "phuong_xa": "Phường 1",
       "quan_huyen": "Quận 5",
       "tinh_thanh": "Hồ Chí Minh",
       "ma_tinh": "79",
       "ma_quan": "768",
-      "dia_chi_day_du": "309 Hai Bà Trưng, P. PhÆ°á»ng 1, Quận 5, Hồ Chí Minh"
+      "dia_chi_day_du": "309 Hai Bà Trưng, P. Phường 1, Quận 5, Hồ Chí Minh"
     },
     "toa_do": {
       "lat": 10.7859,
@@ -1485,17 +1485,17 @@
   },
   {
     "ma_cua_hang": "CH016",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 16",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "656",
       "duong": "Lê Lợi",
-      "phuong_xa": "PhÆ°á»ng 8",
+      "phuong_xa": "Phường 8",
       "quan_huyen": "Quận 10",
       "tinh_thanh": "Hồ Chí Minh",
       "ma_tinh": "79",
       "ma_quan": "778",
-      "dia_chi_day_du": "656 Lê Lợi, P. PhÆ°á»ng 8, Quận 10, Hồ Chí Minh"
+      "dia_chi_day_du": "656 Lê Lợi, P. Phường 8, Quận 10, Hồ Chí Minh"
     },
     "toa_do": {
       "lat": 10.8484,
@@ -1585,17 +1585,17 @@
   },
   {
     "ma_cua_hang": "CH017",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 17",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "447",
       "duong": "Lê Lợi",
-      "phuong_xa": "PhÆ°á»ng 2",
+      "phuong_xa": "Phường 2",
       "quan_huyen": "Quận 1",
       "tinh_thanh": "Hồ Chí Minh",
       "ma_tinh": "79",
       "ma_quan": "760",
-      "dia_chi_day_du": "447 Lê Lợi, P. PhÆ°á»ng 2, Quận 1, Hồ Chí Minh"
+      "dia_chi_day_du": "447 Lê Lợi, P. Phường 2, Quận 1, Hồ Chí Minh"
     },
     "toa_do": {
       "lat": 10.7059,
@@ -1682,17 +1682,17 @@
   },
   {
     "ma_cua_hang": "CH018",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 18",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "791",
       "duong": "Tôn Đức Thắng",
-      "phuong_xa": "PhÆ°á»ng 2",
+      "phuong_xa": "Phường 2",
       "quan_huyen": "Quận Phú Nhuận",
       "tinh_thanh": "Hồ Chí Minh",
       "ma_tinh": "79",
       "ma_quan": "767",
-      "dia_chi_day_du": "791 Tôn Đức Thắng, P. PhÆ°á»ng 2, Quận Phú Nhuận, Hồ Chí Minh"
+      "dia_chi_day_du": "791 Tôn Đức Thắng, P. Phường 2, Quận Phú Nhuận, Hồ Chí Minh"
     },
     "toa_do": {
       "lat": 10.8425,
@@ -1781,17 +1781,17 @@
   },
   {
     "ma_cua_hang": "CH019",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 19",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "107",
       "duong": "Nguyễn Thị Minh Khai",
-      "phuong_xa": "PhÆ°á»ng 4",
+      "phuong_xa": "Phường 4",
       "quan_huyen": "Quận Thủ Đức",
       "tinh_thanh": "Hồ Chí Minh",
       "ma_tinh": "79",
       "ma_quan": "770",
-      "dia_chi_day_du": "107 Nguyễn Thị Minh Khai, P. PhÆ°á»ng 4, Quận Thủ Đức, Hồ Chí Minh"
+      "dia_chi_day_du": "107 Nguyễn Thị Minh Khai, P. Phường 4, Quận Thủ Đức, Hồ Chí Minh"
     },
     "toa_do": {
       "lat": 10.7409,
@@ -1880,17 +1880,17 @@
   },
   {
     "ma_cua_hang": "CH020",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 20",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "525",
       "duong": "Nguyễn Huệ",
-      "phuong_xa": "PhÆ°á»ng 8",
+      "phuong_xa": "Phường 8",
       "quan_huyen": "Quận Bình Thạnh",
       "tinh_thanh": "Hồ Chí Minh",
       "ma_tinh": "79",
       "ma_quan": "765",
-      "dia_chi_day_du": "525 Nguyễn Huệ, P. PhÆ°á»ng 8, Quận Bình Thạnh, Hồ Chí Minh"
+      "dia_chi_day_du": "525 Nguyễn Huệ, P. Phường 8, Quận Bình Thạnh, Hồ Chí Minh"
     },
     "toa_do": {
       "lat": 10.7031,
@@ -1977,17 +1977,17 @@
   },
   {
     "ma_cua_hang": "CH021",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 21",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "90",
       "duong": "Nguyễn Thị Minh Khai",
-      "phuong_xa": "PhÆ°á»ng 6",
+      "phuong_xa": "Phường 6",
       "quan_huyen": "Quận 5",
       "tinh_thanh": "Hồ Chí Minh",
       "ma_tinh": "79",
       "ma_quan": "768",
-      "dia_chi_day_du": "90 Nguyễn Thị Minh Khai, P. PhÆ°á»ng 6, Quận 5, Hồ Chí Minh"
+      "dia_chi_day_du": "90 Nguyễn Thị Minh Khai, P. Phường 6, Quận 5, Hồ Chí Minh"
     },
     "toa_do": {
       "lat": 10.8282,
@@ -2074,17 +2074,17 @@
   },
   {
     "ma_cua_hang": "CH022",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 22",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "393",
       "duong": "Trần Phú",
-      "phuong_xa": "PhÆ°á»ng 4",
+      "phuong_xa": "Phường 4",
       "quan_huyen": "Quận 3",
       "tinh_thanh": "Hồ Chí Minh",
       "ma_tinh": "79",
       "ma_quan": "764",
-      "dia_chi_day_du": "393 Trần Phú, P. PhÆ°á»ng 4, Quận 3, Hồ Chí Minh"
+      "dia_chi_day_du": "393 Trần Phú, P. Phường 4, Quận 3, Hồ Chí Minh"
     },
     "toa_do": {
       "lat": 10.8042,
@@ -2175,17 +2175,17 @@
   },
   {
     "ma_cua_hang": "CH023",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 23",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "222",
       "duong": "Hai Bà Trưng",
-      "phuong_xa": "PhÆ°á»ng 10",
+      "phuong_xa": "Phường 10",
       "quan_huyen": "Quận Tân Bình",
       "tinh_thanh": "Hồ Chí Minh",
       "ma_tinh": "79",
       "ma_quan": "766",
-      "dia_chi_day_du": "222 Hai Bà Trưng, P. PhÆ°á»ng 10, Quận Tân Bình, Hồ Chí Minh"
+      "dia_chi_day_du": "222 Hai Bà Trưng, P. Phường 10, Quận Tân Bình, Hồ Chí Minh"
     },
     "toa_do": {
       "lat": 10.7518,
@@ -2266,17 +2266,17 @@
   },
   {
     "ma_cua_hang": "CH024",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 24",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "185",
       "duong": "Trần Hưng Đạo",
-      "phuong_xa": "PhÆ°á»ng 15",
+      "phuong_xa": "Phường 15",
       "quan_huyen": "Quận 7",
       "tinh_thanh": "Hồ Chí Minh",
       "ma_tinh": "79",
       "ma_quan": "774",
-      "dia_chi_day_du": "185 Trần Hưng Đạo, P. PhÆ°á»ng 15, Quận 7, Hồ Chí Minh"
+      "dia_chi_day_du": "185 Trần Hưng Đạo, P. Phường 15, Quận 7, Hồ Chí Minh"
     },
     "toa_do": {
       "lat": 10.71,
@@ -2366,17 +2366,17 @@
   },
   {
     "ma_cua_hang": "CH025",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 25",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "160",
       "duong": "Hùng Vương",
-      "phuong_xa": "PhÆ°á»ng 7",
+      "phuong_xa": "Phường 7",
       "quan_huyen": "Quận Gò Vấp",
       "tinh_thanh": "Hồ Chí Minh",
       "ma_tinh": "79",
       "ma_quan": "769",
-      "dia_chi_day_du": "160 Hùng Vương, P. PhÆ°á»ng 7, Quận Gò Vấp, Hồ Chí Minh"
+      "dia_chi_day_du": "160 Hùng Vương, P. Phường 7, Quận Gò Vấp, Hồ Chí Minh"
     },
     "toa_do": {
       "lat": 10.7768,
@@ -2464,17 +2464,17 @@
   },
   {
     "ma_cua_hang": "CH026",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 26",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "290",
       "duong": "Nguyễn Huệ",
-      "phuong_xa": "PhÆ°á»ng 3",
+      "phuong_xa": "Phường 3",
       "quan_huyen": "Quận 1",
       "tinh_thanh": "Hồ Chí Minh",
       "ma_tinh": "79",
       "ma_quan": "760",
-      "dia_chi_day_du": "290 Nguyễn Huệ, P. PhÆ°á»ng 3, Quận 1, Hồ Chí Minh"
+      "dia_chi_day_du": "290 Nguyễn Huệ, P. Phường 3, Quận 1, Hồ Chí Minh"
     },
     "toa_do": {
       "lat": 10.7752,
@@ -2565,17 +2565,17 @@
   },
   {
     "ma_cua_hang": "CH027",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 27",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "465",
       "duong": "Cách Mạng Tháng 8",
-      "phuong_xa": "PhÆ°á»ng 7",
+      "phuong_xa": "Phường 7",
       "quan_huyen": "Quận 3",
       "tinh_thanh": "Hồ Chí Minh",
       "ma_tinh": "79",
       "ma_quan": "764",
-      "dia_chi_day_du": "465 Cách Mạng Tháng 8, P. PhÆ°á»ng 7, Quận 3, Hồ Chí Minh"
+      "dia_chi_day_du": "465 Cách Mạng Tháng 8, P. Phường 7, Quận 3, Hồ Chí Minh"
     },
     "toa_do": {
       "lat": 10.8474,
@@ -2664,17 +2664,17 @@
   },
   {
     "ma_cua_hang": "CH028",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 28",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "714",
       "duong": "Tôn Đức Thắng",
-      "phuong_xa": "PhÆ°á»ng 5",
+      "phuong_xa": "Phường 5",
       "quan_huyen": "Quận 5",
       "tinh_thanh": "Hồ Chí Minh",
       "ma_tinh": "79",
       "ma_quan": "768",
-      "dia_chi_day_du": "714 Tôn Đức Thắng, P. PhÆ°á»ng 5, Quận 5, Hồ Chí Minh"
+      "dia_chi_day_du": "714 Tôn Đức Thắng, P. Phường 5, Quận 5, Hồ Chí Minh"
     },
     "toa_do": {
       "lat": 10.8499,
@@ -2763,17 +2763,17 @@
   },
   {
     "ma_cua_hang": "CH029",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 29",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "638",
       "duong": "Hai Bà Trưng",
-      "phuong_xa": "PhÆ°á»ng 8",
+      "phuong_xa": "Phường 8",
       "quan_huyen": "Quận Hoàn Kiếm",
       "tinh_thanh": "Hà Nội",
       "ma_tinh": "01",
       "ma_quan": "001",
-      "dia_chi_day_du": "638 Hai Bà Trưng, P. PhÆ°á»ng 8, Quận Hoàn Kiếm, Hà Nội"
+      "dia_chi_day_du": "638 Hai Bà Trưng, P. Phường 8, Quận Hoàn Kiếm, Hà Nội"
     },
     "toa_do": {
       "lat": 21.0073,
@@ -2854,17 +2854,17 @@
   },
   {
     "ma_cua_hang": "CH030",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 30",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "800",
       "duong": "Lạc Long Quân",
-      "phuong_xa": "PhÆ°á»ng 14",
+      "phuong_xa": "Phường 14",
       "quan_huyen": "Quận Thanh Xuân",
       "tinh_thanh": "Hà Nội",
       "ma_tinh": "01",
       "ma_quan": "006",
-      "dia_chi_day_du": "800 Lạc Long Quân, P. PhÆ°á»ng 14, Quận Thanh Xuân, Hà Nội"
+      "dia_chi_day_du": "800 Lạc Long Quân, P. Phường 14, Quận Thanh Xuân, Hà Nội"
     },
     "toa_do": {
       "lat": 20.988,
@@ -2950,17 +2950,17 @@
   },
   {
     "ma_cua_hang": "CH031",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 31",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "526",
       "duong": "Hùng Vương",
-      "phuong_xa": "PhÆ°á»ng 13",
+      "phuong_xa": "Phường 13",
       "quan_huyen": "Quận Long Biên",
       "tinh_thanh": "Hà Nội",
       "ma_tinh": "01",
       "ma_quan": "008",
-      "dia_chi_day_du": "526 Hùng Vương, P. PhÆ°á»ng 13, Quận Long Biên, Hà Nội"
+      "dia_chi_day_du": "526 Hùng Vương, P. Phường 13, Quận Long Biên, Hà Nội"
     },
     "toa_do": {
       "lat": 20.9979,
@@ -3045,17 +3045,17 @@
   },
   {
     "ma_cua_hang": "CH032",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 32",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "707",
       "duong": "Trường Chinh",
-      "phuong_xa": "PhÆ°á»ng 7",
+      "phuong_xa": "Phường 7",
       "quan_huyen": "Quận Hoàn Kiếm",
       "tinh_thanh": "Hà Nội",
       "ma_tinh": "01",
       "ma_quan": "001",
-      "dia_chi_day_du": "707 Trường Chinh, P. PhÆ°á»ng 7, Quận Hoàn Kiếm, Hà Nội"
+      "dia_chi_day_du": "707 Trường Chinh, P. Phường 7, Quận Hoàn Kiếm, Hà Nội"
     },
     "toa_do": {
       "lat": 21.0427,
@@ -3144,17 +3144,17 @@
   },
   {
     "ma_cua_hang": "CH033",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 33",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "68",
       "duong": "Hoàng Văn Thụ",
-      "phuong_xa": "PhÆ°á»ng 4",
+      "phuong_xa": "Phường 4",
       "quan_huyen": "Quận Tây Hồ",
       "tinh_thanh": "Hà Nội",
       "ma_tinh": "01",
       "ma_quan": "009",
-      "dia_chi_day_du": "68 Hoàng Văn Thụ, P. PhÆ°á»ng 4, Quận Tây Hồ, Hà Nội"
+      "dia_chi_day_du": "68 Hoàng Văn Thụ, P. Phường 4, Quận Tây Hồ, Hà Nội"
     },
     "toa_do": {
       "lat": 20.9977,
@@ -3246,17 +3246,17 @@
   },
   {
     "ma_cua_hang": "CH034",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 34",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "303",
       "duong": "Hùng Vương",
-      "phuong_xa": "PhÆ°á»ng 9",
+      "phuong_xa": "Phường 9",
       "quan_huyen": "Quận Thanh Xuân",
       "tinh_thanh": "Hà Nội",
       "ma_tinh": "01",
       "ma_quan": "006",
-      "dia_chi_day_du": "303 Hùng Vương, P. PhÆ°á»ng 9, Quận Thanh Xuân, Hà Nội"
+      "dia_chi_day_du": "303 Hùng Vương, P. Phường 9, Quận Thanh Xuân, Hà Nội"
     },
     "toa_do": {
       "lat": 21.0028,
@@ -3347,17 +3347,17 @@
   },
   {
     "ma_cua_hang": "CH035",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 35",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "701",
       "duong": "Nguyễn Huệ",
-      "phuong_xa": "PhÆ°á»ng 7",
+      "phuong_xa": "Phường 7",
       "quan_huyen": "Quận Tây Hồ",
       "tinh_thanh": "Hà Nội",
       "ma_tinh": "01",
       "ma_quan": "009",
-      "dia_chi_day_du": "701 Nguyễn Huệ, P. PhÆ°á»ng 7, Quận Tây Hồ, Hà Nội"
+      "dia_chi_day_du": "701 Nguyễn Huệ, P. Phường 7, Quận Tây Hồ, Hà Nội"
     },
     "toa_do": {
       "lat": 20.9995,
@@ -3448,17 +3448,17 @@
   },
   {
     "ma_cua_hang": "CH036",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 36",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "460",
       "duong": "Lê Duẩn",
-      "phuong_xa": "PhÆ°á»ng 15",
+      "phuong_xa": "Phường 15",
       "quan_huyen": "Quận Cầu Giấy",
       "tinh_thanh": "Hà Nội",
       "ma_tinh": "01",
       "ma_quan": "005",
-      "dia_chi_day_du": "460 Lê Duẩn, P. PhÆ°á»ng 15, Quận Cầu Giấy, Hà Nội"
+      "dia_chi_day_du": "460 Lê Duẩn, P. Phường 15, Quận Cầu Giấy, Hà Nội"
     },
     "toa_do": {
       "lat": 20.9741,
@@ -3546,17 +3546,17 @@
   },
   {
     "ma_cua_hang": "CH037",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 37",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "570",
       "duong": "Nguyễn Trãi",
-      "phuong_xa": "PhÆ°á»ng 5",
+      "phuong_xa": "Phường 5",
       "quan_huyen": "Quận Thanh Xuân",
       "tinh_thanh": "Hà Nội",
       "ma_tinh": "01",
       "ma_quan": "006",
-      "dia_chi_day_du": "570 Nguyễn Trãi, P. PhÆ°á»ng 5, Quận Thanh Xuân, Hà Nội"
+      "dia_chi_day_du": "570 Nguyễn Trãi, P. Phường 5, Quận Thanh Xuân, Hà Nội"
     },
     "toa_do": {
       "lat": 21.0196,
@@ -3641,17 +3641,17 @@
   },
   {
     "ma_cua_hang": "CH038",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 38",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "625",
       "duong": "Nguyễn Huệ",
-      "phuong_xa": "PhÆ°á»ng 2",
+      "phuong_xa": "Phường 2",
       "quan_huyen": "Quận Đống Đa",
       "tinh_thanh": "Hà Nội",
       "ma_tinh": "01",
       "ma_quan": "002",
-      "dia_chi_day_du": "625 Nguyễn Huệ, P. PhÆ°á»ng 2, Quận Đống Đa, Hà Nội"
+      "dia_chi_day_du": "625 Nguyễn Huệ, P. Phường 2, Quận Đống Đa, Hà Nội"
     },
     "toa_do": {
       "lat": 21.0245,
@@ -3733,17 +3733,17 @@
   },
   {
     "ma_cua_hang": "CH039",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 39",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "900",
       "duong": "Trần Phú",
-      "phuong_xa": "PhÆ°á»ng 11",
+      "phuong_xa": "Phường 11",
       "quan_huyen": "Quận Hoàn Kiếm",
       "tinh_thanh": "Hà Nội",
       "ma_tinh": "01",
       "ma_quan": "001",
-      "dia_chi_day_du": "900 Trần Phú, P. PhÆ°á»ng 11, Quận Hoàn Kiếm, Hà Nội"
+      "dia_chi_day_du": "900 Trần Phú, P. Phường 11, Quận Hoàn Kiếm, Hà Nội"
     },
     "toa_do": {
       "lat": 21.0294,
@@ -3832,17 +3832,17 @@
   },
   {
     "ma_cua_hang": "CH040",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 40",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "690",
       "duong": "Tôn Đức Thắng",
-      "phuong_xa": "PhÆ°á»ng 2",
+      "phuong_xa": "Phường 2",
       "quan_huyen": "Quận Tây Hồ",
       "tinh_thanh": "Hà Nội",
       "ma_tinh": "01",
       "ma_quan": "009",
-      "dia_chi_day_du": "690 Tôn Đức Thắng, P. PhÆ°á»ng 2, Quận Tây Hồ, Hà Nội"
+      "dia_chi_day_du": "690 Tôn Đức Thắng, P. Phường 2, Quận Tây Hồ, Hà Nội"
     },
     "toa_do": {
       "lat": 21.0017,
@@ -3933,17 +3933,17 @@
   },
   {
     "ma_cua_hang": "CH041",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 41",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "726",
       "duong": "Lê Lợi",
-      "phuong_xa": "PhÆ°á»ng 9",
+      "phuong_xa": "Phường 9",
       "quan_huyen": "Quận Hai Bà Trưng",
       "tinh_thanh": "Hà Nội",
       "ma_tinh": "01",
       "ma_quan": "004",
-      "dia_chi_day_du": "726 Lê Lợi, P. PhÆ°á»ng 9, Quận Hai Bà Trưng, Hà Nội"
+      "dia_chi_day_du": "726 Lê Lợi, P. Phường 9, Quận Hai Bà Trưng, Hà Nội"
     },
     "toa_do": {
       "lat": 20.9707,
@@ -4031,17 +4031,17 @@
   },
   {
     "ma_cua_hang": "CH042",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 42",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "357",
       "duong": "Quang Trung",
-      "phuong_xa": "PhÆ°á»ng 3",
+      "phuong_xa": "Phường 3",
       "quan_huyen": "Quận Hoàn Kiếm",
       "tinh_thanh": "Hà Nội",
       "ma_tinh": "01",
       "ma_quan": "001",
-      "dia_chi_day_du": "357 Quang Trung, P. PhÆ°á»ng 3, Quận Hoàn Kiếm, Hà Nội"
+      "dia_chi_day_du": "357 Quang Trung, P. Phường 3, Quận Hoàn Kiếm, Hà Nội"
     },
     "toa_do": {
       "lat": 21.0493,
@@ -4129,17 +4129,17 @@
   },
   {
     "ma_cua_hang": "CH043",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 43",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "529",
       "duong": "Nguyễn Trãi",
-      "phuong_xa": "PhÆ°á»ng 1",
+      "phuong_xa": "Phường 1",
       "quan_huyen": "Quận Hai Bà Trưng",
       "tinh_thanh": "Hà Nội",
       "ma_tinh": "01",
       "ma_quan": "004",
-      "dia_chi_day_du": "529 Nguyễn Trãi, P. PhÆ°á»ng 1, Quận Hai Bà Trưng, Hà Nội"
+      "dia_chi_day_du": "529 Nguyễn Trãi, P. Phường 1, Quận Hai Bà Trưng, Hà Nội"
     },
     "toa_do": {
       "lat": 21.0128,
@@ -4232,17 +4232,17 @@
   },
   {
     "ma_cua_hang": "CH044",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 44",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "48",
       "duong": "Trần Phú",
-      "phuong_xa": "PhÆ°á»ng 14",
+      "phuong_xa": "Phường 14",
       "quan_huyen": "Quận Nam Từ Liêm",
       "tinh_thanh": "Hà Nội",
       "ma_tinh": "01",
       "ma_quan": "010",
-      "dia_chi_day_du": "48 Trần Phú, P. PhÆ°á»ng 14, Quận Nam Từ Liêm, Hà Nội"
+      "dia_chi_day_du": "48 Trần Phú, P. Phường 14, Quận Nam Từ Liêm, Hà Nội"
     },
     "toa_do": {
       "lat": 20.961,
@@ -4332,17 +4332,17 @@
   },
   {
     "ma_cua_hang": "CH045",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 45",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "177",
       "duong": "Trần Phú",
-      "phuong_xa": "PhÆ°á»ng 4",
+      "phuong_xa": "Phường 4",
       "quan_huyen": "Quận Hoàn Kiếm",
       "tinh_thanh": "Hà Nội",
       "ma_tinh": "01",
       "ma_quan": "001",
-      "dia_chi_day_du": "177 Trần Phú, P. PhÆ°á»ng 4, Quận Hoàn Kiếm, Hà Nội"
+      "dia_chi_day_du": "177 Trần Phú, P. Phường 4, Quận Hoàn Kiếm, Hà Nội"
     },
     "toa_do": {
       "lat": 20.9743,
@@ -4427,17 +4427,17 @@
   },
   {
     "ma_cua_hang": "CH046",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 46",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "995",
       "duong": "Điện Biên Phủ",
-      "phuong_xa": "PhÆ°á»ng 9",
+      "phuong_xa": "Phường 9",
       "quan_huyen": "Quận Tây Hồ",
       "tinh_thanh": "Hà Nội",
       "ma_tinh": "01",
       "ma_quan": "009",
-      "dia_chi_day_du": "995 Điện Biên Phủ, P. PhÆ°á»ng 9, Quận Tây Hồ, Hà Nội"
+      "dia_chi_day_du": "995 Điện Biên Phủ, P. Phường 9, Quận Tây Hồ, Hà Nội"
     },
     "toa_do": {
       "lat": 21.0374,
@@ -4525,17 +4525,17 @@
   },
   {
     "ma_cua_hang": "CH047",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 47",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "37",
       "duong": "Nguyễn Thị Minh Khai",
-      "phuong_xa": "PhÆ°á»ng 2",
+      "phuong_xa": "Phường 2",
       "quan_huyen": "Quận Tây Hồ",
       "tinh_thanh": "Hà Nội",
       "ma_tinh": "01",
       "ma_quan": "009",
-      "dia_chi_day_du": "37 Nguyễn Thị Minh Khai, P. PhÆ°á»ng 2, Quận Tây Hồ, Hà Nội"
+      "dia_chi_day_du": "37 Nguyễn Thị Minh Khai, P. Phường 2, Quận Tây Hồ, Hà Nội"
     },
     "toa_do": {
       "lat": 21.0401,
@@ -4624,17 +4624,17 @@
   },
   {
     "ma_cua_hang": "CH048",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 48",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "811",
       "duong": "Nguyễn Huệ",
-      "phuong_xa": "PhÆ°á»ng 14",
+      "phuong_xa": "Phường 14",
       "quan_huyen": "Quận Cầu Giấy",
       "tinh_thanh": "Hà Nội",
       "ma_tinh": "01",
       "ma_quan": "005",
-      "dia_chi_day_du": "811 Nguyễn Huệ, P. PhÆ°á»ng 14, Quận Cầu Giấy, Hà Nội"
+      "dia_chi_day_du": "811 Nguyễn Huệ, P. Phường 14, Quận Cầu Giấy, Hà Nội"
     },
     "toa_do": {
       "lat": 21.0214,
@@ -4716,17 +4716,17 @@
   },
   {
     "ma_cua_hang": "CH049",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 49",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "715",
       "duong": "Phan Chu Trinh",
-      "phuong_xa": "PhÆ°á»ng 15",
+      "phuong_xa": "Phường 15",
       "quan_huyen": "Quận Liên Chiểu",
       "tinh_thanh": "Đà Nẵng",
       "ma_tinh": "48",
       "ma_quan": "494",
-      "dia_chi_day_du": "715 Phan Chu Trinh, P. PhÆ°á»ng 15, Quận Liên Chiểu, Đà Nẵng"
+      "dia_chi_day_du": "715 Phan Chu Trinh, P. Phường 15, Quận Liên Chiểu, Đà Nẵng"
     },
     "toa_do": {
       "lat": 16.0744,
@@ -4813,17 +4813,17 @@
   },
   {
     "ma_cua_hang": "CH050",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 50",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "45",
       "duong": "Hùng Vương",
-      "phuong_xa": "PhÆ°á»ng 7",
+      "phuong_xa": "Phường 7",
       "quan_huyen": "Quận Ngũ Hành Sơn",
       "tinh_thanh": "Đà Nẵng",
       "ma_tinh": "48",
       "ma_quan": "493",
-      "dia_chi_day_du": "45 Hùng Vương, P. PhÆ°á»ng 7, Quận Ngũ Hành Sơn, Đà Nẵng"
+      "dia_chi_day_du": "45 Hùng Vương, P. Phường 7, Quận Ngũ Hành Sơn, Đà Nẵng"
     },
     "toa_do": {
       "lat": 16.054,
@@ -4915,17 +4915,17 @@
   },
   {
     "ma_cua_hang": "CH051",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 51",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "866",
       "duong": "Nguyễn Trãi",
-      "phuong_xa": "PhÆ°á»ng 11",
+      "phuong_xa": "Phường 11",
       "quan_huyen": "Quận Thanh Khê",
       "tinh_thanh": "Đà Nẵng",
       "ma_tinh": "48",
       "ma_quan": "491",
-      "dia_chi_day_du": "866 Nguyễn Trãi, P. PhÆ°á»ng 11, Quận Thanh Khê, Đà Nẵng"
+      "dia_chi_day_du": "866 Nguyễn Trãi, P. Phường 11, Quận Thanh Khê, Đà Nẵng"
     },
     "toa_do": {
       "lat": 16.0594,
@@ -5012,17 +5012,17 @@
   },
   {
     "ma_cua_hang": "CH052",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 52",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "478",
       "duong": "Lê Duẩn",
-      "phuong_xa": "PhÆ°á»ng 7",
+      "phuong_xa": "Phường 7",
       "quan_huyen": "Quận Ngũ Hành Sơn",
       "tinh_thanh": "Đà Nẵng",
       "ma_tinh": "48",
       "ma_quan": "493",
-      "dia_chi_day_du": "478 Lê Duẩn, P. PhÆ°á»ng 7, Quận Ngũ Hành Sơn, Đà Nẵng"
+      "dia_chi_day_du": "478 Lê Duẩn, P. Phường 7, Quận Ngũ Hành Sơn, Đà Nẵng"
     },
     "toa_do": {
       "lat": 16.039,
@@ -5110,17 +5110,17 @@
   },
   {
     "ma_cua_hang": "CH053",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 53",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "742",
       "duong": "Lạc Long Quân",
-      "phuong_xa": "PhÆ°á»ng 4",
+      "phuong_xa": "Phường 4",
       "quan_huyen": "Quận Liên Chiểu",
       "tinh_thanh": "Đà Nẵng",
       "ma_tinh": "48",
       "ma_quan": "494",
-      "dia_chi_day_du": "742 Lạc Long Quân, P. PhÆ°á»ng 4, Quận Liên Chiểu, Đà Nẵng"
+      "dia_chi_day_du": "742 Lạc Long Quân, P. Phường 4, Quận Liên Chiểu, Đà Nẵng"
     },
     "toa_do": {
       "lat": 16.0669,
@@ -5208,17 +5208,17 @@
   },
   {
     "ma_cua_hang": "CH054",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 54",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "338",
       "duong": "Nguyễn Thị Minh Khai",
-      "phuong_xa": "PhÆ°á»ng 7",
+      "phuong_xa": "Phường 7",
       "quan_huyen": "Quận Liên Chiểu",
       "tinh_thanh": "Đà Nẵng",
       "ma_tinh": "48",
       "ma_quan": "494",
-      "dia_chi_day_du": "338 Nguyễn Thị Minh Khai, P. PhÆ°á»ng 7, Quận Liên Chiểu, Đà Nẵng"
+      "dia_chi_day_du": "338 Nguyễn Thị Minh Khai, P. Phường 7, Quận Liên Chiểu, Đà Nẵng"
     },
     "toa_do": {
       "lat": 16.0213,
@@ -5306,17 +5306,17 @@
   },
   {
     "ma_cua_hang": "CH055",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 55",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "712",
       "duong": "Trần Phú",
-      "phuong_xa": "PhÆ°á»ng 5",
+      "phuong_xa": "Phường 5",
       "quan_huyen": "Quận Hải Châu",
       "tinh_thanh": "Đà Nẵng",
       "ma_tinh": "48",
       "ma_quan": "490",
-      "dia_chi_day_du": "712 Trần Phú, P. PhÆ°á»ng 5, Quận Hải Châu, Đà Nẵng"
+      "dia_chi_day_du": "712 Trần Phú, P. Phường 5, Quận Hải Châu, Đà Nẵng"
     },
     "toa_do": {
       "lat": 16.0667,
@@ -5405,17 +5405,17 @@
   },
   {
     "ma_cua_hang": "CH056",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 56",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "14",
       "duong": "Hoàng Văn Thụ",
-      "phuong_xa": "PhÆ°á»ng 11",
+      "phuong_xa": "Phường 11",
       "quan_huyen": "Quận Sơn Trà",
       "tinh_thanh": "Đà Nẵng",
       "ma_tinh": "48",
       "ma_quan": "492",
-      "dia_chi_day_du": "14 Hoàng Văn Thụ, P. PhÆ°á»ng 11, Quận Sơn Trà, Đà Nẵng"
+      "dia_chi_day_du": "14 Hoàng Văn Thụ, P. Phường 11, Quận Sơn Trà, Đà Nẵng"
     },
     "toa_do": {
       "lat": 16.0638,
@@ -5502,17 +5502,17 @@
   },
   {
     "ma_cua_hang": "CH057",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 57",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "277",
       "duong": "Võ Văn Kiệt",
-      "phuong_xa": "PhÆ°á»ng 15",
+      "phuong_xa": "Phường 15",
       "quan_huyen": "Quận Liên Chiểu",
       "tinh_thanh": "Đà Nẵng",
       "ma_tinh": "48",
       "ma_quan": "494",
-      "dia_chi_day_du": "277 Võ Văn Kiệt, P. PhÆ°á»ng 15, Quận Liên Chiểu, Đà Nẵng"
+      "dia_chi_day_du": "277 Võ Văn Kiệt, P. Phường 15, Quận Liên Chiểu, Đà Nẵng"
     },
     "toa_do": {
       "lat": 16.0562,
@@ -5600,17 +5600,17 @@
   },
   {
     "ma_cua_hang": "CH058",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 58",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "59",
       "duong": "Lê Duẩn",
-      "phuong_xa": "PhÆ°á»ng 11",
+      "phuong_xa": "Phường 11",
       "quan_huyen": "Quận Liên Chiểu",
       "tinh_thanh": "Đà Nẵng",
       "ma_tinh": "48",
       "ma_quan": "494",
-      "dia_chi_day_du": "59 Lê Duẩn, P. PhÆ°á»ng 11, Quận Liên Chiểu, Đà Nẵng"
+      "dia_chi_day_du": "59 Lê Duẩn, P. Phường 11, Quận Liên Chiểu, Đà Nẵng"
     },
     "toa_do": {
       "lat": 16.0414,
@@ -5699,17 +5699,17 @@
   },
   {
     "ma_cua_hang": "CH059",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 59",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "208",
       "duong": "Hoàng Văn Thụ",
-      "phuong_xa": "PhÆ°á»ng 14",
+      "phuong_xa": "Phường 14",
       "quan_huyen": "Quận Kiến An",
       "tinh_thanh": "Hải Phòng",
       "ma_tinh": "31",
       "ma_quan": "307",
-      "dia_chi_day_du": "208 Hoàng Văn Thụ, P. PhÆ°á»ng 14, Quận Kiến An, Hải Phòng"
+      "dia_chi_day_du": "208 Hoàng Văn Thụ, P. Phường 14, Quận Kiến An, Hải Phòng"
     },
     "toa_do": {
       "lat": 20.1496,
@@ -5802,17 +5802,17 @@
   },
   {
     "ma_cua_hang": "CH060",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 60",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "908",
       "duong": "Cách Mạng Tháng 8",
-      "phuong_xa": "PhÆ°á»ng 9",
+      "phuong_xa": "Phường 9",
       "quan_huyen": "Quận Đồ Sơn",
       "tinh_thanh": "Hải Phòng",
       "ma_tinh": "31",
       "ma_quan": "308",
-      "dia_chi_day_du": "908 Cách Mạng Tháng 8, P. PhÆ°á»ng 9, Quận Đồ Sơn, Hải Phòng"
+      "dia_chi_day_du": "908 Cách Mạng Tháng 8, P. Phường 9, Quận Đồ Sơn, Hải Phòng"
     },
     "toa_do": {
       "lat": 14.974,
@@ -5897,17 +5897,17 @@
   },
   {
     "ma_cua_hang": "CH061",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 61",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "530",
       "duong": "Nguyễn Trãi",
-      "phuong_xa": "PhÆ°á»ng 9",
+      "phuong_xa": "Phường 9",
       "quan_huyen": "Quận Đồ Sơn",
       "tinh_thanh": "Hải Phòng",
       "ma_tinh": "31",
       "ma_quan": "308",
-      "dia_chi_day_du": "530 Nguyễn Trãi, P. PhÆ°á»ng 9, Quận Đồ Sơn, Hải Phòng"
+      "dia_chi_day_du": "530 Nguyễn Trãi, P. Phường 9, Quận Đồ Sơn, Hải Phòng"
     },
     "toa_do": {
       "lat": 13.5626,
@@ -5997,17 +5997,17 @@
   },
   {
     "ma_cua_hang": "CH062",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 62",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "866",
       "duong": "Hai Bà Trưng",
-      "phuong_xa": "PhÆ°á»ng 5",
+      "phuong_xa": "Phường 5",
       "quan_huyen": "Quận Lê Chân",
       "tinh_thanh": "Hải Phòng",
       "ma_tinh": "31",
       "ma_quan": "305",
-      "dia_chi_day_du": "866 Hai Bà Trưng, P. PhÆ°á»ng 5, Quận Lê Chân, Hải Phòng"
+      "dia_chi_day_du": "866 Hai Bà Trưng, P. Phường 5, Quận Lê Chân, Hải Phòng"
     },
     "toa_do": {
       "lat": 13.1495,
@@ -6095,17 +6095,17 @@
   },
   {
     "ma_cua_hang": "CH063",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 63",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "337",
       "duong": "Hùng Vương",
-      "phuong_xa": "PhÆ°á»ng 6",
+      "phuong_xa": "Phường 6",
       "quan_huyen": "Quận Đồ Sơn",
       "tinh_thanh": "Hải Phòng",
       "ma_tinh": "31",
       "ma_quan": "308",
-      "dia_chi_day_du": "337 Hùng Vương, P. PhÆ°á»ng 6, Quận Đồ Sơn, Hải Phòng"
+      "dia_chi_day_du": "337 Hùng Vương, P. Phường 6, Quận Đồ Sơn, Hải Phòng"
     },
     "toa_do": {
       "lat": 22.2302,
@@ -6193,17 +6193,17 @@
   },
   {
     "ma_cua_hang": "CH064",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 64",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "175",
       "duong": "Nguyễn Trãi",
-      "phuong_xa": "PhÆ°á»ng 11",
+      "phuong_xa": "Phường 11",
       "quan_huyen": "Quận Đồ Sơn",
       "tinh_thanh": "Hải Phòng",
       "ma_tinh": "31",
       "ma_quan": "308",
-      "dia_chi_day_du": "175 Nguyễn Trãi, P. PhÆ°á»ng 11, Quận Đồ Sơn, Hải Phòng"
+      "dia_chi_day_du": "175 Nguyễn Trãi, P. Phường 11, Quận Đồ Sơn, Hải Phòng"
     },
     "toa_do": {
       "lat": 12.8115,
@@ -6290,17 +6290,17 @@
   },
   {
     "ma_cua_hang": "CH065",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 65",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "156",
       "duong": "Cách Mạng Tháng 8",
-      "phuong_xa": "PhÆ°á»ng 8",
+      "phuong_xa": "Phường 8",
       "quan_huyen": "Quận Hải An",
       "tinh_thanh": "Hải Phòng",
       "ma_tinh": "31",
       "ma_quan": "306",
-      "dia_chi_day_du": "156 Cách Mạng Tháng 8, P. PhÆ°á»ng 8, Quận Hải An, Hải Phòng"
+      "dia_chi_day_du": "156 Cách Mạng Tháng 8, P. Phường 8, Quận Hải An, Hải Phòng"
     },
     "toa_do": {
       "lat": 19.2873,
@@ -6388,17 +6388,17 @@
   },
   {
     "ma_cua_hang": "CH066",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 66",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "65",
       "duong": "Nguyễn Huệ",
-      "phuong_xa": "PhÆ°á»ng 2",
+      "phuong_xa": "Phường 2",
       "quan_huyen": "Quận Lê Chân",
       "tinh_thanh": "Hải Phòng",
       "ma_tinh": "31",
       "ma_quan": "305",
-      "dia_chi_day_du": "65 Nguyễn Huệ, P. PhÆ°á»ng 2, Quận Lê Chân, Hải Phòng"
+      "dia_chi_day_du": "65 Nguyễn Huệ, P. Phường 2, Quận Lê Chân, Hải Phòng"
     },
     "toa_do": {
       "lat": 14.0317,
@@ -6489,17 +6489,17 @@
   },
   {
     "ma_cua_hang": "CH067",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 67",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "544",
       "duong": "Võ Văn Kiệt",
-      "phuong_xa": "PhÆ°á»ng 1",
+      "phuong_xa": "Phường 1",
       "quan_huyen": "Quận Thốt Nốt",
       "tinh_thanh": "Cần Thơ",
       "ma_tinh": "92",
       "ma_quan": "923",
-      "dia_chi_day_du": "544 Võ Văn Kiệt, P. PhÆ°á»ng 1, Quận Thốt Nốt, Cần Thơ"
+      "dia_chi_day_du": "544 Võ Văn Kiệt, P. Phường 1, Quận Thốt Nốt, Cần Thơ"
     },
     "toa_do": {
       "lat": 10.8767,
@@ -6587,17 +6587,17 @@
   },
   {
     "ma_cua_hang": "CH068",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 68",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "479",
       "duong": "Nguyễn Thị Minh Khai",
-      "phuong_xa": "PhÆ°á»ng 5",
+      "phuong_xa": "Phường 5",
       "quan_huyen": "Quận Bình Thủy",
       "tinh_thanh": "Cần Thơ",
       "ma_tinh": "92",
       "ma_quan": "917",
-      "dia_chi_day_du": "479 Nguyễn Thị Minh Khai, P. PhÆ°á»ng 5, Quận Bình Thủy, Cần Thơ"
+      "dia_chi_day_du": "479 Nguyễn Thị Minh Khai, P. Phường 5, Quận Bình Thủy, Cần Thơ"
     },
     "toa_do": {
       "lat": 15.1944,
@@ -6689,17 +6689,17 @@
   },
   {
     "ma_cua_hang": "CH069",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 69",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "909",
       "duong": "Trần Phú",
-      "phuong_xa": "PhÆ°á»ng 15",
+      "phuong_xa": "Phường 15",
       "quan_huyen": "Quận Ninh Kiều",
       "tinh_thanh": "Cần Thơ",
       "ma_tinh": "92",
       "ma_quan": "916",
-      "dia_chi_day_du": "909 Trần Phú, P. PhÆ°á»ng 15, Quận Ninh Kiều, Cần Thơ"
+      "dia_chi_day_du": "909 Trần Phú, P. Phường 15, Quận Ninh Kiều, Cần Thơ"
     },
     "toa_do": {
       "lat": 9.6466,
@@ -6792,17 +6792,17 @@
   },
   {
     "ma_cua_hang": "CH070",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 70",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "564",
       "duong": "Điện Biên Phủ",
-      "phuong_xa": "PhÆ°á»ng 14",
+      "phuong_xa": "Phường 14",
       "quan_huyen": "Quận Ninh Kiều",
       "tinh_thanh": "Cần Thơ",
       "ma_tinh": "92",
       "ma_quan": "916",
-      "dia_chi_day_du": "564 Điện Biên Phủ, P. PhÆ°á»ng 14, Quận Ninh Kiều, Cần Thơ"
+      "dia_chi_day_du": "564 Điện Biên Phủ, P. Phường 14, Quận Ninh Kiều, Cần Thơ"
     },
     "toa_do": {
       "lat": 12.1241,
@@ -6891,17 +6891,17 @@
   },
   {
     "ma_cua_hang": "CH071",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 71",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "614",
       "duong": "Nguyễn Huệ",
-      "phuong_xa": "PhÆ°á»ng 14",
+      "phuong_xa": "Phường 14",
       "quan_huyen": "Quận Thốt Nốt",
       "tinh_thanh": "Cần Thơ",
       "ma_tinh": "92",
       "ma_quan": "923",
-      "dia_chi_day_du": "614 Nguyễn Huệ, P. PhÆ°á»ng 14, Quận Thốt Nốt, Cần Thơ"
+      "dia_chi_day_du": "614 Nguyễn Huệ, P. Phường 14, Quận Thốt Nốt, Cần Thơ"
     },
     "toa_do": {
       "lat": 15.049,
@@ -6987,17 +6987,17 @@
   },
   {
     "ma_cua_hang": "CH072",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 72",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "758",
       "duong": "Lý Thái Tổ",
-      "phuong_xa": "PhÆ°á»ng 1",
+      "phuong_xa": "Phường 1",
       "quan_huyen": "Quận Bình Thủy",
       "tinh_thanh": "Cần Thơ",
       "ma_tinh": "92",
       "ma_quan": "917",
-      "dia_chi_day_du": "758 Lý Thái Tổ, P. PhÆ°á»ng 1, Quận Bình Thủy, Cần Thơ"
+      "dia_chi_day_du": "758 Lý Thái Tổ, P. Phường 1, Quận Bình Thủy, Cần Thơ"
     },
     "toa_do": {
       "lat": 20.9346,
@@ -7087,7 +7087,7 @@
   },
   {
     "ma_cua_hang": "CH073",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 73",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "784",
@@ -7185,7 +7185,7 @@
   },
   {
     "ma_cua_hang": "CH074",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 74",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "797",
@@ -7286,7 +7286,7 @@
   },
   {
     "ma_cua_hang": "CH075",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 75",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "494",
@@ -7383,7 +7383,7 @@
   },
   {
     "ma_cua_hang": "CH076",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 76",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "909",
@@ -7481,7 +7481,7 @@
   },
   {
     "ma_cua_hang": "CH077",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 77",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "871",
@@ -7582,7 +7582,7 @@
   },
   {
     "ma_cua_hang": "CH078",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 78",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "345",
@@ -7679,7 +7679,7 @@
   },
   {
     "ma_cua_hang": "CH079",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 79",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "762",
@@ -7779,7 +7779,7 @@
   },
   {
     "ma_cua_hang": "CH080",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 80",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "836",
@@ -7874,7 +7874,7 @@
   },
   {
     "ma_cua_hang": "CH081",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 81",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "843",
@@ -7971,7 +7971,7 @@
   },
   {
     "ma_cua_hang": "CH082",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 82",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "930",
@@ -8071,7 +8071,7 @@
   },
   {
     "ma_cua_hang": "CH083",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 83",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "412",
@@ -8169,7 +8169,7 @@
   },
   {
     "ma_cua_hang": "CH084",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 84",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "11",
@@ -8263,7 +8263,7 @@
   },
   {
     "ma_cua_hang": "CH085",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 85",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "974",
@@ -8360,7 +8360,7 @@
   },
   {
     "ma_cua_hang": "CH086",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 86",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "671",
@@ -8458,7 +8458,7 @@
   },
   {
     "ma_cua_hang": "CH087",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 87",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "47",
@@ -8559,7 +8559,7 @@
   },
   {
     "ma_cua_hang": "CH088",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 88",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "570",
@@ -8658,7 +8658,7 @@
   },
   {
     "ma_cua_hang": "CH089",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 89",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "332",
@@ -8758,7 +8758,7 @@
   },
   {
     "ma_cua_hang": "CH090",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 90",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "495",
@@ -8853,7 +8853,7 @@
   },
   {
     "ma_cua_hang": "CH091",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 91",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "371",
@@ -8952,7 +8952,7 @@
   },
   {
     "ma_cua_hang": "CH092",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 92",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "170",
@@ -9051,7 +9051,7 @@
   },
   {
     "ma_cua_hang": "CH093",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 93",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "916",
@@ -9148,7 +9148,7 @@
   },
   {
     "ma_cua_hang": "CH094",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 94",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "157",
@@ -9245,7 +9245,7 @@
   },
   {
     "ma_cua_hang": "CH095",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 95",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "28",
@@ -9341,7 +9341,7 @@
   },
   {
     "ma_cua_hang": "CH096",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 96",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "814",
@@ -9438,7 +9438,7 @@
   },
   {
     "ma_cua_hang": "CH097",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 97",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "935",
@@ -9540,7 +9540,7 @@
   },
   {
     "ma_cua_hang": "CH098",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 98",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "678",
@@ -9642,7 +9642,7 @@
   },
   {
     "ma_cua_hang": "CH099",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 99",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "460",
@@ -9738,7 +9738,7 @@
   },
   {
     "ma_cua_hang": "CH100",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 100",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "896",
@@ -9834,7 +9834,7 @@
   },
   {
     "ma_cua_hang": "CH101",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 101",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "167",
@@ -9932,7 +9932,7 @@
   },
   {
     "ma_cua_hang": "CH102",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 102",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "451",
@@ -10031,7 +10031,7 @@
   },
   {
     "ma_cua_hang": "CH103",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 103",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "11",
@@ -10131,7 +10131,7 @@
   },
   {
     "ma_cua_hang": "CH104",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 104",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "946",
@@ -10231,7 +10231,7 @@
   },
   {
     "ma_cua_hang": "CH105",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 105",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "820",
@@ -10330,7 +10330,7 @@
   },
   {
     "ma_cua_hang": "CH106",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 106",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "285",
@@ -10424,7 +10424,7 @@
   },
   {
     "ma_cua_hang": "CH107",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 107",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "496",
@@ -10516,7 +10516,7 @@
   },
   {
     "ma_cua_hang": "CH108",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 108",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "450",
@@ -10611,7 +10611,7 @@
   },
   {
     "ma_cua_hang": "CH109",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 109",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "173",
@@ -10701,7 +10701,7 @@
   },
   {
     "ma_cua_hang": "CH110",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 110",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "905",
@@ -10795,7 +10795,7 @@
   },
   {
     "ma_cua_hang": "CH111",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 111",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "23",
@@ -10886,7 +10886,7 @@
   },
   {
     "ma_cua_hang": "CH112",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 112",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "845",
@@ -10984,7 +10984,7 @@
   },
   {
     "ma_cua_hang": "CH113",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 113",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "464",
@@ -11075,7 +11075,7 @@
   },
   {
     "ma_cua_hang": "CH114",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 114",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "77",
@@ -11168,7 +11168,7 @@
   },
   {
     "ma_cua_hang": "CH115",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 115",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "718",
@@ -11265,7 +11265,7 @@
   },
   {
     "ma_cua_hang": "CH116",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 116",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "777",
@@ -11362,7 +11362,7 @@
   },
   {
     "ma_cua_hang": "CH117",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 117",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "576",
@@ -11457,7 +11457,7 @@
   },
   {
     "ma_cua_hang": "CH118",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 118",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "256",
@@ -11553,7 +11553,7 @@
   },
   {
     "ma_cua_hang": "CH119",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 119",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "7",
@@ -11653,7 +11653,7 @@
   },
   {
     "ma_cua_hang": "CH120",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 120",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "718",
@@ -11752,7 +11752,7 @@
   },
   {
     "ma_cua_hang": "CH121",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 121",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "737",
@@ -11844,7 +11844,7 @@
   },
   {
     "ma_cua_hang": "CH122",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 122",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "56",
@@ -11940,7 +11940,7 @@
   },
   {
     "ma_cua_hang": "CH123",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 123",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "572",
@@ -12037,7 +12037,7 @@
   },
   {
     "ma_cua_hang": "CH124",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 124",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "289",
@@ -12135,7 +12135,7 @@
   },
   {
     "ma_cua_hang": "CH125",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 125",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "33",
@@ -12228,7 +12228,7 @@
   },
   {
     "ma_cua_hang": "CH126",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 126",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "491",
@@ -12325,7 +12325,7 @@
   },
   {
     "ma_cua_hang": "CH127",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 127",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "848",
@@ -12422,7 +12422,7 @@
   },
   {
     "ma_cua_hang": "CH128",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 128",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "45",
@@ -12519,7 +12519,7 @@
   },
   {
     "ma_cua_hang": "CH129",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 129",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "275",
@@ -12619,7 +12619,7 @@
   },
   {
     "ma_cua_hang": "CH130",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 130",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "380",
@@ -12714,7 +12714,7 @@
   },
   {
     "ma_cua_hang": "CH131",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 131",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "791",
@@ -12810,7 +12810,7 @@
   },
   {
     "ma_cua_hang": "CH132",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 132",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "974",
@@ -12905,7 +12905,7 @@
   },
   {
     "ma_cua_hang": "CH133",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 133",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "636",
@@ -12999,7 +12999,7 @@
   },
   {
     "ma_cua_hang": "CH134",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 134",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "749",
@@ -13095,7 +13095,7 @@
   },
   {
     "ma_cua_hang": "CH135",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 135",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "224",
@@ -13192,7 +13192,7 @@
   },
   {
     "ma_cua_hang": "CH136",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 136",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "96",
@@ -13288,7 +13288,7 @@
   },
   {
     "ma_cua_hang": "CH137",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 137",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "220",
@@ -13380,7 +13380,7 @@
   },
   {
     "ma_cua_hang": "CH138",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 138",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "421",
@@ -13478,7 +13478,7 @@
   },
   {
     "ma_cua_hang": "CH139",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 139",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "705",
@@ -13578,7 +13578,7 @@
   },
   {
     "ma_cua_hang": "CH140",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 140",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "584",
@@ -13676,7 +13676,7 @@
   },
   {
     "ma_cua_hang": "CH141",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 141",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "36",
@@ -13776,7 +13776,7 @@
   },
   {
     "ma_cua_hang": "CH142",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 142",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "546",
@@ -13867,7 +13867,7 @@
   },
   {
     "ma_cua_hang": "CH143",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 143",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "602",
@@ -13964,7 +13964,7 @@
   },
   {
     "ma_cua_hang": "CH144",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 144",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "270",
@@ -14059,7 +14059,7 @@
   },
   {
     "ma_cua_hang": "CH145",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 145",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "720",
@@ -14157,7 +14157,7 @@
   },
   {
     "ma_cua_hang": "CH146",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 146",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "788",
@@ -14253,7 +14253,7 @@
   },
   {
     "ma_cua_hang": "CH147",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 147",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "609",
@@ -14350,7 +14350,7 @@
   },
   {
     "ma_cua_hang": "CH148",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 148",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "387",
@@ -14444,7 +14444,7 @@
   },
   {
     "ma_cua_hang": "CH149",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 149",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "837",
@@ -14539,7 +14539,7 @@
   },
   {
     "ma_cua_hang": "CH150",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 150",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "311",
@@ -14637,7 +14637,7 @@
   },
   {
     "ma_cua_hang": "CH151",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 151",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "487",
@@ -14733,7 +14733,7 @@
   },
   {
     "ma_cua_hang": "CH152",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 152",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "872",
@@ -14833,7 +14833,7 @@
   },
   {
     "ma_cua_hang": "CH153",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 153",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "722",
@@ -14932,7 +14932,7 @@
   },
   {
     "ma_cua_hang": "CH154",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 154",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "368",
@@ -15029,7 +15029,7 @@
   },
   {
     "ma_cua_hang": "CH155",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 155",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "581",
@@ -15128,7 +15128,7 @@
   },
   {
     "ma_cua_hang": "CH156",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 156",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "423",
@@ -15226,7 +15226,7 @@
   },
   {
     "ma_cua_hang": "CH157",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 157",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "734",
@@ -15323,7 +15323,7 @@
   },
   {
     "ma_cua_hang": "CH158",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 158",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "688",
@@ -15420,7 +15420,7 @@
   },
   {
     "ma_cua_hang": "CH159",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 159",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "343",
@@ -15514,7 +15514,7 @@
   },
   {
     "ma_cua_hang": "CH160",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 160",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "807",
@@ -15607,7 +15607,7 @@
   },
   {
     "ma_cua_hang": "CH161",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 161",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "619",
@@ -15706,7 +15706,7 @@
   },
   {
     "ma_cua_hang": "CH162",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 162",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "279",
@@ -15805,7 +15805,7 @@
   },
   {
     "ma_cua_hang": "CH163",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 163",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "456",
@@ -15901,7 +15901,7 @@
   },
   {
     "ma_cua_hang": "CH164",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 164",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "563",
@@ -16001,7 +16001,7 @@
   },
   {
     "ma_cua_hang": "CH165",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 165",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "587",
@@ -16099,7 +16099,7 @@
   },
   {
     "ma_cua_hang": "CH166",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 166",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "908",
@@ -16196,7 +16196,7 @@
   },
   {
     "ma_cua_hang": "CH167",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 167",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "215",
@@ -16295,7 +16295,7 @@
   },
   {
     "ma_cua_hang": "CH168",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 168",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "964",
@@ -16395,7 +16395,7 @@
   },
   {
     "ma_cua_hang": "CH169",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 169",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "927",
@@ -16493,7 +16493,7 @@
   },
   {
     "ma_cua_hang": "CH170",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 170",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "855",
@@ -16589,7 +16589,7 @@
   },
   {
     "ma_cua_hang": "CH171",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 171",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "463",
@@ -16687,7 +16687,7 @@
   },
   {
     "ma_cua_hang": "CH172",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 172",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "691",
@@ -16785,7 +16785,7 @@
   },
   {
     "ma_cua_hang": "CH173",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 173",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "84",
@@ -16883,7 +16883,7 @@
   },
   {
     "ma_cua_hang": "CH174",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 174",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "434",
@@ -16977,7 +16977,7 @@
   },
   {
     "ma_cua_hang": "CH175",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 175",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "981",
@@ -17072,7 +17072,7 @@
   },
   {
     "ma_cua_hang": "CH176",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 176",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "468",
@@ -17169,7 +17169,7 @@
   },
   {
     "ma_cua_hang": "CH177",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 177",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "953",
@@ -17265,7 +17265,7 @@
   },
   {
     "ma_cua_hang": "CH178",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 178",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "260",
@@ -17363,7 +17363,7 @@
   },
   {
     "ma_cua_hang": "CH179",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 179",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "141",
@@ -17462,7 +17462,7 @@
   },
   {
     "ma_cua_hang": "CH180",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 180",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "728",
@@ -17559,7 +17559,7 @@
   },
   {
     "ma_cua_hang": "CH181",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 181",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "507",
@@ -17651,7 +17651,7 @@
   },
   {
     "ma_cua_hang": "CH182",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 182",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "489",
@@ -17747,7 +17747,7 @@
   },
   {
     "ma_cua_hang": "CH183",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 183",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "557",
@@ -17846,7 +17846,7 @@
   },
   {
     "ma_cua_hang": "CH184",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 184",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "397",
@@ -17940,7 +17940,7 @@
   },
   {
     "ma_cua_hang": "CH185",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 185",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "833",
@@ -18039,7 +18039,7 @@
   },
   {
     "ma_cua_hang": "CH186",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 186",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "959",
@@ -18137,7 +18137,7 @@
   },
   {
     "ma_cua_hang": "CH187",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 187",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "509",
@@ -18234,7 +18234,7 @@
   },
   {
     "ma_cua_hang": "CH188",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 188",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "733",
@@ -18334,7 +18334,7 @@
   },
   {
     "ma_cua_hang": "CH189",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 189",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "46",
@@ -18429,7 +18429,7 @@
   },
   {
     "ma_cua_hang": "CH190",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 190",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "492",
@@ -18528,7 +18528,7 @@
   },
   {
     "ma_cua_hang": "CH191",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 191",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "590",
@@ -18627,7 +18627,7 @@
   },
   {
     "ma_cua_hang": "CH192",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 192",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "447",
@@ -18723,7 +18723,7 @@
   },
   {
     "ma_cua_hang": "CH193",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 193",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "67",
@@ -18818,7 +18818,7 @@
   },
   {
     "ma_cua_hang": "CH194",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 194",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "114",
@@ -18911,7 +18911,7 @@
   },
   {
     "ma_cua_hang": "CH195",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 195",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "592",
@@ -19007,7 +19007,7 @@
   },
   {
     "ma_cua_hang": "CH196",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 196",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "922",
@@ -19102,7 +19102,7 @@
   },
   {
     "ma_cua_hang": "CH197",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 197",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "70",
@@ -19198,7 +19198,7 @@
   },
   {
     "ma_cua_hang": "CH198",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 198",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "643",
@@ -19295,7 +19295,7 @@
   },
   {
     "ma_cua_hang": "CH199",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 199",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "837",
@@ -19390,7 +19390,7 @@
   },
   {
     "ma_cua_hang": "CH200",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 200",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "777",
@@ -19486,7 +19486,7 @@
   },
   {
     "ma_cua_hang": "CH201",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 201",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "526",
@@ -19582,7 +19582,7 @@
   },
   {
     "ma_cua_hang": "CH202",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 202",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "348",
@@ -19680,7 +19680,7 @@
   },
   {
     "ma_cua_hang": "CH203",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 203",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "579",
@@ -19777,7 +19777,7 @@
   },
   {
     "ma_cua_hang": "CH204",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 204",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "738",
@@ -19875,7 +19875,7 @@
   },
   {
     "ma_cua_hang": "CH205",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 205",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "462",
@@ -19973,7 +19973,7 @@
   },
   {
     "ma_cua_hang": "CH206",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 206",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "262",
@@ -20071,7 +20071,7 @@
   },
   {
     "ma_cua_hang": "CH207",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 207",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "316",
@@ -20171,7 +20171,7 @@
   },
   {
     "ma_cua_hang": "CH208",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 208",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "426",
@@ -20265,7 +20265,7 @@
   },
   {
     "ma_cua_hang": "CH209",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 209",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "653",
@@ -20365,7 +20365,7 @@
   },
   {
     "ma_cua_hang": "CH210",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 210",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "263",
@@ -20461,7 +20461,7 @@
   },
   {
     "ma_cua_hang": "CH211",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 211",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "182",
@@ -20560,7 +20560,7 @@
   },
   {
     "ma_cua_hang": "CH212",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 212",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "551",
@@ -20661,7 +20661,7 @@
   },
   {
     "ma_cua_hang": "CH213",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 213",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "454",
@@ -20756,7 +20756,7 @@
   },
   {
     "ma_cua_hang": "CH214",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 214",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "678",
@@ -20846,7 +20846,7 @@
   },
   {
     "ma_cua_hang": "CH215",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 215",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "462",
@@ -20940,7 +20940,7 @@
   },
   {
     "ma_cua_hang": "CH216",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 216",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "263",
@@ -21033,7 +21033,7 @@
   },
   {
     "ma_cua_hang": "CH217",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 217",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "287",
@@ -21135,7 +21135,7 @@
   },
   {
     "ma_cua_hang": "CH218",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 218",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "241",
@@ -21230,7 +21230,7 @@
   },
   {
     "ma_cua_hang": "CH219",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 219",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "660",
@@ -21327,7 +21327,7 @@
   },
   {
     "ma_cua_hang": "CH220",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 220",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "689",
@@ -21422,7 +21422,7 @@
   },
   {
     "ma_cua_hang": "CH221",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 221",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "859",
@@ -21518,7 +21518,7 @@
   },
   {
     "ma_cua_hang": "CH222",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 222",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "92",
@@ -21615,7 +21615,7 @@
   },
   {
     "ma_cua_hang": "CH223",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 223",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "980",
@@ -21712,7 +21712,7 @@
   },
   {
     "ma_cua_hang": "CH224",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 224",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "606",
@@ -21807,7 +21807,7 @@
   },
   {
     "ma_cua_hang": "CH225",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 225",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "809",
@@ -21899,7 +21899,7 @@
   },
   {
     "ma_cua_hang": "CH226",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 226",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "217",
@@ -21997,7 +21997,7 @@
   },
   {
     "ma_cua_hang": "CH227",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 227",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "8",
@@ -22091,7 +22091,7 @@
   },
   {
     "ma_cua_hang": "CH228",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 228",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "456",
@@ -22192,7 +22192,7 @@
   },
   {
     "ma_cua_hang": "CH229",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 229",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "514",
@@ -22289,7 +22289,7 @@
   },
   {
     "ma_cua_hang": "CH230",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 230",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "793",
@@ -22386,7 +22386,7 @@
   },
   {
     "ma_cua_hang": "CH231",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 231",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "668",
@@ -22488,7 +22488,7 @@
   },
   {
     "ma_cua_hang": "CH232",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 232",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "567",
@@ -22580,7 +22580,7 @@
   },
   {
     "ma_cua_hang": "CH233",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 233",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "863",
@@ -22679,7 +22679,7 @@
   },
   {
     "ma_cua_hang": "CH234",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 234",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "374",
@@ -22779,7 +22779,7 @@
   },
   {
     "ma_cua_hang": "CH235",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 235",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "67",
@@ -22870,7 +22870,7 @@
   },
   {
     "ma_cua_hang": "CH236",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 236",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "449",
@@ -22968,7 +22968,7 @@
   },
   {
     "ma_cua_hang": "CH237",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 237",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "609",
@@ -23067,7 +23067,7 @@
   },
   {
     "ma_cua_hang": "CH238",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 238",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "481",
@@ -23162,7 +23162,7 @@
   },
   {
     "ma_cua_hang": "CH239",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 239",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "306",
@@ -23258,7 +23258,7 @@
   },
   {
     "ma_cua_hang": "CH240",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 240",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "896",
@@ -23352,7 +23352,7 @@
   },
   {
     "ma_cua_hang": "CH241",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 241",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "370",
@@ -23451,7 +23451,7 @@
   },
   {
     "ma_cua_hang": "CH242",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 242",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "886",
@@ -23544,7 +23544,7 @@
   },
   {
     "ma_cua_hang": "CH243",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 243",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "964",
@@ -23642,7 +23642,7 @@
   },
   {
     "ma_cua_hang": "CH244",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 244",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "796",
@@ -23741,7 +23741,7 @@
   },
   {
     "ma_cua_hang": "CH245",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 245",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "545",
@@ -23842,7 +23842,7 @@
   },
   {
     "ma_cua_hang": "CH246",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 246",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "339",
@@ -23942,7 +23942,7 @@
   },
   {
     "ma_cua_hang": "CH247",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 247",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "851",
@@ -24042,7 +24042,7 @@
   },
   {
     "ma_cua_hang": "CH248",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 248",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "716",
@@ -24137,7 +24137,7 @@
   },
   {
     "ma_cua_hang": "CH249",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 249",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "311",
@@ -24231,7 +24231,7 @@
   },
   {
     "ma_cua_hang": "CH250",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 250",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "837",
@@ -24327,7 +24327,7 @@
   },
   {
     "ma_cua_hang": "CH251",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 251",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "296",
@@ -24423,7 +24423,7 @@
   },
   {
     "ma_cua_hang": "CH252",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 252",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "693",
@@ -24516,7 +24516,7 @@
   },
   {
     "ma_cua_hang": "CH253",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 253",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "771",
@@ -24613,7 +24613,7 @@
   },
   {
     "ma_cua_hang": "CH254",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 254",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "221",
@@ -24709,7 +24709,7 @@
   },
   {
     "ma_cua_hang": "CH255",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 255",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "828",
@@ -24803,7 +24803,7 @@
   },
   {
     "ma_cua_hang": "CH256",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 256",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "897",
@@ -24903,7 +24903,7 @@
   },
   {
     "ma_cua_hang": "CH257",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 257",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "171",
@@ -25001,7 +25001,7 @@
   },
   {
     "ma_cua_hang": "CH258",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 258",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "621",
@@ -25097,7 +25097,7 @@
   },
   {
     "ma_cua_hang": "CH259",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 259",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "566",
@@ -25193,7 +25193,7 @@
   },
   {
     "ma_cua_hang": "CH260",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 260",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "873",
@@ -25289,7 +25289,7 @@
   },
   {
     "ma_cua_hang": "CH261",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 261",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "644",
@@ -25384,7 +25384,7 @@
   },
   {
     "ma_cua_hang": "CH262",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 262",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "208",
@@ -25477,7 +25477,7 @@
   },
   {
     "ma_cua_hang": "CH263",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 263",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "159",
@@ -25577,7 +25577,7 @@
   },
   {
     "ma_cua_hang": "CH264",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 264",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "583",
@@ -25673,7 +25673,7 @@
   },
   {
     "ma_cua_hang": "CH265",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 265",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "137",
@@ -25769,7 +25769,7 @@
   },
   {
     "ma_cua_hang": "CH266",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 266",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "902",
@@ -25865,7 +25865,7 @@
   },
   {
     "ma_cua_hang": "CH267",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 267",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "803",
@@ -25961,7 +25961,7 @@
   },
   {
     "ma_cua_hang": "CH268",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 268",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "274",
@@ -26059,7 +26059,7 @@
   },
   {
     "ma_cua_hang": "CH269",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 269",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "759",
@@ -26154,7 +26154,7 @@
   },
   {
     "ma_cua_hang": "CH270",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 270",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "950",
@@ -26252,7 +26252,7 @@
   },
   {
     "ma_cua_hang": "CH271",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 271",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "322",
@@ -26347,7 +26347,7 @@
   },
   {
     "ma_cua_hang": "CH272",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 272",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "131",
@@ -26445,7 +26445,7 @@
   },
   {
     "ma_cua_hang": "CH273",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 273",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "826",
@@ -26541,7 +26541,7 @@
   },
   {
     "ma_cua_hang": "CH274",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 274",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "991",
@@ -26639,7 +26639,7 @@
   },
   {
     "ma_cua_hang": "CH275",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 275",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "477",
@@ -26741,7 +26741,7 @@
   },
   {
     "ma_cua_hang": "CH276",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 276",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "982",
@@ -26835,7 +26835,7 @@
   },
   {
     "ma_cua_hang": "CH277",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 277",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "867",
@@ -26937,7 +26937,7 @@
   },
   {
     "ma_cua_hang": "CH278",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 278",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "150",
@@ -27028,7 +27028,7 @@
   },
   {
     "ma_cua_hang": "CH279",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 279",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "708",
@@ -27121,7 +27121,7 @@
   },
   {
     "ma_cua_hang": "CH280",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 280",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "661",
@@ -27218,7 +27218,7 @@
   },
   {
     "ma_cua_hang": "CH281",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 281",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "941",
@@ -27318,7 +27318,7 @@
   },
   {
     "ma_cua_hang": "CH282",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 282",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "470",
@@ -27413,7 +27413,7 @@
   },
   {
     "ma_cua_hang": "CH283",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 283",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "722",
@@ -27506,7 +27506,7 @@
   },
   {
     "ma_cua_hang": "CH284",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 284",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "146",
@@ -27604,7 +27604,7 @@
   },
   {
     "ma_cua_hang": "CH285",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 285",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "792",
@@ -27703,7 +27703,7 @@
   },
   {
     "ma_cua_hang": "CH286",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 286",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "90",
@@ -27802,7 +27802,7 @@
   },
   {
     "ma_cua_hang": "CH287",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 287",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "67",
@@ -27897,7 +27897,7 @@
   },
   {
     "ma_cua_hang": "CH288",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 288",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "911",
@@ -27995,7 +27995,7 @@
   },
   {
     "ma_cua_hang": "CH289",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 289",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "841",
@@ -28088,7 +28088,7 @@
   },
   {
     "ma_cua_hang": "CH290",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 290",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "738",
@@ -28186,7 +28186,7 @@
   },
   {
     "ma_cua_hang": "CH291",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 291",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "474",
@@ -28282,7 +28282,7 @@
   },
   {
     "ma_cua_hang": "CH292",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 292",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "304",
@@ -28383,7 +28383,7 @@
   },
   {
     "ma_cua_hang": "CH293",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 293",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "390",
@@ -28478,7 +28478,7 @@
   },
   {
     "ma_cua_hang": "CH294",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 294",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "371",
@@ -28572,7 +28572,7 @@
   },
   {
     "ma_cua_hang": "CH295",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 295",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "676",
@@ -28673,7 +28673,7 @@
   },
   {
     "ma_cua_hang": "CH296",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 296",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "224",
@@ -28766,7 +28766,7 @@
   },
   {
     "ma_cua_hang": "CH297",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 297",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "845",
@@ -28859,7 +28859,7 @@
   },
   {
     "ma_cua_hang": "CH298",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 298",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "315",
@@ -28954,7 +28954,7 @@
   },
   {
     "ma_cua_hang": "CH299",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 299",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "334",
@@ -29055,7 +29055,7 @@
   },
   {
     "ma_cua_hang": "CH300",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 300",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "722",
@@ -29153,7 +29153,7 @@
   },
   {
     "ma_cua_hang": "CH301",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 301",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "795",
@@ -29245,7 +29245,7 @@
   },
   {
     "ma_cua_hang": "CH302",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 302",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "919",
@@ -29343,7 +29343,7 @@
   },
   {
     "ma_cua_hang": "CH303",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 303",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "653",
@@ -29439,7 +29439,7 @@
   },
   {
     "ma_cua_hang": "CH304",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 304",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "296",
@@ -29533,7 +29533,7 @@
   },
   {
     "ma_cua_hang": "CH305",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 305",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "823",
@@ -29630,7 +29630,7 @@
   },
   {
     "ma_cua_hang": "CH306",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 306",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "967",
@@ -29725,7 +29725,7 @@
   },
   {
     "ma_cua_hang": "CH307",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 307",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "747",
@@ -29819,7 +29819,7 @@
   },
   {
     "ma_cua_hang": "CH308",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 308",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "381",
@@ -29915,7 +29915,7 @@
   },
   {
     "ma_cua_hang": "CH309",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 309",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "648",
@@ -30014,7 +30014,7 @@
   },
   {
     "ma_cua_hang": "CH310",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 310",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "878",
@@ -30112,7 +30112,7 @@
   },
   {
     "ma_cua_hang": "CH311",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 311",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "897",
@@ -30212,7 +30212,7 @@
   },
   {
     "ma_cua_hang": "CH312",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 312",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "423",
@@ -30308,7 +30308,7 @@
   },
   {
     "ma_cua_hang": "CH313",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 313",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "916",
@@ -30404,7 +30404,7 @@
   },
   {
     "ma_cua_hang": "CH314",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 314",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "914",
@@ -30502,7 +30502,7 @@
   },
   {
     "ma_cua_hang": "CH315",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 315",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "933",
@@ -30602,7 +30602,7 @@
   },
   {
     "ma_cua_hang": "CH316",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 316",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "230",
@@ -30699,7 +30699,7 @@
   },
   {
     "ma_cua_hang": "CH317",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 317",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "475",
@@ -30793,7 +30793,7 @@
   },
   {
     "ma_cua_hang": "CH318",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 318",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "145",
@@ -30884,7 +30884,7 @@
   },
   {
     "ma_cua_hang": "CH319",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 319",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "235",
@@ -30983,7 +30983,7 @@
   },
   {
     "ma_cua_hang": "CH320",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 320",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "94",
@@ -31079,7 +31079,7 @@
   },
   {
     "ma_cua_hang": "CH321",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 321",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "663",
@@ -31180,7 +31180,7 @@
   },
   {
     "ma_cua_hang": "CH322",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 322",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "672",
@@ -31279,7 +31279,7 @@
   },
   {
     "ma_cua_hang": "CH323",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 323",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "601",
@@ -31373,7 +31373,7 @@
   },
   {
     "ma_cua_hang": "CH324",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 324",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "928",
@@ -31474,7 +31474,7 @@
   },
   {
     "ma_cua_hang": "CH325",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 325",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "871",
@@ -31570,7 +31570,7 @@
   },
   {
     "ma_cua_hang": "CH326",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 326",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "201",
@@ -31668,7 +31668,7 @@
   },
   {
     "ma_cua_hang": "CH327",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 327",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "663",
@@ -31764,7 +31764,7 @@
   },
   {
     "ma_cua_hang": "CH328",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 328",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "795",
@@ -31861,7 +31861,7 @@
   },
   {
     "ma_cua_hang": "CH329",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 329",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "11",
@@ -31959,7 +31959,7 @@
   },
   {
     "ma_cua_hang": "CH330",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 330",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "876",
@@ -32060,7 +32060,7 @@
   },
   {
     "ma_cua_hang": "CH331",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 331",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "57",
@@ -32160,7 +32160,7 @@
   },
   {
     "ma_cua_hang": "CH332",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 332",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "948",
@@ -32255,7 +32255,7 @@
   },
   {
     "ma_cua_hang": "CH333",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 333",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "906",
@@ -32354,7 +32354,7 @@
   },
   {
     "ma_cua_hang": "CH334",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 334",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "749",
@@ -32452,7 +32452,7 @@
   },
   {
     "ma_cua_hang": "CH335",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 335",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "56",
@@ -32551,7 +32551,7 @@
   },
   {
     "ma_cua_hang": "CH336",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 336",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "795",
@@ -32641,7 +32641,7 @@
   },
   {
     "ma_cua_hang": "CH337",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 337",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "158",
@@ -32737,7 +32737,7 @@
   },
   {
     "ma_cua_hang": "CH338",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 338",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "672",
@@ -32833,7 +32833,7 @@
   },
   {
     "ma_cua_hang": "CH339",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 339",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "971",
@@ -32930,7 +32930,7 @@
   },
   {
     "ma_cua_hang": "CH340",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 340",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "901",
@@ -33032,7 +33032,7 @@
   },
   {
     "ma_cua_hang": "CH341",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 341",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "88",
@@ -33133,7 +33133,7 @@
   },
   {
     "ma_cua_hang": "CH342",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 342",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "81",
@@ -33229,7 +33229,7 @@
   },
   {
     "ma_cua_hang": "CH343",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 343",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "410",
@@ -33324,7 +33324,7 @@
   },
   {
     "ma_cua_hang": "CH344",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 344",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "418",
@@ -33415,7 +33415,7 @@
   },
   {
     "ma_cua_hang": "CH345",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 345",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "686",
@@ -33515,7 +33515,7 @@
   },
   {
     "ma_cua_hang": "CH346",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 346",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "348",
@@ -33613,7 +33613,7 @@
   },
   {
     "ma_cua_hang": "CH347",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 347",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "122",
@@ -33710,7 +33710,7 @@
   },
   {
     "ma_cua_hang": "CH348",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 348",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "956",
@@ -33805,7 +33805,7 @@
   },
   {
     "ma_cua_hang": "CH349",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 349",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "640",
@@ -33899,7 +33899,7 @@
   },
   {
     "ma_cua_hang": "CH350",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 350",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "511",
@@ -33996,7 +33996,7 @@
   },
   {
     "ma_cua_hang": "CH351",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 351",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "377",
@@ -34088,7 +34088,7 @@
   },
   {
     "ma_cua_hang": "CH352",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 352",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "456",
@@ -34183,7 +34183,7 @@
   },
   {
     "ma_cua_hang": "CH353",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 353",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "490",
@@ -34282,7 +34282,7 @@
   },
   {
     "ma_cua_hang": "CH354",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 354",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "800",
@@ -34377,7 +34377,7 @@
   },
   {
     "ma_cua_hang": "CH355",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 355",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "506",
@@ -34471,7 +34471,7 @@
   },
   {
     "ma_cua_hang": "CH356",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 356",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "184",
@@ -34570,7 +34570,7 @@
   },
   {
     "ma_cua_hang": "CH357",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 357",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "208",
@@ -34669,7 +34669,7 @@
   },
   {
     "ma_cua_hang": "CH358",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 358",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "146",
@@ -34761,7 +34761,7 @@
   },
   {
     "ma_cua_hang": "CH359",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 359",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "713",
@@ -34855,7 +34855,7 @@
   },
   {
     "ma_cua_hang": "CH360",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 360",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "310",
@@ -34945,7 +34945,7 @@
   },
   {
     "ma_cua_hang": "CH361",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 361",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "382",
@@ -35039,7 +35039,7 @@
   },
   {
     "ma_cua_hang": "CH362",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 362",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "319",
@@ -35135,7 +35135,7 @@
   },
   {
     "ma_cua_hang": "CH363",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 363",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "216",
@@ -35231,7 +35231,7 @@
   },
   {
     "ma_cua_hang": "CH364",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 364",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "633",
@@ -35330,7 +35330,7 @@
   },
   {
     "ma_cua_hang": "CH365",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 365",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "965",
@@ -35428,7 +35428,7 @@
   },
   {
     "ma_cua_hang": "CH366",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 366",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "219",
@@ -35521,7 +35521,7 @@
   },
   {
     "ma_cua_hang": "CH367",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 367",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "667",
@@ -35617,7 +35617,7 @@
   },
   {
     "ma_cua_hang": "CH368",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 368",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "745",
@@ -35714,7 +35714,7 @@
   },
   {
     "ma_cua_hang": "CH369",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 369",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "966",
@@ -35809,7 +35809,7 @@
   },
   {
     "ma_cua_hang": "CH370",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 370",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "68",
@@ -35909,7 +35909,7 @@
   },
   {
     "ma_cua_hang": "CH371",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 371",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "903",
@@ -36009,7 +36009,7 @@
   },
   {
     "ma_cua_hang": "CH372",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 372",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "474",
@@ -36108,7 +36108,7 @@
   },
   {
     "ma_cua_hang": "CH373",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 373",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "579",
@@ -36206,7 +36206,7 @@
   },
   {
     "ma_cua_hang": "CH374",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 374",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "562",
@@ -36296,7 +36296,7 @@
   },
   {
     "ma_cua_hang": "CH375",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 375",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "105",
@@ -36393,7 +36393,7 @@
   },
   {
     "ma_cua_hang": "CH376",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 376",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "897",
@@ -36484,7 +36484,7 @@
   },
   {
     "ma_cua_hang": "CH377",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 377",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "430",
@@ -36579,7 +36579,7 @@
   },
   {
     "ma_cua_hang": "CH378",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 378",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "220",
@@ -36678,7 +36678,7 @@
   },
   {
     "ma_cua_hang": "CH379",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 379",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "674",
@@ -36774,7 +36774,7 @@
   },
   {
     "ma_cua_hang": "CH380",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 380",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "177",
@@ -36868,7 +36868,7 @@
   },
   {
     "ma_cua_hang": "CH381",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 381",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "481",
@@ -36964,7 +36964,7 @@
   },
   {
     "ma_cua_hang": "CH382",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 382",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "3",
@@ -37059,7 +37059,7 @@
   },
   {
     "ma_cua_hang": "CH383",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 383",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "69",
@@ -37158,7 +37158,7 @@
   },
   {
     "ma_cua_hang": "CH384",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 384",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "870",
@@ -37256,7 +37256,7 @@
   },
   {
     "ma_cua_hang": "CH385",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 385",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "662",
@@ -37349,7 +37349,7 @@
   },
   {
     "ma_cua_hang": "CH386",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 386",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "284",
@@ -37446,7 +37446,7 @@
   },
   {
     "ma_cua_hang": "CH387",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 387",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "412",
@@ -37539,7 +37539,7 @@
   },
   {
     "ma_cua_hang": "CH388",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 388",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "438",
@@ -37639,7 +37639,7 @@
   },
   {
     "ma_cua_hang": "CH389",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 389",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "736",
@@ -37735,7 +37735,7 @@
   },
   {
     "ma_cua_hang": "CH390",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 390",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "583",
@@ -37831,7 +37831,7 @@
   },
   {
     "ma_cua_hang": "CH391",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 391",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "53",
@@ -37924,7 +37924,7 @@
   },
   {
     "ma_cua_hang": "CH392",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 392",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "887",
@@ -38022,7 +38022,7 @@
   },
   {
     "ma_cua_hang": "CH393",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 393",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "87",
@@ -38118,7 +38118,7 @@
   },
   {
     "ma_cua_hang": "CH394",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 394",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "383",
@@ -38215,7 +38215,7 @@
   },
   {
     "ma_cua_hang": "CH395",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 395",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "115",
@@ -38315,7 +38315,7 @@
   },
   {
     "ma_cua_hang": "CH396",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 396",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "586",
@@ -38410,7 +38410,7 @@
   },
   {
     "ma_cua_hang": "CH397",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 397",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "926",
@@ -38507,7 +38507,7 @@
   },
   {
     "ma_cua_hang": "CH398",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 398",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "836",
@@ -38606,7 +38606,7 @@
   },
   {
     "ma_cua_hang": "CH399",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 399",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "731",
@@ -38698,7 +38698,7 @@
   },
   {
     "ma_cua_hang": "CH400",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 400",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "54",
@@ -38792,7 +38792,7 @@
   },
   {
     "ma_cua_hang": "CH401",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 401",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "728",
@@ -38890,7 +38890,7 @@
   },
   {
     "ma_cua_hang": "CH402",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 402",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "350",
@@ -38988,7 +38988,7 @@
   },
   {
     "ma_cua_hang": "CH403",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 403",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "148",
@@ -39082,7 +39082,7 @@
   },
   {
     "ma_cua_hang": "CH404",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 404",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "735",
@@ -39176,7 +39176,7 @@
   },
   {
     "ma_cua_hang": "CH405",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 405",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "200",
@@ -39270,7 +39270,7 @@
   },
   {
     "ma_cua_hang": "CH406",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 406",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "595",
@@ -39362,7 +39362,7 @@
   },
   {
     "ma_cua_hang": "CH407",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 407",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "66",
@@ -39459,7 +39459,7 @@
   },
   {
     "ma_cua_hang": "CH408",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 408",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "363",
@@ -39560,7 +39560,7 @@
   },
   {
     "ma_cua_hang": "CH409",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 409",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "804",
@@ -39655,7 +39655,7 @@
   },
   {
     "ma_cua_hang": "CH410",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 410",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "562",
@@ -39749,7 +39749,7 @@
   },
   {
     "ma_cua_hang": "CH411",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 411",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "50",
@@ -39839,7 +39839,7 @@
   },
   {
     "ma_cua_hang": "CH412",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 412",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "51",
@@ -39937,7 +39937,7 @@
   },
   {
     "ma_cua_hang": "CH413",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 413",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "819",
@@ -40035,7 +40035,7 @@
   },
   {
     "ma_cua_hang": "CH414",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 414",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "170",
@@ -40132,7 +40132,7 @@
   },
   {
     "ma_cua_hang": "CH415",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 415",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "353",
@@ -40229,7 +40229,7 @@
   },
   {
     "ma_cua_hang": "CH416",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 416",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "536",
@@ -40328,7 +40328,7 @@
   },
   {
     "ma_cua_hang": "CH417",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 417",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "875",
@@ -40422,7 +40422,7 @@
   },
   {
     "ma_cua_hang": "CH418",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 418",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "852",
@@ -40520,7 +40520,7 @@
   },
   {
     "ma_cua_hang": "CH419",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 419",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "946",
@@ -40615,7 +40615,7 @@
   },
   {
     "ma_cua_hang": "CH420",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 420",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "969",
@@ -40710,7 +40710,7 @@
   },
   {
     "ma_cua_hang": "CH421",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 421",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "737",
@@ -40808,7 +40808,7 @@
   },
   {
     "ma_cua_hang": "CH422",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 422",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "433",
@@ -40910,7 +40910,7 @@
   },
   {
     "ma_cua_hang": "CH423",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 423",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "138",
@@ -41002,7 +41002,7 @@
   },
   {
     "ma_cua_hang": "CH424",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 424",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "420",
@@ -41100,7 +41100,7 @@
   },
   {
     "ma_cua_hang": "CH425",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 425",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "692",
@@ -41195,7 +41195,7 @@
   },
   {
     "ma_cua_hang": "CH426",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 426",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "255",
@@ -41294,7 +41294,7 @@
   },
   {
     "ma_cua_hang": "CH427",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 427",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "585",
@@ -41387,7 +41387,7 @@
   },
   {
     "ma_cua_hang": "CH428",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 428",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "922",
@@ -41484,7 +41484,7 @@
   },
   {
     "ma_cua_hang": "CH429",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 429",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "177",
@@ -41581,7 +41581,7 @@
   },
   {
     "ma_cua_hang": "CH430",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 430",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "641",
@@ -41674,7 +41674,7 @@
   },
   {
     "ma_cua_hang": "CH431",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 431",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "219",
@@ -41772,7 +41772,7 @@
   },
   {
     "ma_cua_hang": "CH432",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 432",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "34",
@@ -41866,7 +41866,7 @@
   },
   {
     "ma_cua_hang": "CH433",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 433",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "793",
@@ -41967,7 +41967,7 @@
   },
   {
     "ma_cua_hang": "CH434",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 434",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "222",
@@ -42065,7 +42065,7 @@
   },
   {
     "ma_cua_hang": "CH435",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 435",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "697",
@@ -42163,7 +42163,7 @@
   },
   {
     "ma_cua_hang": "CH436",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 436",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "518",
@@ -42265,7 +42265,7 @@
   },
   {
     "ma_cua_hang": "CH437",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 437",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "858",
@@ -42362,7 +42362,7 @@
   },
   {
     "ma_cua_hang": "CH438",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 438",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "809",
@@ -42456,7 +42456,7 @@
   },
   {
     "ma_cua_hang": "CH439",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 439",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "417",
@@ -42549,7 +42549,7 @@
   },
   {
     "ma_cua_hang": "CH440",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 440",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "455",
@@ -42645,7 +42645,7 @@
   },
   {
     "ma_cua_hang": "CH441",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 441",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "145",
@@ -42742,7 +42742,7 @@
   },
   {
     "ma_cua_hang": "CH442",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 442",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "56",
@@ -42839,7 +42839,7 @@
   },
   {
     "ma_cua_hang": "CH443",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 443",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "353",
@@ -42936,7 +42936,7 @@
   },
   {
     "ma_cua_hang": "CH444",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 444",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "617",
@@ -43031,7 +43031,7 @@
   },
   {
     "ma_cua_hang": "CH445",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 445",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "926",
@@ -43127,7 +43127,7 @@
   },
   {
     "ma_cua_hang": "CH446",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 446",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "282",
@@ -43222,7 +43222,7 @@
   },
   {
     "ma_cua_hang": "CH447",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 447",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "303",
@@ -43318,7 +43318,7 @@
   },
   {
     "ma_cua_hang": "CH448",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 448",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "830",
@@ -43415,7 +43415,7 @@
   },
   {
     "ma_cua_hang": "CH449",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 449",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "98",
@@ -43506,7 +43506,7 @@
   },
   {
     "ma_cua_hang": "CH450",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 450",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "858",
@@ -43605,7 +43605,7 @@
   },
   {
     "ma_cua_hang": "CH451",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 451",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "673",
@@ -43705,7 +43705,7 @@
   },
   {
     "ma_cua_hang": "CH452",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 452",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "509",
@@ -43803,7 +43803,7 @@
   },
   {
     "ma_cua_hang": "CH453",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 453",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "68",
@@ -43898,7 +43898,7 @@
   },
   {
     "ma_cua_hang": "CH454",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 454",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "360",
@@ -43992,7 +43992,7 @@
   },
   {
     "ma_cua_hang": "CH455",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 455",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "911",
@@ -44090,7 +44090,7 @@
   },
   {
     "ma_cua_hang": "CH456",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 456",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "116",
@@ -44183,7 +44183,7 @@
   },
   {
     "ma_cua_hang": "CH457",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 457",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "259",
@@ -44280,7 +44280,7 @@
   },
   {
     "ma_cua_hang": "CH458",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 458",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "854",
@@ -44379,7 +44379,7 @@
   },
   {
     "ma_cua_hang": "CH459",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 459",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "714",
@@ -44475,7 +44475,7 @@
   },
   {
     "ma_cua_hang": "CH460",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 460",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "791",
@@ -44569,7 +44569,7 @@
   },
   {
     "ma_cua_hang": "CH461",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 461",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "995",
@@ -44662,7 +44662,7 @@
   },
   {
     "ma_cua_hang": "CH462",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 462",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "160",
@@ -44759,7 +44759,7 @@
   },
   {
     "ma_cua_hang": "CH463",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 463",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "14",
@@ -44854,7 +44854,7 @@
   },
   {
     "ma_cua_hang": "CH464",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 464",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "51",
@@ -44948,7 +44948,7 @@
   },
   {
     "ma_cua_hang": "CH465",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 465",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "122",
@@ -45042,7 +45042,7 @@
   },
   {
     "ma_cua_hang": "CH466",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 466",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "751",
@@ -45139,7 +45139,7 @@
   },
   {
     "ma_cua_hang": "CH467",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 467",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "428",
@@ -45234,7 +45234,7 @@
   },
   {
     "ma_cua_hang": "CH468",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 468",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "330",
@@ -45332,7 +45332,7 @@
   },
   {
     "ma_cua_hang": "CH469",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 469",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "981",
@@ -45432,7 +45432,7 @@
   },
   {
     "ma_cua_hang": "CH470",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 470",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "46",
@@ -45525,7 +45525,7 @@
   },
   {
     "ma_cua_hang": "CH471",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 471",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "871",
@@ -45622,7 +45622,7 @@
   },
   {
     "ma_cua_hang": "CH472",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 472",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "818",
@@ -45718,7 +45718,7 @@
   },
   {
     "ma_cua_hang": "CH473",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 473",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "579",
@@ -45813,7 +45813,7 @@
   },
   {
     "ma_cua_hang": "CH474",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 474",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "154",
@@ -45910,7 +45910,7 @@
   },
   {
     "ma_cua_hang": "CH475",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 475",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "978",
@@ -46005,7 +46005,7 @@
   },
   {
     "ma_cua_hang": "CH476",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 476",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "13",
@@ -46101,7 +46101,7 @@
   },
   {
     "ma_cua_hang": "CH477",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 477",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "401",
@@ -46196,7 +46196,7 @@
   },
   {
     "ma_cua_hang": "CH478",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 478",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "687",
@@ -46292,7 +46292,7 @@
   },
   {
     "ma_cua_hang": "CH479",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 479",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "325",
@@ -46389,7 +46389,7 @@
   },
   {
     "ma_cua_hang": "CH480",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 480",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "475",
@@ -46481,7 +46481,7 @@
   },
   {
     "ma_cua_hang": "CH481",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 481",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "978",
@@ -46574,7 +46574,7 @@
   },
   {
     "ma_cua_hang": "CH482",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 482",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "937",
@@ -46670,7 +46670,7 @@
   },
   {
     "ma_cua_hang": "CH483",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 483",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "495",
@@ -46766,7 +46766,7 @@
   },
   {
     "ma_cua_hang": "CH484",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 484",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "426",
@@ -46863,7 +46863,7 @@
   },
   {
     "ma_cua_hang": "CH485",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 485",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "873",
@@ -46955,7 +46955,7 @@
   },
   {
     "ma_cua_hang": "CH486",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 486",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "877",
@@ -47051,7 +47051,7 @@
   },
   {
     "ma_cua_hang": "CH487",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 487",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "53",
@@ -47147,7 +47147,7 @@
   },
   {
     "ma_cua_hang": "CH488",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 488",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "995",
@@ -47244,7 +47244,7 @@
   },
   {
     "ma_cua_hang": "CH489",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 489",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "366",
@@ -47342,7 +47342,7 @@
   },
   {
     "ma_cua_hang": "CH490",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 490",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "631",
@@ -47441,7 +47441,7 @@
   },
   {
     "ma_cua_hang": "CH491",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 491",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "214",
@@ -47540,7 +47540,7 @@
   },
   {
     "ma_cua_hang": "CH492",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 492",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "751",
@@ -47635,7 +47635,7 @@
   },
   {
     "ma_cua_hang": "CH493",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 493",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "30",
@@ -47732,7 +47732,7 @@
   },
   {
     "ma_cua_hang": "CH494",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 494",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "162",
@@ -47830,7 +47830,7 @@
   },
   {
     "ma_cua_hang": "CH495",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 495",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "205",
@@ -47925,7 +47925,7 @@
   },
   {
     "ma_cua_hang": "CH496",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 496",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "488",
@@ -48019,7 +48019,7 @@
   },
   {
     "ma_cua_hang": "CH497",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 497",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "365",
@@ -48112,7 +48112,7 @@
   },
   {
     "ma_cua_hang": "CH498",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 498",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "551",
@@ -48209,7 +48209,7 @@
   },
   {
     "ma_cua_hang": "CH499",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 499",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "526",
@@ -48307,7 +48307,7 @@
   },
   {
     "ma_cua_hang": "CH500",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 500",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "715",
@@ -48405,7 +48405,7 @@
   },
   {
     "ma_cua_hang": "CH501",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 501",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "33",
@@ -48503,7 +48503,7 @@
   },
   {
     "ma_cua_hang": "CH502",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 502",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "89",
@@ -48596,7 +48596,7 @@
   },
   {
     "ma_cua_hang": "CH503",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 503",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "243",
@@ -48691,7 +48691,7 @@
   },
   {
     "ma_cua_hang": "CH504",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 504",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "317",
@@ -48785,7 +48785,7 @@
   },
   {
     "ma_cua_hang": "CH505",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 505",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "906",
@@ -48882,7 +48882,7 @@
   },
   {
     "ma_cua_hang": "CH506",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 506",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "549",
@@ -48979,7 +48979,7 @@
   },
   {
     "ma_cua_hang": "CH507",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 507",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "738",
@@ -49072,7 +49072,7 @@
   },
   {
     "ma_cua_hang": "CH508",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 508",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "534",
@@ -49167,7 +49167,7 @@
   },
   {
     "ma_cua_hang": "CH509",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 509",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "551",
@@ -49263,7 +49263,7 @@
   },
   {
     "ma_cua_hang": "CH510",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 510",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "763",
@@ -49357,7 +49357,7 @@
   },
   {
     "ma_cua_hang": "CH511",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 511",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "353",
@@ -49456,7 +49456,7 @@
   },
   {
     "ma_cua_hang": "CH512",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 512",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "407",
@@ -49549,7 +49549,7 @@
   },
   {
     "ma_cua_hang": "CH513",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 513",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "768",
@@ -49647,7 +49647,7 @@
   },
   {
     "ma_cua_hang": "CH514",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 514",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "906",
@@ -49741,7 +49741,7 @@
   },
   {
     "ma_cua_hang": "CH515",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 515",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "520",
@@ -49837,7 +49837,7 @@
   },
   {
     "ma_cua_hang": "CH516",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 516",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "93",
@@ -49935,7 +49935,7 @@
   },
   {
     "ma_cua_hang": "CH517",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 517",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "765",
@@ -50031,7 +50031,7 @@
   },
   {
     "ma_cua_hang": "CH518",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 518",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "693",
@@ -50124,7 +50124,7 @@
   },
   {
     "ma_cua_hang": "CH519",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 519",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "430",
@@ -50220,7 +50220,7 @@
   },
   {
     "ma_cua_hang": "CH520",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 520",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "174",
@@ -50318,7 +50318,7 @@
   },
   {
     "ma_cua_hang": "CH521",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 521",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "146",
@@ -50413,7 +50413,7 @@
   },
   {
     "ma_cua_hang": "CH522",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 522",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "87",
@@ -50507,7 +50507,7 @@
   },
   {
     "ma_cua_hang": "CH523",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 523",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "527",
@@ -50603,7 +50603,7 @@
   },
   {
     "ma_cua_hang": "CH524",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 524",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "507",
@@ -50699,7 +50699,7 @@
   },
   {
     "ma_cua_hang": "CH525",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 525",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "394",
@@ -50791,7 +50791,7 @@
   },
   {
     "ma_cua_hang": "CH526",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 526",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "524",
@@ -50888,7 +50888,7 @@
   },
   {
     "ma_cua_hang": "CH527",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 527",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "89",
@@ -50987,7 +50987,7 @@
   },
   {
     "ma_cua_hang": "CH528",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 528",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "788",
@@ -51087,7 +51087,7 @@
   },
   {
     "ma_cua_hang": "CH529",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 529",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "872",
@@ -51183,7 +51183,7 @@
   },
   {
     "ma_cua_hang": "CH530",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 530",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "866",
@@ -51279,7 +51279,7 @@
   },
   {
     "ma_cua_hang": "CH531",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 531",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "730",
@@ -51375,7 +51375,7 @@
   },
   {
     "ma_cua_hang": "CH532",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 532",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "996",
@@ -51469,7 +51469,7 @@
   },
   {
     "ma_cua_hang": "CH533",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 533",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "18",
@@ -51564,7 +51564,7 @@
   },
   {
     "ma_cua_hang": "CH534",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 534",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "653",
@@ -51665,7 +51665,7 @@
   },
   {
     "ma_cua_hang": "CH535",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 535",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "157",
@@ -51761,7 +51761,7 @@
   },
   {
     "ma_cua_hang": "CH536",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 536",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "129",
@@ -51857,7 +51857,7 @@
   },
   {
     "ma_cua_hang": "CH537",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 537",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "39",
@@ -51956,7 +51956,7 @@
   },
   {
     "ma_cua_hang": "CH538",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 538",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "514",
@@ -52053,7 +52053,7 @@
   },
   {
     "ma_cua_hang": "CH539",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 539",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "999",
@@ -52148,7 +52148,7 @@
   },
   {
     "ma_cua_hang": "CH540",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 540",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "37",
@@ -52245,7 +52245,7 @@
   },
   {
     "ma_cua_hang": "CH541",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 541",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "155",
@@ -52343,7 +52343,7 @@
   },
   {
     "ma_cua_hang": "CH542",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 542",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "739",
@@ -52438,7 +52438,7 @@
   },
   {
     "ma_cua_hang": "CH543",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 543",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "418",
@@ -52540,7 +52540,7 @@
   },
   {
     "ma_cua_hang": "CH544",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 544",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "254",
@@ -52637,7 +52637,7 @@
   },
   {
     "ma_cua_hang": "CH545",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 545",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "595",
@@ -52735,7 +52735,7 @@
   },
   {
     "ma_cua_hang": "CH546",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 546",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "838",
@@ -52834,7 +52834,7 @@
   },
   {
     "ma_cua_hang": "CH547",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 547",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "79",
@@ -52933,7 +52933,7 @@
   },
   {
     "ma_cua_hang": "CH548",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 548",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "326",
@@ -53032,7 +53032,7 @@
   },
   {
     "ma_cua_hang": "CH549",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 549",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "387",
@@ -53131,7 +53131,7 @@
   },
   {
     "ma_cua_hang": "CH550",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 550",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "330",
@@ -53224,7 +53224,7 @@
   },
   {
     "ma_cua_hang": "CH551",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 551",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "771",
@@ -53322,7 +53322,7 @@
   },
   {
     "ma_cua_hang": "CH552",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 552",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "890",
@@ -53422,7 +53422,7 @@
   },
   {
     "ma_cua_hang": "CH553",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 553",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "354",
@@ -53517,7 +53517,7 @@
   },
   {
     "ma_cua_hang": "CH554",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 554",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "901",
@@ -53613,7 +53613,7 @@
   },
   {
     "ma_cua_hang": "CH555",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 555",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "357",
@@ -53709,7 +53709,7 @@
   },
   {
     "ma_cua_hang": "CH556",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 556",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "712",
@@ -53802,7 +53802,7 @@
   },
   {
     "ma_cua_hang": "CH557",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 557",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "314",
@@ -53902,7 +53902,7 @@
   },
   {
     "ma_cua_hang": "CH558",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 558",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "178",
@@ -53998,7 +53998,7 @@
   },
   {
     "ma_cua_hang": "CH559",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 559",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "65",
@@ -54099,7 +54099,7 @@
   },
   {
     "ma_cua_hang": "CH560",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 560",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "971",
@@ -54194,7 +54194,7 @@
   },
   {
     "ma_cua_hang": "CH561",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 561",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "491",
@@ -54291,7 +54291,7 @@
   },
   {
     "ma_cua_hang": "CH562",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 562",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "508",
@@ -54386,7 +54386,7 @@
   },
   {
     "ma_cua_hang": "CH563",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 563",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "172",
@@ -54478,7 +54478,7 @@
   },
   {
     "ma_cua_hang": "CH564",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 564",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "543",
@@ -54571,7 +54571,7 @@
   },
   {
     "ma_cua_hang": "CH565",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 565",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "181",
@@ -54667,7 +54667,7 @@
   },
   {
     "ma_cua_hang": "CH566",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 566",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "369",
@@ -54760,7 +54760,7 @@
   },
   {
     "ma_cua_hang": "CH567",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 567",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "47",
@@ -54858,7 +54858,7 @@
   },
   {
     "ma_cua_hang": "CH568",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 568",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "881",
@@ -54951,7 +54951,7 @@
   },
   {
     "ma_cua_hang": "CH569",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 569",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "936",
@@ -55052,7 +55052,7 @@
   },
   {
     "ma_cua_hang": "CH570",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 570",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "519",
@@ -55145,7 +55145,7 @@
   },
   {
     "ma_cua_hang": "CH571",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 571",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "108",
@@ -55243,7 +55243,7 @@
   },
   {
     "ma_cua_hang": "CH572",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 572",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "754",
@@ -55338,7 +55338,7 @@
   },
   {
     "ma_cua_hang": "CH573",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 573",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "811",
@@ -55429,7 +55429,7 @@
   },
   {
     "ma_cua_hang": "CH574",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 574",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "641",
@@ -55521,7 +55521,7 @@
   },
   {
     "ma_cua_hang": "CH575",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 575",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "69",
@@ -55621,7 +55621,7 @@
   },
   {
     "ma_cua_hang": "CH576",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 576",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "577",
@@ -55716,7 +55716,7 @@
   },
   {
     "ma_cua_hang": "CH577",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 577",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "910",
@@ -55814,7 +55814,7 @@
   },
   {
     "ma_cua_hang": "CH578",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 578",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "406",
@@ -55906,7 +55906,7 @@
   },
   {
     "ma_cua_hang": "CH579",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 579",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "758",
@@ -56002,7 +56002,7 @@
   },
   {
     "ma_cua_hang": "CH580",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 580",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "772",
@@ -56103,7 +56103,7 @@
   },
   {
     "ma_cua_hang": "CH581",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 581",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "332",
@@ -56196,7 +56196,7 @@
   },
   {
     "ma_cua_hang": "CH582",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 582",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "66",
@@ -56292,7 +56292,7 @@
   },
   {
     "ma_cua_hang": "CH583",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 583",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "729",
@@ -56391,7 +56391,7 @@
   },
   {
     "ma_cua_hang": "CH584",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 584",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "453",
@@ -56489,7 +56489,7 @@
   },
   {
     "ma_cua_hang": "CH585",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 585",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "841",
@@ -56585,7 +56585,7 @@
   },
   {
     "ma_cua_hang": "CH586",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 586",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "319",
@@ -56681,7 +56681,7 @@
   },
   {
     "ma_cua_hang": "CH587",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 587",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "675",
@@ -56774,7 +56774,7 @@
   },
   {
     "ma_cua_hang": "CH588",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 588",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "985",
@@ -56871,7 +56871,7 @@
   },
   {
     "ma_cua_hang": "CH589",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 589",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "699",
@@ -56971,7 +56971,7 @@
   },
   {
     "ma_cua_hang": "CH590",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 590",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "538",
@@ -57067,7 +57067,7 @@
   },
   {
     "ma_cua_hang": "CH591",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 591",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "712",
@@ -57161,7 +57161,7 @@
   },
   {
     "ma_cua_hang": "CH592",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 592",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "192",
@@ -57263,7 +57263,7 @@
   },
   {
     "ma_cua_hang": "CH593",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 593",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "447",
@@ -57360,7 +57360,7 @@
   },
   {
     "ma_cua_hang": "CH594",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 594",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "853",
@@ -57461,7 +57461,7 @@
   },
   {
     "ma_cua_hang": "CH595",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 595",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "552",
@@ -57556,7 +57556,7 @@
   },
   {
     "ma_cua_hang": "CH596",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 596",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "317",
@@ -57656,7 +57656,7 @@
   },
   {
     "ma_cua_hang": "CH597",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 597",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "219",
@@ -57751,7 +57751,7 @@
   },
   {
     "ma_cua_hang": "CH598",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 598",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "580",
@@ -57851,7 +57851,7 @@
   },
   {
     "ma_cua_hang": "CH599",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 599",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "113",
@@ -57950,7 +57950,7 @@
   },
   {
     "ma_cua_hang": "CH600",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 600",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "297",
@@ -58048,7 +58048,7 @@
   },
   {
     "ma_cua_hang": "CH601",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 601",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "37",
@@ -58144,7 +58144,7 @@
   },
   {
     "ma_cua_hang": "CH602",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 602",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "634",
@@ -58242,7 +58242,7 @@
   },
   {
     "ma_cua_hang": "CH603",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 603",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "752",
@@ -58337,7 +58337,7 @@
   },
   {
     "ma_cua_hang": "CH604",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 604",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "306",
@@ -58433,7 +58433,7 @@
   },
   {
     "ma_cua_hang": "CH605",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 605",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "732",
@@ -58530,7 +58530,7 @@
   },
   {
     "ma_cua_hang": "CH606",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 606",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "710",
@@ -58624,7 +58624,7 @@
   },
   {
     "ma_cua_hang": "CH607",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 607",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "169",
@@ -58718,7 +58718,7 @@
   },
   {
     "ma_cua_hang": "CH608",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 608",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "672",
@@ -58810,7 +58810,7 @@
   },
   {
     "ma_cua_hang": "CH609",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 609",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "453",
@@ -58904,7 +58904,7 @@
   },
   {
     "ma_cua_hang": "CH610",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 610",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "597",
@@ -59001,7 +59001,7 @@
   },
   {
     "ma_cua_hang": "CH611",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 611",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "603",
@@ -59094,7 +59094,7 @@
   },
   {
     "ma_cua_hang": "CH612",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 612",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "137",
@@ -59189,7 +59189,7 @@
   },
   {
     "ma_cua_hang": "CH613",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 613",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "804",
@@ -59284,7 +59284,7 @@
   },
   {
     "ma_cua_hang": "CH614",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 614",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "533",
@@ -59382,7 +59382,7 @@
   },
   {
     "ma_cua_hang": "CH615",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 615",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "381",
@@ -59479,7 +59479,7 @@
   },
   {
     "ma_cua_hang": "CH616",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 616",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "9",
@@ -59576,7 +59576,7 @@
   },
   {
     "ma_cua_hang": "CH617",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 617",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "127",
@@ -59670,7 +59670,7 @@
   },
   {
     "ma_cua_hang": "CH618",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 618",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "41",
@@ -59764,7 +59764,7 @@
   },
   {
     "ma_cua_hang": "CH619",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 619",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "270",
@@ -59859,7 +59859,7 @@
   },
   {
     "ma_cua_hang": "CH620",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 620",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "173",
@@ -59956,7 +59956,7 @@
   },
   {
     "ma_cua_hang": "CH621",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 621",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "727",
@@ -60055,7 +60055,7 @@
   },
   {
     "ma_cua_hang": "CH622",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 622",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "735",
@@ -60152,7 +60152,7 @@
   },
   {
     "ma_cua_hang": "CH623",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 623",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "728",
@@ -60250,7 +60250,7 @@
   },
   {
     "ma_cua_hang": "CH624",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 624",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "339",
@@ -60341,7 +60341,7 @@
   },
   {
     "ma_cua_hang": "CH625",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 625",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "618",
@@ -60435,7 +60435,7 @@
   },
   {
     "ma_cua_hang": "CH626",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 626",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "519",
@@ -60527,7 +60527,7 @@
   },
   {
     "ma_cua_hang": "CH627",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 627",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "304",
@@ -60619,7 +60619,7 @@
   },
   {
     "ma_cua_hang": "CH628",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 628",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "161",
@@ -60713,7 +60713,7 @@
   },
   {
     "ma_cua_hang": "CH629",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 629",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "39",
@@ -60807,7 +60807,7 @@
   },
   {
     "ma_cua_hang": "CH630",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 630",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "883",
@@ -60906,7 +60906,7 @@
   },
   {
     "ma_cua_hang": "CH631",
-    "ten_cua_hang": "Nhà thuốc VitaCare - Cơ sở 631",
+    "ten_cua_hang": "Nhà thuốc VitaCare",
     "loai_hinh": "Nhà thuốc",
     "dia_chi": {
       "so_nha": "850",
@@ -61000,7 +61000,7 @@
   },
   {
     "ma_cua_hang": "CH632",
-    "ten_cua_hang": "Quầy thuốc VitaCare - Cơ sở 632",
+    "ten_cua_hang": "Quầy thuốc VitaCare",
     "loai_hinh": "Quầy thuốc",
     "dia_chi": {
       "so_nha": "57",

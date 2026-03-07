@@ -1,13 +1,195 @@
 <!-- Info Component - Personal Information Form -->
+<!-- Popup chụp ảnh / tải ảnh đại diện - bộ nhận diện VitaCare -->
+@if (showAvatarModal) {
+  <div class="avatar-modal-overlay" (click)="closeAvatarModal()">
+    <div class="avatar-modal" (click)="$event.stopPropagation()" role="dialog" aria-labelledby="avatar-modal-title">
+      <button type="button" class="avatar-modal-close" aria-label="Đóng" (click)="closeAvatarModal()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+      <h2 id="avatar-modal-title" class="avatar-modal-title">
+        {{ cameraStream ? 'CHỤP ẢNH ĐẠI DIỆN' : 'CHỤP ẢNH HOẶC TẢI ẢNH LÊN' }}
+      </h2>
+      <input #avatarUploadInput type="file" accept="image/*" class="avatar-file-input"
+        (change)="onAvatarFileSelected($event)" aria-hidden="true" tabindex="-1">
+      <input #avatarCaptureInput type="file" accept="image/*" capture="user" class="avatar-file-input"
+        (change)="onAvatarFileSelected($event)" aria-hidden="true" tabindex="-1">
+
+      <!-- Khung: livestream; khi đã chụp thì ảnh phủ lên trên, Hủy sẽ bỏ ảnh và thấy lại livestream -->
+      <div class="avatar-modal-preview avatar-modal-preview--live">
+        <video #cameraVideo class="avatar-modal-video" playsinline muted></video>
+        @if (capturedImageUrl) {
+          <img [src]="capturedImageUrl" alt="Ảnh đã chụp" class="avatar-modal-preview-captured">
+        }
+        @if (cameraError && !capturedImageUrl) {
+          <div class="avatar-modal-preview-overlay">
+            <span class="avatar-modal-preview-overlay-text">{{ cameraError }}</span>
+            <button type="button" class="avatar-modal-btn avatar-modal-btn-retry" (click)="triggerAvatarCamera()">
+              Thử lại
+            </button>
+          </div>
+        }
+      </div>
+      <div class="avatar-modal-actions">
+        @if (capturedImageUrl) {
+          <button type="button" class="avatar-modal-btn avatar-modal-btn-capture" (click)="saveCapturedImage()">
+            <i class="bi bi-check-lg"></i> Lưu
+          </button>
+          <button type="button" class="avatar-modal-btn avatar-modal-btn-upload" (click)="discardCapturedImage()">
+            <i class="bi bi-x-lg"></i> Hủy
+          </button>
+        } @else {
+          <button type="button" class="avatar-modal-btn avatar-modal-btn-upload" (click)="triggerAvatarUpload()">
+            <i class="bi bi-upload"></i> Tải ảnh lên
+          </button>
+          <button type="button" class="avatar-modal-btn avatar-modal-btn-capture" (click)="captureFromVideo()" [disabled]="!cameraStream">
+            <i class="bi bi-camera-fill"></i> Chụp
+          </button>
+        }
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Popup mã OTP góc trên phải (giống auth) -->
+@if (showOtpModal && otpStep() === 2 && otpGenerated && showOtpPopup()) {
+  <div class="info-otp-popup">
+    Mã OTP của bạn: <span class="info-otp-popup-code">{{ otpGenerated }}</span>
+  </div>
+}
+<!-- Popup OTP: đổi mật khẩu hoặc xác thực đổi SĐT -->
+@if (showOtpModal) {
+  <div class="info-otp-overlay" (click)="closeOtpModal()">
+    <div class="info-otp-modal" [class.info-otp-modal--step1]="otpStep() === 1" (click)="$event.stopPropagation()" role="dialog" aria-labelledby="info-otp-title">
+      <button type="button" class="info-otp-close" aria-label="Đóng" (click)="closeOtpModal()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+      <h3 id="info-otp-title" class="info-otp-title">{{ otpModalTitle }}</h3>
+
+      @if (otpStep() === 1) {
+        <form class="info-otp-form" (ngSubmit)="onOtpStep1Submit()">
+          <div class="info-otp-field">
+            <label for="otp-phone">Số điện thoại <span class="required">*</span></label>
+            <input
+              id="otp-phone"
+              type="tel"
+              class="info-otp-input"
+              [(ngModel)]="otpPhone"
+              name="otpPhone"
+              placeholder="Nhập số điện thoại của bạn"
+              [class.info-otp-input-error]="errors.phone"
+            />
+            @if (errors.phone) {
+              <span class="info-otp-error">{{ errors.phone }}</span>
+            }
+          </div>
+          <button type="submit" class="info-otp-btn" [disabled]="!isOtpStep1Valid || isSubmitting">
+            {{ isSubmitting ? 'Đang gửi...' : 'Gửi mã OTP' }}
+          </button>
+        </form>
+      }
+
+      @if (otpStep() === 2) {
+        <a href="#" class="info-otp-back" (click)="onOtpBack(); $event.preventDefault()">
+          <i class="bi bi-arrow-left"></i> Quay lại
+        </a>
+        <form class="info-otp-form" (ngSubmit)="onOtpStep2Submit()">
+          <p class="info-otp-hint">Mã OTP đã được gửi đến {{ otpPhone }}</p>
+          <div class="info-otp-inputs">
+            @for (i of [0,1,2,3,4,5]; track i) {
+              <input
+                #otpInput
+                type="text"
+                inputmode="numeric"
+                pattern="[0-9]*"
+                maxlength="1"
+                autocomplete="one-time-code"
+                class="info-otp-digit"
+                [class.info-otp-input-error]="errors.otp"
+                [ngModel]="otpCode[i] || ''"
+                (ngModelChange)="onOtpDigitChange($event, i)"
+                (keydown)="onOtpKeypress($event)"
+                name="otp{{i}}"
+              />
+            }
+          </div>
+          @if (errors.otp) {
+            <span class="info-otp-error">{{ errors.otp }}</span>
+          }
+          @if (otpTimer() > 0) {
+            <div class="info-otp-timer">Hiệu lực mã còn {{ otpTimer() }} giây</div>
+            <button type="submit" class="info-otp-btn" [disabled]="!isOtpStep2Valid || isSubmitting">Xác nhận</button>
+          } @else {
+            <p class="info-otp-resend">
+              <a href="#" class="info-otp-link" (click)="onResendOtp(); $event.preventDefault()">Gửi lại mã OTP</a>
+            </p>
+            <button type="submit" class="info-otp-btn" [disabled]="!isOtpStep2Valid || isSubmitting">Xác nhận</button>
+          }
+        </form>
+      }
+
+      @if (otpPurpose() === 'password' && otpStep() === 3) {
+        <form class="info-otp-form" (ngSubmit)="onOtpStep3Submit()">
+          <div class="info-otp-field">
+            <label>Mật khẩu mới <span class="required">*</span></label>
+            <p class="info-otp-hint-small">{{ PASSWORD_RULE }}</p>
+            <div class="info-otp-pwd-wrap">
+              <input
+                [type]="showNewPassword ? 'text' : 'password'"
+                class="info-otp-input"
+                [(ngModel)]="newPassword"
+                name="newPassword"
+                placeholder="Nhập mật khẩu mới"
+                [class.info-otp-input-error]="errors.password"
+              />
+              <button type="button" class="info-otp-toggle-pwd" (click)="showNewPassword = !showNewPassword" aria-label="Hiện/ẩn">
+                <i class="bi" [class.bi-eye]="!showNewPassword" [class.bi-eye-slash]="showNewPassword"></i>
+              </button>
+            </div>
+            @if (errors.password) {
+              <span class="info-otp-error">{{ errors.password }}</span>
+            }
+          </div>
+          <div class="info-otp-field">
+            <label>Nhập lại mật khẩu <span class="required">*</span></label>
+            <div class="info-otp-pwd-wrap">
+              <input
+                [type]="showConfirmNewPassword ? 'text' : 'password'"
+                class="info-otp-input"
+                [(ngModel)]="confirmNewPassword"
+                name="confirmNewPassword"
+                placeholder="Nhập lại mật khẩu mới"
+                [class.info-otp-input-error]="errors.confirmPassword"
+              />
+              <button type="button" class="info-otp-toggle-pwd" (click)="showConfirmNewPassword = !showConfirmNewPassword" aria-label="Hiện/ẩn">
+                <i class="bi" [class.bi-eye]="!showConfirmNewPassword" [class.bi-eye-slash]="showConfirmNewPassword"></i>
+              </button>
+            </div>
+            @if (errors.confirmPassword) {
+              <span class="info-otp-error">{{ errors.confirmPassword }}</span>
+            }
+          </div>
+          <button type="submit" class="info-otp-btn" [disabled]="!isOtpStep3Valid || isSubmitting">
+            Đổi mật khẩu
+          </button>
+        </form>
+      }
+    </div>
+  </div>
+}
+
 <div class="info-wrapper">
-    <h2 class="info-title">THÔNG TIN CÁ NHÂN</h2>
+    <h2 class="info-title content-title">THÔNG TIN CÁ NHÂN</h2>
 
     <div class="info-card">
         <!-- User Header with Avatar -->
         <div class="user-header">
             <div class="user-avatar-section">
                 <div class="avatar-wrapper">
-                    <img [src]="userAvatar" alt="User Avatar" class="avatar-image">
+                    <img *ngIf="!avatarError" [src]="userAvatar" alt="Avatar" class="avatar-image" (error)="avatarError = true">
+                    <i *ngIf="avatarError" class="bi bi-person-circle avatar-fallback" aria-hidden="true"></i>
+                    <span class="avatar-camera" title="Chụp ảnh đại diện" role="button" tabindex="0"
+                        (click)="triggerAvatarCapture()" (keydown.enter)="triggerAvatarCapture(); $event.preventDefault()"
+                        aria-label="Mở camera chụp ảnh đại diện"><i class="bi bi-camera"></i></span>
                 </div>
                 <div class="user-basic-info">
                     <h4 class="name">{{ fullName }}</h4>
@@ -64,7 +246,13 @@
                     <div class="form-group">
                         <label for="phone" class="form-label">Số điện thoại <span class="required">*</span></label>
                         <input type="tel" class="form-control" id="phone" [(ngModel)]="phone" name="phone"
-                            placeholder="Nhập số điện thoại" required>
+                            placeholder="Nhập số điện thoại (ít nhất 10 chữ số)" required
+                            (blur)="validateMainPhoneField()"
+                            (ngModelChange)="errors.phone && validateMainPhoneField()"
+                            [class.info-input-error]="errors.phone">
+                        @if (errors.phone) {
+                            <span class="info-field-error">{{ errors.phone }}</span>
+                        }
                     </div>
                 </div>
                 <div class="col-md-6">
@@ -76,15 +264,14 @@
                 </div>
             </div>
 
-            <!-- Mật khẩu -->
+            <!-- Mật khẩu (chỉ hiển thị; đổi mật khẩu qua popup OTP) -->
             <div class="form-group">
                 <label for="password" class="form-label">Mật khẩu:</label>
                 <div class="password-input-wrapper">
                     <input [type]="showPassword ? 'text' : 'password'" class="form-control" id="password"
-                        [(ngModel)]="password" name="password" placeholder="••••••••••••">
-                    <button type="button" class="password-toggle" (click)="togglePassword()">
-                        <img [src]="showPassword ? 'assets/icon/info.png' : 'assets/icon/info.png'"
-                            alt="Toggle Password" class="toggle-icon">
+                        [value]="passwordDisplay" name="password" placeholder="••••••••••••" readonly>
+                    <button type="button" class="password-toggle" (click)="togglePassword()" [attr.aria-label]="showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'">
+                        <i class="bi" [class.bi-eye]="!showPassword" [class.bi-eye-slash]="showPassword" class="toggle-icon"></i>
                     </button>
                 </div>
                 <a href="#" class="change-password-link" (click)="changePassword($event)">Thay đổi mật khẩu</a>

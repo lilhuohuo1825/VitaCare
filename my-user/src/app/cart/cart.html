@@ -1,1 +1,93 @@
-<p>cart works!</p>
+<ng-container *ngIf="cartSidebar.isOpen()">
+  <div class="cart-sidebar-overlay" (click)="close()" aria-hidden="true"></div>
+  <aside class="cart-sidebar-panel" role="dialog" aria-label="Giỏ thuốc">
+    <div class="cart-sidebar-head">
+      <i class="bi bi-basket2 cart-sidebar-head-icon"></i>
+      <h2 class="cart-sidebar-title">Giỏ thuốc</h2>
+      <button type="button" class="cart-sidebar-close" (click)="close()" aria-label="Đóng">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+
+    <div class="cart-sidebar-banner">
+      Miễn phí vận chuyển đối với đơn hàng trên 300.000₫
+    </div>
+
+    <div class="cart-sidebar-body">
+      <div class="cart-sidebar-empty" *ngIf="!cart()?.items?.length">
+        <i class="bi bi-basket2" aria-hidden="true"></i>
+        <p>Chưa có sản phẩm trong giỏ</p>
+        <button type="button" class="cart-sidebar-empty-btn" (click)="goToShopping()">
+          Mua sắm
+        </button>
+      </div>
+      <ng-container *ngIf="cart()?.items?.length">
+        <div class="cart-sidebar-grid cart-sidebar-header-row">
+          <label class="cart-sidebar-select-all">
+            <input type="checkbox" [checked]="isAllCartSelected()" (change)="onSelectAllCart($any($event.target).checked)" />
+            <span>Chọn tất cả ({{ selectedItemCount() }})</span>
+          </label>
+          <span class="cart-sidebar-header-price">Giá thành</span>
+          <span class="cart-sidebar-header-qty">Số lượng</span>
+        </div>
+        <div class="cart-sidebar-list">
+          <div class="cart-sidebar-item cart-sidebar-grid" *ngFor="let item of cart()?.items">
+            <label class="cart-sidebar-item-check">
+              <input type="checkbox" [checked]="isItemSelected(item)" (change)="onItemCheck(item, $any($event.target).checked)" />
+            </label>
+            <img [src]="item.image" [alt]="item.productName" class="cart-sidebar-item-img" />
+            <div class="cart-sidebar-item-name">{{ item.productName }}</div>
+            <span class="cart-sidebar-item-price">{{ (item.price * (item.quantity || 1)) | number:'1.0-0' }}₫</span>
+            <span class="cart-sidebar-qty">
+              <button type="button" (click)="cartQtyChange(item, -1)">−</button>
+              <span>{{ item.quantity }}</span>
+              <button type="button" (click)="cartQtyChange(item, 1)">+</button>
+            </span>
+            <button type="button" class="cart-sidebar-remove" (click)="confirmRemoveCartItem(item)" aria-label="Xóa">
+              <i class="bi bi-trash"></i>
+            </button>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+
+    <div class="cart-sidebar-footer" *ngIf="cart()?.items?.length">
+      <div class="cart-sidebar-selected-count">Đã chọn ({{ selectedCount() }}) sản phẩm</div>
+      <div class="cart-sidebar-promo">
+        <i class="bi bi-ticket-perforated"></i>
+        <span class="cart-sidebar-promo-text">Áp dụng ưu đãi từ VitaCare để được giảm giá</span>
+        <i class="bi bi-chevron-right"></i>
+      </div>
+      <div class="cart-sidebar-summary">
+        <div class="cart-sidebar-summary-row">
+          <span>Tổng tiền</span>
+          <strong>{{ selectedTotalPrice() | number:'1.0-0' }}₫</strong>
+        </div>
+        <div class="cart-sidebar-summary-row">
+          <span>Giảm giá trực tiếp</span>
+          <strong class="cart-sidebar-discount">0₫</strong>
+        </div>
+        <div class="cart-sidebar-summary-row">
+          <span>Giảm giá voucher</span>
+          <strong class="cart-sidebar-discount">0₫</strong>
+        </div>
+        <div class="cart-sidebar-summary-row cart-sidebar-summary-final">
+          <span>Thành tiền</span>
+          <strong class="cart-sidebar-final-amount">{{ selectedTotalPrice() | number:'1.0-0' }}₫</strong>
+        </div>
+      </div>
+      <div class="cart-sidebar-buttons">
+        <button type="button" class="cart-sidebar-btn cart-sidebar-btn-secondary" (click)="goToConsultation($event)">
+          Tư vấn đơn thuốc
+        </button>
+        <button type="button" class="cart-sidebar-btn cart-sidebar-btn-primary" (click)="goToOrder($event)">
+          Đặt hàng
+        </button>
+      </div>
+      <p class="cart-sidebar-terms">
+        Bằng việc tiến hành đặt mua hàng, bạn đồng ý với
+        <a routerLink="/chinh-sach/dieu-khoan-su-dung" (click)="close()">Điều khoản dịch vụ</a> của nhà thuốc VitaCare
+      </p>
+    </div>
+  </aside>
+</ng-container>

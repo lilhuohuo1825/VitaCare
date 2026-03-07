@@ -70,7 +70,22 @@ cd /path/to/VitaCare/backend
 npm install
 ```
 
-### Bước 5: Import dữ liệu vào MongoDB
+### Bước 5: Chạy backend (một lệnh)
+
+Sau khi MongoDB đã chạy, chỉ cần:
+
+```bash
+cd /path/to/VitaCare/backend
+npm start
+```
+
+- Backend kết nối MongoDB và **tự động load user** từ `data/userd.json` (hoặc `data/users.json`) nếu collection `users` đang trống. Không cần chạy thêm lệnh import/seed.
+- Nếu MongoDB đã có data (đã import trước đó), backend dùng luôn data đó.
+- Đăng nhập trên web kiểm tra SĐT + mật khẩu với collection `users`.
+
+**Ví dụ đăng nhập thử:** SĐT `0965813408`, mật khẩu `Huong123` (sau khi backend đã tự load từ `data/userd.json`).
+
+*(Nếu muốn import lại user thủ công: `npm run seed-users`.)*
 
 #### Option 1: Import tất cả dữ liệu (ngoại trừ blogs)
 
@@ -175,6 +190,26 @@ npm run fix-json
 # Import blogs riêng (sử dụng streaming - chậm)
 npm run import-blogs
 ```
+
+## 🤖 Chatbot (Gemini API)
+
+Trợ lý ảo góc dưới bên phải trang my-user gọi API backend `POST /api/chat`, backend gọi Google Gemini và lấy sản phẩm từ MongoDB để gợi ý.
+
+- **Cấu hình API key:**
+  1. Tạo API key tại [Google AI Studio](https://aistudio.google.com/app/apikey).
+  2. **Cách 1 – file `.env` (khuyến nghị):** Trong thư mục `backend`, copy `.env.example` thành `.env` rồi điền:
+     ```
+     GEMINI_API_KEY=your-api-key-here
+     ```
+     Chạy `npm install` (để cài `dotenv`) rồi `npm start`. Backend sẽ tự đọc `.env`.
+  3. **Cách 2 – biến môi trường:** Trong cùng terminal với `npm start`:
+     ```bash
+     export GEMINI_API_KEY="your-api-key"
+     npm start
+     ```
+- **Tùy chọn:** `GEMINI_CHAT_MODEL` (mặc định: `gemini-1.5-flash`).
+- Nếu không set `GEMINI_API_KEY`, chatbot trả về thông báo "tạm thời chưa khả dụng".
+- **Bảo mật:** Không commit file `.env` hoặc gửi API key cho người khác. Nếu key bị lộ, hãy thu hồi và tạo key mới trên Google AI Studio.
 
 ## ⚠️ Xử lý lỗi thường gặp
 

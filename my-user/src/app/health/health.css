@@ -1,0 +1,390 @@
+/**
+ * Health Component - Công cụ sức khỏe (theo mẫu)
+ * Nền sáng, card trắng bóng nhẹ, grid 3 cột hàng đầu / 2 cột các hàng sau
+ */
+.health-wrapper {
+  padding: 0 0 var(--spacing-6, 24px);
+  background: #f8f9fa;
+  position: static;
+}
+
+/* ---------- Banner ---------- */
+.health-banner {
+  margin-bottom: var(--spacing-6, 24px);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
+  color: var(--color-text-inverse);
+}
+
+.health-banner-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-6, 24px);
+  padding-top: var(--spacing-6, 24px);
+  padding-bottom: var(--spacing-6, 24px);
+}
+
+.health-banner-content {
+  flex: 1;
+}
+
+.health-banner-title {
+  font-size: var(--font-size-2xl, 28px);
+  font-weight: 700;
+  margin: 0 0 var(--spacing-3, 12px);
+  letter-spacing: 0.02em;
+}
+
+.health-banner-desc {
+  font-size: var(--font-size-sm, 14px);
+  line-height: 1.5;
+  margin: 0;
+  opacity: 0.95;
+  max-width: 560px;
+}
+
+.health-banner-icon {
+  flex-shrink: 0;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  opacity: 0.9;
+}
+
+/* ---------- Loading / Error ---------- */
+.health-loading,
+.health-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-3);
+  padding: var(--spacing-8);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.health-error p {
+  margin: 0;
+  color: var(--color-danger);
+}
+
+.health-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--color-neutral-30);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: health-spin 0.8s linear infinite;
+}
+
+@keyframes health-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ---------- Blocks: mỗi block = card + bài viết liên quan ---------- */
+.health-blocks {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.health-block {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Grid cards: 2 cột (layout mới 2 cột 4 hàng) */
+@media (min-width: 768px) {
+  .health-blocks {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-auto-rows: minmax(min-content, auto);
+    gap: 24px;
+  }
+}
+
+/* ---------- Card chung: không fix theo content, fill ô grid ---------- */
+.health-card {
+  position: relative;
+  background: #fff;
+  border-radius: 10px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  min-height: 160px;
+  height: 100%;
+}
+
+.health-card--clickable {
+  cursor: pointer;
+  transition: box-shadow 0.18s, transform 0.18s;
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+}
+
+.health-card--clickable:hover {
+  box-shadow: 0 6px 20px rgba(0, 88, 159, 0.15);
+  transform: translateY(-2px);
+}
+
+.health-card-update {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  font-size: 13px;
+  color: #9e9e9e;
+  text-decoration: none;
+  line-height: 1.4;
+  z-index: 1;
+}
+
+.health-card-update:hover {
+  color: var(--color-primary);
+}
+
+.health-card-body {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex: 1;
+  margin-top: 0;
+  padding-top: 10px;
+}
+
+.health-card-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.health-card-icon-wrap {
+  flex-shrink: 0;
+  width: 72px;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 2px;
+}
+
+.health-card-icon {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  opacity: 0.4;
+}
+
+/* Tiêu đề theo màu từng loại */
+.health-card-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 10px;
+}
+
+.health-card--bmi .health-card-title {
+  color: #007bff;
+}
+
+.health-card--bmr .health-card-title {
+  color: #dc3545;
+}
+
+.health-card--medication .health-card-title {
+  color: #333;
+}
+
+.health-card--blood .health-card-title {
+  color: #c42326;
+}
+
+.health-card--fat .health-card-title {
+  color: #e6a800;
+}
+
+.health-card--menstruation .health-card-title {
+  color: #e83e8c;
+}
+
+.health-card--pregnancy .health-card-title {
+  color: #17a2b8;
+}
+
+.health-card-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #000;
+  margin: 0 0 4px;
+  line-height: 1.2;
+}
+
+.health-card-status {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0;
+  padding: 4px 10px;
+  border-radius: 20px;
+  display: inline-block;
+  letter-spacing: 0.02em;
+}
+
+/* Trạng thái tốt - xanh lá tươi */
+.health-card-status--normal {
+  color: #0d7d4d;
+  background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+  box-shadow: 0 1px 3px rgba(13, 125, 77, 0.2);
+}
+
+/* Trạng thái cần lưu ý - cam/vàng */
+.health-card-status--warn {
+  color: #b8860b;
+  background: linear-gradient(135deg, #fff3cd 0%, #ffe69c 100%);
+  box-shadow: 0 1px 3px rgba(184, 134, 11, 0.25);
+}
+
+/* Trạng thái cần theo dõi - đỏ/coral */
+.health-card-status--danger {
+  color: #c41e3a;
+  background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+  box-shadow: 0 1px 3px rgba(196, 30, 58, 0.2);
+}
+
+/* ---------- Card Nhắc thuốc ---------- */
+.health-card--medication .health-med-time,
+.health-card--medication .health-med-name {
+  font-size: 14px;
+  color: #616161;
+  margin: 0 0 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.health-card--medication .health-med-name {
+  margin-bottom: 10px;
+}
+
+.health-btn-complete {
+  padding: 8px 18px;
+  border-radius: 8px;
+  border: none;
+  background: #6c757d;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.health-btn-complete:hover {
+  background: #5a6268;
+}
+
+/* ---------- Empty state (không có data) ---------- */
+.health-card-empty {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+}
+
+.health-card-empty-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Icon vòng tròn màu */
+.health-card-empty-icon {
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.health-card-empty-icon img {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+}
+
+/* Màu nền icon theo loại */
+.health-card-empty-icon--bmi {
+  background: #e3f0ff;
+}
+
+.health-card-empty-icon--bmr {
+  background: #ffe8ea;
+}
+
+.health-card-empty-icon--medication {
+  background: #f0f0f0;
+}
+
+.health-card-empty-icon--blood {
+  background: #ffe8ea;
+}
+
+.health-card-empty-icon--sugar {
+  background: #ffe8ea;
+}
+
+.health-card-empty-icon--fat {
+  background: #fff3cd;
+}
+
+.health-card-empty-icon--bone {
+  background: #fff3cd;
+}
+
+.health-card-empty-icon--menstruation {
+  background: #fde8f4;
+}
+
+.health-card-empty-icon--pregnancy {
+  background: #e0f7fa;
+}
+
+.health-card-empty-title-wrap {
+  flex: 1;
+  min-width: 0;
+}
+
+.health-card-empty-title-wrap .health-card-title {
+  margin: 0;
+}
+
+.health-card-arrow {
+  flex-shrink: 0;
+  font-size: 15px;
+  color: #bdbdbd;
+}
+
+.health-card-desc {
+  font-size: 13.5px;
+  color: #757575;
+  line-height: 1.55;
+  margin: 0;
+}
+
+/* Card clickable để mở trang chi tiết */
+.health-card--image-clickable {
+  cursor: pointer;
+}
+
+.health-card--image-clickable:hover {
+  box-shadow: 0 6px 20px rgba(0, 88, 159, 0.18);
+}

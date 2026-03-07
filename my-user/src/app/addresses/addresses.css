@@ -1,180 +1,619 @@
-/* Addresses Component Styles */
+/**
+ * Addresses Component - Quản lý sổ địa chỉ
+ * Giao diện theo wireframe, dùng bộ nhận diện VitaCare (variables.css)
+ */
 
 .addresses-wrapper {
-    padding: 20px 0;
+    width: 100%;
+    max-width: var(--container-max-width);
+    margin: 0 auto;
+    padding: 0 40px;
+    font-family: var(--font-family-base);
+    color: var(--color-text-primary);
+}
+
+/* ---------- Header Section ---------- */
+.addresses-header {
+    margin-bottom: 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
 }
 
 .addresses-title {
-    font-size: 28px;
-    font-weight: 700;
-    color: #00589F;
-    margin: 0 0 30px 0;
-    font-family: 'Inter', sans-serif;
+    font-family: var(--font-content-title-family);
+    font-size: var(--font-content-title-size);
+    font-weight: var(--font-content-title-weight);
+    color: var(--font-content-title-color);
+    margin: 0 0 8px;
+    letter-spacing: 0.02em;
 }
 
+.addresses-header p {
+    color: var(--color-text-secondary);
+    font-size: 16px;
+    margin: 0;
+    font-family: var(--font-family-base);
+}
+
+/* ---------- Lỗi / Loading ---------- */
+.addresses-error {
+    padding: var(--spacing-5);
+    background: var(--color-danger-bg, #fef2f2);
+    border: 1px solid var(--color-danger-light, #fecaca);
+    border-radius: var(--radius-lg);
+    margin-bottom: var(--spacing-5);
+    text-align: center;
+}
+
+.addresses-error p {
+    margin: 0 0 var(--spacing-3) 0;
+    color: var(--color-danger);
+    font-size: var(--font-size-sm);
+}
+
+.btn-retry {
+    padding: 8px 16px;
+    border-radius: var(--radius-md);
+    background: var(--color-primary);
+    color: var(--color-text-inverse);
+    border: none;
+    cursor: pointer;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+}
+
+.btn-retry:hover {
+    background: var(--color-primary-hover);
+}
+
+.addresses-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-3);
+    padding: var(--spacing-8);
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+}
+
+.loading-spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid var(--color-neutral-30);
+    border-top-color: var(--color-primary);
+    border-radius: 50%;
+    animation: addresses-spin 0.8s linear infinite;
+}
+
+@keyframes addresses-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ---------- Danh sách địa chỉ ---------- */
 .addresses-list {
     display: flex;
     flex-direction: column;
-    gap: 20px;
-    margin-bottom: 30px;
+    gap: var(--spacing-5);
+    margin-bottom: var(--spacing-6);
 }
 
+.addresses-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-8);
+    background: var(--color-neutral-10);
+    border-radius: var(--radius-xl);
+    border: 1px dashed var(--color-neutral-40);
+    text-align: center;
+}
+
+.addresses-empty-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: var(--radius-full);
+    background: var(--color-primary-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: var(--spacing-3);
+}
+
+.addresses-empty-icon i {
+    font-size: 28px;
+    color: var(--color-primary);
+}
+
+.addresses-empty-title {
+    font-family: var(--font-family-title);
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-bold);
+    margin: 0 0 var(--spacing-2) 0;
+    color: var(--color-text-primary);
+}
+
+.addresses-empty-text {
+    font-family: var(--font-family-content);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    margin: 0 0 var(--spacing-4) 0;
+}
+
+.btn-empty-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    padding: 10px 20px;
+    border-radius: var(--radius-md);
+    background: var(--color-primary);
+    color: var(--color-text-inverse);
+    border: none;
+    cursor: pointer;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    font-family: var(--font-family-content);
+    transition: background-color var(--transition-base);
+}
+
+.btn-empty-primary:hover {
+    background: var(--color-primary-hover);
+}
+
+/* ---------- Card địa chỉ ---------- */
 .address-card {
-    background: #fff;
-    border: 1px solid #EDEDED;
-    border-radius: 12px;
-    padding: 20px;
-    transition: all 0.3s ease;
-}
-
-.address-card.is-default {
-    border-color: #00589F;
-    box-shadow: 0 2px 8px rgba(0, 88, 159, 0.1);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--spacing-4);
+    background: var(--color-neutral-10);
+    border: 1px solid var(--color-neutral-30);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-5);
+    transition: box-shadow var(--transition-base), border-color var(--transition-base);
 }
 
 .address-card:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    box-shadow: var(--shadow-md);
 }
 
+/* Card địa chỉ mặc định: nền primary nhạt + viền primary (nhận diện VitaCare) */
+.address-card.is-default {
+    background: var(--color-primary-bg);
+    border-color: var(--color-primary-light);
+}
+
+.address-card.is-default:hover {
+    box-shadow: var(--shadow-md);
+}
+
+/* ---------- Header card: tên + badge ---------- */
 .address-header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: 15px;
+    gap: var(--spacing-3);
+    flex-wrap: wrap;
+    margin-bottom: var(--spacing-3);
+    width: 100%;
 }
 
 .address-name {
-    font-size: 18px;
-    font-weight: 600;
-    color: #424242;
+    font-family: var(--font-family-title);
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
     margin: 0;
-    font-family: 'Inter', sans-serif;
 }
 
+/* Badge "Địa chỉ mặc định" - màu primary VitaCare */
 .badge-default {
-    padding: 4px 12px;
-    background: #DAECFF;
-    color: #00589F;
-    border-radius: 12px;
-    font-size: 12px;
-    font-weight: 600;
-    font-family: 'Arimo', sans-serif;
+    display: inline-block;
+    padding: var(--spacing-1) var(--spacing-3);
+    background: var(--color-primary);
+    color: var(--color-text-inverse);
+    border-radius: var(--radius-full);
+    font-family: var(--font-family-content);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
 }
 
+/* ---------- Nội dung địa chỉ - 2 column layout ---------- */
 .address-body {
-    margin-bottom: 15px;
+    flex: 1;
+    min-width: 0;
+    margin-bottom: 0;
+}
+
+.address-body-content {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: var(--spacing-6);
+    align-items: start;
+}
+
+.address-location {
+    flex: 1;
 }
 
 .address-full {
-    font-size: 14px;
-    color: #424242;
-    margin: 0 0 10px 0;
-    line-height: 1.6;
-    font-family: 'Arimo', sans-serif;
+    font-family: var(--font-family-content);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-normal);
+    color: var(--color-text-primary);
+    margin: 0;
+    line-height: var(--line-height-normal);
 }
 
 .address-contacts {
     display: flex;
-    gap: 20px;
-    flex-wrap: wrap;
+    flex-direction: column;
+    gap: var(--spacing-2);
+    align-items: flex-start;
+    min-width: 220px;
 }
 
 .contact-item {
-    font-size: 13px;
-    color: #757575;
-    font-family: 'Arimo', sans-serif;
+    display: flex;
+    gap: var(--spacing-2);
+    font-family: var(--font-family-content);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-normal);
+    color: var(--color-text-primary);
 }
 
+.contact-label {
+    font-weight: var(--font-weight-medium);
+    white-space: nowrap;
+}
+
+.contact-value {
+    color: var(--color-text-primary);
+}
+
+/* ---------- Nhóm nút hành động - 2 hàng theo mẫu ---------- */
 .address-actions {
     display: flex;
-    gap: 10px;
-    align-items: center;
-    padding-top: 15px;
-    border-top: 1px solid #F5F5F5;
+    flex-direction: column;
+    gap: var(--spacing-2);
+    align-items: flex-start;
+    padding-top: var(--spacing-3);
+    border-top: 1px solid var(--color-neutral-30);
+    width: 100%;
 }
 
-.btn-action {
+.address-card.is-default .address-actions {
+    border-top-color: var(--color-primary-lighter);
+}
+
+/* Hàng 1: Chỉnh sửa (trái) + Xóa (phải) */
+.address-actions-row-1 {
     display: flex;
+    flex-direction: row;
+    gap: var(--spacing-2);
     align-items: center;
-    gap: 6px;
-    padding: 8px 16px;
-    border: 1px solid #C2C2C2;
-    border-radius: 6px;
-    background: #fff;
-    font-size: 13px;
-    color: #424242;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-family: 'Arimo', sans-serif;
 }
 
-.btn-action:hover {
-    border-color: #00589F;
-    color: #00589F;
+/* Hàng 2: Đặt làm mặc định (cùng bề ngang với nút Chỉnh sửa) */
+.address-actions-row-2 {
+    display: flex;
+    width: 100%;
+}
+
+.address-actions-row-2 .btn-set-default {
+    width: 100%;
+}
+
+@media (min-width: 769px) {
+    .address-actions {
+        width: auto;
+        padding-top: 0;
+        border-top: none;
+        margin-left: auto;
+        align-items: flex-end;
+    }
+}
+
+/* Nút Chỉnh sửa - primary VitaCare */
+.btn-action {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    padding: var(--spacing-2) var(--spacing-4);
+    border-radius: var(--radius-md);
+    font-family: var(--font-family-content);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    cursor: pointer;
+    transition: background-color var(--transition-base), color var(--transition-base), border-color var(--transition-base);
+    border: 1px solid transparent;
 }
 
 .btn-edit {
-    border-color: #00589F;
-    color: #00589F;
+    background: var(--color-primary);
+    color: var(--color-text-inverse);
 }
 
 .btn-edit:hover {
-    background: #00589F;
-    color: #fff;
+    background: var(--color-primary-hover);
+    color: var(--color-text-inverse);
 }
 
+/* Icon trong nút (Bootstrap Icons) */
+.icon-action {
+    font-size: var(--font-size-base);
+    color: inherit;
+}
+
+/* Nút Xóa (chỉ icon) - outline đỏ nhận diện danger */
 .btn-delete {
-    padding: 8px 12px;
-    border-color: #C42326;
+    padding: var(--spacing-2);
+    background: var(--color-neutral-10);
+    color: var(--color-danger);
+    border: 1px solid var(--color-danger);
 }
 
 .btn-delete:hover {
-    background: #C42326;
-    color: #fff;
+    background: var(--color-danger);
+    color: var(--color-text-inverse);
 }
 
+/* Nút Đặt làm mặc định - outline primary VitaCare */
 .btn-set-default {
-    margin-left: auto;
+    background: var(--color-neutral-10);
+    color: var(--color-primary);
+    border: 1px solid var(--color-primary);
+    justify-content: center;
 }
 
-.icon-sm {
-    width: 16px;
-    height: 16px;
+.btn-set-default:hover {
+    background: var(--color-primary-bg);
+    border-color: var(--color-primary-hover);
+    color: var(--color-primary-hover);
 }
 
+/* ---------- Nút THÊM ĐỊA CHỈ MỚI - primary VitaCare ---------- */
 .btn-add-new {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    gap: var(--spacing-3);
     width: 100%;
-    padding: 15px 20px;
-    background: #424242;
-    color: #fff;
+    max-width: 360px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: var(--spacing-4) var(--spacing-5);
+    background: var(--color-primary);
+    color: var(--color-text-inverse);
     border: none;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 600;
+    border-radius: var(--radius-md);
+    font-family: var(--font-family-title);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-bold);
+    letter-spacing: 0.04em;
     cursor: pointer;
-    transition: all 0.3s ease;
-    font-family: 'Inter', sans-serif;
+    transition: background-color var(--transition-base);
 }
 
 .btn-add-new:hover {
-    background: #616161;
+    background: var(--color-primary-hover);
+    color: var(--color-text-inverse);
 }
 
 .icon-add {
-    width: 20px;
-    height: 20px;
+    font-size: var(--font-size-xl);
+    color: inherit;
 }
 
-/* Responsive */
+/* ---------- Modal thêm / chỉnh sửa địa chỉ ---------- */
+.address-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 88, 159, 0.25);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: var(--spacing-5);
+}
+
+.address-modal {
+    position: relative;
+    width: 100%;
+    max-width: 760px;
+    background: var(--color-bg-secondary);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-xl);
+    padding: var(--spacing-6);
+    font-family: var(--font-family-base);
+}
+
+.address-modal-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: var(--color-primary-bg);
+    color: var(--color-primary);
+    border-radius: 10px;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    transition: background var(--transition-base), color var(--transition-base);
+    font-size: 14px;
+}
+
+.address-modal-close:hover {
+    background: var(--color-primary-lighter);
+    color: var(--color-primary-hover);
+}
+
+.address-modal-title {
+    font-family: var(--font-content-title-family);
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+    margin: 0 0 var(--spacing-4) 0;
+    letter-spacing: 0.04em;
+}
+
+.address-modal-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-5);
+}
+
+.address-modal-section {
+    padding: var(--spacing-4);
+    border-radius: var(--radius-lg);
+    background: var(--color-neutral-10);
+    border: 1px solid var(--color-neutral-30);
+}
+
+.address-modal-section-header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    margin-bottom: var(--spacing-3);
+    font-family: var(--font-family-title);
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+}
+
+.address-modal-section-header i {
+    font-size: 20px;
+    color: var(--color-primary);
+}
+
+.address-modal-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--spacing-3);
+}
+
+.address-modal-grid-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.address-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.address-form-label {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-primary);
+}
+
+.address-form-label .required {
+    color: var(--color-danger);
+    margin-left: 2px;
+}
+
+.address-input {
+    width: 100%;
+    padding: 10px 14px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-neutral-40);
+    font-size: var(--font-size-sm);
+    font-family: var(--font-family-base);
+    color: var(--color-text-primary);
+    background: var(--color-neutral-10);
+    transition: border-color var(--transition-base), box-shadow var(--transition-base);
+}
+
+.address-input::placeholder {
+    color: var(--color-text-tertiary);
+}
+
+.address-input:hover {
+    border-color: var(--color-neutral-50);
+}
+
+.address-input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-bg);
+}
+
+.address-input.address-input-error {
+    border-color: var(--color-danger);
+}
+
+.address-field-error {
+    display: block;
+    margin-top: 4px;
+    font-size: var(--font-size-sm);
+    color: var(--color-danger);
+}
+
+.address-modal-default {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    margin-top: var(--spacing-3);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-primary);
+}
+
+.address-modal-default input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--color-primary);
+    cursor: pointer;
+}
+
+.address-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--spacing-3);
+}
+
+.btn-modal {
+    min-width: 120px;
+    padding: 10px 20px;
+    border-radius: var(--radius-md);
+    font-family: var(--font-family-content);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: background-color var(--transition-base), color var(--transition-base), border-color var(--transition-base);
+}
+
+.btn-modal-secondary {
+    background: var(--color-neutral-10);
+    color: var(--color-text-secondary);
+    border-color: var(--color-neutral-40);
+}
+
+.btn-modal-secondary:hover {
+    background: var(--color-neutral-20);
+    color: var(--color-text-primary);
+}
+
+.btn-modal-primary {
+    background: var(--color-primary);
+    color: var(--color-text-inverse);
+}
+
+.btn-modal-primary:hover {
+    background: var(--color-primary-hover);
+}
+
+/* ---------- Responsive ---------- */
 @media (max-width: 768px) {
     .address-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
+        margin-bottom: var(--spacing-2);
     }
 
     .address-actions {
@@ -182,7 +621,15 @@
     }
 
     .btn-set-default {
-        margin-left: 0;
         width: 100%;
+    }
+
+    .address-modal {
+        max-width: 100%;
+        padding: var(--spacing-4);
+    }
+
+    .address-modal-grid-2 {
+        grid-template-columns: 1fr;
     }
 }

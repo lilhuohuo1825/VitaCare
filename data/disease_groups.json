@@ -1,0 +1,20 @@
+[
+  { "slug": "co-xuong-khop", "name": "Cơ xương khớp", "display_order": 1 },
+  { "slug": "tieu-hoa", "name": "Tiêu hóa", "display_order": 2 },
+  { "slug": "than-kinh-tinh-than", "name": "Thần kinh - Tinh thần", "display_order": 3 },
+  { "slug": "truyen-nhiem", "name": "Truyền nhiễm", "display_order": 4 },
+  { "slug": "ung-thu", "name": "Ung thư", "display_order": 5 },
+  { "slug": "suc-khoe-sinh-san", "name": "Sức khỏe sinh sản", "display_order": 6 },
+  { "slug": "tim-mach", "name": "Tim mạch", "display_order": 7 },
+  { "slug": "da-toc-mong", "name": "Da - Tóc - Móng", "display_order": 8 },
+  { "slug": "tai-mui-hong", "name": "Tai mũi họng", "display_order": 9 },
+  { "slug": "mat", "name": "Mắt", "display_order": 10 },
+  { "slug": "than-tiet-nieu", "name": "Thận - Tiết niệu", "display_order": 11 },
+  { "slug": "ho-hap", "name": "Hô hấp", "display_order": 12 },
+  { "slug": "di-ung", "name": "Dị ứng", "display_order": 13 },
+  { "slug": "rang-ham-mat", "name": "Răng hàm mặt", "display_order": 14 },
+  { "slug": "suc-khoe-gioi-tinh", "name": "Sức khỏe giới tính", "display_order": 15 },
+  { "slug": "tam-than", "name": "Tâm thần", "display_order": 16 },
+  { "slug": "mau", "name": "Máu", "display_order": 17 },
+  { "slug": "noi-tiet-chuyen-hoa", "name": "Nội tiết - Chuyển hóa", "display_order": 18 }
+]

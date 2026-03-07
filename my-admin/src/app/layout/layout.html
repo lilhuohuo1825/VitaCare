@@ -1,1 +1,428 @@
-<p>layout works!</p>
+<div class="admin-wrapper" [class.collapsed]="isSidebarCollapsed">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <!-- Logo Section Inside Sidebar -->
+        <div class="sidebar-header">
+            <div class="brand-logo">
+                <div class="logo-icon">
+                    <img [src]="isSidebarCollapsed ? 'assets/favicon/Favicon.png' : 'assets/favicon/logo.png'"
+                        alt="VitaCare Logo">
+                </div>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <ul>
+                <li class="nav-item" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+                    <a routerLink="/admin/dashboard" class="nav-link">
+                        <div class="icon-wrapper">
+                            <img src="assets/icon/warehouse.png" class="icon" alt="Tong quan">
+                        </div>
+                        <span class="text">Tổng quan</span>
+                    </a>
+                </li>
+                <li class="nav-item" routerLinkActive="active">
+                    <a routerLink="/admin/orders" class="nav-link">
+                        <div class="icon-wrapper">
+                            <img src="assets/icon/notebook_702903.png" class="icon" alt="Don hang">
+                        </div>
+                        <span class="text">Đơn hàng</span>
+                    </a>
+                </li>
+                <li class="nav-item" routerLinkActive="active">
+                    <a routerLink="/admin/products" class="nav-link">
+                        <div class="icon-wrapper">
+                            <img src="assets/icon/pill-icon.png" class="icon" alt="San pham">
+                        </div>
+                        <span class="text">Sản phẩm</span>
+                    </a>
+                </li>
+                <li class="nav-item" routerLinkActive="active">
+                    <a routerLink="/admin/customers" class="nav-link">
+                        <div class="icon-wrapper">
+                            <img src="assets/icon/customer.png" class="icon" alt="Khach hang">
+                        </div>
+                        <span class="text">Khách hàng</span>
+                    </a>
+                </li>
+                <li class="nav-item" routerLinkActive="active">
+                    <a routerLink="/admin/blogs" class="nav-link">
+                        <div class="icon-wrapper">
+                            <img src="assets/icon/edit.png" class="icon" alt="Blog">
+                        </div>
+                        <span class="text">Blog & tin tức</span>
+                    </a>
+                </li>
+                <li class="nav-item" routerLinkActive="active">
+                    <a routerLink="/admin/promotions" class="nav-link">
+                        <div class="icon-wrapper">
+                            <img src="assets/icon/promotion.png" class="icon" alt="Khuyen mai">
+                        </div>
+                        <span class="text">Khuyến mãi</span>
+                    </a>
+                </li>
+                <li class="nav-item has-submenu" [class.open]="isConsultationMenuOpen"
+                    [class.active]="isConsultationMenuOpen">
+                    <a href="javascript:void(0)" class="nav-link" (click)="toggleConsultationMenu()">
+                        <div class="icon-wrapper">
+                            <img src="assets/icon/note.png" class="icon" alt="Tu van">
+                        </div>
+                        <span class="text submenu-title">Tư vấn <i class="bi"
+                                [ngClass]="isConsultationMenuOpen ? 'bi-chevron-up' : 'bi-chevron-down'"></i></span>
+                    </a>
+                    <ul class="submenu" *ngIf="isConsultationMenuOpen">
+                        <li>
+                            <a routerLink="/admin/consultation-prescription" routerLinkActive="active"
+                                class="submenu-link">
+                                Tư vấn đơn thuốc
+                            </a>
+                        </li>
+                        <li>
+                            <a routerLink="/admin/consultation-product" routerLinkActive="active" class="submenu-link">
+                                Tư vấn sản phẩm
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+
+        <div class="sidebar-footer">
+            <!-- Emptied footer to move profile to top bar -->
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="top-bar">
+            <!-- Left Side: Toggle Button Only (Logo moved to sidebar) -->
+            <div class="header-left">
+                <button class="menu-toggle" (click)="toggleSidebar()">
+                    <img src="assets/icon/menu_447096.png" alt="Menu">
+                </button>
+            </div>
+
+
+            <!-- Center: Search -->
+            <div class="search-bar">
+                <div class="search-input-wrapper">
+                    <!-- Magnifying Glass Icon (SVG) -->
+                    <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input type="text" placeholder="Tìm kiếm...">
+                </div>
+            </div>
+
+            <!-- Right Side: Notifications & Toggle & Profile -->
+            <div class="header-right">
+                <div class="theme-toggle">
+                    <label class="switch">
+                        <input type="checkbox" [checked]="isDarkMode" (change)="toggleTheme()">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+                <div class="notification-badge">
+                    <img src="assets/icon/notification-bell.png" alt="Notification">
+                    <span class="badge">11</span>
+                </div>
+
+                <!-- User Profile Dropdown -->
+                <div class="header-profile-container">
+                    <div class="header-user-profile" (click)="toggleAdminDropdown()">
+                        <div class="avatar-circle" *ngIf="!profileData.avatar">AD</div>
+                        <img *ngIf="profileData.avatar" [src]="profileData.avatar" alt="Avatar"
+                            style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+                        <div class="user-info">
+                            <span class="name">{{ profileData.name }}</span>
+                            <span class="role">{{ profileData.role }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Dropdown Menu -->
+                    <div class="profile-dropdown" *ngIf="isAdminDropdownOpen">
+                        <ul>
+                            <li>
+                                <a href="javascript:void(0)" (click)="openPersonalInfo()"><i class="bi bi-person"></i>
+                                    Thông tin cá nhân</a>
+                            </li>
+                            <li>
+                                <a href="javascript:void(0)" (click)="openSettings()"><i class="bi bi-gear"></i> Cài
+                                    đặt</a>
+                            </li>
+                            <li class="dropdown-divider"></li>
+                            <li>
+                                <a href="javascript:void(0)" class="logout-link" (click)="openLogoutConfirm()">
+                                    <i class="bi bi-box-arrow-right"></i> Đăng xuất
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Logout Confirmation Modal -->
+        <div class="modal-wrapper" *ngIf="isLogoutConfirmModalOpen">
+            <div class="modal-backdrop" (click)="closeLogoutConfirm()"></div>
+            <div class="modal-content-wrapper compact">
+                <div class="modal-header compact-header">
+                    <h5 class="modal-title danger">
+                        <i class="bi bi-box-arrow-right"></i> Xác nhận đăng xuất
+                    </h5>
+                    <button type="button" class="close-btn" (click)="closeLogoutConfirm()">&times;</button>
+                </div>
+                <div class="modal-body compact-body">
+                    <p>Bạn có chắc chắn muốn đăng xuất khỏi hệ thống?</p>
+                </div>
+                <div class="modal-footer compact-footer">
+                    <button type="button" class="btn btn-cancel" (click)="closeLogoutConfirm()">Hủy</button>
+                    <button type="button" class="btn btn-primary" style="background: var(--color-danger); border: none;"
+                        (click)="confirmLogout()">Đăng xuất</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Personal Info Modal -->
+        <div class="modal-wrapper" *ngIf="isPersonalInfoModalOpen">
+            <div class="modal-backdrop" (click)="closePersonalInfo()"></div>
+            <div class="modal-content-wrapper compact">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="bi bi-person"></i> Thông tin cá nhân
+                    </h5>
+                    <button type="button" class="close-btn" (click)="closePersonalInfo()">&times;</button>
+                </div>
+                <div class="modal-body scrollable">
+                    <div class="profile-details" style="text-align: center; margin-bottom: 20px;">
+                        <input type="file" id="avatarUploadBtn" accept="image/*" style="display: none"
+                            (change)="onFileSelected($event)">
+
+                        <div *ngIf="isCameraOpen" style="margin-bottom: 15px;">
+                            <video #videoElement autoplay
+                                style="width: 100%; max-width: 250px; border-radius: 8px;"></video>
+                            <canvas #canvasElement style="display: none;"></canvas>
+                            <div style="display: flex; gap: 10px; justify-content: center; margin-top: 10px;">
+                                <button type="button" class="btn btn-primary btn-sm" (click)="capturePhoto()"><i
+                                        class="bi bi-camera-fill"></i> Chụp</button>
+                                <button type="button" class="btn btn-cancel btn-sm" (click)="closeCamera()">Hủy</button>
+                            </div>
+                        </div>
+
+                        <div *ngIf="!isCameraOpen" style="position: relative; display: inline-block;">
+                            <img *ngIf="avatarUrl" [src]="avatarUrl" alt="Avatar"
+                                style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin: 0 auto 10px; border: 2px solid var(--color-primary);">
+                            <div *ngIf="!avatarUrl" class="avatar-circle"
+                                style="width: 80px; height: 80px; font-size: 2rem; margin: 0 auto 10px; background-color: var(--color-primary); color: white;">
+                                AD</div>
+
+                            <!-- Avatar Edit Options when editing -->
+                            <div *ngIf="isEditingProfile"
+                                style="margin-top: 10px; display: flex; gap: 8px; justify-content: center;">
+                                <button type="button" class="btn action-btn btn-sm" (click)="triggerFileInput()"
+                                    title="Tải ảnh lên"><i class="bi bi-upload"></i></button>
+                                <button type="button" class="btn action-btn btn-sm" (click)="openCamera()"
+                                    title="Chụp ảnh bằng Camera"><i class="bi bi-camera"></i></button>
+                            </div>
+                        </div>
+
+                        <h4 style="margin: 0; color: var(--color-text-primary);" *ngIf="!isEditingProfile">{{
+                            tempProfileData.name }}</h4>
+                        <input type="text" class="form-control" [style.marginTop.px]="isEditingProfile ? 10 : 0"
+                            *ngIf="isEditingProfile" [(ngModel)]="tempProfileData.name"
+                            style="text-align: center; font-weight: bold; margin-bottom: 5px;">
+
+                        <p style="margin: 5px 0 0; color: var(--color-text-secondary); font-size: 14px;">Quản trị viên
+                            ({{ tempProfileData.role
+                            }})</p>
+                    </div>
+
+                    <div class="info-list" style="display: flex; flex-direction: column; gap: 10px; font-size: 14px;">
+                        <div
+                            style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--color-neutral-30); padding-bottom: 8px; align-items: center;">
+                            <span style="color: var(--color-text-secondary); font-weight: 500;">Email:</span>
+                            <span *ngIf="!isEditingProfile"
+                                style="color: var(--color-text-primary); font-weight: 600;">{{
+                                tempProfileData.email }}</span>
+                            <input *ngIf="isEditingProfile" type="email" class="form-control"
+                                [(ngModel)]="tempProfileData.email"
+                                style="text-align: right; width: 60%; padding: 4px 8px;">
+                        </div>
+                        <div
+                            style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--color-neutral-30); padding-bottom: 8px; align-items: center;">
+                            <span style="color: var(--color-text-secondary); font-weight: 500;">Số điện thoại:</span>
+                            <span *ngIf="!isEditingProfile"
+                                style="color: var(--color-text-primary); font-weight: 600;">{{
+                                tempProfileData.phone }}</span>
+                            <input *ngIf="isEditingProfile" type="text" class="form-control"
+                                [(ngModel)]="tempProfileData.phone"
+                                style="text-align: right; width: 60%; padding: 4px 8px;">
+                        </div>
+                        <div
+                            style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--color-neutral-30); padding-bottom: 8px; align-items: center;">
+                            <span style="color: var(--color-text-secondary); font-weight: 500;">Khu vực:</span>
+                            <span *ngIf="!isEditingProfile"
+                                style="color: var(--color-text-primary); font-weight: 600;">{{
+                                tempProfileData.region || 'Tất cả khu vực' }}</span>
+                            <select *ngIf="isEditingProfile" class="form-control" [(ngModel)]="tempProfileData.region"
+                                style="text-align: right; width: 60%; padding: 4px 8px; text-align-last: right;">
+                                <option [ngValue]="null">Tất cả khu vực</option>
+                                <option *ngFor="let area of areasList" [value]="area.name">{{ area.name }}</option>
+                            </select>
+                        </div>
+                        <div
+                            style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--color-neutral-30); padding-bottom: 8px; align-items: center;">
+                            <span style="color: var(--color-text-secondary); font-weight: 500;">Mật khẩu:</span>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span
+                                    style="color: var(--color-text-primary); font-weight: 600; letter-spacing: 2px;">••••••••</span>
+                                <button *ngIf="isEditingProfile" type="button" class="btn action-btn btn-sm"
+                                    style="padding: 2px 8px; font-size: 12px; margin-left: 8px;"
+                                    (click)="openChangePasswordModal()" title="Đổi mật khẩu">
+                                    <i class="bi bi-pencil-square"></i> Đổi
+                                </button>
+                            </div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding-bottom: 8px;">
+                            <span style="color: var(--color-text-secondary); font-weight: 500;">Ngày tham gia:</span>
+                            <span style="color: var(--color-text-primary); font-weight: 600;">{{
+                                tempProfileData.joinDate }}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer" style="justify-content: space-between;">
+                    <button *ngIf="!isEditingProfile" type="button" class="btn action-btn"
+                        style="color: var(--color-primary); border-color: var(--color-primary);"
+                        (click)="startEditingProfile()"><i class="bi bi-pencil-square"></i> Chỉnh sửa</button>
+                    <div style="flex: 1;"></div>
+                    <button *ngIf="isEditingProfile" type="button" class="btn btn-cancel"
+                        (click)="cancelEditingProfile()">Hủy</button>
+                    <button *ngIf="isEditingProfile" type="button" class="btn btn-primary" (click)="saveProfile()">Lưu
+                        thay đổi</button>
+                    <button *ngIf="!isEditingProfile" type="button" class="btn btn-primary"
+                        (click)="closePersonalInfo()">Đóng</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Change Password Modal -->
+        <div class="modal-wrapper" *ngIf="isChangePasswordModalOpen">
+            <div class="modal-backdrop" (click)="closeChangePasswordModal()"></div>
+            <div class="modal-content-wrapper compact" style="width: 350px;">
+                <div class="modal-header compact-header" style="margin-top: 15px;">
+                    <h5 class="modal-title"><i class="bi bi-shield-lock"></i> Thay đổi mật khẩu</h5>
+                </div>
+
+                <!-- Step 1: Verify Old Password -->
+                <div class="modal-body compact-body" *ngIf="changePasswordStep === 'verify'">
+                    <p style="font-size: 14px; margin-bottom: 15px; color: var(--color-text-secondary);">Vui lòng nhập
+                        mật khẩu hiện tại để
+                        tiếp tục.</p>
+                    <input type="password" class="form-control" [(ngModel)]="oldPasswordInput"
+                        placeholder="Mật khẩu hiện tại..." (keyup.enter)="verifyOldPassword()">
+                </div>
+                <div class="modal-footer compact-footer" *ngIf="changePasswordStep === 'verify'">
+                    <button type="button" class="btn btn-cancel" (click)="closeChangePasswordModal()">Hủy</button>
+                    <button type="button" class="btn btn-primary" (click)="verifyOldPassword()">Xác nhận</button>
+                </div>
+
+                <!-- Step 2: Enter New Password -->
+                <div class="modal-body compact-body" *ngIf="changePasswordStep === 'new'">
+                    <div style="margin-bottom: 12px;">
+                        <input type="password" class="form-control" [(ngModel)]="newPasswordInput"
+                            placeholder="Mật khẩu mới...">
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <input type="password" class="form-control" [(ngModel)]="confirmNewPasswordInput"
+                            placeholder="Xác nhận mật khẩu mới..." (keyup.enter)="saveNewPassword()">
+                    </div>
+                    <div
+                        style="background: var(--color-bg-secondary); border-radius: 8px; padding: 10px 12px; font-size: 12px; color: var(--color-text-secondary); border-left: 3px solid var(--color-primary);">
+                        <i class="bi bi-info-circle" style="color: var(--color-primary);"></i>
+                        Lưu ý: Mật khẩu mới phải có <strong>ít nhất 8 ký tự</strong>, bao gồm ít nhất một <strong>chữ
+                            hoa</strong> (A-Z), một <strong>chữ thường</strong> (a-z) và ít nhất một <strong>chữ
+                            số</strong> (0-9).
+                    </div>
+                </div>
+                <div class="modal-footer compact-footer" *ngIf="changePasswordStep === 'new'">
+                    <button type="button" class="btn btn-cancel" (click)="closeChangePasswordModal()">Hủy</button>
+                    <button type="button" class="btn btn-primary" (click)="saveNewPassword()">Lưu mật khẩu</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Modal -->
+        <div class="modal-wrapper" *ngIf="isSettingsModalOpen">
+            <div class="modal-backdrop" (click)="closeSettings()"></div>
+            <div class="modal-content-wrapper compact">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="bi bi-gear"></i> Cài đặt hệ thống
+                    </h5>
+                    <button type="button" class="close-btn" (click)="closeSettings()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group"
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <label class="form-label"
+                            style="font-weight: 600; color: var(--color-text-primary); margin: 0;">Theo dõi thông
+                            báo
+                            mới</label>
+                        <div class="theme-toggle">
+                            <label class="switch">
+                                <input type="checkbox" checked>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group"
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <label class="form-label"
+                            style="font-weight: 600; color: var(--color-text-primary); margin: 0;">Tự động cập nhật
+                            dữ
+                            liệu</label>
+                        <div class="theme-toggle">
+                            <label class="switch">
+                                <input type="checkbox" checked>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-top: 15px;">
+                        <label class="form-label"
+                            style="font-weight: 600; color: var(--color-text-primary); display: block; margin-bottom: 8px;">Ngôn
+                            ngữ</label>
+                        <select class="form-control"
+                            style="width: 100%; padding: 8px 12px; border: 1px solid var(--color-neutral-40); border-radius: 6px; outline: none; box-shadow: none;">
+                            <option value="vn">Tiếng Việt</option>
+                            <option value="en">English</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-cancel" (click)="closeSettings()">Hủy</button>
+                    <button type="button" class="btn btn-primary" style="border: none;" (click)="saveSettings()">Lưu
+                        thay đổi</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notification Toast -->
+        <div class="notification-toast" *ngIf="toastMessage" [ngClass]="toastType"
+            style="position: fixed; bottom: 30px; right: 30px; background-color: var(--color-bg-secondary); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15); padding: 16px 24px; border-radius: 12px; display: flex; align-items: center; gap: 12px; z-index: 2000; border-left: 5px solid; max-width: 400px;"
+            [style.border-color]="toastType === 'success' ? '#4CAF50' : (toastType === 'error' ? '#FF4D4F' : '#FFA000')">
+            <i class="bi"
+                [ngClass]="{'bi-check-circle-fill': toastType === 'success', 'bi-exclamation-triangle-fill': toastType === 'warning', 'bi-x-circle-fill': toastType === 'error'}"
+                [style.color]="toastType === 'success' ? '#4CAF50' : (toastType === 'error' ? '#FF4D4F' : '#FFA000')"
+                style="font-size: 20px;"></i>
+            <span style="font-size: 14px; font-weight: 500; color: var(--color-text-primary);">{{ toastMessage }}</span>
+        </div>
+
+        <div class="content-body">
+            <router-outlet></router-outlet>
+        </div>
+    </main>
+</div>

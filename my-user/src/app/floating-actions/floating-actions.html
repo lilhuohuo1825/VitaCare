@@ -1,0 +1,80 @@
+<div class="floating-actions">
+  <!-- Nút mở/đóng chat (phía trên) -->
+  <button
+    type="button"
+    class="fab fab-chat"
+    [attr.aria-label]="chatOpen() ? 'Đóng chat' : 'Mở chat'"
+    (click)="chatOpen() ? closeChat() : openChat()"
+  >
+    @if (chatbotImageLoaded()) {
+      <img src="assets/icon/vitabot.png" alt="VitaBot" class="fab-chat-img" (error)="chatbotImageLoaded.set(false)" />
+    } @else {
+      <i class="bi bi-chat-dots-fill fab-chat-fallback" aria-hidden="true"></i>
+    }
+  </button>
+
+  <!-- Nút scroll lên đầu trang (phía dưới) -->
+  @if (showScroll()) {
+    <button
+      type="button"
+      class="fab fab-scroll"
+      aria-label="Cuộn lên đầu trang"
+      (click)="scrollToTop()"
+    >
+      <i class="bi bi-chevron-double-up" aria-hidden="true"></i>
+    </button>
+  }
+
+  <!-- Panel chat -->
+  @if (chatOpen()) {
+    <div class="chat-panel" role="dialog" aria-label="Chat VitaCare">
+      <div class="chat-panel-header">
+        <span class="chat-panel-title">VitaCare</span>
+        <button type="button" class="chat-panel-close" aria-label="Đóng" (click)="closeChat()">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+      <div class="chat-panel-body">
+        <div #chatList class="chat-messages">
+          @if (messagesList().length === 0) {
+            <div class="chat-welcome">
+              <p>Xin chào! Bạn có thể hỏi về sức khỏe, thuốc, thực phẩm chức năng hoặc gợi ý sản phẩm.</p>
+            </div>
+          }
+          @for (turn of messagesList(); track $index) {
+            <div class="chat-bubble" [class.chat-bubble--user]="turn.role === 'user'" [class.chat-bubble--model]="turn.role === 'model'">
+              <span class="chat-bubble-text">{{ turn.parts[0]?.text }}</span>
+            </div>
+          }
+          @if (sending()) {
+            <div class="chat-bubble chat-bubble--model chat-bubble--typing">
+              <span class="chat-typing-dots"><span></span><span></span><span></span></span>
+            </div>
+          }
+        </div>
+        @if (errorMessage()) {
+          <div class="chat-error" role="alert">{{ errorMessage() }}</div>
+        }
+        <div class="chat-input-wrap">
+          <input
+            type="text"
+            class="chat-input"
+            placeholder="Nhập câu hỏi..."
+            [value]="inputText()"
+            (input)="inputText.set($any($event.target).value)"
+            (keydown.enter)="$event.preventDefault(); sendMessage()"
+          />
+          <button
+            type="button"
+            class="chat-send"
+            aria-label="Gửi"
+            [disabled]="sending() || !inputText().trim()"
+            (click)="sendMessage()"
+          >
+            <i class="bi bi-send-fill"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

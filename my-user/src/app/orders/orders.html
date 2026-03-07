@@ -1,94 +1,469 @@
-<!-- Orders Component - Đơn hàng của tôi -->
-<div class="orders-wrapper">
+<!-- Orders Management Component -->
+<div class="orders-container">
+    <!-- Header Section -->
     <div class="orders-header">
-        <h2 class="orders-title">ĐƠN HÀNG CỦA TÔI</h2>
-        <div class="search-box">
-            <img src="assets/icon/search.png" alt="Search" class="search-icon">
-            <input type="text" placeholder="Tìm kiếm đơn hàng của bạn" [(ngModel)]="searchKeyword" class="search-input">
+        <div>
+            <h1 class="orders-title">ĐƠN HÀNG CỦA TÔI</h1>
+            <p>Theo dõi đơn hàng của bạn</p>
         </div>
-    </div>
-
-    <!-- Tabs -->
-    <div class="orders-tabs">
-        <button class="tab-btn" [class.active]="activeTab === 'all'" (click)="setActiveTab('all')">
-            Tất cả
-            <span class="tab-badge" *ngIf="getOrderCount('all') > 0">{{ getOrderCount('all') }}</span>
-        </button>
-        <button class="tab-btn" [class.active]="activeTab === 'pending'" (click)="setActiveTab('pending')">
-            Chờ xác nhận
-            <span class="tab-badge" *ngIf="getOrderCount('pending') > 0">{{ getOrderCount('pending') }}</span>
-        </button>
-        <button class="tab-btn" [class.active]="activeTab === 'shipping'" (click)="setActiveTab('shipping')">
-            Chờ giao hàng
-            <span class="tab-badge" *ngIf="getOrderCount('shipping') > 0">{{ getOrderCount('shipping') }}</span>
-        </button>
-        <button class="tab-btn" [class.active]="activeTab === 'delivered'" (click)="setActiveTab('delivered')">
-            Đã giao hàng
-            <span class="tab-badge" *ngIf="getOrderCount('delivered') > 0">{{ getOrderCount('delivered') }}</span>
-        </button>
-        <button class="tab-btn" [class.active]="activeTab === 'cancelled'" (click)="setActiveTab('cancelled')">
-            Đã hủy
-            <span class="tab-badge" *ngIf="getOrderCount('cancelled') > 0">{{ getOrderCount('cancelled') }}</span>
-        </button>
-    </div>
-
-    <!-- Filter Bar -->
-    <div class="filter-bar">
-        <span class="filter-label">Trạng thái đơn hàng</span>
-        <span class="filter-label">Ngày đặt</span>
-        <span class="filter-label">n sản phẩm (số lượng)</span>
-        <span class="filter-label">Mã đơn đặt hàng</span>
-    </div>
-
-    <!-- Orders List -->
-    <div class="orders-list">
-        <div class="order-card" *ngFor="let order of filteredOrders">
-            <div class="order-header">
-                <div class="order-info">
-                    <span class="order-status">{{ order.statusText }}</span>
-                </div>
-                <div class="order-meta">
-                    <span class="order-date">{{ order.date }}</span>
-                    <span class="order-id">#{{ order.id }}</span>
-                </div>
-            </div>
-
-            <div class="order-items">
-                <div class="order-item" *ngFor="let item of order.items">
-                    <div class="item-image">
-                        <img [src]="item.image" [alt]="item.name" onerror="this.src='assets/icon/no-order.png'">
-                    </div>
-                    <div class="item-details">
-                        <h4 class="item-name">{{ item.name }}</h4>
-                        <p class="item-desc">{{ item.description }}</p>
-                        <p class="item-price">{{ item.price | number:'1.0-0' }} ₫/viên</p>
-                    </div>
-                    <div class="item-summary">
-                        <p class="item-quantity">Số lượng: {{ item.quantity }}</p>
-                        <p class="item-total">Giá tổng</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="order-footer">
-                <button class="btn-expand" (click)="toggleOrderDetails(order.id)">
-                    Thu gọn
-                    <img src="assets/icon/arrowup_circle.png" alt="collapse" class="icon-sm">
+        <div class="search-container">
+            <div class="search-box">
+                <button type="button" class="search-icon-btn" (click)="performSearch()">
+                    <i class="bi bi-search search-icon"></i>
                 </button>
-                <div class="order-total">
-                    <span class="total-label">Tổng số tiền:</span>
-                    <span class="total-amount">{{ order.total | number:'1.0-0' }} ₫</span>
-                </div>
-                <button class="btn-cancel" *ngIf="order.status === 'pending'" (click)="cancelOrder(order.id)">
-                    Hủy đơn
+                <input #searchInput type="text" [(ngModel)]="searchQuery"
+                    placeholder="Tìm kiếm theo mã đơn hàng hoặc tên sản phẩm" class="search-input"
+                    (keyup.enter)="performSearch()" />
+                <button *ngIf="searchQuery" type="button" class="clear-btn" (click)="clearSearch()">
+                    <i class="bi bi-x-circle-fill clear-icon"></i>
                 </button>
             </div>
         </div>
+    </div>
 
-        <!-- Empty State -->
-        <div class="empty-state" *ngIf="filteredOrders.length === 0">
-            <img src="assets/icon/no-order.png" alt="No orders" class="empty-icon">
-            <p class="empty-text">Không có đơn hàng nào</p>
+    <!-- Tab Navigation -->
+    <div class="tab-navigation">
+        <button class="tab-scroll-btn tab-scroll-left" (click)="scrollTabs(-200)" [class.hidden]="!canScrollLeft">
+            <i class="bi bi-chevron-left scroll-arrow left"></i>
+        </button>
+        <div class="tab-list" #tabList>
+            <button *ngFor="let tab of tabs" class="tab-button" [class.active]="activeTab === tab.id"
+                (click)="onTabClick(tab.id)">
+                <span class="tab-label">{{ tab.label }}</span>
+                <span class="tab-badge" *ngIf="tab.count > 0 && tab.id !== 'all'">{{ tab.count }}</span>
+            </button>
+        </div>
+        <button class="tab-scroll-btn tab-scroll-right" (click)="scrollTabs(200)" [class.hidden]="!canScrollRight">
+            <i class="bi bi-chevron-right scroll-arrow right"></i>
+        </button>
+    </div>
+
+    <!-- Orders Content -->
+    <div class="orders-content-wrapper">
+        <div class="orders-content">
+            <!-- Orders List -->
+            <div *ngIf="getFilteredOrders().length > 0" class="orders-list">
+                <div *ngFor="let order of getFilteredOrders()" class="order-wrapper">
+                    <!-- Status Card - Outside the main order card -->
+                    <div class="order-status-card" [class]="getDisplayStatusClass(order)"
+                        (click)="$event.stopPropagation()">
+                        <div class="status-left">
+                            <span class="status-text">{{ getDisplayStatusLabel(order) }}</span>
+                        </div>
+                        <div class="status-right">
+                            <span class="status-date">{{ formatDate(order.orderDate) }}</span>
+                            <span class="status-separator">|</span>
+                            <span class="status-order-code">{{ order.orderNumber }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Order Card -->
+                    <div class="order-card" (click)="viewOrderDetails(order)" style="cursor: pointer">
+                        <!-- Products List -->
+                        <div class="products-section">
+                            <div *ngFor="let product of getDisplayProducts(order)">
+                                <div class="product-item">
+                                    <div class="product-left">
+                                        <div class="product-image"
+                                            (click)="viewOrderDetails(order); $event.stopPropagation()"
+                                            style="cursor: pointer">
+                                            <img [src]="product.image" [alt]="product.name" class="product-img"
+                                                onerror="this.src='assets/icon/no-order.png'" />
+                                        </div>
+                                        <div class="product-details"
+                                            (click)="viewOrderDetails(order); $event.stopPropagation()"
+                                            style="cursor: pointer">
+                                            <h3 class="product-name">{{ product.name }}</h3>
+                                            <p class="product-price">
+                                                {{ formatCurrency(product.price) }}/{{ product.unit }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="product-right" (click)="$event.stopPropagation()">
+                                        <div class="product-quantity">Số lượng: {{ product.quantity }}</div>
+                                        <div class="product-total">{{ formatCurrency(product.totalPrice) }}</div>
+                                    </div>
+                                </div>
+
+                                <!-- Khung sản phẩm tặng kèm cho buy1get1 - hiển thị gifted product nếu có -->
+                                <div class="free-item-container" *ngIf="hasGiftedProduct(product, order)">
+                                    <div class="free-item-image"
+                                        *ngIf="getGiftedProduct(product, order) as giftedProduct">
+                                        <img [src]="giftedProduct.image" [alt]="giftedProduct.name"
+                                            onerror="this.src='assets/icon/no-order.png'" />
+                                    </div>
+                                    <div class="free-item-details"
+                                        *ngIf="getGiftedProduct(product, order) as giftedProduct">
+                                        <div class="free-item-name">
+                                            <span class="free-item-badge">Tặng kèm</span>{{ giftedProduct.name }}
+                                        </div>
+                                        <div class="free-item-price">
+                                            <span class="original-price-striked">{{
+                                                formatCurrency(giftedProduct.originalPrice || giftedProduct.price)
+                                                }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="free-item-right"
+                                        *ngIf="getGiftedProduct(product, order) as giftedProduct">
+                                        <div class="free-item-quantity">Số lượng: {{ giftedProduct.quantity }}</div>
+                                        <div class="free-item-total">Miễn phí</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Order Summary - Bar 1: Total Amount -->
+                    <div class="order-summary" (click)="$event.stopPropagation()">
+                        <div class="summary-left">
+                            <button *ngIf="hasMoreProducts(order)" class="action-btn view-more"
+                                (click)="onViewMore(order)">
+                                <span>{{ isOrderExpanded(order) ? 'Thu gọn' : 'Xem thêm' }}</span>
+                                <i class="bi bi-chevron-down arrow-icon" [class.rotated]="isOrderExpanded(order)"></i>
+                            </button>
+                        </div>
+                        <div class="summary-center">
+                            <div class="total-section">
+                                <span class="total-label">Tổng tiền ({{ getTotalQuantity(order) }} sản phẩm):</span>
+                                <span class="total-amount">{{ formatCurrency(order.totalAmount) }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Order Summary - Bar 2: Action Buttons -->
+                    <div class="order-summary" *ngIf="order.status === 'delivered'" (click)="$event.stopPropagation()">
+                        <div class="summary-right">
+                            <button class="action-btn return-btn" (click)="onReturnRefund(order)">
+                                Trả hàng
+                            </button>
+                            <button class="action-btn received-btn" (click)="confirmReceivedOrder(order)">
+                                Đã nhận hàng
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Trạng thái unreview: Giao hàng thành công, chỉ hiển thị Mua lại
+                         (đánh giá thực hiện tại màn Quản lý đánh giá) -->
+                    <div class="order-summary" *ngIf="order.status === 'unreview'" (click)="$event.stopPropagation()">
+                        <div class="summary-right">
+                            <button class="action-btn repurchase-btn" (click)="onRepurchaseOrder(order)">
+                                Mua lại
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Cancel Order Button (Pending Status) -->
+                    <div class="order-summary" *ngIf="order.status === 'pending'" (click)="$event.stopPropagation()">
+                        <div class="summary-right">
+                            <button class="action-btn cancel-btn" (click)="onCancelOrder(order)">
+                                Hủy đặt hàng
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Completed Order Buttons -->
+                    <div class="order-summary" *ngIf="order.status === 'completed'" (click)="$event.stopPropagation()">
+                        <div class="summary-right">
+                            <button class="action-btn repurchase-btn" (click)="onRepurchaseOrder(order)">
+                                Mua lại
+                            </button>
+                            <div *ngIf="!hasOrderBeenReviewed(order)">
+                                <button class="action-btn rate-btn" (click)="onRate(order)">Đánh giá</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cancelled Order Button -->
+                    <div class="order-summary" *ngIf="order.status === 'cancelled'" (click)="$event.stopPropagation()">
+                        <div class="summary-right">
+                            <button class="action-btn repurchase-btn" (click)="onRepurchaseOrder(order)">
+                                Mua lại
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div *ngIf="getFilteredOrders().length === 0" class="empty-state">
+                <div class="empty-icon">
+                    <img src="assets/icon/no-order.png" alt="No orders" class="empty-icon-img" />
+                </div>
+                <p class="empty-message">Bạn không có đơn hàng nào</p>
+            </div>
         </div>
     </div>
 </div>
+
+<!-- Return Request Modal -->
+<div class="modal-overlay" *ngIf="showReturnModal" (click)="closeReturnModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+        <!-- Modal Header -->
+        <div class="modal-header">
+            <h2 class="modal-title">Yêu cầu trả hàng/hoàn tiền</h2>
+            <button class="close-btn" (click)="closeReturnModal()">&times;</button>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="modal-body">
+            <!-- Product Section -->
+            <div class="modal-product-section">
+                <h3 class="section-title">Sản phẩm</h3>
+                <div class="modal-product-card">
+                    <div *ngFor="let product of getModalDisplayProducts()">
+                        <div class="modal-product-item">
+                            <div class="modal-product-left">
+                                <div class="modal-product-image">
+                                    <img [src]="product.image" [alt]="product.name" class="modal-product-img"
+                                        onerror="this.src='/assets/icon/no-order.png'" />
+                                </div>
+                                <div class="modal-product-details">
+                                    <h4 class="modal-product-name">{{ product.name }}</h4>
+                                    <p class="modal-product-category">{{ product.category }}</p>
+                                    <p class="modal-product-price">
+                                        {{ formatCurrency(product.price) }}/{{ product.unit }}
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="modal-product-right">
+                                <div class="modal-product-quantity">Số lượng: {{ product.quantity }}</div>
+                                <div class="modal-product-total">{{ formatCurrency(product.totalPrice) }}</div>
+                            </div>
+                        </div>
+
+                        <!-- Khung sản phẩm tặng kèm cho buy1get1 - hiển thị gifted product nếu có -->
+                        <div class="free-item-container"
+                            *ngIf="selectedOrder && hasGiftedProduct(product, selectedOrder)">
+                            <div class="free-item-image"
+                                *ngIf="selectedOrder && getGiftedProduct(product, selectedOrder) as giftedProduct">
+                                <img [src]="giftedProduct.image" [alt]="giftedProduct.name"
+                                    onerror="this.src='/assets/icon/no-order.png'" />
+                            </div>
+                            <div class="free-item-details"
+                                *ngIf="selectedOrder && getGiftedProduct(product, selectedOrder) as giftedProduct">
+                                <div class="free-item-name">
+                                    <span class="free-item-badge">Tặng kèm</span>{{ giftedProduct.name }}
+                                </div>
+                                <div class="free-item-price">
+                                    <span class="original-price-striked">{{
+                                        formatCurrency(giftedProduct.originalPrice || giftedProduct.price)
+                                        }}</span>
+                                </div>
+                            </div>
+                            <div class="free-item-right"
+                                *ngIf="selectedOrder && getGiftedProduct(product, selectedOrder) as giftedProduct">
+                                <div class="free-item-quantity">Số lượng: {{ giftedProduct.quantity }}</div>
+                                <div class="free-item-total">Miễn phí</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- View More Button for Modal -->
+                    <div class="modal-view-more-section" *ngIf="hasMoreModalProducts()">
+                        <button class="modal-view-more-btn" (click)="toggleModalProducts()">
+                            {{ isModalExpanded ? 'Thu gọn' : 'Xem thêm' }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reason Section -->
+            <div class="modal-reason-section">
+                <h3 class="section-title">Lý do yêu cầu</h3>
+                <div class="reason-dropdown">
+                    <div class="custom-dropdown">
+                        <div #reasonDropdownButton class="custom-dropdown-selected"
+                            [class.placeholder]="!selectedReason" (click)="toggleReasonDropdown($event)">
+                            <span>{{ getReasonLabel(selectedReason) || 'Chọn lý do' }}</span>
+                            <svg class="dropdown-arrow" [class.open]="showReasonDropdown" width="12" height="12"
+                                viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M6 9L1 4h10z" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detailed Description (only show when "Khác" is selected) -->
+                <div class="description-section" *ngIf="selectedReason === 'other'">
+                    <label class="description-label">Mô tả chi tiết:</label>
+                    <textarea [(ngModel)]="detailedDescription" class="description-textarea"
+                        placeholder="Vui lòng mô tả chi tiết lý do yêu cầu trả hàng/hoàn tiền..." rows="4">
+          </textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="modal-footer">
+            <button class="modal-btn cancel-btn" (click)="closeReturnModal()">Hủy</button>
+            <button class="modal-btn submit-btn" (click)="submitReturnRequest()" [disabled]="!canSubmit()">
+                Gửi yêu cầu
+            </button>
+        </div>
+    </div>
+
+    <!-- Dropdown list rendered outside modal-body to avoid overflow clipping -->
+    <ul class="custom-dropdown-list custom-dropdown-list-portal" *ngIf="showReasonDropdown"
+        [style.top.px]="reasonDropdownPosition.top" [style.left.px]="reasonDropdownPosition.left"
+        [style.width.px]="reasonDropdownPosition.width" (click)="$event.stopPropagation()">
+        <li *ngFor="let reason of returnReasonOptions" class="custom-dropdown-item"
+            [class.selected]="selectedReason === reason.value" (click)="selectReason(reason.value, $event)">
+            {{ reason.label }}
+        </li>
+    </ul>
+</div>
+
+<!-- Success Modal -->
+<div class="modal-overlay" *ngIf="showSuccessModal" (click)="closeSuccessModal()">
+    <div class="success-modal-content" (click)="$event.stopPropagation()">
+        <!-- Success Icon -->
+        <div class="success-icon">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="10" fill="#28a745" />
+                <path d="M9 12l2 2 4-4" stroke="white" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round" />
+            </svg>
+        </div>
+
+        <!-- Success Message -->
+        <div class="success-message">
+            <h3 class="success-title">Thành công!</h3>
+            <p class="success-text">Yêu cầu xử lý đơn hàng đã được gửi thành công</p>
+        </div>
+
+        <!-- OK Button -->
+        <div class="success-footer">
+            <button class="success-ok-btn" (click)="closeSuccessModal()">OK</button>
+        </div>
+    </div>
+</div>
+
+<!-- Cancel Request Modal -->
+<div class="modal-overlay" *ngIf="showCancelModal" (click)="closeCancelModal()">
+    <div class="cancel-modal-content" (click)="$event.stopPropagation()">
+        <!-- Warning Icon -->
+        <div class="warning-icon">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="10" fill="#ffc107" />
+                <path d="M12 8v4M12 16h.01" stroke="white" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round" />
+            </svg>
+        </div>
+
+        <!-- Confirmation Message -->
+        <div class="cancel-message">
+            <h3 class="cancel-title">Xác nhận hủy yêu cầu</h3>
+            <!-- <p class="cancel-text">Bạn có chắc chắn muốn hủy yêu cầu trả hàng/hoàn tiền?</p> -->
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="cancel-footer">
+            <button class="cancel-modal-btn cancel-no-btn" (click)="closeCancelModal()">Hủy</button>
+            <button class="cancel-modal-btn cancel-yes-btn" (click)="confirmCancelRequest()">OK</button>
+        </div>
+    </div>
+</div>
+
+<!-- Cancel Order Modal -->
+<div class="modal-overlay" *ngIf="showCancelOrderModal" (click)="closeCancelOrderModal()">
+    <div class="cancel-modal-content" (click)="$event.stopPropagation()">
+        <!-- Warning Icon -->
+        <div class="warning-icon">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="10" fill="#FFA726" stroke="#FF9800" stroke-width="1.5" />
+                <path d="M12 7v6" stroke="white" stroke-width="2" stroke-linecap="round" />
+                <circle cx="12" cy="16.5" r="1" fill="white" />
+            </svg>
+        </div>
+
+        <!-- Message -->
+        <div class="cancel-message">
+            <h3 class="cancel-title">Xác nhận hủy đơn hàng</h3>
+            <p class="cancel-text">Bạn có chắc chắn muốn hủy đơn hàng này?</p>
+
+            <!-- Reason Selection -->
+            <div class="cancel-reason-section" style="margin-top: 20px">
+                <label class="cancel-reason-label">Lý do hủy đơn hàng:</label>
+                <div class="reason-dropdown">
+                    <div class="custom-dropdown">
+                        <div #cancelReasonDropdownButton class="custom-dropdown-selected"
+                            [class.placeholder]="!selectedCancelReason" (click)="toggleCancelReasonDropdown($event)">
+                            <span>{{ getCancelReasonLabel(selectedCancelReason) || 'Chọn lý do' }}</span>
+                            <svg class="dropdown-arrow" [class.open]="showCancelReasonDropdown" width="12" height="12"
+                                viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M6 9L1 4h10z" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detailed Description (only show when "Khác" is selected) -->
+                <div class="description-section" *ngIf="selectedCancelReason === 'other'" style="margin-top: 12px">
+                    <label class="description-label">Mô tả chi tiết:</label>
+                    <textarea [(ngModel)]="cancelDetailedReason" class="description-textarea"
+                        placeholder="Vui lòng nhập lý do hủy đơn hàng..." rows="3"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="cancel-footer">
+            <button class="cancel-modal-btn cancel-no-btn" (click)="closeCancelOrderModal()">Hủy</button>
+            <button class="cancel-modal-btn cancel-yes-btn" (click)="confirmCancelOrder()"
+                [disabled]="!canSubmitCancelOrder()">
+                Xác nhận
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Dropdown Options Portal (outside modal for proper positioning) -->
+<div class="dropdown-options-portal" *ngIf="showCancelReasonDropdown" (click)="showCancelReasonDropdown = false"
+    [style.position]="'fixed'" [style.top.px]="cancelReasonDropdownPosition.top"
+    [style.left.px]="cancelReasonDropdownPosition.left" [style.width.px]="cancelReasonDropdownPosition.width"
+    [style.z-index]="1001">
+    <div class="dropdown-options" (click)="$event.stopPropagation()">
+        <div *ngFor="let option of cancelReasonOptions" class="dropdown-option"
+            [class.selected]="selectedCancelReason === option.value" (click)="selectCancelReason(option.value, $event)">
+            {{ option.label }}
+        </div>
+    </div>
+</div>
+
+<!-- Confirm Received Order Modal -->
+<div class="modal-overlay" *ngIf="showConfirmReceivedModal" (click)="closeConfirmReceivedModal()">
+    <div class="cancel-modal-content" (click)="$event.stopPropagation()">
+        <!-- Warning Icon -->
+        <div class="warning-icon">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="10" fill="#256e05" />
+                <path d="M9 12l2 2 4-4" stroke="white" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round" />
+            </svg>
+        </div>
+
+        <!-- Confirmation Message -->
+        <div class="cancel-message">
+            <h3 class="cancel-title">Xác nhận đã nhận hàng</h3>
+            <!-- <p class="cancel-text">
+        Bạn có chắc chắn đã nhận được hàng? Sau khi xác nhận, đơn hàng sẽ chuyển sang trạng thái "Đã
+        giao hàng" và bạn có thể đánh giá sản phẩm.
+      </p> -->
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="cancel-footer">
+            <button class="cancel-modal-btn cancel-no-btn" (click)="closeConfirmReceivedModal()">
+                Hủy
+            </button>
+            <button class="cancel-modal-btn cancel-yes-btn" (click)="executeConfirmReceivedOrder()">
+                Xác nhận
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Order Detail Modal -->
+<app-order-detail-acc></app-order-detail-acc>

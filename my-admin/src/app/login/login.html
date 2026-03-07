@@ -1,1 +1,193 @@
-<p>login works!</p>
+<div class="login-wrapper">
+    <div class="login-container">
+        <!-- Left Side: Illustration & Branding -->
+        <div class="left-panel">
+            <div class="brand-header">
+                <div class="logo-img">
+                    <img src="assets/favicon/logo.png" alt="VitaCare Logo">
+                </div>
+            </div>
+
+            <div class="illustration-box">
+                <img src="assets/images/banner/ele-dangnhap.png" alt="VitaCare Login Illustration"
+                    class="illustration-main">
+            </div>
+        </div>
+
+        <!-- Right Side: Login Form -->
+        <div class="right-panel">
+            <div class="login-card">
+
+                <!-- Helper: Loading & Error -->
+                <div *ngIf="isLoading" class="loading-indicator">Đang xử lý...</div>
+                <div *ngIf="errorMessage" class="alert-error">{{ errorMessage }}</div>
+
+                <!-- STEP 1: Login -->
+                <ng-container *ngIf="currentStep === 'login'">
+                    <h2 class="form-title">ĐĂNG NHẬP</h2>
+
+                    <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
+                        <div class="form-group">
+                            <label for="email">Email<span class="required">*</span></label>
+                            <input type="email" id="email" formControlName="email" placeholder="Nhập email của bạn"
+                                [class.error]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
+                            <div *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched"
+                                class="error-message">
+                                Email không hợp lệ
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="password">Mật khẩu<span class="required">*</span></label>
+                            <div class="password-wrapper">
+                                <input [type]="showPassword ? 'text' : 'password'" id="password"
+                                    formControlName="password" placeholder="Nhập mật khẩu"
+                                    [class.error]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+                                <button type="button" class="toggle-btn" (click)="togglePasswordVisibility()">
+                                    <i class="eye-icon" [class.visible]="showPassword"></i>
+                                </button>
+                            </div>
+                            <div *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
+                                class="error-message">
+                                Mật khẩu phải có ít nhất 8 ký tự
+                            </div>
+                        </div>
+
+                        <div class="form-options">
+                            <a (click)="goToForgotPassword()" class="forgot-link">Quên mật khẩu?</a>
+                        </div>
+
+                        <button type="submit" class="submit-btn" [disabled]="loginForm.invalid || isLoading">Đăng
+                            nhập</button>
+                    </form>
+                </ng-container>
+
+
+                <!-- STEP 2: Forgot Password (Email) -->
+                <ng-container *ngIf="currentStep === 'forgot-email'">
+                    <h2 class="form-title">QUÊN MẬT KHẨU</h2>
+                    <p class="step-description">
+                        Vui lòng nhập địa chỉ email của bạn đã sử dụng để tạo tài khoản,
+                        chúng tôi sẽ gửi cho bạn mã xác thực để đặt lại mật khẩu.
+                    </p>
+
+                    <form [formGroup]="forgotEmailForm" (ngSubmit)="onSendCode()">
+                        <div class="form-group">
+                            <label for="f-email">Email</label>
+                            <input type="email" id="f-email" formControlName="email" placeholder="Nhập email của bạn"
+                                [class.error]="forgotEmailForm.get('email')?.invalid && forgotEmailForm.get('email')?.touched">
+                            <div *ngIf="forgotEmailForm.get('email')?.invalid && forgotEmailForm.get('email')?.touched"
+                                class="error-message">
+                                Vui lòng nhập email hợp lệ
+                            </div>
+                        </div>
+
+                        <button type="submit" class="submit-btn" [disabled]="forgotEmailForm.invalid || isLoading">Tiếp
+                            tục</button>
+
+                        <div class="back-link-container">
+                            <a (click)="backToLogin()" class="back-link">Quay lại đăng nhập</a>
+                        </div>
+                    </form>
+                </ng-container>
+
+
+                <!-- STEP 3: Verify Code -->
+                <ng-container *ngIf="currentStep === 'verify-code'">
+                    <h2 class="form-title">QUÊN MẬT KHẨU</h2>
+                    <p class="step-description">
+                        Chúng tôi đã gửi mã xác thực đến địa chỉ email <span
+                            class="highlight-email">{{verificationEmail}}</span><br>
+                        Vui lòng nhập mã xác thực bạn đã nhận được
+                    </p>
+
+                    <form [formGroup]="verifyCodeForm" (ngSubmit)="onVerifyCode()">
+                        <div class="otp-container">
+                            <input #otpInput type="text" maxlength="1" class="otp-digit" formControlName="digit1"
+                                (input)="onOtpInput($event, 0)" (paste)="onOtpPaste($event)">
+                            <input #otpInput type="text" maxlength="1" class="otp-digit" formControlName="digit2"
+                                (input)="onOtpInput($event, 1)">
+                            <input #otpInput type="text" maxlength="1" class="otp-digit" formControlName="digit3"
+                                (input)="onOtpInput($event, 2)">
+                            <input #otpInput type="text" maxlength="1" class="otp-digit" formControlName="digit4"
+                                (input)="onOtpInput($event, 3)">
+                            <input #otpInput type="text" maxlength="1" class="otp-digit" formControlName="digit5"
+                                (input)="onOtpInput($event, 4)">
+                            <input #otpInput type="text" maxlength="1" class="otp-digit" formControlName="digit6"
+                                (input)="onOtpInput($event, 5)">
+                        </div>
+
+                        <button type="submit" class="submit-btn" [disabled]="verifyCodeForm.invalid || isLoading">Tiếp
+                            tục</button>
+
+                        <div class="resend-container">
+                            Bạn chưa nhận được mã? <a (click)="resendCode()" class="resend-link">Gửi lại mã</a>
+                        </div>
+                    </form>
+                </ng-container>
+
+
+                <!-- STEP 4: Reset Password -->
+                <ng-container *ngIf="currentStep === 'reset-password'">
+                    <h2 class="form-title">QUÊN MẬT KHẨU</h2>
+                    <p class="step-description">
+                        Nhập Password mới cho tài khoản có địa chỉ email<br>{{verificationEmail}} nào!
+                    </p>
+
+                    <form [formGroup]="resetPasswordForm" (ngSubmit)="onResetPassword()">
+                        <!-- New Password -->
+                        <div class="form-group">
+                            <label for="newPassword">Mật khẩu mới</label>
+                            <div class="password-wrapper">
+                                <input [type]="showNewPassword ? 'text' : 'password'" id="newPassword"
+                                    formControlName="newPassword"
+                                    placeholder="Nhập ít nhất 8 ký tự, 1 chữ in hoa và 1 chữ số"
+                                    [class.error]="resetPasswordForm.get('newPassword')?.invalid && resetPasswordForm.get('newPassword')?.touched">
+                                <button type="button" class="toggle-btn" (click)="toggleNewPasswordVisibility()">
+                                    <i class="eye-icon" [class.visible]="showNewPassword"></i>
+                                </button>
+                            </div>
+                            <div *ngIf="resetPasswordForm.get('newPassword')?.invalid && resetPasswordForm.get('newPassword')?.touched"
+                                class="error-message">
+                                Mật khẩu phải có ít nhất 8 ký tự, 1 hoa, 1 thường, 1 số
+                            </div>
+                            <div class="password-hint">
+                                <i class="bi bi-info-circle"></i> Lưu ý: Mật khẩu mới phải có ít nhất 8 ký tự, bao gồm
+                                ít nhất một chữ hoa (A-Z), một chữ thường (a-z) và ít nhất một chữ số (0-9).
+                            </div>
+                        </div>
+
+                        <!-- Confirm Password -->
+                        <div class="form-group">
+                            <label for="confirmPassword">Nhập lại mật khẩu</label>
+                            <div class="password-wrapper">
+                                <input [type]="showConfirmPassword ? 'text' : 'password'" id="confirmPassword"
+                                    formControlName="confirmPassword" placeholder="Xác nhận lại mật khẩu mới"
+                                    [class.error]="resetPasswordForm.hasError('passwordMismatch') && resetPasswordForm.get('confirmPassword')?.touched">
+                                <button type="button" class="toggle-btn" (click)="toggleConfirmPasswordVisibility()">
+                                    <i class="eye-icon" [class.visible]="showConfirmPassword"></i>
+                                </button>
+                            </div>
+                            <div *ngIf="resetPasswordForm.hasError('passwordMismatch') && resetPasswordForm.get('confirmPassword')?.touched"
+                                class="error-message">
+                                Mật khẩu nhập lại không khớp
+                            </div>
+                        </div>
+
+                        <button type="submit" class="submit-btn"
+                            [disabled]="resetPasswordForm.invalid || isLoading">Tiếp tục</button>
+                    </form>
+                </ng-container>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Custom Popup -->
+<div class="popup-overlay" *ngIf="popupMessage">
+    <div class="popup-content">
+        <p>{{ popupMessage }}</p>
+        <button (click)="closePopup()" class="popup-btn">Đóng</button>
+    </div>
+</div>

@@ -1,0 +1,177 @@
+.customer-detail-container {
+    display: flex;
+    flex-direction: column;
+    font-family: 'Inter', sans-serif;
+    padding: 0;
+    max-width: 1200px;
+}
+
+.grid-layout {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 24px;
+}
+
+.card {
+    background-color: var(--color-bg-secondary);
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
+    border: 1px solid var(--color-neutral-30);
+}
+
+/* Profile specific */
+.avatar-box {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: var(--color-bg-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--color-neutral-30);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.profile-info .name {
+    margin: 0 0 16px 0;
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--color-primary);
+}
+
+.profile-info .info-row {
+    display: flex;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.profile-info .label {
+    width: 120px;
+    color: var(--color-text-secondary);
+}
+
+.profile-info .value {
+    color: var(--color-text-primary);
+    font-weight: 600;
+}
+
+/* Stats */
+.stats-row {
+    display: flex;
+    gap: 16px;
+}
+
+.stat-box {
+    flex: 1;
+    background: var(--color-bg-secondary);
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+}
+
+.stat-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--color-text-tertiary);
+    margin-bottom: 8px;
+}
+
+.stat-value {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--color-primary);
+}
+
+/* Membership */
+.membership-card {
+    background: var(--color-bg-secondary);
+}
+
+/* Orders box */
+.order-item {
+    background: var(--color-bg-secondary);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.02);
+}
+
+.col {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.text-right {
+    text-align: right;
+}
+
+/* Right Col Utils */
+.badge-default {
+    background: var(--color-primary);
+    color: white;
+    font-size: 11px;
+    font-weight: normal;
+    padding: 3px 10px;
+    border-radius: 20px;
+}
+
+.address-box {
+    background: var(--color-bg-light);
+    border: 1px solid var(--color-neutral-30);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 12px;
+}
+
+/* Back button */
+.btn-back {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    padding: var(--btn-padding-y) var(--btn-padding-x);
+    border-radius: var(--btn-border-radius);
+    font-size: var(--btn-font-size);
+    font-weight: var(--font-weight-bold);
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
+    color: var(--color-text-inverse);
+    border: none;
+    cursor: pointer;
+    align-self: flex-start;
+    transition: all 0.2s;
+    box-shadow: 0 4px 6px rgba(0, 88, 159, 0.3);
+}
+
+.btn-back:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 15px rgba(0, 88, 159, 0.4);
+}
+
+/* Tier Pill match Customer Manage */
+.tier-pill {
+    display: inline-block;
+    padding: 4px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.tier-vàng {
+    background-color: #F4E8DB;
+    color: #A37E55;
+}
+
+.tier-bạc {
+    background-color: #E2E2E2;
+    color: #6C6C6C;
+}
+
+.tier-đồng {
+    background-color: #F3EEF5;
+    color: #79667E;
+}

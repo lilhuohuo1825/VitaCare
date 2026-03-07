@@ -1,1 +1,601 @@
-<p>orderdetail works!</p>
+<div class="container order-detail-container">
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="text-center py-5">
+        <p>Đang tải dữ liệu...</p>
+    </div>
+
+    <!-- Notification Toast -->
+    <div *ngIf="notification.show" class="notification-toast" [ngClass]="notification.type"
+        style="position: fixed; top: 20px; right: 20px; z-index: 1000; padding: 15px 20px; border-radius: 8px; background-color: var(--color-bg-secondary); box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 10px;">
+        <i class="bi" [class.bi-check-circle-fill]="notification.type === 'success'"
+            [class.bi-x-circle-fill]="notification.type === 'error'"
+            [class.bi-exclamation-triangle-fill]="notification.type === 'warning'"
+            [style.color]="notification.type === 'success' ? '#28a745' : (notification.type === 'error' ? '#dc3545' : '#ffc107')"></i>
+        <span>{{ notification.message }}</span>
+    </div>
+
+    <div *ngIf="!isLoading && !order && !isCreateMode" class="text-center py-5">
+        <p>Không tìm thấy đơn hàng.</p>
+        <button class="back-btn" (click)="goBack()">
+            <i class="bi bi-arrow-return-left"></i> Quay lại
+        </button>
+    </div>
+
+    <!-- VIEW ORDER INFO -->
+    <ng-container *ngIf="!isLoading && order && !isCreateMode">
+        <!-- Breadcrumb -->
+        <div class="breadcrumb text-sm mb-2 font-medium" style="color: var(--color-neutral-60);">
+            Đơn hàng <span class="mx-1">/</span> <span style="color: var(--color-primary);">Chi tiết đơn hàng</span>
+        </div>
+
+        <!-- Header -->
+        <div class="page-header py-4"
+            style="background: var(--color-bg-light); border-radius: 20px; padding: 20px 30px; box-shadow: var(--shadow-sm); margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+            <h1 class="content-title" style="margin: 0; font-size: 28px; text-transform: uppercase;">Chi tiết đơn hàng
+            </h1>
+            <div class="header-actions" style="display: flex; gap: 10px; align-items: center;">
+                <button class="btn btn-secondary icon-text" (click)="goBack()"
+                    style="background-color: var(--color-bg-light); color: white; border: 1px solid var(--color-neutral-30); padding: 10px 20px; border-radius: 10px; cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 8px;">
+                    <i class="bi bi-arrow-return-left text-white"></i>
+                    Quay lại
+                </button>
+                <button class="btn btn-secondary icon-text" (click)="printOrder()"
+                    style="background-color: var(--color-primary); color: white; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 8px;">
+                    <i class="bi bi-printer"></i>
+                    In đơn hàng
+                </button>
+            </div>
+        </div>
+
+        <div class="layout-grid">
+            <!-- LEFT COLUMN -->
+            <div class="main-content">
+                <div class="order-info-card"
+                    style="background-color: var(--color-bg-secondary); border-radius: 12px; padding: 24px; box-shadow: var(--shadow-sm); margin-bottom: 20px;">
+                    <!-- ID & Date -->
+                    <div class="order-id-header"
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h2 class="order-id" style="margin: 0; font-size: 20px;">#{{ order.code || order.order_id ||
+                            order._id }}</h2>
+                        <p class="order-date" style="margin: 0; color: var(--color-text-secondary);">{{ (order.createdAt
+                            ||
+                            order.route?.pending) | date:'dd/MM/yyyy' }}</p>
+                    </div>
+
+                    <!-- Status Steps -->
+                    <div class="status-steps" style="display: flex; gap: 20px; margin-bottom: 30px;">
+                        <!-- Step 1: Confirmed -->
+                        <div class="step-item" style="flex: 1; text-align: center;">
+                            <div class="step-badge"
+                                style="width: 40px; height: 40px; border-radius: 50%; background: #e9ecef; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px;"
+                                [style.background]="isConfirmed() || isDelivered() ? 'var(--color-primary)' : '#e9ecef'"
+                                [style.color]="isConfirmed() || isDelivered() ? 'white' : 'var(--color-text-primary)'">
+                                <i class="bi bi-check-lg" *ngIf="isConfirmed() || isDelivered()"></i>
+                                <span *ngIf="!isConfirmed() && !isDelivered()">1</span>
+                            </div>
+                            <div class="step-label" style="font-weight: bold;">Xác nhận đơn hàng</div>
+                            <small class="text-secondary" *ngIf="isConfirmed() || isDelivered()">Đã hoàn tất</small>
+                        </div>
+
+                        <!-- Step 2: Shipping -->
+                        <div class="step-item" style="flex: 1; text-align: center;">
+                            <div class="step-badge"
+                                style="width: 40px; height: 40px; border-radius: 50%; background: #e9ecef; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px;"
+                                [style.background]="isDelivered() ? 'var(--color-primary)' : (order.status === 'shipping' ? '#ffc107' : '#e9ecef')"
+                                [style.color]="isDelivered() || order.status === 'shipping' ? 'white' : 'var(--color-text-primary)'">
+                                <i class="bi bi-truck" *ngIf="order.status === 'shipping'"></i>
+                                <i class="bi bi-check-lg" *ngIf="isDelivered()"></i>
+                                <span *ngIf="order.status !== 'shipping' && !isDelivered()">2</span>
+                            </div>
+                            <div class="step-label" style="font-weight: bold;">Vận chuyển</div>
+                            <small class="text-secondary">{{ isDelivered() ? 'Đã giao hàng' : (order.status ===
+                                'shipping' ? 'Đang giao hàng' : 'Chưa bắt đầu') }}</small>
+                        </div>
+
+                        <!-- Step 3: Payment -->
+                        <div class="step-item" style="flex: 1; text-align: center;">
+                            <div class="step-badge"
+                                style="width: 40px; height: 40px; border-radius: 50%; background: #e9ecef; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px;"
+                                [style.background]="isPaid() ? 'var(--color-primary)' : '#e9ecef'"
+                                [style.color]="isPaid() ? 'white' : 'var(--color-text-primary)'">
+                                <i class="bi bi-credit-card" *ngIf="!isPaid()"></i>
+                                <i class="bi bi-check-lg" *ngIf="isPaid()"></i>
+                            </div>
+                            <div class="step-label" style="font-weight: bold;">Thanh toán</div>
+                            <small class="text-secondary">{{ isPaid() ? 'Đã thanh toán' : 'Chưa thanh toán' }}</small>
+                        </div>
+                    </div>
+
+                    <!-- Product List -->
+                    <div class="product-list-section">
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid var(--color-neutral-30); padding-bottom: 8px;">
+                            <h3 class="section-title" style="margin: 0; border: none; padding: 0;">DANH SÁCH SẢN PHẨM
+                            </h3>
+                        </div>
+
+                        <div class="product-table-header"
+                            style="display: grid; grid-template-columns: 3fr 1fr 1fr 1fr; font-weight: bold; background-color: var(--color-bg-light); padding: 10px; border-radius: 8px; margin-bottom: 15px;">
+                            <div>TÊN SẢN PHẨM</div>
+                            <div class="text-center">SỐ LƯỢNG</div>
+                            <div class="text-center">GIÁ</div>
+                            <div class="text-right">THÀNH TIỀN</div>
+                        </div>
+
+                        <div class="product-item" *ngFor="let item of order.item"
+                            style="display: grid; grid-template-columns: 3fr 1fr 1fr 1fr; align-items: center; padding: 10px; border-bottom: 1px solid var(--color-neutral-30);">
+                            <div class="product-info" style="display: flex; gap: 10px; align-items: center;">
+                                <div class="product-image"
+                                    style="width: 50px; height: 50px; background-color: var(--color-bg-light); border-radius: 8px; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+                                    <img *ngIf="item.image" [src]="item.image" alt="Product"
+                                        style="width: 100%; height: 100%; object-fit: contain;">
+                                    <i *ngIf="!item.image" class="bi bi-image"
+                                        style="font-size: 24px; color: #ccc;"></i>
+                                </div>
+                                <div class="product-details">
+                                    <h4 style="font-weight: 700; margin: 0; font-size: 14px;">{{ item.productName }}
+                                    </h4>
+                                    <span class="product-sku"
+                                        style="font-size: 12px; color: var(--color-text-secondary);">SKU: {{ item.sku
+                                        }}</span>
+                                </div>
+                            </div>
+                            <div class="text-center">{{ item.quantity }}</div>
+                            <div class="text-center">{{ item.price | number:'1.0-0' }}đ</div>
+                            <div class="text-right font-bold" style="text-align: right;">{{ (item.price * item.quantity)
+                                | number:'1.0-0' }}đ</div>
+                        </div>
+                    </div>
+
+                    <!-- Promotion -->
+                    <div class="promotion-section" *ngIf="order.code"
+                        style="margin-top: 20px; padding-top: 20px; border-top: 1px dashed #eee;">
+                        <h4 style="font-size: 14px; font-weight: bold; margin-bottom: 10px;">Khuyến mãi</h4>
+                        <div class="info-row">
+                            <span class="info-label">{{ order.name }}</span>
+                        </div>
+                        <div class="info-row">
+                            <span style="color: var(--color-text-tertiary);">Mã: {{ order.code }}</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+
+            <!-- RIGHT COLUMN (SIDEBAR) -->
+            <div class="order-summary-sidebar" style="display: flex; flex-direction: column; gap: 20px;">
+                <!-- Customer Info -->
+                <div class="info-card"
+                    style="background-color: var(--color-bg-secondary); border-radius: 12px; padding: 20px; box-shadow: var(--shadow-sm);">
+                    <h3 class="card-title"
+                        style="font-size: 16px; font-weight: bold; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid var(--color-neutral-30);">
+                        Thông tin người mua</h3>
+                    <div class="info-row">
+                        <span class="info-label">{{ order.shippingInfo?.fullName || 'Khách hàng' }}</span>
+                    </div>
+                </div>
+
+                <!-- Delivery Info -->
+                <div class="info-card"
+                    style="background-color: var(--color-bg-secondary); border-radius: 12px; padding: 20px; box-shadow: var(--shadow-sm);">
+                    <h3 class="card-title"
+                        style="font-size: 16px; font-weight: bold; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid var(--color-neutral-30);">
+                        Thông tin giao hàng</h3>
+                    <div class="info-row" style="margin-bottom: 8px;">
+                        <i class="bi bi-person text-secondary"></i>
+                        <span class="info-label ml-2" style="margin-left: 8px;">{{ order.shippingInfo?.fullName
+                            }}</span>
+                    </div>
+                    <div class="info-row">
+                        <i class="bi bi-telephone text-secondary"></i>
+                        <span style="margin-left: 8px;">{{ order.shippingInfo?.phone }}</span>
+                    </div>
+                </div>
+
+                <!-- Address Info -->
+                <div class="info-card"
+                    style="background-color: var(--color-bg-secondary); border-radius: 12px; padding: 20px; box-shadow: var(--shadow-sm);">
+                    <h3 class="card-title"
+                        style="font-size: 16px; font-weight: bold; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid var(--color-neutral-30);">
+                        Địa chỉ nhận hàng</h3>
+                    <div style="font-size: 14px; line-height: 1.5; color: #444;">
+                        <i class="bi bi-geo-alt text-secondary"></i>
+                        <span style="margin-left: 8px;">
+                            {{ order.shippingInfo?.address?.detail ? order.shippingInfo?.address?.detail + ',' : '' }}
+                            {{ order.shippingInfo?.address?.ward ? order.shippingInfo?.address?.ward + ',' : '' }}
+                            {{ order.shippingInfo?.address?.district ? order.shippingInfo?.address?.district + ',' : ''
+                            }}
+                            {{ order.shippingInfo?.address?.city }}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Order Summary -->
+                <div class="info-card"
+                    style="background-color: var(--color-bg-secondary); border-radius: 12px; padding: 20px; box-shadow: var(--shadow-sm);">
+                    <h3 class="card-title"
+                        style="font-size: 16px; font-weight: bold; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid var(--color-neutral-30);">
+                        Thông tin đơn hàng</h3>
+                    <div class="summary-row"
+                        style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span style="color: var(--color-text-secondary);">Số lượng sản phẩm</span>
+                        <span class="font-bold">{{ order.item?.length || 0 }}</span>
+                    </div>
+                    <div class="summary-row"
+                        style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span style="color: var(--color-text-secondary);">Tổng tiền hàng</span>
+                        <span class="font-bold">{{ order.subtotal | number:'1.0-0' }}đ</span>
+                    </div>
+                    <div class="summary-row"
+                        style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span style="color: var(--color-text-secondary);">Giảm giá</span>
+                        <span *ngIf="order.shippingDiscount || order.code"
+                            style="color: var(--color-danger); font-weight: bold;">
+                            -{{ ((order.subtotal + 30000) - order.totalAmount) | number:'1.0-0' }}đ
+                        </span>
+                        <span *ngIf="!(order.shippingDiscount || order.code)" style="color: #ccc;">--</span>
+                    </div>
+                    <div class="summary-row"
+                        style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span style="color: var(--color-text-secondary);">Phí vận chuyển</span>
+                        <span class="font-bold">{{ order.shippingFee | number:'1.0-0' }}đ</span>
+                    </div>
+                    <div class="summary-row"
+                        style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+                        <span style="color: var(--color-text-secondary);">Phương thức thanh toán</span>
+                        <span class="font-bold" style="text-align: right;">{{ order.paymentMethod === 'cod' ? 'Tiền mặt
+                            (COD)' : 'Chuyển khoản' }}</span>
+                    </div>
+
+                    <div class="summary-total" style="border-top: 1px solid #eee; padding-top: 15px; margin-top: 10px;">
+                        <div class="summary-row"
+                            style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-size: 1.1rem; font-weight: bold;">TỔNG CỘNG</span>
+                            <span class="font-bold" style="font-size: 1.3rem; color: var(--color-primary);">{{
+                                order.totalAmount | number:'1.0-0' }}đ</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Note and Actions -->
+                <div class="info-card"
+                    style="background-color: var(--color-bg-secondary); border-radius: 12px; padding: 20px; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; gap: 15px;">
+                    <div style="display: flex; flex-direction: column; gap: 5px;">
+                        <span style="font-weight: bold; font-size: 14px; color: var(--color-text-secondary);">Ghi chú
+                            của khách hàng</span>
+                        <div
+                            style="background-color: #f8f9fa; padding: 10px; border-radius: 6px; border: 1px solid #e2e8f0; font-size: 14px; color: #475569; min-height: 60px;">
+                            {{ order.note || 'Không có ghi chú' }}
+                        </div>
+                    </div>
+
+                    <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 5px;">
+                        <button
+                            *ngIf="order.status !== 'cancelled' && order.status !== 'refunded' && order.status !== 'delivered'"
+                            class="btn btn-danger" (click)="cancelOrder()"
+                            style="background-color: #dc3545; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 8px;">
+                            Hủy đơn
+                        </button>
+                        <button *ngIf="showNextStepButton" class="btn btn-primary" (click)="processNextStep()"
+                            style="background-color: var(--color-primary); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 8px;">
+                            {{ nextStepLabel }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </ng-container>
+
+    <!-- CREATE/EDIT ORDER MODE -->
+    <ng-container *ngIf="!isLoading && isCreateMode">
+        <!-- Breadcrumb -->
+        <div class="breadcrumb text-sm mb-2 font-medium" style="color: var(--color-neutral-60);">
+            Đơn hàng <span class="mx-1">/</span> <span style="color: var(--color-primary);">{{ isEditMode ? 'Cập nhật
+                đơn hàng' : 'Tạo đơn hàng' }}</span>
+        </div>
+
+        <!-- Header -->
+        <div class="page-header py-4">
+            <h1 class="content-title">{{ isEditMode ? 'Cập nhật đơn hàng' : 'Thêm đơn hàng' }}</h1>
+            <div class="header-actions" style="display: flex; gap: 12px;">
+                <button class="btn btn-cancel-light" (click)="goBack()"
+                    style="background-color: #f1f5f9; color: #1e293b; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 24px; font-weight: 700; font-size: 14px; cursor: pointer; transition: background 0.2s;">
+                    HUỶ
+                </button>
+                <button class="btn btn-submit-premium" (click)="isEditMode ? updateEditOrder() : createOrder()"
+                    style="background-color: var(--color-primary); color: white; border: none; border-radius: 8px; padding: 10px 24px; font-weight: 700; font-size: 14px; text-transform: uppercase; cursor: pointer; box-shadow: 0 4px 12px rgba(0, 88, 159, 0.2); transition: all 0.2s;">
+                    {{ isEditMode ? 'LƯU THAY ĐỔI' : 'TẠO ĐƠN HÀNG' }}
+                </button>
+            </div>
+        </div>
+
+        <div class="layout-grid" style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px; align-items: start;">
+            <!-- LEFT COLUMN -->
+            <div class="main-content" style="display: flex; flex-direction: column; gap: 20px;">
+
+                <!-- Customer Section -->
+                <div class="order-info-card"
+                    style="background-color: var(--color-bg-secondary); border-radius: 12px; padding: 24px; box-shadow: var(--shadow-sm);">
+                    <h3
+                        style="margin-top: 0; font-size: 16px; font-weight: bold; border-bottom: 1px solid var(--color-neutral-30); padding-bottom: 10px; margin-bottom: 20px;">
+                        Thông tin khách hàng</h3>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                        <div class="form-group">
+                            <label style="display: block; margin-bottom: 8px; font-size: 14px; font-weight: 500;">Tên
+                                khách hàng <span style="color: red">*</span></label>
+                            <input type="text" [(ngModel)]="newOrder.shippingInfo.fullName"
+                                placeholder="Nhập tên khách hàng"
+                                style="width: 100%; padding: 10px 14px; border: 1px solid var(--color-neutral-40); border-radius: 8px; outline: none;">
+                        </div>
+                        <div class="form-group">
+                            <label style="display: block; margin-bottom: 8px; font-size: 14px; font-weight: 500;">Số
+                                điện thoại <span style="color: red">*</span></label>
+                            <input type="text" [(ngModel)]="newOrder.shippingInfo.phone"
+                                placeholder="Nhập số điện thoại"
+                                style="width: 100%; padding: 10px 14px; border: 1px solid var(--color-neutral-40); border-radius: 8px; outline: none;">
+                        </div>
+                    </div>
+
+                    <h4 style="font-size: 14px; font-weight: bold; margin-bottom: 12px;">Địa chỉ giao hàng</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 15px;">
+                        <div class="form-group">
+                            <select [(ngModel)]="newOrder.shippingInfo.city" (change)="onCityChange()"
+                                style="width: 100%; padding: 10px 14px; border: 1px solid var(--color-neutral-40); border-radius: 8px; outline: none; background-color: var(--color-bg-secondary); cursor: pointer;">
+                                <option value="" disabled selected>Chọn Tỉnh/Thành phố</option>
+                                <option *ngFor="let city of cities" [value]="city.name_with_type">{{ city.name_with_type
+                                    }}</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <select [(ngModel)]="newOrder.shippingInfo.district" (change)="onDistrictChange()"
+                                [disabled]="!newOrder.shippingInfo.city"
+                                style="width: 100%; padding: 10px 14px; border: 1px solid var(--color-neutral-40); border-radius: 8px; outline: none; background-color: var(--color-bg-secondary); cursor: pointer;">
+                                <option value="" disabled selected>Chọn Quận/Huyện</option>
+                                <option *ngFor="let d of districts" [value]="d.name_with_type">{{ d.name_with_type }}
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div class="form-group">
+                            <select [(ngModel)]="newOrder.shippingInfo.ward"
+                                [disabled]="!newOrder.shippingInfo.district"
+                                style="width: 100%; padding: 10px 14px; border: 1px solid var(--color-neutral-40); border-radius: 8px; outline: none; background-color: var(--color-bg-secondary); cursor: pointer;">
+                                <option value="" disabled selected>Chọn Phường/Xã</option>
+                                <option *ngFor="let w of wards" [value]="w.name_with_type">{{ w.name_with_type }}
+                                </option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" [(ngModel)]="newOrder.shippingInfo.address"
+                                placeholder="Thêm số nhà, tên đường..."
+                                style="width: 100%; padding: 10px 14px; border: 1px solid var(--color-neutral-40); border-radius: 8px; outline: none;">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Products Section -->
+                <div class="order-info-card"
+                    style="background-color: var(--color-bg-secondary); border-radius: 12px; padding: 24px; box-shadow: var(--shadow-sm);">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--color-neutral-30); padding-bottom: 10px; margin-bottom: 20px;">
+                        <h3 style="margin: 0; font-size: 16px; font-weight: bold;">Danh sách sản phẩm</h3>
+                        <button class="btn btn-sm btn-outline-primary" (click)="openProductModal()"
+                            style="border: 1px solid var(--color-primary); color: var(--color-primary); background: transparent; padding: 6px 12px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 6px; font-weight: bold;">
+                            <i class="bi bi-plus"></i> Thêm sản phẩm
+                        </button>
+                    </div>
+
+                    <div *ngIf="newOrder.item.length === 0"
+                        style="text-align: center; padding: 30px; color: var(--color-text-tertiary); background-color: var(--color-bg-light); border-radius: 8px; border: 1px dashed #ddd;">
+                        Chưa có sản phẩm nào. Nhấn "Thêm sản phẩm" để chọn!
+                    </div>
+
+                    <div *ngIf="newOrder.item.length > 0">
+                        <div class="product-table-header"
+                            style="display: grid; grid-template-columns: 3fr 1fr 1.5fr 40px; font-weight: bold; background-color: var(--color-bg-light); padding: 10px; border-radius: 8px; margin-bottom: 15px; font-size: 13px;">
+                            <div>TÊN SẢN PHẨM</div>
+                            <div class="text-center">SỐ LƯỢNG</div>
+                            <div class="text-center">TỔNG GIÁ</div>
+                            <div></div>
+                        </div>
+
+                        <div class="product-item" *ngFor="let item of newOrder.item; let i = index"
+                            style="display: grid; grid-template-columns: 3fr 1fr 1.5fr 40px; align-items: center; padding: 10px; border-bottom: 1px solid var(--color-neutral-30);">
+                            <div class="product-info" style="display: flex; gap: 10px; align-items: center;">
+                                <div class="product-image"
+                                    style="width: 40px; height: 40px; background-color: var(--color-bg-light); border-radius: 6px; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+                                    <img *ngIf="item.image" [src]="item.image" alt="Product"
+                                        style="width: 100%; height: 100%; object-fit: contain;">
+                                    <i *ngIf="!item.image" class="bi bi-image" style="color: #ccc;"></i>
+                                </div>
+                                <div class="product-details">
+                                    <h4 style="margin: 0; font-size: 13px; font-weight: 600;">{{ item.productName }}
+                                    </h4>
+                                    <span style="font-size: 11px; color: #888;">{{ item.price | number:'1.0-0'
+                                        }}đ</span>
+                                </div>
+                            </div>
+                            <div class="text-center">
+                                <input type="number" [(ngModel)]="item.quantity" (ngModelChange)="updateTotal()" min="1"
+                                    style="width: 60px; text-align: center; padding: 4px; border: 1px solid var(--color-neutral-40); border-radius: 4px;">
+                            </div>
+                            <div class="text-center font-bold" style="color: var(--color-primary);">{{ (item.price *
+                                item.quantity) | number:'1.0-0' }}đ</div>
+                            <div style="text-align: right;">
+                                <button (click)="removeProduct(i)"
+                                    style="background: transparent; border: none; color: #dc3545; cursor: pointer; padding: 4px;">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- RIGHT COLUMN (SIDEBAR) -->
+            <div class="order-summary-sidebar" style="display: flex; flex-direction: column; gap: 20px;">
+
+                <!-- Payment Method -->
+                <div class="info-card"
+                    style="background-color: var(--color-bg-secondary); border-radius: 12px; padding: 20px; box-shadow: var(--shadow-sm);">
+                    <h3 class="card-title"
+                        style="font-size: 16px; font-weight: bold; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid var(--color-neutral-30);">
+                        Phương thức TT</h3>
+                    <select [(ngModel)]="newOrder.paymentMethod"
+                        style="width: 100%; padding: 10px; border: 1px solid var(--color-neutral-40); border-radius: 8px; outline: none; background-color: var(--color-bg-secondary); cursor: pointer;">
+                        <option value="COD">Thanh toán khi nhận hàng (COD)</option>
+                        <option value="Banking">Chuyển khoản</option>
+                    </select>
+                </div>
+
+                <!-- Promotion -->
+                <div class="info-card"
+                    style="background-color: var(--color-bg-secondary); border-radius: 12px; padding: 20px; box-shadow: var(--shadow-sm);">
+                    <h3 class="card-title"
+                        style="font-size: 16px; font-weight: bold; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid var(--color-neutral-30);">
+                        Mã khuyến mãi</h3>
+                    <select [(ngModel)]="selectedPromotionId" (change)="onPromotionChange()"
+                        style="width: 100%; padding: 10px; border: 1px solid var(--color-neutral-40); border-radius: 8px; outline: none; background-color: var(--color-bg-light); color: var(--color-text-primary); cursor: pointer;">
+                        <option value="">Chọn mã khuyến mãi</option>
+                        <option *ngFor="let promo of activePromotions" [value]="promo._id">
+                            {{ promo.code }} - {{ promo.promotion_name || promo.name }}
+                        </option>
+                    </select>
+                    <div *ngIf="selectedPromotionId"
+                        style="margin-top: 10px; font-size: 12px; color: var(--color-primary);">
+                        {{ getSelectedPromotionName() }}
+                    </div>
+                </div>
+
+                <!-- Order Summary -->
+                <div class="info-card"
+                    style="background-color: var(--color-bg-secondary); border-radius: 12px; padding: 20px; box-shadow: var(--shadow-sm);">
+                    <h3 class="card-title"
+                        style="font-size: 16px; font-weight: bold; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid var(--color-neutral-30);">
+                        Tính tiền</h3>
+                    <div class="summary-row"
+                        style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span style="color: var(--color-text-secondary);">Tổng cộng</span>
+                        <span class="font-bold">{{ newOrder.totalAmount | number:'1.0-0' }}đ</span>
+                    </div>
+                    <div class="summary-row"
+                        style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span style="color: var(--color-text-secondary);">Phí giao hàng</span>
+                        <span class="font-bold">{{ (newOrder.shippingFee || 30000) | number:'1.0-0' }}đ</span>
+                    </div>
+
+                    <!-- Discount Display -->
+                    <div class="summary-row" *ngIf="newOrder.discount > 0"
+                        style="display: flex; justify-content: space-between; margin-bottom: 10px; color: #dc3545;">
+                        <span>Giảm giá ({{ newOrder.code }})</span>
+                        <span class="font-bold">-{{ newOrder.discount | number:'1.0-0' }}đ</span>
+                    </div>
+
+                    <div class="summary-total" style="border-top: 1px solid #eee; padding-top: 15px; margin-top: 10px;">
+                        <div class="summary-row"
+                            style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-size: 1.1rem; font-weight: bold;">CẦN THU</span>
+                            <span class="font-bold" style="font-size: 1.4rem; color: var(--color-primary);">{{
+                                newOrder.totalAmount | number:'1.0-0' }}đ</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Product Search Modal for Create Mode -->
+        <div class="modal-overlay" *ngIf="isProductModalOpen"
+            style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; justify-content: center; align-items: center;">
+            <div class="modal-content"
+                style="background-color: var(--color-bg-secondary); width: 600px; max-width: 90%; max-height: 80vh; border-radius: 16px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+                <div class="modal-header"
+                    style="padding: 20px; border-bottom: 1px solid var(--color-neutral-30); display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <h3 style="margin: 0; font-size: 18px; font-weight: bold;">Tìm kiếm Sản phẩm</h3>
+                        <span *ngIf="isProductsReady" style="font-size: 12px; color: #888;">
+                            {{ filteredProducts.length }} sản phẩm
+                        </span>
+                    </div>
+                    <button (click)="closeProductModal()"
+                        style="background: transparent; border: none; font-size: 24px; cursor: pointer; color: #888;">&times;</button>
+                </div>
+                <div class="modal-body"
+                    style="padding: 20px; flex: 1; overflow: hidden; background-color: var(--color-bg-light); display: flex; flex-direction: column; gap: 16px;">
+
+                    <!-- Search bar (luôn hiển thị) -->
+                    <div class="search-bar" style="position: relative; flex-shrink: 0;">
+                        <i class="bi bi-search"
+                            style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #888;"></i>
+                        <input type="text" placeholder="Tìm tên hoặc mã SKU..." (input)="onSearchProduct($event)"
+                            [disabled]="!isProductsReady"
+                            style="width: 100%; padding: 12px 15px 12px 40px; border: 1px solid var(--color-neutral-40); border-radius: 8px; outline: none; box-shadow: 0 2px 5px rgba(0,0,0,0.05); box-sizing: border-box;">
+                    </div>
+
+                    <!-- Spinner: đang fetch ngầm từ server -->
+                    <div *ngIf="isLoadingProducts && !allProducts.length"
+                        style="text-align: center; padding: 40px 20px;">
+                        <div
+                            style="display:inline-block;width:32px;height:32px;border:3px solid var(--color-neutral-30);border-top-color:var(--color-primary);border-radius:50%;animation:spin 0.7s linear infinite;margin-bottom:12px;">
+                        </div>
+                        <div style="color: #888; font-size: 14px;">Đang tải danh sách sản phẩm...</div>
+                    </div>
+
+                    <!-- Danh sách sản phẩm -->
+                    <div class="product-list" *ngIf="isProductsReady || allProducts.length"
+                        (scroll)="onProductListScroll($event)" style="flex: 1; overflow-y: auto; padding-right: 4px;">
+
+                        <!-- Không có kết quả -->
+                        <div *ngIf="displayedProducts.length === 0"
+                            style="text-align: center; padding: 20px; color: #888;">
+                            Không tìm thấy sản phẩm phù hợp.
+                        </div>
+
+                        <!-- Danh sách sản phẩm hiển thị (slice 20 item) -->
+                        <div class="product-option-item" *ngFor="let p of displayedProducts"
+                            style="display: flex; align-items: center; justify-content: space-between; background-color: var(--color-bg-secondary); padding: 12px 15px; border-radius: 8px; margin-bottom: 10px; border: 1px solid var(--color-neutral-40); box-shadow: 0 2px 4px rgba(0,0,0,0.02); cursor: pointer;"
+                            (click)="selectProduct(p)">
+                            <div style="display: flex; gap: 15px; align-items: center;">
+                                <img *ngIf="p.image || (p.gallery && p.gallery.length)" [src]="p.image || p.gallery[0]"
+                                    alt="p"
+                                    style="width: 50px; height: 50px; object-fit: contain; border-radius: 6px; background-color: var(--color-bg-light);">
+                                <div *ngIf="!(p.image || (p.gallery && p.gallery.length))"
+                                    style="width: 50px; height: 50px; background-color: var(--color-bg-light); border-radius: 6px; display: flex; align-items: center; justify-content: center;">
+                                    <i class="bi bi-image" style="color:#ccc"></i>
+                                </div>
+                                <div>
+                                    <div style="font-weight: bold; font-size: 14px; margin-bottom: 4px;">{{ p.name }}
+                                    </div>
+                                    <div style="font-size: 12px; color: #888;">Tồn kho: {{ p.stock || 0 }}</div>
+                                </div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-weight: bold; color: var(--color-primary); margin-bottom: 4px;">{{
+                                    p.price | number:'1.0-0' }}đ</div>
+                                <button class="btn btn-sm"
+                                    style="background: var(--color-primary); color: white; border: none; padding: 4px 12px; border-radius: 4px; font-size: 12px; cursor: pointer;">Chọn</button>
+                            </div>
+                        </div>
+
+                        <!-- Đã hiển thị hết -->
+                        <div *ngIf="displayedCount >= filteredProducts.length && displayedProducts.length > 0"
+                            style="text-align:center; padding:12px; font-size:12px; color:#aaa;">
+                            Đã hiển thị {{ displayedProducts.length }} / {{ filteredProducts.length }} sản phẩm
+                        </div>
+
+                        <!-- Cuộn để xem thêm -->
+                        <div *ngIf="displayedCount < filteredProducts.length"
+                            style="text-align:center; padding:12px; font-size:12px; color: var(--color-primary); font-weight:500;">
+                            ↓ Cuộn xuống để xem thêm {{ filteredProducts.length - displayedCount }} sản phẩm
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </ng-container>
+
+</div>

@@ -1,0 +1,320 @@
+<div class="orders-container">
+  <!-- Header -->
+  <div class="orders-header">
+    <div>
+      <h1 class="orders-title">NHẮC LỊCH UỐNG THUỐC</h1>
+      <p>Theo dõi lịch uống thuốc của bạn</p>
+    </div>
+    <div class="remind-actions">
+      <button type="button" class="remind-btn remind-btn--secondary" (click)="openDiary()">
+        Xem nhật ký
+      </button>
+      <button type="button" class="remind-btn remind-btn--primary" (click)="openCreate()">
+        Tạo lịch nhắc mới
+      </button>
+    </div>
+  </div>
+
+  <!-- Day tabs (Sticky position outside scrollable content) -->
+  <div class="tab-navigation">
+    <div class="tab-list">
+      @for (day of DAYS; track day; let i = $index) {
+      <button type="button" class="tab-button" [class.active]="selectedDayIndex() === i" (click)="selectDay(i)">
+        <span class="tab-label">{{ day }}</span>
+      </button>
+      }
+    </div>
+  </div>
+
+  <div class="orders-content-wrapper">
+    <div class="orders-content orders-container-wrapper">
+
+      @if (loadError()) {
+      <div class="remind-error">{{ loadError() }}</div>
+      } @else if (loading()) {
+      <div class="remind-loading">
+        <span class="remind-spinner"></span>
+        <p>Đang tải lời nhắc...</p>
+      </div>
+      } @else {
+      <p class="remind-date-label">Ngày {{ formatDateForDisplay(selectedDate()) }}</p>
+
+      <!-- Time sections -->
+      <div class="remind-sections">
+        @for (section of TIME_SECTIONS; track section.key) {
+        <section class="remind-section">
+          <h3 class="remind-section-title">{{ section.label }}</h3>
+          <div class="remind-section-cards">
+            @for (item of remindersForDateAndSection()[section.key]; track item.reminder._id + item.time) {
+            <article class="remind-card" (click)="openDetail(item.reminder)">
+              <div class="remind-card-image">
+                <i class="bi bi-capsule"></i>
+              </div>
+              <div class="remind-card-body">
+                <h4 class="remind-card-name">{{ item.reminder.med_name }}</h4>
+                <p class="remind-card-dosage">
+                  {{ item.reminder.dosage }} {{ item.reminder.unit ? 'x ' + item.reminder.unit : '' }}
+                </p>
+                <p class="remind-card-time">Thời gian uống: {{ item.time }}</p>
+              </div>
+              <button type="button" class="remind-checkbox" [class.remind-checkbox--checked]="item.completed"
+                [attr.aria-label]="item.completed ? 'Đã hoàn thành' : 'Đánh dấu hoàn thành'"
+                (click)="$event.stopPropagation(); toggleComplete(item)">
+                @if (item.completed) {
+                <i class="bi bi-check-lg"></i>
+                }
+              </button>
+            </article>
+            } @empty {
+            <p class="remind-section-empty">Chưa có lời nhắc</p>
+            }
+          </div>
+        </section>
+        }
+      </div>
+      }
+    </div>
+  </div>
+</div>
+
+<!-- Popup: Tạo lời nhắc mới / Chỉnh sửa -->
+@if (showCreatePopup()) {
+<div class="remind-modal-overlay" (click)="closeCreate()">
+  <div class="remind-modal" (click)="$event.stopPropagation()">
+    <div class="remind-modal-header">
+      <h2 class="remind-modal-title">{{ isEditMode() ? 'Chỉnh sửa lời nhắc' : 'Tạo lời nhắc mới' }}</h2>
+      <button type="button" class="remind-modal-close" (click)="closeCreate()" aria-label="Đóng">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+    <div class="remind-modal-body">
+      <div class="remind-form-row remind-form-row--image">
+        <label>Hình ảnh đơn thuốc</label>
+        <label class="remind-form-image-placeholder">
+          <input type="file" accept="image/*" (change)="onImageFileSelected($event)" hidden />
+          @if (formModel().image_url) {
+          <img [src]="formModel().image_url!" alt="Hình ảnh đơn thuốc" />
+          } @else {
+          <i class="bi bi-plus-lg"></i>
+          }
+        </label>
+        @if (imageUploadError()) {
+        <p class="remind-error-text">{{ imageUploadError() }}</p>
+        }
+      </div>
+      <div class="remind-form-row">
+        <label>Tên sản phẩm</label>
+        <input type="text" [ngModel]="formModel().med_name || ''" (ngModelChange)="updateFormField('med_name', $event)"
+          placeholder="Tên thuốc/sản phẩm" />
+      </div>
+      <div class="remind-form-row">
+        <label>Liều lượng mỗi lần dùng:</label>
+        <input type="text" [ngModel]="formModel().dosage || ''" (ngModelChange)="updateFormField('dosage', $event)"
+          placeholder="VD: 1 viên, 500mg" />
+      </div>
+      <div class="remind-form-row">
+        <label>Đơn vị tính:</label>
+        <input type="text" [ngModel]="formModel().unit || ''" (ngModelChange)="updateFormField('unit', $event)"
+          placeholder="VD: Viên" />
+      </div>
+      <div class="remind-form-row">
+        <label>Đường dùng:</label>
+        <input type="text" [ngModel]="formModel().route || ''" (ngModelChange)="updateFormField('route', $event)"
+          placeholder="VD: Uống" />
+      </div>
+      <div class="remind-form-row">
+        <label>Chỉ dẫn sau bữa ăn:</label>
+        <select [ngModel]="formModel().instruction || ''" (ngModelChange)="updateFormField('instruction', $event)">
+          <option value="" disabled>Chọn chỉ dẫn</option>
+          <option value="Trước ăn">Trước ăn</option>
+          <option value="Trong bữa ăn">Trong bữa ăn</option>
+          <option value="Sau ăn">Sau ăn</option>
+          <option value="Không phụ thuộc bữa ăn">Không phụ thuộc bữa ăn</option>
+        </select>
+      </div>
+      <div class="remind-form-row">
+        <label>Thời gian trong ngày:</label>
+        <div class="remind-form-times">
+          @for (t of formModel().reminder_times || ['08:00']; track $index; let i = $index) {
+          <div class="remind-form-time-row">
+            <input type="time" [ngModel]="formModel().reminder_times?.[i] || ''"
+              (ngModelChange)="updateReminderTime(i, $event)" />
+            @if ((formModel().reminder_times?.length ?? 0) > 1) {
+            <button type="button" class="remind-form-time-remove" (click)="removeReminderTime(i)">
+              <i class="bi bi-dash-circle"></i>
+            </button>
+            }
+          </div>
+          }
+          <button type="button" class="remind-btn remind-btn--small" (click)="addReminderTime()">
+            <i class="bi bi-plus"></i> Thêm giờ
+          </button>
+        </div>
+      </div>
+      <div class="remind-form-row">
+        <label>Tần suất:</label>
+        <select [ngModel]="formModel().frequency || ''" (ngModelChange)="updateFormField('frequency', $event)">
+          <option value="" disabled>Chọn tần suất</option>
+          <option value="Daily">Hàng ngày</option>
+          <option value="Every 2 days">Cách ngày</option>
+          <option value="Weekly">Hàng tuần</option>
+          <option value="Monthly">Hàng tháng</option>
+        </select>
+      </div>
+      <div class="remind-form-row remind-form-row--dates">
+        <div class="remind-form-date">
+          <label>Ngày bắt đầu</label>
+          <input type="date" [ngModel]="formModel().start_date || ''"
+            (ngModelChange)="updateFormField('start_date', $event)" />
+        </div>
+        <div class="remind-form-date">
+          <label>Ngày kết thúc</label>
+          <input type="date" [ngModel]="formModel().end_date || ''"
+            (ngModelChange)="updateFormField('end_date', $event)" />
+        </div>
+      </div>
+      <div class="remind-form-row">
+        <label>Ghi chú:</label>
+        <textarea rows="3" [ngModel]="formModel().note || ''" (ngModelChange)="updateFormField('note', $event)"
+          placeholder="Ghi chú thêm..."></textarea>
+      </div>
+    </div>
+    <div class="remind-modal-footer">
+      <button type="button" class="remind-btn remind-btn--secondary" (click)="closeCreate()">
+        Huỷ
+      </button>
+      <button type="button" class="remind-btn remind-btn--primary" (click)="saveReminder()">
+        Lưu thay đổi
+      </button>
+    </div>
+  </div>
+</div>
+}
+
+<!-- Popup: Chi tiết lời nhắc -->
+@if (showDetailPopup(); as reminder) {
+<div class="remind-modal-overlay" (click)="closeDetail()">
+  <div class="remind-modal" (click)="$event.stopPropagation()">
+    <div class="remind-modal-header">
+      <h2 class="remind-modal-title">Chi tiết lời nhắc</h2>
+      <button type="button" class="remind-modal-close" (click)="closeDetail()" aria-label="Đóng">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+    <div class="remind-modal-body">
+      <div class="remind-form-row remind-form-row--image">
+        <label>Đơn thuốc/sản phẩm</label>
+        <div class="remind-form-image-placeholder">
+          <i class="bi bi-capsule"></i> {{ reminder.med_name }}
+        </div>
+      </div>
+      <div class="remind-form-row">
+        <label>Liều lượng mỗi lần dùng:</label>
+        <span>{{ reminder.dosage }}</span>
+      </div>
+      <div class="remind-form-row">
+        <label>Đơn vị tính:</label>
+        <span>{{ reminder.unit || '-' }}</span>
+      </div>
+      <div class="remind-form-row">
+        <label>Đường dùng:</label>
+        <span>{{ reminder.route || '-' }}</span>
+      </div>
+      <div class="remind-form-row">
+        <label>Chỉ dẫn sau bữa ăn:</label>
+        <span>{{ reminder.instruction || '-' }}</span>
+      </div>
+      <div class="remind-form-row">
+        <label>Thời gian trong ngày:</label>
+        <span>{{ (reminder.reminder_times || []).join(', ') }}</span>
+      </div>
+      <div class="remind-form-row">
+        <label>Tần suất:</label>
+        <span>{{ reminder.frequency || '-' }}</span>
+      </div>
+      <div class="remind-form-row">
+        <label>Ngày bắt đầu - Ngày kết thúc:</label>
+        <span>{{ reminder.start_date.slice(0, 10) }} - {{ reminder.end_date.slice(0, 10) }}</span>
+      </div>
+      @if (reminder.note) {
+      <div class="remind-form-row">
+        <label>Ghi chú:</label>
+        <span>{{ reminder.note }}</span>
+      </div>
+      }
+    </div>
+    <div class="remind-modal-footer">
+      <button type="button" class="remind-btn remind-btn--secondary" (click)="openEdit(reminder)">
+        Chỉnh sửa
+      </button>
+      <button type="button" class="remind-btn remind-btn--danger" (click)="deleteReminder(reminder)">
+        Xóa
+      </button>
+      <button type="button" class="remind-btn remind-btn--primary" (click)="closeDetail()">
+        Hoàn thành
+      </button>
+    </div>
+  </div>
+</div>
+}
+
+<!-- Popup: Nhật ký -->
+@if (showDiaryPopup()) {
+<div class="remind-modal-overlay remind-modal-overlay--diary" (click)="closeDiary()">
+  <div class="remind-modal remind-modal--diary" (click)="$event.stopPropagation()">
+    <div class="remind-modal-header">
+      <h2 class="remind-modal-title">Nhật ký</h2>
+      <button type="button" class="remind-modal-close" (click)="closeDiary()" aria-label="Đóng">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+    <div class="remind-diary-body">
+      <div class="remind-diary-calendar">
+        <div class="remind-diary-calendar-nav">
+          <button type="button" (click)="diaryPrevMonth()"><i class="bi bi-chevron-left"></i></button>
+          <span>{{ diaryMonthLabel }}</span>
+          <button type="button" (click)="diaryNextMonth()"><i class="bi bi-chevron-right"></i></button>
+        </div>
+        <div class="remind-diary-calendar-grid">
+          <div class="remind-diary-weekday" *ngFor="let w of ['T2','T3','T4','T5','T6','T7','CN']">
+            {{ w }}
+          </div>
+          @for (d of diaryCalendarDays; track $index) {
+          <button type="button" class="remind-diary-day" [class.remind-diary-day--empty]="!d.isCurrentMonth"
+            [class.remind-diary-day--selected]="d.key === diarySelectedDate()"
+            (click)="d.key && diarySelectedDate.set(d.key)">
+            {{ d.day || '' }}
+          </button>
+          }
+        </div>
+      </div>
+      <div class="remind-diary-list">
+        <h3>Tất cả thuốc</h3>
+        <p class="remind-diary-date-label">Ngày {{ formatDateKey(diarySelectedDate()) }}</p>
+        <div class="remind-diary-items">
+          @for (item of diaryRemindersForDate(); track item.reminder._id + item.time) {
+          <article class="remind-card remind-card--diary">
+            <div class="remind-card-image">
+              <i class="bi bi-capsule"></i>
+            </div>
+            <div class="remind-card-body">
+              <h4 class="remind-card-name">{{ item.reminder.med_name }}</h4>
+              <p class="remind-card-dosage">{{ item.reminder.dosage }} x {{ item.reminder.unit || 'đơn vị' }}</p>
+              <p class="remind-card-time">Thời gian uống: {{ item.time }}</p>
+            </div>
+            <button type="button" class="remind-checkbox" [class.remind-checkbox--checked]="item.completed"
+              (click)="toggleComplete(item, diarySelectedDate())">
+              @if (item.completed) {
+              <i class="bi bi-check-lg"></i>
+              }
+            </button>
+          </article>
+          } @empty {
+          <p class="remind-section-empty">Không có lời nhắc cho ngày này</p>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+}

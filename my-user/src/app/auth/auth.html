@@ -1,1 +1,355 @@
-<p>auth works!</p>
+@if (authService.showAuthModal()) {
+@if (((isForgotPasswordMode && forgotStep === 2) || (isRegisterMode && registerStep === 2)) && otpGenerated &&
+showOtpPopup()) {
+<div class="auth-otp-popup">
+  Mã OTP của bạn: <span class="auth-otp-popup-code">{{ otpGenerated }}</span>
+</div>
+}
+<div class="auth-overlay">
+  <div class="auth-overlay-backdrop" (click)="onBackdropClick($event)" aria-hidden="true"></div>
+  <div class="auth-modal"
+    [class.auth-modal--compact]="(isForgotPasswordMode && forgotStep === 1) || (isRegisterMode && registerStep === 1)"
+    [class.auth-modal--otp]="(isForgotPasswordMode && forgotStep === 2) || (isRegisterMode && registerStep === 2)"
+    role="dialog" aria-labelledby="auth-title" aria-modal="true">
+    <button type="button" class="auth-close" aria-label="Đóng" (click)="authService.closeAuthModal()">
+      <i class="bi bi-x-lg"></i>
+    </button>
+
+    @if (!showQrPopup) {
+    <h2 id="auth-title" class="auth-title">{{ authTitle }}</h2>
+    @if (toast()) {
+    <div class="auth-toast auth-toast--{{ toast()!.type }}" role="alert">
+      <i class="bi" [class.bi-check-circle-fill]="toast()!.type === 'success'"
+        [class.bi-exclamation-circle-fill]="toast()!.type === 'error'"></i>
+      <span>{{ toast()!.message }}</span>
+      <button type="button" class="auth-toast-close" aria-label="Đóng" (click)="dismissToast()">
+        <i class="bi bi-x"></i>
+      </button>
+    </div>
+    }
+    }
+
+    @if ((isForgotPasswordMode && forgotStep === 2) || (isRegisterMode && registerStep === 2)) {
+    <a href="#" class="auth-back-link" (click)="isRegisterMode ? onBackFromRegisterOtp($event) : onBackFromOtp($event)"
+      aria-label="Quay lại nhập số điện thoại">
+      <i class="bi bi-arrow-left"></i> Quay lại
+    </a>
+    }
+    @if (isForgotPasswordMode) {
+    @if (forgotStep === 1) {
+    <!-- QUÊN MẬT KHẨU - Bước 1: Nhập SĐT - nút đặt ngoài form để tránh DOM/form can thiệp -->
+    <form class="auth-form" #forgotForm="ngForm" (keydown.enter)="$event.preventDefault(); onForgotPasswordSubmit()">
+      <div class="auth-field">
+        <label for="forgot-phone">Số điện thoại <span class="required">*</span></label>
+        <input id="forgot-phone" type="tel" inputmode="numeric" pattern="[0-9]*" name="phone" class="auth-input"
+          [(ngModel)]="phone" (ngModelChange)="validatePhoneField()" (blur)="validatePhoneField()"
+          placeholder="Nhập số điện thoại của bạn" [class.auth-input-error]="errors.phone" />
+        @if (errors.phone) {
+        <span class="auth-error">{{ errors.phone }}</span>
+        }
+      </div>
+    </form>
+    <div class="auth-submit-wrap">
+      <!-- Chỉ dùng mousedown: 1 sự kiện, chạy trước khi blur ô SĐT ăn mất click -->
+      <button type="button" class="auth-submit" tabindex="0"
+        (mousedown)="onForgotPasswordSubmit(); $event.preventDefault()">Gửi mã OTP</button>
+    </div>
+    } @else if (forgotStep === 2) {
+    <!-- QUÊN MẬT KHẨU - Bước 2: Nhập OTP - nút đặt ngoài form để tránh DOM/form can thiệp -->
+    <form class="auth-form" #otpForm="ngForm" (keydown.enter)="$event.preventDefault(); onOtpSubmit()">
+      <p class="auth-otp-hint">Mã OTP đã được gửi đến {{ phone }}</p>
+      <div class="auth-otp-inputs">
+        @for (i of [0,1,2,3,4,5]; track i) {
+        <input #otpInput type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="one-time-code"
+          class="auth-otp-digit" [class.auth-input-error]="errors.otp" [ngModel]="otpCode[i] || ''"
+          (ngModelChange)="onOtpDigitChange($event, i)" (keydown)="onOtpKeypress($event)" name="otp{{i}}" />
+        }
+      </div>
+      @if (errors.otp) {
+      <span class="auth-error">{{ errors.otp }}</span>
+      }
+      @if (otpTimer() > 0) {
+      <div class="auth-otp-timer">Hiệu lực mã còn {{ otpTimer() }} giây</div>
+      }
+      @if (otpTimer() > 0 && isOtpLocked) {
+      <p class="auth-otp-resend">Bạn đã nhập quá số lần thử. <a href="#" class="auth-link"
+          (click)="onResendOtp(); $event.preventDefault()">Gửi lại mã OTP</a></p>
+      }
+      @if (otpTimer() <= 0) { <p class="auth-otp-resend">Hết thời gian. <a href="#" class="auth-link"
+          (click)="onResendOtp(); $event.preventDefault()">Gửi lại</a></p>
+        }
+    </form>
+    <div class="auth-submit-wrap">
+      <!-- Chỉ dùng mousedown: 1 sự kiện, chạy trước khi blur ô OTP ăn mất click -->
+      <button type="button" class="auth-submit" tabindex="0" (mousedown)="onOtpSubmit(); $event.preventDefault()">Xác
+        nhận</button>
+    </div>
+    } @else if (forgotStep === 3) {
+    <!-- QUÊN MẬT KHẨU - Bước 3: Đổi mật khẩu -->
+    <form class="auth-form" (ngSubmit)="onForgotChangeSubmit()" #changeForm="ngForm">
+      <div class="auth-field">
+        <label>Số điện thoại <span class="required">*</span></label>
+        <input type="text" class="auth-input" [value]="phone" readonly disabled />
+      </div>
+      <div class="auth-field">
+        <label for="forgot-new-pwd">Mật khẩu <span class="required">*</span></label>
+        <div class="auth-password-wrap">
+          <input id="forgot-new-pwd" [type]="showNewPassword ? 'text' : 'password'" name="password" class="auth-input"
+            [(ngModel)]="password" (ngModelChange)="validatePasswordField(); validateConfirmPasswordField()"
+            (blur)="validatePasswordField(); validateConfirmPasswordField()"
+            placeholder="Mật khẩu mới gồm ít nhất 8 ký tự, 1 chữ in hoa và 1 ký tự đặc biệt"
+            [class.auth-input-error]="errors.password" />
+          <button type="button" class="auth-toggle-pwd" (click)="showNewPassword = !showNewPassword"
+            aria-label="Hiện/ẩn mật khẩu">
+            <i class="bi" [class.bi-eye]="!showNewPassword" [class.bi-eye-slash]="showNewPassword"></i>
+          </button>
+        </div>
+        @if (errors.password) {
+        <span class="auth-error">{{ errors.password }}</span>
+        }
+      </div>
+      <div class="auth-field">
+        <label for="forgot-confirm-pwd">Nhập lại mật khẩu <span class="required">*</span></label>
+        <div class="auth-password-wrap">
+          <input id="forgot-confirm-pwd" [type]="showConfirmNewPassword ? 'text' : 'password'" name="confirmPassword"
+            class="auth-input" [(ngModel)]="confirmPassword" (ngModelChange)="validateConfirmPasswordField()"
+            (blur)="validateConfirmPasswordField()" placeholder="Nhập lại mật khẩu mới"
+            [class.auth-input-error]="errors.confirmPassword" />
+          <button type="button" class="auth-toggle-pwd" (click)="showConfirmNewPassword = !showConfirmNewPassword"
+            aria-label="Hiện/ẩn mật khẩu">
+            <i class="bi" [class.bi-eye]="!showConfirmNewPassword" [class.bi-eye-slash]="showConfirmNewPassword"></i>
+          </button>
+        </div>
+        @if (errors.confirmPassword) {
+        <span class="auth-error">{{ errors.confirmPassword }}</span>
+        }
+      </div>
+      <button type="submit" class="auth-submit" [disabled]="!isForgotChangeFormValid">Đổi mật khẩu</button>
+    </form>
+    }
+    <p class="auth-register">
+      Bạn đã có tài khoản?
+      <a href="#" class="auth-link" (click)="onShowLoginFromForgot($event)">Đăng nhập ngay</a>
+    </p>
+    } @else if (!isRegisterMode) {
+    <!-- ĐĂNG NHẬP -->
+    @if (showQrPopup) {
+    <!-- Popup đăng nhập với mã QR -->
+    <div class="auth-qr-view">
+      <a href="#" class="auth-qr-back-pwd" (click)="onShowPasswordLogin(); $event.preventDefault()">
+        <i class="bi bi-lock-fill"></i> Đăng nhập với mật khẩu
+      </a>
+      <h2 class="auth-qr-title">Đăng nhập với mã QR</h2>
+      <div class="auth-qr-code-wrap">
+        <div class="auth-qr-code-placeholder" aria-hidden="true">
+          <img src="/assets/images/logo/header_logo.png" alt="VitaCare" class="auth-qr-logo" />
+          <svg viewBox="0 0 29 29" fill="none" xmlns="http://www.w3.org/2000/svg" class="auth-qr-svg">
+            <rect width="29" height="29" fill="white" />
+            <rect x="1" y="1" width="7" height="7" fill="black" />
+            <rect x="21" y="1" width="7" height="7" fill="black" />
+            <rect x="1" y="21" width="7" height="7" fill="black" />
+            <rect x="3" y="3" width="3" height="3" fill="white" />
+            <rect x="23" y="3" width="3" height="3" fill="white" />
+            <rect x="11" y="1" width="2" height="2" fill="black" />
+            <rect x="15" y="1" width="2" height="2" fill="black" />
+            <rect x="11" y="5" width="2" height="2" fill="black" />
+            <rect x="1" y="11" width="2" height="2" fill="black" />
+            <rect x="5" y="11" width="2" height="2" fill="black" />
+            <rect x="11" y="11" width="6" height="6" fill="black" />
+            <rect x="13" y="13" width="2" height="2" fill="white" />
+            <rect x="19" y="11" width="2" height="2" fill="black" />
+            <rect x="23" y="11" width="2" height="2" fill="black" />
+            <rect x="1" y="15" width="2" height="2" fill="black" />
+            <rect x="5" y="15" width="2" height="2" fill="black" />
+            <rect x="19" y="15" width="2" height="2" fill="black" />
+            <rect x="23" y="15" width="2" height="2" fill="black" />
+            <rect x="11" y="19" width="2" height="2" fill="black" />
+            <rect x="15" y="19" width="2" height="2" fill="black" />
+            <rect x="21" y="21" width="7" height="7" fill="black" />
+            <rect x="23" y="23" width="3" height="3" fill="white" />
+          </svg>
+        </div>
+      </div>
+      <p class="auth-qr-instruction">Quét mã QR bằng ứng dụng VitaCare</p>
+      <a href="#" class="auth-qr-help" (click)="$event.preventDefault()">Làm Thế Nào Để Quét Mã?</a>
+      <p class="auth-qr-register">
+        Bạn mới biết đến VitaCare?
+        <a href="#" class="auth-link auth-qr-register-link" (click)="onShowPasswordLogin(); onRegister($event)">Đăng
+          ký</a>
+      </p>
+    </div>
+    } @else {
+    <form class="auth-form" (ngSubmit)="onSubmit()" #form="ngForm">
+      <div class="auth-field">
+        <label for="auth-phone">Số điện thoại <span class="required">*</span></label>
+        <input id="auth-phone" type="tel" inputmode="numeric" pattern="[0-9]*" name="phone" class="auth-input"
+          [(ngModel)]="phone" (ngModelChange)="validatePhoneField()" (blur)="validatePhoneField()"
+          placeholder="Nhập số điện thoại của bạn" [class.auth-input-error]="errors.phone" />
+        @if (errors.phone) {
+        <span class="auth-error">{{ errors.phone }}</span>
+        }
+      </div>
+
+      <div class="auth-field">
+        <label for="auth-password">Mật khẩu <span class="required">*</span></label>
+        <div class="auth-password-wrap">
+          <input id="auth-password" [type]="showPassword ? 'text' : 'password'" name="password" class="auth-input"
+            [(ngModel)]="password" (ngModelChange)="validatePasswordField()" (blur)="validatePasswordField()"
+            placeholder="Ít nhất 8 ký tự, 1 chữ in hoa, 1 ký tự đặc biệt" [class.auth-input-error]="errors.password" />
+          <button type="button" class="auth-toggle-pwd" (click)="showPassword = !showPassword"
+            aria-label="Hiện/ẩn mật khẩu">
+            <i class="bi" [class.bi-eye]="!showPassword" [class.bi-eye-slash]="showPassword"></i>
+          </button>
+        </div>
+        <div class="auth-field-footer">
+          @if (errors.password) {
+          <span class="auth-error">{{ errors.password }}</span>
+          }
+          <a href="#" class="auth-link auth-link-forgot" (click)="onForgotPassword($event)">Quên mật khẩu?</a>
+        </div>
+      </div>
+
+      <button type="submit" class="auth-submit" [disabled]="!isLoginFormValid">Đăng nhập</button>
+    </form>
+
+    <button type="button" class="auth-vneid-btn" (click)="onVNeIDLogin()">
+      <span class="auth-vneid-text">Đăng nhập bằng tài khoản<br>Định danh điện tử</span>
+      <img src="/assets/icon/VNeID.png" alt="VNeID" class="auth-vneid-icon" />
+    </button>
+
+    <button type="button" class="auth-qr-btn" (click)="onShowQrLogin()">
+      <span class="auth-qr-btn-text">Đăng nhập bằng mã QR</span>
+      <i class="bi bi-qr-code-scan auth-qr-btn-icon"></i>
+    </button>
+
+    <div class="auth-divider">
+      <span>hoặc</span>
+    </div>
+
+    <div class="auth-social">
+      <button type="button" class="auth-social-btn" (click)="onGoogleLogin()" aria-label="Đăng nhập bằng Google">
+        <svg class="auth-google-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path fill="#4285F4"
+            d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+          <path fill="#34A853"
+            d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+          <path fill="#FBBC05"
+            d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+          <path fill="#EA4335"
+            d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+        </svg>
+      </button>
+      <button type="button" class="auth-social-btn auth-social-fb" (click)="onFacebookLogin()"
+        aria-label="Đăng nhập bằng Facebook">
+        <i class="bi bi-facebook"></i>
+      </button>
+    </div>
+
+    <p class="auth-register">
+      Bạn chưa có tài khoản?
+      <a href="#" class="auth-link" (click)="onRegister($event)">Đăng ký ngay</a>
+    </p>
+    }
+    } @else {
+    <!-- ĐĂNG KÝ -->
+    @if (registerStep === 1) {
+    <!-- ĐĂNG KÝ - Bước 1: Nhập SĐT -->
+    <form class="auth-form" #registerPhoneForm="ngForm"
+      (keydown.enter)="$event.preventDefault(); onRegisterOtpSubmit()">
+      <div class="auth-field">
+        <label for="reg-phone">Số điện thoại <span class="required">*</span></label>
+        <input id="reg-phone" type="tel" inputmode="numeric" pattern="[0-9]*" name="phone" class="auth-input"
+          [(ngModel)]="phone" (ngModelChange)="validatePhoneField()" (blur)="validatePhoneField()"
+          placeholder="Nhập số điện thoại của bạn" [class.auth-input-error]="errors.phone" />
+        @if (errors.phone) {
+        <span class="auth-error">{{ errors.phone }}</span>
+        }
+      </div>
+    </form>
+    <div class="auth-submit-wrap">
+      <button type="button" class="auth-submit" tabindex="0"
+        (mousedown)="onRegisterOtpSubmit(); $event.preventDefault()">Gửi mã OTP</button>
+    </div>
+    } @else if (registerStep === 2) {
+    <!-- ĐĂNG KÝ - Bước 2: Nhập OTP -->
+    <form class="auth-form" #registerOtpForm="ngForm" (keydown.enter)="$event.preventDefault(); onRegisterOtpVerify()">
+      <p class="auth-otp-hint">Mã OTP đã được gửi đến {{ phone }}</p>
+      <div class="auth-otp-inputs">
+        @for (i of [0,1,2,3,4,5]; track i) {
+        <input #otpInput type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="one-time-code"
+          class="auth-otp-digit" [class.auth-input-error]="errors.otp" [ngModel]="otpCode[i] || ''"
+          (ngModelChange)="onOtpDigitChange($event, i)" (keydown)="onOtpKeypress($event)" name="otp{{i}}" />
+        }
+      </div>
+      @if (errors.otp) {
+      <span class="auth-error">{{ errors.otp }}</span>
+      }
+      @if (otpTimer() > 0) {
+      <div class="auth-otp-timer">Hiệu lực mã còn {{ otpTimer() }} giây</div>
+      }
+      @if (otpTimer() > 0 && isOtpLocked) {
+      <p class="auth-otp-resend">Bạn đã nhập quá số lần thử. <a href="#" class="auth-link"
+          (click)="onRegisterOtpSubmit(); $event.preventDefault()">Gửi lại mã OTP</a></p>
+      }
+      @if (otpTimer() <= 0) { <p class="auth-otp-resend">Hết thời gian. <a href="#" class="auth-link"
+          (click)="onRegisterOtpSubmit(); $event.preventDefault()">Gửi lại</a></p>
+        }
+    </form>
+    <div class="auth-submit-wrap">
+      <button type="button" class="auth-submit" tabindex="0"
+        (mousedown)="onRegisterOtpVerify(); $event.preventDefault()">Xác
+        nhận</button>
+    </div>
+    } @else if (registerStep === 3) {
+    <!-- ĐĂNG KÝ - Bước 3: Tạo mật khẩu -->
+    <form class="auth-form" (ngSubmit)="onRegisterSubmit()" #registerForm="ngForm">
+      <div class="auth-field">
+        <label>Số điện thoại <span class="required">*</span></label>
+        <input type="text" class="auth-input" [value]="phone" readonly disabled />
+      </div>
+      <div class="auth-field">
+        <label for="reg-password">Mật khẩu <span class="required">*</span></label>
+        <div class="auth-password-wrap">
+          <input id="reg-password" [type]="showPassword ? 'text' : 'password'" name="password" class="auth-input"
+            [(ngModel)]="password" (ngModelChange)="validatePasswordField(); validateConfirmPasswordField()"
+            (blur)="validatePasswordField(); validateConfirmPasswordField()"
+            placeholder="Ít nhất 8 ký tự, 1 chữ in hoa, 1 ký tự đặc biệt" [class.auth-input-error]="errors.password" />
+          <button type="button" class="auth-toggle-pwd" (click)="showPassword = !showPassword"
+            aria-label="Hiện/ẩn mật khẩu">
+            <i class="bi" [class.bi-eye]="!showPassword" [class.bi-eye-slash]="showPassword"></i>
+          </button>
+        </div>
+        @if (errors.password) {
+        <span class="auth-error">{{ errors.password }}</span>
+        }
+      </div>
+
+      <div class="auth-field">
+        <label for="reg-confirm">Nhập lại mật khẩu <span class="required">*</span></label>
+        <div class="auth-password-wrap">
+          <input id="reg-confirm" [type]="showConfirmPassword ? 'text' : 'password'" name="confirmPassword"
+            class="auth-input" [(ngModel)]="confirmPassword" (ngModelChange)="validateConfirmPasswordField()"
+            (blur)="validateConfirmPasswordField()" placeholder="Nhập lại mật khẩu vừa nhập"
+            [class.auth-input-error]="errors.confirmPassword" />
+          <button type="button" class="auth-toggle-pwd" (click)="showConfirmPassword = !showConfirmPassword"
+            aria-label="Hiện/ẩn mật khẩu">
+            <i class="bi" [class.bi-eye]="!showConfirmPassword" [class.bi-eye-slash]="showConfirmPassword"></i>
+          </button>
+        </div>
+        @if (errors.confirmPassword) {
+        <span class="auth-error">{{ errors.confirmPassword }}</span>
+        }
+      </div>
+
+      <button type="submit" class="auth-submit" [disabled]="!isRegisterFormValid">Đăng ký</button>
+    </form>
+    }
+
+    <p class="auth-register">
+      Bạn đã có tài khoản?
+      <a href="#" class="auth-link" (click)="onShowLogin($event)">Đăng nhập ngay</a>
+    </p>
+    }
+  </div>
+</div>
+}

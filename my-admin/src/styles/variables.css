@@ -7,68 +7,60 @@
     /* ========== COLOR PALETTE ========== */
 
     /* Primary Colors - Màu chủ đạo */
-    --color-primary: #00589F;
-    /* Main Blue */
-    --color-primary-hover: #2B3E66;
+    --color-primary: #4A55A2;
+    /* Main Slate Blue */
+    --color-primary-hover: #3C4690;
     /* Hover state */
-    --color-primary-light: #43A2E6;
+    --color-primary-light: #7A85CC;
     /* Light Blue */
-    --color-primary-lighter: #AACEF2;
+    --color-primary-lighter: #A9B3E8;
     /* Very Light Blue */
-    --color-primary-bg: #DAECFF;
+    --color-primary-bg: #DDE5F4;
     /* Background Blue */
 
-    /* Secondary Colors - Màu phụ */
-    --color-secondary: #BAA7DE;
+    /* Secondary Colors - Màu phụ (Brand palette) */
+    --color-secondary: #B620E0;
     /* Purple/Lavender */
-    --color-secondary-hover: #7B63C8;
-    --color-secondary-bg: #FECFA;
+    --color-secondary-hover: #9619B8;
+    --color-secondary-bg: #F1ECFA;
+    /* Very light lavender */
 
-    /* Success Colors - Thành công */
+    /* Status Colors - Theo Color System chính thức */
     --color-success: #00589F;
-    /* Sử dụng primary */
-    --color-success-hover: #2B3E66;
-    --color-success-light: #43A2E6;
+    /* Success trùng Primary */
     --color-success-bg: #DAECFF;
 
-    /* Warning Colors - Cảnh báo */
     --color-warning: #F59E0B;
     /* Orange */
     --color-warning-hover: #D97706;
-    --color-warning-light: #FCD34D;
     --color-warning-bg: #FFF7ED;
 
-    /* Danger Colors - Nguy hiểm */
     --color-danger: #C42326;
     /* Red */
     --color-danger-hover: #8B1E19;
-    --color-danger-light: #EF4444;
-    --color-danger-bg: #FEEAD;
+    --color-danger-bg: #FEEAE9;
 
-    /* Info Colors - Thông tin */
-    --color-info: #5A5BDC;
-    /* Blue-Purple */
-    --color-info-hover: #7B63C8;
-    --color-info-bg: #FECFA;
+    --color-info: #B9A6DC;
+    /* Light Purple */
+    --color-info-hover: #7B63C6;
+    --color-info-bg: #F1ECFA;
 
     /* Neutral Colors - Màu trung tính */
     --color-neutral-100: #0A0A0A;
-    /* Đen đậm nhất */
-    --color-neutral-90: #242242;
+    --color-neutral-90: #424242;
     --color-neutral-80: #616161;
     --color-neutral-70: #757575;
     --color-neutral-60: #9E9E9E;
     --color-neutral-50: #C2C2C2;
-    --color-neutral-40: #ECECED;
+    --color-neutral-40: #E0E0E0;
     --color-neutral-30: #EDEDED;
     --color-neutral-20: #F5F5F5;
     --color-neutral-10: #FFFFFF;
-    /* Trắng */
 
     /* Background Colors */
-    --color-bg-primary: #00589F;
+    --color-bg-primary: #4A55A2;
     --color-bg-secondary: #FFFFFF;
-    --color-bg-light: #F5F5F5;
+    --color-bg-light: #EEF3F9;
 
     /* Text Colors */
     --color-text-primary: #0A0A0A;
@@ -85,25 +77,22 @@
 
     /* Font Sizes */
     --font-size-xs: 12px;
-    /* Extra small */
     --font-size-sm: 14px;
-    /* Small */
     --font-size-base: 16px;
-    /* Base/Normal */
     --font-size-lg: 18px;
-    /* Large */
     --font-size-xl: 20px;
-    /* Extra large */
     --font-size-2xl: 24px;
-    /* 2X large */
     --font-size-3xl: 30px;
-    /* 3X large */
     --font-size-4xl: 36px;
-    /* 4X large */
     --font-size-5xl: 48px;
-    /* 5X large */
     --font-size-6xl: 60px;
-    /* 6X large */
+
+    /* Content title */
+    --font-content-title-family: var(--font-family-title);
+    --font-content-title-size: var(--font-size-2xl);
+    --font-content-title-weight: var(--font-weight-bold);
+    --font-content-title-color: var(--color-text-primary);
+    /* Updated to text-primary or specific color if needed, usually dark */
 
     /* Font Weights */
     --font-weight-light: 300;
@@ -120,8 +109,6 @@
     --line-height-loose: 2;
 
     /* ========== SPACING ========== */
-
-    /* Padding & Margin */
     --spacing-0: 0;
     --spacing-1: 4px;
     --spacing-2: 8px;
@@ -137,18 +124,18 @@
     --spacing-24: 96px;
 
     /* ========== BORDER RADIUS ========== */
-
     --radius-none: 0;
     --radius-sm: 4px;
     --radius-base: 6px;
     --radius-md: 8px;
+    /* Buttons, Inputs */
     --radius-lg: 12px;
+    /* Cards */
     --radius-xl: 16px;
     --radius-2xl: 24px;
     --radius-full: 9999px;
 
     /* ========== SHADOWS ========== */
-
     --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
     --shadow-base: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
     --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
@@ -157,13 +144,11 @@
     --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 
     /* ========== TRANSITIONS ========== */
-
     --transition-fast: 150ms ease-in-out;
     --transition-base: 250ms ease-in-out;
     --transition-slow: 350ms ease-in-out;
 
     /* ========== Z-INDEX ========== */
-
     --z-dropdown: 1000;
     --z-sticky: 1020;
     --z-fixed: 1030;
@@ -172,8 +157,7 @@
     --z-popover: 1060;
     --z-tooltip: 1070;
 
-    /* ========== BREAKPOINTS (for reference in JS) ========== */
-
+    /* ========== BREAKPOINTS ========== */
     --breakpoint-xs: 0;
     --breakpoint-sm: 576px;
     --breakpoint-md: 768px;
@@ -205,7 +189,7 @@
 :root {
     --input-padding-y: var(--spacing-3);
     --input-padding-x: var(--spacing-4);
-    --input-font-size: var(--font-size-base);
+    --input-font-size: var(--font-size-sm);
     --input-border-radius: var(--radius-md);
     --input-border-color: var(--color-neutral-40);
     --input-focus-border-color: var(--color-primary);
@@ -223,4 +207,42 @@
 :root {
     --container-max-width: 1400px;
     --container-padding: var(--spacing-4);
+}
+
+/* Dark Mode Overrides - Premium Midnight Blue Theme (Brighter & Clearer) */
+body.dark-mode {
+    /* Backgrounds: Slate Palette - Made slightly lighter for better "sáng sủa" feel */
+    --color-bg-primary: #1e293b;
+    /* Slate 800 instead of 900 */
+    --color-bg-secondary: #334155;
+    /* Slate 700 instead of 800 */
+    --color-bg-light: #0f172a;
+    /* Slate 900 for main background depth */
+
+    /* Text - Increased contrast */
+    --color-text-primary: #ffffff;
+    --color-text-secondary: #ffffff;
+    --color-text-tertiary: #ffffff;
+    --color-text-inverse: #ffffff;
+
+    /* Neutrals */
+    --color-neutral-10: #334155;
+    --color-neutral-20: #475569;
+    --color-neutral-30: #64748b;
+    --color-neutral-40: #94a3b8;
+    --color-neutral-50: #e2e8f0;
+    --color-neutral-60: #ffffff;
+    --color-neutral-70: #ffffff;
+    --color-neutral-80: #ffffff;
+    --color-neutral-90: #ffffff;
+
+    /* Branding adjustment for dark mode - More vibrant */
+    --color-primary: #8e99f3;
+    /* Brighter Blue-Lavender */
+    --color-primary-hover: #a5afff;
+    --color-primary-bg: rgba(142, 153, 243, 0.2);
+
+    /* Shadows - softer but more defined */
+    --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.4);
+    --shadow-base: 0 8px 12px -3px rgba(0, 0, 0, 0.4);
 }

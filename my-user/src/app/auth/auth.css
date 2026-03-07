@@ -1,0 +1,825 @@
+/* VitaCare Auth Popup - Bộ nhận diện thương hiệu */
+:host {
+  display: contents;
+  font-family: Inter, Arimo, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+/* Overlay - không nhận click, để click luôn tới modal/nút */
+.auth-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 20px;
+  animation: auth-fadeIn 0.2s ease-out;
+  pointer-events: none;
+}
+
+/* Lớp nền mờ - chỉ lớp này nhận click để đóng khi bấm ra ngoài */
+.auth-overlay-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(30, 98, 164, 0.25);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 9998;
+  pointer-events: auto;
+}
+
+/* Modal - luôn nhận click, nằm trên backdrop */
+.auth-overlay .auth-modal {
+  position: relative;
+  z-index: 10000;
+  pointer-events: auto;
+}
+
+@keyframes auth-fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Modal - kích thước cố định cho cả đăng nhập và đăng ký */
+.auth-modal {
+  position: relative;
+  width: 100%;
+  max-width: 460px;
+  min-height: 400px;
+  background: var(--color-neutral-10);
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(30, 98, 164, 0.2), 0 0 0 1px rgba(116, 94, 146, 0.08);
+  padding: 32px 36px 28px;
+  animation: auth-slideFromCorner 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  display: flex;
+  flex-direction: column;
+}
+
+@keyframes auth-slideFromCorner {
+  from {
+    opacity: 0;
+    transform: translate(-40px, -30px) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: translate(0, 0) scale(1);
+  }
+}
+
+/* Popup quên mật khẩu - thu nhỏ vừa nội dung */
+.auth-modal--compact {
+  min-height: unset;
+  padding: 24px 32px 20px;
+}
+
+/* Popup nhập mã OTP - cùng size với popup đăng nhập/đăng ký */
+.auth-modal--otp {
+  min-height: 400px;
+  /* Giữ max-width 460px từ .auth-modal, padding chuẩn */
+}
+
+.auth-back-link {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-primary);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.2s;
+  z-index: 2;
+}
+
+.auth-back-link:hover {
+  color: var(--color-primary-hover);
+  text-decoration: underline;
+}
+
+.auth-back-link i {
+  font-size: 16px;
+}
+
+@keyframes auth-slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.auth-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: var(--color-primary-bg);
+  color: var(--color-primary);
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  font-size: 14px;
+}
+
+.auth-close:hover {
+  background: var(--color-primary-lighter);
+  color: var(--color-primary-hover);
+}
+
+.auth-close:active {
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
+}
+
+/* Title - thống nhất kích thước và vị trí */
+.auth-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  text-align: center;
+  margin: 0 0 24px;
+  letter-spacing: 0.5px;
+  line-height: 1.2;
+}
+
+/* Popup thông báo khi đăng nhập */
+.auth-toast {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  animation: auth-slideUp 0.3s ease-out;
+}
+.auth-toast .bi:first-child {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+.auth-toast span {
+  flex: 1;
+}
+.auth-toast-close {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: rgba(0, 0, 0, 0.08);
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  color: inherit;
+  opacity: 0.85;
+  transition: opacity 0.2s;
+}
+.auth-toast-close:hover {
+  opacity: 1;
+}
+.auth-toast--success {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+  border: 1px solid var(--color-success-light);
+}
+.auth-toast--error {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+  border: 1px solid var(--color-danger-light);
+}
+
+.auth-modal--compact .auth-title {
+  margin-bottom: 18px;
+}
+
+.auth-modal--compact .auth-form {
+  gap: 22px;
+}
+
+.auth-modal--compact .auth-field {
+  gap: 6px;
+}
+
+.auth-modal--compact .auth-register {
+  margin-top: 16px;
+}
+
+/* OTP - Quên mật khẩu bước 2 - đồng nhất font chữ và size giữa số và chữ */
+.auth-otp-hint {
+  font-size: 14px;
+  font-weight: 500;
+  font-variant-numeric: normal;
+  font-family: var(--font-family-base);
+  color: var(--color-text-secondary);
+  margin: 0 0 14px;
+  text-align: center;
+}
+
+.auth-otp-inputs {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 6px;
+}
+
+.auth-modal--otp .auth-otp-inputs {
+  gap: 10px;
+}
+
+.auth-otp-digit {
+  width: 52px;
+  height: 52px;
+  text-align: center;
+  font-size: 20px;
+  font-weight: 600;
+  font-variant-numeric: normal;
+  font-family: var(--font-family-base);
+  border: 1px solid var(--color-neutral-40);
+  border-radius: 10px;
+  background: var(--color-neutral-20);
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.auth-otp-digit:focus,
+.auth-otp-digit:active {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px var(--color-primary-bg);
+  outline: none;
+}
+
+.auth-otp-timer {
+  padding: 10px;
+  background: var(--color-neutral-20);
+  border-radius: 8px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 500;
+  font-variant-numeric: normal;
+  font-family: var(--font-family-base);
+  color: var(--color-text-secondary);
+  margin-bottom: 10px;
+}
+
+.auth-otp-resend {
+  text-align: center;
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  margin: 0 0 10px;
+}
+
+.auth-otp-resend .auth-link {
+  font-weight: 600;
+}
+
+.auth-submit--secondary {
+  background: var(--color-neutral-80) !important;
+  color: var(--color-text-primary);
+}
+
+.auth-submit--secondary:hover {
+  background: var(--color-neutral-90) !important;
+}
+
+.auth-submit--secondary:active:not(:disabled) {
+  background: var(--color-primary) !important;
+  color: var(--color-text-inverse);
+}
+
+.auth-field-hint {
+  font-size: 12px;
+  color: var(--color-text-tertiary);
+  margin: -4px 0 6px;
+}
+
+.auth-input:disabled {
+  background: var(--color-neutral-30);
+  color: var(--color-text-secondary);
+  cursor: not-allowed;
+}
+
+/* Popup mã OTP - góc phải màn hình, 1 dòng, màu thương hiệu */
+/* Popup hiển thị mã OTP - pointer-events: none để không chặn click vào nút bên dưới */
+.auth-otp-popup {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 10000;
+  padding: 12px 18px;
+  background: var(--color-primary);
+  border-radius: var(--radius-lg);
+  color: var(--color-text-inverse);
+  font-family: var(--font-family-base);
+  font-size: 12px;
+  font-weight: var(--font-weight-normal);
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  animation: auth-otp-popup-in 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+
+.auth-otp-popup-code {
+  font-size: 20px;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 4px;
+}
+
+@keyframes auth-otp-popup-in {
+  from {
+    opacity: 0;
+    transform: translate(40px, 0) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: translate(0, 0) scale(1);
+  }
+}
+
+/* Form */
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.auth-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.auth-field label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.auth-field .required {
+  color: var(--color-danger);
+}
+
+.auth-input {
+  width: 100%;
+  height: 44px;
+  padding: 0 16px;
+  font-size: 14px;
+  color: var(--color-text-primary);
+  background: var(--color-neutral-20);
+  border: 1px solid var(--color-neutral-40);
+  border-radius: 12px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+}
+
+.auth-input::placeholder {
+  color: var(--color-text-tertiary);
+  font-size: 13px;
+}
+
+.auth-input:hover {
+  border-color: var(--color-neutral-50);
+}
+
+.auth-input:focus,
+.auth-input:active {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-bg);
+  outline: none;
+}
+
+.auth-input-error {
+  border-color: var(--color-danger) !important;
+  background: var(--color-danger-bg) !important;
+}
+
+.auth-input-error:focus {
+  box-shadow: 0 0 0 3px rgba(230, 57, 70, 0.15) !important;
+}
+
+.auth-error {
+  font-size: 12px;
+  color: var(--color-danger);
+  margin-top: 2px;
+}
+
+.auth-password-wrap {
+  position: relative;
+}
+
+.auth-password-wrap .auth-input {
+  padding-right: 44px;
+}
+
+.auth-toggle-pwd {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+  padding: 4px;
+  font-size: 16px;
+}
+
+.auth-toggle-pwd:hover {
+  color: var(--color-primary);
+}
+
+.auth-field-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.auth-field-footer .auth-error {
+  flex: 1;
+  margin-top: 0;
+}
+
+/* Wrapper nút đặt ngoài form - không chặn sự kiện */
+.auth-submit-wrap {
+  width: 100%;
+  margin-top: 4px;
+  pointer-events: auto;
+  user-select: none;
+}
+
+/* Submit - VitaCare gradient - luôn nhận click, không disable */
+.auth-submit {
+  width: 100%;
+  height: 48px;
+  margin-top: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-text-inverse);
+  background: var(--color-primary);
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.1s;
+  pointer-events: auto;
+  touch-action: manipulation;
+}
+
+.auth-submit:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+  opacity: 1;
+  transform: translateY(-1px);
+}
+
+.auth-submit:active:not(:disabled) {
+  transform: translateY(0);
+  background: var(--color-primary-hover);
+}
+
+.auth-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: var(--color-neutral-60);
+}
+
+/* VNeID - Đăng nhập bằng tài khoản Định danh điện tử - chữ căn giữa như Đăng nhập */
+.auth-vneid-btn {
+  position: relative;
+  width: 100%;
+  height: 56px;
+  margin-top: 12px;
+  padding: 0 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-danger);
+  border: none;
+  border-radius: 10px;
+  color: var(--color-text-inverse);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.1s;
+}
+
+.auth-vneid-btn:hover {
+  background: var(--color-primary-hover);
+  color: var(--color-text-inverse);
+  transform: translateY(-1px);
+}
+
+.auth-vneid-btn:active {
+  transform: translateY(0);
+  background: var(--color-primary-hover);
+  color: var(--color-text-inverse);
+}
+
+.auth-vneid-text {
+  text-align: center;
+  line-height: 1.3;
+}
+
+.auth-vneid-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 52px;
+  height: 52px;
+  object-fit: contain;
+}
+
+/* Đăng nhập bằng mã QR - màu chủ đạo VitaCare, icon thẳng hàng với VNeID */
+.auth-qr-btn {
+  position: relative;
+  width: 100%;
+  height: 48px;
+  margin-top: 12px;
+  padding: 0 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-primary);
+  border: none;
+  border-radius: 10px;
+  color: var(--color-text-inverse);
+  font-family: var(--font-family-base);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s, background 0.2s, transform 0.1s;
+}
+
+.auth-qr-btn:hover {
+  background: var(--color-primary-hover);
+  color: var(--color-text-inverse);
+}
+
+.auth-qr-btn:active {
+  background: var(--color-primary-hover);
+  color: var(--color-text-inverse);
+  transform: translateY(0);
+}
+
+.auth-qr-btn-text {
+  text-align: center;
+}
+
+.auth-qr-btn-icon {
+  position: absolute;
+  right: 26px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Divider */
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 20px 0 18px;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--color-neutral-30);
+}
+
+.auth-divider span {
+  font-size: 13px;
+  color: var(--color-text-tertiary);
+  font-weight: 500;
+}
+
+/* Social */
+.auth-social {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+}
+
+.auth-social-btn {
+  width: 48px;
+  height: 48px;
+  border: 1px solid var(--color-neutral-30);
+  background: var(--color-neutral-10);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, transform 0.1s;
+}
+
+.auth-social-btn img,
+.auth-social-btn .auth-google-icon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+.auth-social-btn:hover {
+  background: var(--color-primary-bg);
+  border-color: var(--color-primary);
+  transform: scale(1.05);
+}
+
+.auth-social-btn:active {
+  background: var(--color-primary-lighter);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  transform: scale(0.98);
+}
+
+.auth-social-fb {
+  color: var(--color-primary);
+  font-size: 22px;
+}
+
+.auth-social-fb:hover {
+  background: var(--color-primary-bg);
+  border-color: var(--color-primary);
+}
+
+.auth-social-fb:active {
+  background: var(--color-primary-lighter);
+  border-color: var(--color-primary);
+}
+
+/* Register */
+.auth-register {
+  text-align: center;
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  margin: 20px 0 0;
+}
+
+.auth-link {
+  color: var(--color-primary);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.auth-link:hover {
+  color: var(--color-primary-hover);
+}
+
+.auth-link:active {
+  color: var(--color-primary-hover);
+}
+
+/* Quên mật khẩu - mặc định xám, nhỏ; hover xanh; căn phải */
+.auth-link-forgot {
+  color: var(--color-text-tertiary);
+  font-size: 12px;
+  margin-left: auto;
+}
+
+.auth-link-forgot:hover {
+  color: var(--color-primary);
+}
+
+.auth-link-forgot:active {
+  color: var(--color-primary-hover);
+}
+
+/* Popup đăng nhập với mã QR - VitaCare branding */
+.auth-qr-view {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 0;
+}
+
+.auth-qr-back-pwd {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-primary);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  text-decoration: none;
+  margin-bottom: 12px;
+  transition: color 0.2s;
+}
+
+.auth-qr-back-pwd:hover {
+  color: var(--color-primary-hover);
+  text-decoration: underline;
+}
+
+.auth-qr-back-pwd i {
+  font-size: 13px;
+}
+
+.auth-qr-title {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin: 0 0 20px;
+  text-align: left;
+  width: 100%;
+}
+
+.auth-qr-code-wrap {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  margin-bottom: 20px;
+  padding: 16px;
+  background: var(--color-neutral-10);
+  border: 1px solid var(--color-neutral-40);
+  border-radius: var(--radius-lg);
+}
+
+.auth-qr-code-placeholder {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.auth-qr-svg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.auth-qr-logo {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 52px;
+  height: 52px;
+  min-width: 52px;
+  min-height: 52px;
+  object-fit: contain;
+  background: var(--color-neutral-10);
+  padding: 6px;
+  border-radius: 8px;
+  z-index: 10;
+  box-shadow: 0 0 0 3px var(--color-neutral-10);
+  pointer-events: none;
+}
+
+.auth-qr-instruction {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  margin: 0 0 12px;
+}
+
+.auth-qr-help {
+  font-size: var(--font-size-sm);
+  color: var(--color-primary);
+  text-decoration: underline;
+  margin-bottom: 20px;
+}
+
+.auth-qr-help:hover {
+  color: var(--color-primary-hover);
+}
+
+.auth-qr-register {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.auth-qr-register-link {
+  color: var(--color-primary);
+  margin-left: 4px;
+}

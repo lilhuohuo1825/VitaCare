@@ -1,1 +1,601 @@
-<p>productmanage works!</p>
+<div class="container product-manage-container">
+    <!-- Breadcrumb -->
+    <div class="breadcrumb text-sm mb-2 font-medium" style="color: var(--color-neutral-60);">
+        Quản lý Sản phẩm <span class="mx-1">/</span> <span style="color: var(--color-primary);">Danh sách sản
+            phẩm</span>
+    </div>
+
+    <!-- Header -->
+    <div class="page-header py-4"
+        style="background: var(--color-bg-light); border-radius: 20px; padding: 20px 30px; box-shadow: var(--shadow-sm); margin-bottom: 20px;">
+        <h1 class="content-title" style="margin: 0; font-size: 28px; text-transform: uppercase;">Danh sách sản phẩm</h1>
+        <button class="btn-add-action" (click)="openAddProductModal()">
+            <i class="bi bi-plus-lg"></i>
+            Thêm sản phẩm
+        </button>
+    </div>
+
+    <!-- Filter & Toolbar -->
+    <div class="filter-bar py-4">
+        <div class="flex items-center gap-4" style="display: flex; gap: 16px; align-items: center;">
+            <div class="search-wrapper">
+                <input type="text" class="search-input" placeholder="Tìm kiếm tên, SKU..." (input)="onSearch($event)">
+                <i class="bi bi-search search-icon"></i>
+            </div>
+            <div class="selection-info" *ngIf="selectedCount > 0">
+                <span class="highlight">{{ selectedCount }}</span> đã chọn
+            </div>
+        </div>
+
+        <div class="actions-group">
+            <button class="btn btn-sm action-btn icon-text" (click)="openEditProductModal()"
+                [disabled]="selectedCount !== 1" [class.disabled]="selectedCount !== 1">
+                <i class="bi bi-pencil"></i> Chỉnh
+            </button>
+
+            <!-- Multilevel Filter Dropdown -->
+            <div class="dropdown-container">
+                <button class="btn btn-sm action-btn icon-text" [class.active]="isFilterOpen || activeFilterCount > 0"
+                    (click)="toggleFilterDropdown($event)">
+                    <i class="bi bi-sliders"></i> Lọc
+                    <span class="selected-badge" *ngIf="activeFilterCount > 0">{{ activeFilterCount }}</span>
+                </button>
+
+                <div class="dropdown-menu-multilevel" *ngIf="isFilterOpen" [class.show]="isFilterOpen"
+                    (click)="$event.stopPropagation()">
+                    <!-- Sequential Category Filter -->
+                    <div class="dropdown-item-parent">
+                        <div class="dropdown-item">
+                            <span>Lọc theo danh mục</span>
+                            <span style="font-size: 10px; color: #ccc;">›</span>
+                        </div>
+                        <div class="dropdown-submenu">
+                            <div class="dropdown-item-parent" *ngFor="let l1 of categoriesL1">
+                                <div class="dropdown-item">
+                                    <label class="flex items-center gap-2" (click)="$event.stopPropagation()">
+                                        <input type="radio" [checked]="isFilterSelected('categoryL1', l1._id)"
+                                            (click)="toggleAdvancedFilter('categoryL1', l1._id)">
+                                        <span>{{ l1.name }}</span>
+                                    </label>
+                                    <span style="font-size: 10px; color: #ccc;"
+                                        *ngIf="getSubCategories(l1._id).length > 0">›</span>
+                                </div>
+                                <!-- Level 2 Submenu -->
+                                <div class="dropdown-submenu" *ngIf="getSubCategories(l1._id).length > 0">
+                                    <div class="dropdown-item-parent sub-parent"
+                                        *ngFor="let l2 of getSubCategories(l1._id)">
+                                        <div class="dropdown-item">
+                                            <label class="flex items-center gap-2" (click)="$event.stopPropagation()">
+                                                <input type="radio" [checked]="isFilterSelected('categoryL2', l2._id)"
+                                                    (click)="toggleAdvancedFilter('categoryL2', l2._id)">
+                                                <span>{{ l2.name }}</span>
+                                            </label>
+                                            <span style="font-size: 10px; color: #ccc;"
+                                                *ngIf="getSubCategories(l2._id).length > 0">›</span>
+                                        </div>
+                                        <!-- Level 3 Submenu -->
+                                        <div class="dropdown-submenu level-3"
+                                            *ngIf="getSubCategories(l2._id).length > 0">
+                                            <label class="dropdown-option" *ngFor="let l3 of getSubCategories(l2._id)">
+                                                <input type="radio" [checked]="isFilterSelected('categoryL3', l3._id)"
+                                                    (click)="toggleAdvancedFilter('categoryL3', l3._id)">
+                                                <span>{{ l3.name }}</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Unit Submenu -->
+                    <div class="dropdown-item-parent">
+                        <div class="dropdown-item">
+                            <span>Đơn vị tính</span>
+                            <span style="font-size: 10px; color: #ccc;">›</span>
+                        </div>
+                        <div class="dropdown-submenu">
+                            <label class="dropdown-option" *ngFor="let u of units">
+                                <input type="checkbox" [checked]="isFilterSelected('unit', u)"
+                                    (change)="toggleAdvancedFilter('unit', u)">
+                                <span>{{ u }}</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Price Range Submenu -->
+                    <div class="dropdown-item-parent">
+                        <div class="dropdown-item">
+                            <span>Khoảng giá (VNĐ)</span>
+                            <span style="font-size: 10px; color: #ccc;">›</span>
+                        </div>
+                        <div class="dropdown-submenu" (click)="$event.stopPropagation()">
+                            <div class="price-range-inputs">
+                                <div class="price-input-group">
+                                    <label>Từ:</label>
+                                    <input type="number" [(ngModel)]="advancedFilters.price_range.min" placeholder="0"
+                                        (input)="applyFilters()">
+                                </div>
+                                <div class="price-input-group">
+                                    <label>Đến:</label>
+                                    <input type="number" [(ngModel)]="advancedFilters.price_range.max" placeholder="Max"
+                                        (input)="applyFilters()">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stock Submenu -->
+                    <div class="dropdown-item-parent">
+                        <div class="dropdown-item">
+                            <span>Tồn kho</span>
+                            <span style="font-size: 10px; color: #ccc;">›</span>
+                        </div>
+                        <div class="dropdown-submenu">
+                            <label class="dropdown-option">
+                                <input type="checkbox" [checked]="isFilterSelected('stock', 'in_stock')"
+                                    (change)="toggleAdvancedFilter('stock', 'in_stock')">
+                                <span>Còn hàng</span>
+                            </label>
+                            <label class="dropdown-option">
+                                <input type="checkbox" [checked]="isFilterSelected('stock', 'low_stock')"
+                                    (change)="toggleAdvancedFilter('stock', 'low_stock')">
+                                <span>Sắp hết hàng</span>
+                            </label>
+                            <label class="dropdown-option">
+                                <input type="checkbox" [checked]="isFilterSelected('stock', 'out_of_stock')"
+                                    (change)="toggleAdvancedFilter('stock', 'out_of_stock')">
+                                <span>Hết hàng</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-actions">
+                        <button class="btn btn-sm btn-clear-filter" (click)="clearAllFilters()">
+                            <i class="bi bi-trash"></i> Xóa lọc
+                        </button>
+                        <button class="btn btn-sm btn-close-filter" (click)="isFilterOpen = false">
+                            <i class="bi bi-x-lg"></i> Đóng
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn btn-sm action-btn icon-text" (click)="onGroupClick()" [disabled]="selectedCount < 2"
+                [class.disabled]="selectedCount < 2" title="Nhóm sản phẩm">
+                <i class="bi bi-collection"></i> Nhóm
+            </button>
+            <button class="btn btn-sm action-btn icon-text" (click)="onDeleteClick()" [disabled]="selectedCount === 0"
+                [class.disabled]="selectedCount === 0">
+                <i class="bi bi-trash"></i> Xóa
+            </button>
+            <div class="dropdown-container" style="position: relative;">
+                <button class="btn btn-sm action-btn icon-text" (click)="toggleSortDropdown($event)">
+                    <i class="bi bi-arrow-down-up"></i> Sắp xếp
+                </button>
+                <div class="dropdown-popup sort-dropdown-menu" *ngIf="isSortDropdownOpen"
+                    (click)="$event.stopPropagation()">
+                    <div class="sort-options-list">
+                        <button (click)="onSortSelect('price', 'desc')" class="sort-option-btn"
+                            [class.active]="sortColumn === 'price' && sortDirection === 'desc'">
+                            <i class="bi bi-sort-numeric-down-alt"></i> Giá: Cao nhất
+                        </button>
+                        <button (click)="onSortSelect('price', 'asc')" class="sort-option-btn"
+                            [class.active]="sortColumn === 'price' && sortDirection === 'asc'">
+                            <i class="bi bi-sort-numeric-down"></i> Giá: Thấp nhất
+                        </button>
+                        <button (click)="onSortSelect('name', 'asc')" class="sort-option-btn"
+                            [class.active]="sortColumn === 'name' && sortDirection === 'asc'">
+                            <i class="bi bi-sort-alpha-down"></i> Tên: A → Z
+                        </button>
+                        <button (click)="onSortSelect('name', 'desc')" class="sort-option-btn"
+                            [class.active]="sortColumn === 'name' && sortDirection === 'desc'">
+                            <i class="bi bi-sort-alpha-up"></i> Tên: Z → A
+                        </button>
+                        <button (click)="onSortSelect('stock', 'desc')" class="sort-option-btn"
+                            [class.active]="sortColumn === 'stock' && sortDirection === 'desc'">
+                            <i class="bi bi-box-seam"></i> Tồn: Nhiều nhất
+                        </button>
+                        <button (click)="onSortSelect('stock', 'asc')" class="sort-option-btn"
+                            [class.active]="sortColumn === 'stock' && sortDirection === 'asc'">
+                            <i class="bi bi-box"></i> Tồn: Ít nhất
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="spinner-container">
+        <div class="spinner-border" role="status"></div>
+        <p>Đang tải dữ liệu...</p>
+    </div>
+
+    <!-- Table -->
+    <div class="table-scrollable" *ngIf="!isLoading">
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 40px;">
+                        <input type="checkbox" [checked]="selectAll" (change)="toggleSelectAll($event)">
+                    </th>
+                    <th>Sản phẩm</th>
+                    <th>Đơn vị tính</th>
+                    <th>Giá</th>
+                    <th>Tồn kho</th>
+                    <th>Danh mục</th>
+                    <th>Nhập kho</th>
+                    <th>HSD</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let p of products" [class.selected]="p.selected">
+                    <td>
+                        <input type="checkbox" [(ngModel)]="p.selected" (change)="onSelectChange(p)">
+                    </td>
+                    <td>
+                        <div class="product-info">
+                            <div class="img-placeholder" style="overflow: hidden;">
+                                <img *ngIf="p.image" [src]="p.image"
+                                    style="width: 100%; height: 100%; object-fit: cover;" alt="product">
+                                <i *ngIf="!p.image" class="bi bi-image"></i>
+                            </div>
+                            <div class="text-info">
+                                <span class="product-name">{{ p.name }}</span>
+                                <span class="product-sku">{{ p.sku }}</span>
+                            </div>
+                        </div>
+                    </td>
+                    <td>{{ p.unit }}</td>
+                    <td class="price">{{ p.price | currency : 'VND' }}</td>
+                    <td>{{ p.stock }}</td>
+                    <td>
+                        <div class="category-display-enhanced" *ngIf="p.categoryPath && p.categoryPath.length > 0">
+                            <span class="category-pill-main">
+                                <i class="bi bi-tag-fill" style="font-size: 10px; margin-right: 4px;"></i>
+                                {{ p.categoryPath[p.categoryPath.length - 1] }}
+                            </span>
+                            <div class="category-path-steps" *ngIf="p.categoryPath.length > 1">
+                                <span *ngFor="let step of p.categoryPath.slice(0, -1); let last = last">
+                                    {{ step }} <i class="bi bi-chevron-right"></i>
+                                </span>
+                            </div>
+                        </div>
+                        <span *ngIf="!p.categoryPath || p.categoryPath.length === 0" class="category-none">
+                            <i class="bi bi-slash-circle"></i> Chưa phân loại
+                        </span>
+                    </td>
+                    <td>{{ p.importDate | date:'dd-MM-yyyy' }}</td>
+                    <td>{{ p.expiryDate ? (p.expiryDate | date:'dd-MM-yyyy') : 'N/A' }}</td>
+                </tr>
+                <tr *ngIf="products.length === 0">
+                    <td colspan="8" class="text-center"
+                        style="padding: 40px; text-align: center; color: var(--color-text-tertiary);">
+                        Không có sản phẩm nào.
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Pagination Controls -->
+        <div class="pagination-controls"
+            style="display: flex; justify-content: space-between; align-items: center; padding: 16px; border-top: 1px solid var(--color-neutral-30);">
+            <div style="font-size: 14px; color: var(--color-text-secondary);">
+                Trang {{ currentPage }} / {{ totalPages }}
+                <span style="margin-left: 8px; color: var(--color-neutral-50);">({{ totalItems }} sản phẩm)</span>
+            </div>
+            <div style="display: flex; gap: 8px;">
+                <button class="btn btn-sm action-btn icon-text" (click)="prevPage()" [disabled]="currentPage === 1"
+                    [class.disabled]="currentPage === 1">
+                    <i class="bi bi-chevron-left"></i> Trước
+                </button>
+                <button class="btn btn-sm action-btn icon-text" (click)="nextPage()"
+                    [disabled]="currentPage === totalPages" [class.disabled]="currentPage === totalPages">
+                    Sau <i class="bi bi-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Product Modal -->
+    <div class="modal-wrapper" *ngIf="isProductModalOpen">
+        <div class="modal-backdrop" (click)="closeProductModal()"></div>
+        <div class="modal-content-wrapper modal-lg">
+            <div class="modal-header">
+                <h5 class="modal-title">{{ isEditMode ? 'CHI TIẾT SẢN PHẨM' : 'THÊM SẢN PHẨM MỚI' }}</h5>
+                <button type="button" class="close-btn" (click)="closeProductModal()">&times;</button>
+            </div>
+            <div class="modal-body scrollable">
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        <label class="form-label">Tên sản phẩm:</label>
+                        <input type="text" class="form-control" [(ngModel)]="newProduct.name"
+                            placeholder="Tên sản phẩm">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">SKU:</label>
+                        <input type="text" class="form-control" [(ngModel)]="newProduct.sku" placeholder="SKU">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Xuất xứ:</label>
+                        <select class="form-control" [(ngModel)]="newProduct.origin">
+                            <option value="">----Chọn quốc gia xuất xứ</option>
+                            <option *ngFor="let c of countries" [value]="c">{{ c }}</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Thương hiệu:</label>
+                        <input type="text" class="form-control" [(ngModel)]="newProduct.brand"
+                            placeholder="Thương hiệu">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label"><i class="bi bi-1-circle"></i> Danh mục cấp 1:</label>
+                        <select class="form-control premium-select" [(ngModel)]="modalL1Id" (change)="onL1Change()">
+                            <option value="">-- Chọn danh mục cấp 1 --</option>
+                            <option *ngFor="let cat of categoriesL1" [value]="cat._id">{{ cat.name }}</option>
+                        </select>
+                    </div>
+                    <div class="form-group" [class.hidden-layer]="!modalL1Id" style="transition: all 0.3s ease;">
+                        <label class="form-label"><i class="bi bi-2-circle"></i> Danh mục cấp 2:</label>
+                        <select class="form-control premium-select" [(ngModel)]="modalL2Id" (change)="onL2Change()"
+                            [disabled]="!modalL1Id">
+                            <option value="">-- Chọn danh mục cấp 2 --</option>
+                            <option *ngFor="let cat of getSubCategories(modalL1Id)" [value]="cat._id">{{ cat.name }}
+                            </option>
+                        </select>
+                    </div>
+                    <div class="form-group" [class.hidden-layer]="!modalL2Id" style="transition: all 0.3s ease;">
+                        <label class="form-label"><i class="bi bi-3-circle"></i> Danh mục cấp 3:</label>
+                        <select class="form-control premium-select" [(ngModel)]="modalL3Id" (change)="onL3Change()"
+                            [disabled]="!modalL2Id">
+                            <option value="">-- Chọn danh mục cấp 3 --</option>
+                            <option *ngFor="let cat of getSubCategories(modalL2Id)" [value]="cat._id">{{ cat.name }}
+                            </option>
+                        </select>
+                    </div>
+
+                    <!-- Selected Category Path Header -->
+                    <div class="form-group full-width" *ngIf="modalL1Id">
+                        <div class="selected-path-banner">
+                            <span class="path-label">Danh mục đã chọn:</span>
+                            <div class="path-steps">
+                                <span *ngIf="modalL1Id">{{ categoryMap[modalL1Id]?.name }}</span>
+                                <span *ngIf="modalL2Id"> <i class="bi bi-chevron-double-right"></i> {{
+                                    categoryMap[modalL2Id]?.name }}</span>
+                                <span *ngIf="modalL3Id"> <i class="bi bi-chevron-double-right"></i> {{
+                                    categoryMap[modalL3Id]?.name }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Tồn kho:</label>
+                        <input type="number" class="form-control" [(ngModel)]="newProduct.stock" placeholder="0">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Đơn vị tính:</label>
+                        <select class="form-control" [(ngModel)]="newProduct.unit">
+                            <option *ngFor="let u of units" [value]="u">{{ u }}</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label class="form-label">Mô tả sản phẩm:</label>
+                        <textarea class="form-control" [(ngModel)]="newProduct.description" rows="3"
+                            placeholder="Mô tả sản phẩm"></textarea>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label class="form-label">Hướng dẫn sử dụng:</label>
+                        <textarea class="form-control" [(ngModel)]="newProduct.usage" rows="2"
+                            placeholder="Hướng dẫn sử dụng"></textarea>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label class="form-label">Thành phần:</label>
+                        <textarea class="form-control" [(ngModel)]="newProduct.ingredients" rows="2"
+                            placeholder="Thành phần"></textarea>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label class="form-label">Cảnh báo và chống chỉ định:</label>
+                        <textarea class="form-control" [(ngModel)]="newProduct.warnings" rows="2"
+                            placeholder="Cảnh báo và chống chỉ định"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Cần kê đơn?</label>
+                        <select class="form-control" [(ngModel)]="newProduct.prescription">
+                            <option [ngValue]="false">----KHÔNG</option>
+                            <option [ngValue]="true">CÓ</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Trạng thái hiển thị</label>
+                        <select class="form-control" [(ngModel)]="newProduct.status">
+                            <option value="active">----Hiển thị</option>
+                            <option value="hidden">Ẩn</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Ngày sản xuất:</label>
+                        <input type="date" class="form-control" [(ngModel)]="newProduct.manufactureDate">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Hạn sử dụng:</label>
+                        <input type="date" class="form-control" [(ngModel)]="newProduct.expiryDate">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Hoạt chất:</label>
+                        <input type="text" class="form-control" [(ngModel)]="newProduct.activeIngredient"
+                            placeholder="Hoạt chất">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Thảo dược:</label>
+                        <input type="text" class="form-control" [(ngModel)]="newProduct.herbal" placeholder="Thảo dược">
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label class="form-label">Hình ảnh:</label>
+                        <div class="image-upload-grid">
+                            <!-- Box 1: Image Upload / Preview -->
+                            <div class="image-box" (click)="triggerFileInput()"
+                                style="cursor: pointer; position: relative; overflow: hidden;">
+                                <img *ngIf="newProduct.image" [src]="newProduct.image"
+                                    style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0;"
+                                    alt="preview">
+                                <i *ngIf="!newProduct.image" class="bi bi-image"></i>
+                                <input type="file" id="imageUploadInput" (change)="onFileSelected($event)"
+                                    accept="image/*" style="display: none;">
+                            </div>
+                            <!-- Box 2, 3, 4: Placeholders to match original UI -->
+                            <div class="image-box"><i class="bi bi-image"></i></div>
+                            <div class="image-box"><i class="bi bi-image"></i></div>
+                            <div class="image-box"><i class="bi bi-image"></i></div>
+                        </div>
+                    </div>
+
+                    <div class="pricing-grid full-width">
+                        <div class="price-group">
+                            <label class="form-label">Giá vốn</label>
+                            <input type="number" class="form-control" [(ngModel)]="newProduct.costPrice">
+                        </div>
+                        <div class="price-group">
+                            <label class="form-label">Giá bán</label>
+                            <input type="number" class="form-control" [(ngModel)]="newProduct.price">
+                        </div>
+                        <div class="price-group">
+                            <label class="form-label">Giá khuyến mãi</label>
+                            <input type="number" class="form-control" [(ngModel)]="newProduct.promoPrice">
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-cancel-light" (click)="closeProductModal()">
+                    HUỶ
+                </button>
+                <button type="button" class="btn btn-submit-premium" (click)="saveProduct()">
+                    LƯU THAY ĐỔI
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal-wrapper" *ngIf="isConfirmModalOpen">
+        <div class="modal-backdrop" (click)="closeConfirmModal()"></div>
+        <div class="modal-content-wrapper compact">
+            <div class="modal-header compact-header"
+                style="background: transparent; border-bottom: none; padding-bottom: 0;">
+                <h5 class="modal-title danger"
+                    style="color: var(--color-danger); display: flex; align-items: center; gap: 10px;">
+                    <i class="bi bi-exclamation-triangle-fill"></i> Xác nhận xóa
+                </h5>
+                <button type="button" class="close-btn" (click)="closeConfirmModal()">&times;</button>
+            </div>
+            <div class="modal-body compact-body" style="padding-top: 10px; padding-bottom: 10px;">
+                <p>Bạn có chắc chắn muốn xóa <strong>{{ selectedCount }}</strong> sản phẩm đã chọn?</p>
+                <p class="sub-text" style="color: var(--color-text-secondary); font-size: 14px;">Thao tác này không thể
+                    hoàn tác.</p>
+            </div>
+            <div class="modal-footer compact-footer" style="background: transparent; border-top: none;">
+                <button type="button" class="btn btn-cancel" (click)="closeConfirmModal()">
+                    <i class="bi bi-x"></i> Hủy
+                </button>
+                <button type="button" class="btn btn-danger" (click)="confirmDelete()"
+                    style="background-color: var(--color-danger); color: white;">Xóa ngay</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Group Naming Modal -->
+    <div class="modal-wrapper" *ngIf="isGroupModalOpen" style="z-index: 2500;">
+        <div class="modal-backdrop" (click)="closeGroupModal()"></div>
+        <div class="modal-content-wrapper compact grouping-modal">
+            <div class="modal-header group-header">
+                <div class="header-main" style="display: flex; align-items: center; gap: 10px;">
+                    <i class="bi bi-collection-fill" style="color: var(--color-primary); font-size: 1.2rem;"></i>
+                    <h5 class="modal-title" style="margin: 0; font-weight: 800;">NHÓM SẢN PHẨM</h5>
+                </div>
+                <button type="button" class="close-btn" (click)="closeGroupModal()">&times;</button>
+            </div>
+            <div class="modal-body" style="padding: 20px;">
+                <!-- Create New Section -->
+                <div class="group-form-section" style="margin-bottom: 24px;">
+                    <label class="form-label"
+                        style="font-weight: 700; font-size: 13px; color: var(--color-text-secondary); margin-bottom: 8px; display: block;">Tên
+                        nhóm mới:</label>
+                    <div class="input-with-action" style="display: flex; gap: 8px;">
+                        <input type="text" class="form-control" [(ngModel)]="groupName"
+                            placeholder="VD: Nhóm Vitamin T3/2024" (keyup.enter)="confirmGroup()" style="flex: 1;">
+                        <button class="btn btn-primary" (click)="confirmGroup()"
+                            style="padding: 0 20px; border-radius: 8px; font-weight: 700;">
+                            TẠO
+                        </button>
+                    </div>
+                </div>
+
+                <div class="divider"
+                    style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px; color: var(--color-text-tertiary); font-size: 11px; font-weight: 800;">
+                    <div style="flex: 1; height: 1px; background: #eee;"></div>
+                    <span>HOẶC CHỌN NHÓM CÓ SẴN</span>
+                    <div style="flex: 1; height: 1px; background: #eee;"></div>
+                </div>
+
+                <!-- Existing Groups List -->
+                <div class="existing-groups-container"
+                    style="max-height: 250px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px;">
+                    <div class="group-card" *ngFor="let group of existingGroups"
+                        style="display: flex; align-items: center; gap: 12px; padding: 12px; background: #f8fafc; border-radius: 12px; border: 1px solid #edf2f7;">
+                        <div class="group-icon"
+                            style="width: 40px; height: 40px; background: white; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--color-primary); border: 1px solid #e2e8f0;">
+                            <i class="bi bi-folder2-open"></i>
+                        </div>
+                        <div class="group-details" style="flex: 1;">
+                            <span class="g-name"
+                                style="display: block; font-weight: 700; font-size: 14px; color: var(--color-text-primary);">{{
+                                group.name }}</span>
+                            <div class="g-meta"
+                                style="font-size: 12px; color: var(--color-text-tertiary); display: flex; align-items: center; gap: 6px;">
+                                <span><i class="bi bi-box-seam"></i> {{ group.count }} SP</span>
+                                <span class="dot">·</span>
+                                <span>{{ group.date | date:'dd/MM/yyyy' }}</span>
+                            </div>
+                        </div>
+                        <div class="group-actions" style="display: flex; gap: 6px;">
+                            <button class="action-btn" title="Xem chi tiết"
+                                style="padding: 6px; min-width: auto; border: none; background: transparent; color: var(--color-primary);"><i
+                                    class="bi bi-eye"></i></button>
+                            <button class="action-btn" title="Xóa nhóm" (click)="deleteGroup(group.id)"
+                                style="padding: 6px; min-width: auto; border: none; background: transparent; color: var(--color-danger);"><i
+                                    class="bi bi-trash"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" style="padding: 15px 20px;">
+                <button type="button" class="btn-cancel-light" (click)="closeGroupModal()"
+                    style="width: 100%; text-transform: uppercase;">ĐÓNG</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div class="notification-toast" *ngIf="notification.show" [ngClass]="notification.type">
+        <i class="bi" [ngClass]="{
+            'bi-check-circle-fill': notification.type === 'success',
+            'bi-x-circle-fill': notification.type === 'error',
+            'bi-exclamation-triangle-fill': notification.type === 'warning'
+        }"></i>
+        <span>{{ notification.message }}</span>
+    </div>
+
+</div>

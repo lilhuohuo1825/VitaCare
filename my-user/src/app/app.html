@@ -1,28 +1,60 @@
-<!-- Header -->
-<app-header></app-header>
+<app-auth></app-auth>
 
-<!-- Main Content -->
-<div class="page-container">
-  <!-- Breadcrumb -->
-  <div class="breadcrumb-wrapper">
-    <div class="container">
-      <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="#">Trang chủ</a></li>
-          <li class="breadcrumb-item"><a href="#">Cá nhân</a></li>
-          <li class="breadcrumb-item active" aria-current="page">Thông tin cá nhân</li>
-        </ol>
-      </nav>
+@if (authService.showLogoutConfirm()) {
+  <div class="logout-confirm-overlay" (click)="authService.closeLogoutConfirm()">
+    <div class="logout-confirm-modal" (click)="$event.stopPropagation()" role="dialog" aria-labelledby="logout-confirm-title">
+      <h3 id="logout-confirm-title" class="logout-confirm-title">Bạn có chắc muốn đăng xuất?</h3>
+      <div class="logout-confirm-actions">
+        <button type="button" class="logout-confirm-btn logout-confirm-cancel" (click)="authService.closeLogoutConfirm()">Hủy</button>
+        <button type="button" class="logout-confirm-btn logout-confirm-ok" (click)="authService.confirmLogout()">OK</button>
+      </div>
     </div>
   </div>
+}
 
-  <!-- Account Section -->
-  <div class="container">
-    <app-account></app-account>
+@if (authService.headerSuccessMessage(); as msg) {
+  <div class="logout-success-toast" role="alert">
+    <i class="bi bi-check-circle-fill"></i>
+    <span>{{ msg }}</span>
   </div>
+}
+
+@if (toastService.current(); as toast) {
+  <div class="app-toast app-toast--{{ toast.type }}" role="alert">
+    <i class="bi" [class.bi-check-circle-fill]="toast.type === 'success'" [class.bi-exclamation-circle-fill]="toast.type === 'error'" [class.bi-info-circle-fill]="toast.type === 'info'"></i>
+    <span>{{ toast.message }}</span>
+    <button type="button" class="app-toast-close" aria-label="Đóng" (click)="toastService.dismiss()">
+      <i class="bi bi-x-lg"></i>
+    </button>
+  </div>
+}
+
+@if (confirmService.current(); as opts) {
+  <div class="logout-confirm-overlay" (click)="confirmService.close()">
+    <div class="logout-confirm-modal" (click)="$event.stopPropagation()" role="dialog" aria-labelledby="confirm-title">
+      <h3 id="confirm-title" class="logout-confirm-title">{{ opts.message }}</h3>
+      <div class="logout-confirm-actions">
+        <button type="button" class="logout-confirm-btn logout-confirm-cancel" (click)="confirmService.close()">Hủy</button>
+        <button type="button" class="logout-confirm-btn logout-confirm-ok" (click)="confirmService.confirm()">OK</button>
+      </div>
+    </div>
+  </div>
+}
+
+<app-cart></app-cart>
+
+<div class="app-layout">
+  <header class="app-header">
+    <app-header></app-header>
+  </header>
+
+  <main class="app-main">
+    <router-outlet />
+  </main>
+
+  <footer class="app-footer">
+    <app-footer></app-footer>
+  </footer>
 </div>
 
-<!-- Footer placeholder - Component will be created later -->
-<!-- <app-footer></app-footer> -->
-
-<router-outlet />
+<app-floating-actions />
