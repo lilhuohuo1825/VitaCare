@@ -1,44 +1,29 @@
 <div class="recently-viewed-section pt-2 pb-4" *ngIf="blogs && blogs.length > 0">
   <div class="d-flex justify-content-between align-items-center mb-1">
     <h5 class="recently-viewed-title">Bài viết sức khỏe vừa xem</h5>
-    <a
-      href="javascript:void(0)"
-      class="btn-clear-all d-flex align-items-center gap-1"
-      (click)="onClearAll()"
-    >
+    <a href="javascript:void(0)" class="btn-clear-all d-flex align-items-center gap-1" (click)="onClearAll()">
       <i class="bi bi-trash3"></i>
       Xóa tất cả
     </a>
   </div>
   <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-6 g-3">
     <div class="col" *ngFor="let blog of blogs">
-      <a
-        [href]="blog.url"
-        target="_blank"
+      <a [href]="blog.url" target="_blank"
         class="blog-card border rounded-3 overflow-hidden text-decoration-none d-block h-100 shadow-sm"
-        (click)="onClickBlog(blog)"
-        style="transition: transform 0.2s, box-shadow 0.2s;"
+        (click)="onClickBlog(blog)" style="transition: transform 0.2s, box-shadow 0.2s;"
         onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)';"
-        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 1px 3px rgba(0,0,0,0.12)';"
-      >
+        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 1px 3px rgba(0,0,0,0.12)';">
         <!-- Blog Image -->
-        <div
-          class="blog-card-image"
-          style="height: 140px; overflow: hidden; background: #f8f9fa;"
-        >
+        <div class="blog-card-image" style="height: 140px; overflow: hidden; background: #f8f9fa;">
           <img
-            [src]="blog.primaryImage?.url || 'assets/images/homepage/blogs/ngu_ngon.jpg'"
-            [alt]="blog.title"
-            style="width: 100%; height: 100%; object-fit: cover;"
-          />
+            [src]="blog.primaryImage?.url || blog.image || blog.imageUrl || 'assets/images/homepage/blogs/ngu_ngon.jpg'"
+            [alt]="blog.title" style="width: 100%; height: 100%; object-fit: cover;"
+            (error)="handleImageError($event)" />
         </div>
 
         <!-- Blog Content -->
         <div class="blog-card-content p-2">
-          <h6
-            class="blog-card-title text-dark fw-semibold mb-1"
-            [title]="blog.title"
-            style="
+          <h6 class="blog-card-title text-dark fw-semibold mb-1" [title]="blog.title" style="
               display: -webkit-box;
               -webkit-line-clamp: 2;
               line-clamp: 2;
@@ -48,15 +33,11 @@
               font-size: 13px;
               line-height: 1.4;
               height: 36px;
-            "
-          >
+            ">
             {{ blog.title }}
           </h6>
 
-          <div
-            class="blog-card-meta d-flex align-items-center gap-2 text-muted"
-            style="font-size: 11px;"
-          >
+          <div class="blog-card-meta d-flex align-items-center gap-2 text-muted" style="font-size: 11px;">
             <span *ngIf="blog.publishedAt">
               <i class="bi bi-clock"></i>
               {{ blog.publishedAt | date: 'dd/MM/yyyy' }}
@@ -67,4 +48,3 @@
     </div>
   </div>
 </div>
-

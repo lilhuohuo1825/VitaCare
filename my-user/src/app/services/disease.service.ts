@@ -23,7 +23,7 @@ export interface DiseaseGroup {
 export class DiseaseService {
   private apiUrl = '/api';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   /** Lấy danh sách nhóm bệnh từ MongoDB (API). */
   getDiseaseGroups(): Observable<DiseaseGroup[]> {
@@ -56,8 +56,27 @@ export class DiseaseService {
   }
 
   getDiseaseById(id: string): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/diseases/${id}`).pipe(
+    const encodedId = encodeURIComponent(id);
+    return this.http.get<any>(`${this.apiUrl}/diseases/${encodedId}`).pipe(
       catchError(() => of({ message: 'Not found' }))
+    );
+  }
+
+  /** Lấy danh sách câu hỏi về bệnh. */
+  getConsultations(id: string): Observable<any[]> {
+    return this.http.get<any>(`${this.apiUrl}/consultations/disease/${encodeURIComponent(id)}`).pipe(
+      map(res => res?.questions ?? []),
+      catchError(() => of([]))
+    );
+  }
+
+  /** Gửi câu hỏi mới về bệnh. */
+  postConsultation(data: { sku: string, productName: string, question: string, user_id?: string, full_name?: string }): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/consultations/disease`, data).pipe(
+      catchError((err) => {
+        console.error('Post consultation error:', err);
+        throw err;
+      })
     );
   }
 }

@@ -5,6 +5,7 @@
 /* Neutrals: #0A0A0A to #FFFFFF */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Arimo:wght@400;500;600&display=swap');
+/* Global breadcrumb style imported via styles.css */
 
 * {
   margin: 0;
@@ -14,7 +15,7 @@
 
 body {
   font-family: 'Arimo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #F5F5F5 !important;
+  background-color: #E5EEF8 !important;
   background-image: none !important;
   color: #424242;
   line-height: 1.6;
@@ -209,7 +210,7 @@ h6 {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background-color: #F5F5F5 !important;
+  background-color: #E5EEF8 !important;
 }
 
 .app-header {
@@ -222,7 +223,7 @@ h6 {
 /* Trang đặt hàng: nền xám nhạt giống tài khoản cá nhân */
 body.vitacare-order-page,
 body.vitacare-order-page .app-layout {
-  background-color: #F5F5F5 !important;
+  background-color: #E5EEF8 !important;
   background-image: none !important;
 }
 
@@ -245,7 +246,7 @@ body.vitacare-order-page .app-layout {
 
 .page-container {
   min-height: 100vh;
-  background-color: #F5F5F5 !important;
+  background-color: #E5EEF8 !important;
   background-image: none !important;
   isolation: isolate;
 }
@@ -259,14 +260,9 @@ body.vitacare-order-page .app-layout {
   background-image: none !important;
 }
 
-/* Container */
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 15px;
-}
+/* Container is handled by utilities.css using global variables */
 
-/* Breadcrumb: link xanh, "/" xám đen, mục hiện tại tím lavender; giảm khoảng trống xuống content */
+/* Breadcrumb: mẫu chuẩn theo trang danh sách sản phẩm */
 .breadcrumb-wrapper {
   background: transparent;
   border-bottom: 1px solid #e0e0e0;
@@ -274,11 +270,7 @@ body.vitacare-order-page .app-layout {
   margin-bottom: 12px;
 }
 
-.breadcrumb-wrapper .container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 15px;
-}
+/* Breadcrumb wrapper container uses global styles from utilities.css */
 
 .breadcrumb {
   display: flex;
@@ -325,6 +317,17 @@ body.vitacare-order-page .app-layout {
 .breadcrumb-item.active {
   color: #9b8ab8;
   font-weight: 600;
+}
+
+/* Ký tự phân tách: "/" hoặc "›" xám đậm, khoảng cách gọn */
+.pc-breadcrumb span.separator,
+.ht-breadcrumb span,
+.bd-breadcrumb-sep,
+.bv-cat-breadcrumb .separator,
+.page-header-vc .breadcrumb .sep {
+  color: #333;
+  font-size: 14px;
+  padding: 0 2px;
 }
 
 /* Link Styles */

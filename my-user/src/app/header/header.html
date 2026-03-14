@@ -1,6 +1,6 @@
 <header class="vc_header" [class.vc_header_compact]="isHeaderCompact">
-  <img class="vc_mascot_left" src="assets/images/mascot/mascot_tet1.png" alt="mascot left" aria-hidden="true" />
-  <img class="vc_mascot_right" src="assets/images/mascot/mascot_tet2.png" alt="mascot right" aria-hidden="true" />
+  <!-- <img class="vc_mascot_left" src="assets/images/mascot/mascot_tet1.png" alt="mascot left" aria-hidden="true" />
+  <img class="vc_mascot_right" src="assets/images/mascot/mascot_tet2.png" alt="mascot right" aria-hidden="true" /> -->
 
   <!-- MOBILE HEADER (<= 767px) -->
   <div class="vc_m_header">
@@ -25,8 +25,8 @@
     </div>
     <div class="vc_m_search">
       <i class="bi bi-search vc_m_search_icon" aria-hidden="true"></i>
-      <input type="text" class="vc_m_search_input" placeholder="Tìm thuốc, sản phẩm..."
-        [(ngModel)]="search_value" (keydown.enter)="onSearch()" />
+      <input type="text" class="vc_m_search_input" placeholder="Tìm thuốc, sản phẩm..." [(ngModel)]="search_value"
+        (keydown.enter)="onSearch()" />
     </div>
     <label class="vc_m_overlay" for="vcMobileDrawer" aria-hidden="true"></label>
     <aside class="vc_m_drawer" aria-label="Danh mục">
@@ -51,7 +51,8 @@
       </div>
       <nav class="vc_m_menu">
         <ng-container *ngFor="let c of category_pills">
-          <a *ngIf="getMenuType(c) === 'direct'" class="vc_m_item vc_m_item_link" [routerLink]="megaMenuData[c]?.directRoute">
+          <a *ngIf="getMenuType(c) === 'direct'" class="vc_m_item vc_m_item_link"
+            [routerLink]="megaMenuData[c]?.directRoute">
             {{ c }}
           </a>
           <details *ngIf="getMenuType(c) !== 'direct'" class="vc_m_item">
@@ -171,15 +172,17 @@
                       </div>
                       <div class="vc_hot_p_info">
                         <div class="vc_hot_p_name">{{ p.name }}</div>
-                        <div class="vc_hot_price_wrap">
+                        <div class="vc_hot_p_price_row">
                           <div class="vc_hot_p_price">
-                            <strong>{{ p.price | number:'1.0-0' }}đ</strong>
-                            <small> / {{ p.unit }}</small>
+                            <strong *ngIf="p.price > 0">{{ p.price | number:'1.0-0' }}đ</strong>
+                            <span class="vc_p_unit" *ngIf="p.price > 0">/ {{ p.unit }}</span>
+                            <strong class="vc_p_consult" *ngIf="p.price === 0">Cần tư vấn từ dược sĩ</strong>
                           </div>
-                          <div class="vc_hot_p_old_price" *ngIf="p.oldPrice > p.price">
+                          <span class="vc_hot_p_old_price" *ngIf="p.oldPrice > p.price">
                             {{ p.oldPrice | number:'1.0-0' }}đ
-                          </div>
+                          </span>
                         </div>
+                        <div class="vc_p_unit_badge">{{ p.unit }}</div>
                       </div>
                     </a>
                   </div>
@@ -206,8 +209,10 @@
               <i class="bi bi-person-fill"></i>
             </span>
             <span class="vc_action_text" *ngIf="!authService.currentUser()">Đăng nhập</span>
-            <span class="vc_action_text" *ngIf="authService.currentUser()?.phone">{{ authService.currentUser()?.phone }}</span>
-            <span class="vc_action_text" *ngIf="authService.currentUser() && !authService.currentUser()?.phone">Tài khoản</span>
+            <span class="vc_action_text" *ngIf="authService.currentUser()?.phone">{{ authService.currentUser()?.phone
+              }}</span>
+            <span class="vc_action_text" *ngIf="authService.currentUser() && !authService.currentUser()?.phone">Tài
+              khoản</span>
           </a>
           <div class="vc_account_dropdown shadow-lg" *ngIf="authService.currentUser() && isAccountDropdownVisible">
             <div class="vc_dropdown_arrow"></div>
@@ -262,12 +267,14 @@
                       <span class="vc_cart_dropdown_qty">x{{ item.quantity }} hộp</span>
                     </div>
                   </div>
-                  <button class="vc_cart_delete_btn" type="button"><i class="bi bi-trash"></i></button>
+                  <button class="vc_cart_delete_btn" type="button" (click)="onRemoveFromCart($event, item)"><i
+                      class="bi bi-trash"></i></button>
                 </div>
               </div>
               <div class="vc_cart_dropdown_footer">
                 <span class="vc_cart_total_info">{{ cart?.items?.length || 0 }} sản phẩm</span>
-                <button class="btn btn-primary vc_cart_view_btn" type="button" (click)="onCart($event)">Xem giỏ thuốc</button>
+                <button class="btn btn-primary vc_cart_view_btn" type="button" (click)="onCart($event)">Xem giỏ
+                  thuốc</button>
               </div>
             </ng-container>
             <ng-template #hoverEmpty>
@@ -298,11 +305,14 @@
             <div class="vc_notify_body" *ngIf="!notificationsLoading && notificationsError">
               <div class="vc_notify_empty">{{ notificationsError }}</div>
             </div>
-            <div class="vc_notify_body" *ngIf="!notificationsLoading && !notificationsError && notificationsPreview.length === 0">
+            <div class="vc_notify_body"
+              *ngIf="!notificationsLoading && !notificationsError && notificationsPreview.length === 0">
               <div class="vc_notify_empty">Chưa có thông báo</div>
             </div>
-            <div class="vc_notify_body" *ngIf="!notificationsLoading && !notificationsError && notificationsPreview.length > 0">
-              <div class="vc_notify_item" *ngFor="let n of notificationsPreview">
+            <div class="vc_notify_body"
+              *ngIf="!notificationsLoading && !notificationsError && notificationsPreview.length > 0">
+              <div class="vc_notify_item" *ngFor="let n of notificationsPreview"
+                [class.vc_notify_item--remind]="n.type === 'medication_reminder'">
                 <div class="vc_notify_item_title">{{ n.title }}</div>
                 <div class="vc_notify_item_message">{{ n.message }}</div>
               </div>
@@ -323,11 +333,10 @@
     <div class="vc_container vc_categories_inner">
       <div class="vc_cat_item" *ngFor="let c of category_pills" (mouseenter)="onMouseEnter(c)"
         (mouseleave)="onMouseLeave()">
-        <button class="vc_pill" type="button"
-          [class.active]="hoveredCategory === c"
-          [class.route-active]="activePill === c && hoveredCategory !== c"
-          (click)="onCategoryClick(c)">
-          {{ c }} <i class="bi bi-chevron-down ms-1" style="font-size: 10px;" *ngIf="getMenuType(c) !== 'none' && getMenuType(c) !== 'direct'"></i>
+        <button class="vc_pill" type="button" [class.active]="hoveredCategory === c"
+          [class.route-active]="activePill === c && hoveredCategory !== c" (click)="onCategoryClick(c)">
+          {{ c }} <i class="bi bi-chevron-down ms-1" style="font-size: 10px;"
+            *ngIf="getMenuType(c) !== 'none' && getMenuType(c) !== 'direct'"></i>
         </button>
 
         <!-- STANDALONE SIMPLE DROPDOWN (Local to Pill) -->
@@ -437,11 +446,16 @@
                       <div class="vc_p_info_mini">
                         <div class="vc_p_name_mini" [title]="p.name">{{ p.name }}</div>
                         <div class="vc_p_price_row">
-                          <span class="vc_p_price">{{ p.price | number:'1.0-0' }}đ / Hộp</span>
+                          <div class="vc_p_main_price">
+                            <span class="vc_p_price" *ngIf="p.price > 0">{{ p.price | number:'1.0-0' }}đ</span>
+                            <span class="vc_p_unit" *ngIf="p.price > 0">/ {{ p.unit || 'Hộp' }}</span>
+                            <span class="vc_p_price vc_p_consult" *ngIf="p.price === 0">Cần tư vấn từ dược sĩ</span>
+                          </div>
+                          <span class="vc_p_old_price" *ngIf="p.oldPrice > p.price">
+                            {{ p.oldPrice | number:'1.0-0' }}đ
+                          </span>
                         </div>
-                        <div class="vc_p_old_price" *ngIf="p.discountAmount > 0">
-                          {{ p.oldPrice | number:'1.0-0' }}đ
-                        </div>
+                        <div class="vc_p_unit_badge">{{ p.unit || 'Hộp' }}</div>
                       </div>
                     </a>
                   </div>
@@ -507,6 +521,18 @@
         </div>
 
       </div>
+    </div>
+  </div>
+
+  <!-- Thanh ngang: chỉ lịch nhắc uống thuốc — mỗi lần vào trang / chuyển trang (khi còn mốc chưa uống) -->
+  <div class="vc_reminder_banner" *ngIf="showReminderPopup && medicationDueList.length > 0" role="region"
+    aria-label="Nhắc uống thuốc">
+    <div class="vc_reminder_banner_inner">
+      <span class="vc_reminder_banner_icon" aria-hidden="true"><i class="bi bi-capsule"></i></span>
+      <p class="vc_reminder_banner_text">{{ reminderBannerLine }}</p>
+      <a href="#" class="vc_reminder_banner_link" (click)="openRemindFromPopup($event)">Ghi nhận đã uống</a>
+      <button type="button" class="vc_reminder_banner_dismiss" (click)="dismissReminderPopup()"
+        aria-label="Đóng thông báo">×</button>
     </div>
   </div>
 </header>

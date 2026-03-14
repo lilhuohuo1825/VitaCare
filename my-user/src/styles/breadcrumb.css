@@ -1,49 +1,73 @@
 /**
- * Breadcrumb – ghi đè Bootstrap (dùng !important vì Bootstrap load sau styles.css)
+ * Master Breadcrumb Styles for VitaCare
+ * Use class .breadcrumb-vc for consistency across all pages
  */
 
-.breadcrumb-wrapper {
+.breadcrumb-vc {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 8px 0 4px 0 !important;
+    /* Tight standard: 8px top, 4px bottom */
+    margin-top: 0 !important;
+    margin-bottom: 20px !important;
+    /* Consistent separation from content */
+    list-style: none;
+    font-size: 14px !important;
+    font-family: var(--font-family-title, 'Inter', sans-serif) !important;
     background: transparent !important;
-    border-bottom: 1px solid var(--color-neutral-40) !important;
-    padding: 10px 0 !important;
-    margin-bottom: 12px !important;
 }
 
-.breadcrumb-wrapper .container {
-    max-width: 1200px !important;
-    margin: 0 auto !important;
-    padding: 0 15px !important;
+
+.breadcrumb-vc .breadcrumb-item {
+    display: flex;
+    align-items: center;
+    color: #666 !important;
 }
 
-.breadcrumb-wrapper .breadcrumb {
-    padding: 0 !important;
-    margin: 0 !important;
-    background: transparent !important;
-    font-size: var(--font-size-sm) !important;
-    font-family: var(--font-family-title) !important;
+.breadcrumb-vc .breadcrumb-item+.breadcrumb-item::before {
+    content: "/" !important;
+    padding: 0 10px !important;
+    color: #999 !important;
+    font-weight: normal !important;
 }
 
-.breadcrumb-wrapper .breadcrumb-item {
-    font-weight: 400 !important;
+.breadcrumb-vc .breadcrumb-item a {
+    color: #666 !important;
+    text-decoration: none !important;
+    transition: color 0.2s ease;
 }
 
-.breadcrumb-wrapper .breadcrumb-item + .breadcrumb-item::before {
-    color: var(--color-neutral-90) !important;
-    padding: 0 2px !important;
-}
-
-.breadcrumb-wrapper .breadcrumb-item a {
+.breadcrumb-vc .breadcrumb-item a:hover {
     color: var(--color-primary) !important;
     text-decoration: none !important;
 }
 
-.breadcrumb-wrapper .breadcrumb-item a:hover {
-    color: var(--color-primary-hover) !important;
-    text-decoration: none !important;
+/* Last item / Active item */
+.breadcrumb-vc .breadcrumb-item.active,
+.breadcrumb-vc .breadcrumb-item:last-child {
+    color: var(--color-primary) !important;
+    font-weight: 700 !important;
 }
 
-.breadcrumb-wrapper .breadcrumb-item.active {
-    color: var(--color-info) !important;
-    font-weight: 600 !important;
-    text-decoration: none !important;
+/* If the last item is a link (unexpected but possible) */
+.breadcrumb-vc .breadcrumb-item.active a,
+.breadcrumb-vc .breadcrumb-item:last-child a,
+.breadcrumb-vc .breadcrumb-item.active span,
+.breadcrumb-vc .breadcrumb-item:last-child span {
+    color: var(--color-primary) !important;
+    font-weight: 700 !important;
+}
+
+/* Ensure common utility classes are overriden */
+.breadcrumb-vc .text-muted,
+.breadcrumb-vc .text-secondary {
+    color: #666 !important;
+}
+
+.breadcrumb-vc .text-primary {
+    color: var(--color-primary) !important;
+}
+
+.breadcrumb-vc .fw-bold {
+    font-weight: 700 !important;
 }

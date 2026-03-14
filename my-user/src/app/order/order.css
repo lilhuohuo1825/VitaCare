@@ -15,9 +15,20 @@
   min-height: 100vh;
   min-height: 100dvh;
   background-color: var(--color-bg-light) !important;
-  padding: var(--spacing-4) var(--spacing-4) var(--spacing-8);
+  padding: var(--spacing-4) 0 var(--spacing-8);
   font-family: var(--font-family-base);
-  /* Kế thừa typography từ :root (variables.css) */
+}
+
+.order-container {
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 15px;
+}
+
+.order-back-container {
+  width: 100%;
+  margin: 0 auto var(--spacing-4);
 }
 
 .order-back {
@@ -28,9 +39,9 @@
   font-weight: 600;
   font-size: var(--font-size-sm);
   text-decoration: none;
-  margin-bottom: var(--spacing-4);
   cursor: pointer;
 }
+
 .order-back:hover {
   color: var(--color-primary-hover);
 }
@@ -39,9 +50,9 @@
   display: grid;
   grid-template-columns: 1fr 420px;
   gap: var(--spacing-6);
-  max-width: 1240px;
-  margin: 0 auto;
+  width: 100%;
 }
+
 @media (max-width: 992px) {
   .order-layout {
     grid-template-columns: 1fr;
@@ -80,9 +91,11 @@
   color: var(--order-title-color);
   margin-bottom: var(--spacing-4);
 }
+
 .order-sidebar .order-sidebar-title {
   margin-bottom: var(--spacing-3);
 }
+
 .order-section-title .order-label-required {
   color: var(--color-danger);
   margin-left: 0.25em;
@@ -97,6 +110,7 @@
   color: var(--order-content-color);
   font-size: var(--order-content-size);
 }
+
 .order-loading-spinner {
   width: 28px;
   height: 28px;
@@ -105,8 +119,11 @@
   border-radius: 50%;
   animation: order-spin 0.7s linear infinite;
 }
+
 @keyframes order-spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Cột phải: danh sách sản phẩm - layout giống ảnh: ảnh trái, phải là tên + dòng giá + x N đơn vị */
@@ -116,6 +133,7 @@
   padding: var(--spacing-3);
   box-shadow: var(--shadow-base);
 }
+
 .order-product-list {
   list-style: none;
   padding: 0;
@@ -123,6 +141,7 @@
   max-height: 360px;
   overflow-y: auto;
 }
+
 .order-product-row {
   display: flex;
   align-items: flex-start;
@@ -130,9 +149,11 @@
   padding: var(--spacing-2) 0;
   border-bottom: 1px solid var(--color-neutral-30);
 }
+
 .order-product-row:last-child {
   border-bottom: none;
 }
+
 .order-product-img-wrap {
   flex-shrink: 0;
   width: 80px;
@@ -145,11 +166,13 @@
   justify-content: center;
   overflow: hidden;
 }
+
 .order-product-img {
   width: 100%;
   height: 100%;
   object-fit: contain;
 }
+
 .order-product-info {
   min-width: 0;
   flex: 1;
@@ -157,6 +180,7 @@
   flex-direction: column;
   gap: 6px;
 }
+
 /* Level 2 - Label: tên sản phẩm (font weight nhẹ hơn) */
 .order-product-name {
   font-size: var(--order-content-size);
@@ -168,23 +192,27 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
 .order-product-price-line {
   display: flex;
   align-items: baseline;
   gap: 10px;
   flex-wrap: wrap;
 }
+
 /* Số tiền nổi bật (accent) */
 .order-product-total {
   font-size: var(--order-content-size);
   font-weight: 700;
   color: var(--order-amount-color);
 }
+
 /* Level 3 - Content: số lượng + đơn vị */
 .order-product-qty-unit {
   font-size: var(--order-content-size);
   color: var(--order-content-color);
 }
+
 .order-product-empty {
   font-size: var(--order-content-size);
   color: var(--order-content-color);
@@ -198,6 +226,7 @@
   gap: 0;
   margin-bottom: var(--spacing-4);
 }
+
 .order-tab {
   padding: 10px 20px;
   border: 1px solid var(--color-neutral-40);
@@ -208,18 +237,22 @@
   cursor: pointer;
   transition: all 0.2s;
 }
+
 .order-tab:first-child {
   border-radius: var(--radius-md) 0 0 var(--radius-md);
 }
+
 .order-tab:last-child {
   border-radius: 0 var(--radius-md) var(--radius-md) 0;
   border-left: none;
 }
+
 .order-tab.active {
   background: var(--color-primary);
   color: var(--color-text-inverse);
   border-color: var(--color-primary);
 }
+
 .order-tab:hover:not(.active) {
   background: var(--color-neutral-20);
 }
@@ -227,6 +260,7 @@
 .order-field {
   margin-bottom: var(--spacing-3);
 }
+
 /* Level 2 - Label: nhãn form */
 .order-field-label {
   display: block;
@@ -235,15 +269,18 @@
   color: var(--order-label-color);
   margin-bottom: 8px;
 }
+
 .order-field-label .required,
 .order-label-required {
   color: var(--color-danger);
   margin-left: 0.25em;
 }
+
 .order-field-label .bi {
   margin-right: 4px;
   color: var(--order-title-color);
 }
+
 .order-input {
   width: 100%;
   max-width: 400px;
@@ -252,11 +289,13 @@
   border-radius: var(--radius-md);
   font-size: var(--order-content-size);
 }
+
 .order-input:focus {
   outline: none;
   border-color: var(--color-primary);
   box-shadow: 0 0 0 2px var(--color-primary-bg);
 }
+
 /* Chọn hình thức nhận hàng + Giao tận nơi / Nhận tại nhà thuốc cùng một hàng, nút gọn để giảm khoảng cách */
 .order-delivery-header {
   display: flex;
@@ -266,24 +305,29 @@
   gap: 12px;
   margin-bottom: var(--spacing-3);
 }
+
 .order-delivery-header .order-section-title {
   margin-bottom: 0;
 }
+
 .order-delivery-section .order-tabs {
   margin-bottom: 0;
   display: flex;
   gap: 0;
 }
+
 .order-delivery-section .order-tab {
   padding: 8px 14px;
   font-size: var(--font-size-sm);
   font-weight: 600;
 }
+
 .order-delivery-section .order-tab.active {
   background: var(--color-primary);
   color: #fff;
   border-color: var(--color-primary);
 }
+
 .order-delivery-section .order-tab:not(.active) {
   background: var(--color-neutral-20);
   color: var(--color-text-secondary);
@@ -293,6 +337,7 @@
 .order-recipient-block {
   margin-top: var(--spacing-3);
 }
+
 .order-recipient-header {
   display: flex;
   align-items: center;
@@ -301,18 +346,21 @@
   gap: 12px;
   margin-bottom: 10px;
 }
+
 .order-recipient-header .order-field-label {
   margin-bottom: 0;
   font-size: var(--order-label-size);
   font-weight: 600;
   color: var(--order-label-color);
 }
+
 .order-recipient-header .order-field-label .bi {
   color: var(--order-title-color);
   font-size: 1.1em;
   margin-right: 4px;
   vertical-align: middle;
 }
+
 .order-btn-addr-list {
   padding: 8px 16px;
   font-size: var(--order-content-size);
@@ -324,6 +372,7 @@
   cursor: pointer;
   transition: background 0.2s, border-color 0.2s;
 }
+
 .order-btn-addr-list:hover {
   background: var(--color-primary-bg);
   border-color: var(--color-primary);
@@ -338,8 +387,9 @@
   border-radius: var(--radius-lg);
   min-height: 88px;
 }
-.order-address-card-inner {
-}
+
+.order-address-card-inner {}
+
 .order-address-line1 {
   display: flex;
   align-items: center;
@@ -347,6 +397,7 @@
   gap: 10px;
   margin-bottom: 8px;
 }
+
 /* Level 3 - Content: nội dung địa chỉ */
 .order-address-input {
   flex: 1;
@@ -357,12 +408,15 @@
   font-size: var(--order-content-size);
   color: var(--order-label-color);
 }
+
 .order-address-input::placeholder {
   color: var(--color-text-tertiary);
 }
+
 .order-address-input:focus {
   outline: none;
 }
+
 .order-addr-tag {
   flex-shrink: 0;
   padding: 4px 10px;
@@ -372,6 +426,7 @@
   font-weight: 600;
   border-radius: var(--radius-sm);
 }
+
 .order-address-line2 .order-address-input {
   width: 100%;
 }
@@ -380,6 +435,7 @@
 .order-pharmacy-block {
   margin-top: var(--spacing-4);
 }
+
 .order-pharmacy-row {
   display: flex;
   align-items: center;
@@ -387,20 +443,24 @@
   gap: 10px;
   margin-bottom: var(--spacing-4);
 }
+
 .order-payer-block {
   margin-bottom: var(--spacing-4);
 }
+
 .order-payer-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-bottom: 6px;
 }
+
 .order-payer-detail {
   font-size: var(--order-content-size);
   color: var(--order-content-color);
   padding-left: 22px;
 }
+
 .order-pharmacy-label {
   display: inline-flex;
   align-items: center;
@@ -409,18 +469,22 @@
   font-weight: 600;
   color: var(--order-label-color);
 }
+
 .order-pharmacy-label .bi {
   color: var(--order-title-color);
   font-size: 1.1em;
 }
+
 .order-pharmacy-label .order-label-required {
   color: var(--color-danger);
   margin-left: 0.25em;
 }
+
 .order-pharmacy-content {
   font-size: var(--order-content-size);
   color: var(--order-content-color);
 }
+
 .order-pharmacy-link {
   margin-left: auto;
   font-size: var(--order-content-size);
@@ -431,15 +495,19 @@
   font-weight: 500;
   padding: 0;
 }
+
 .order-pharmacy-link:hover {
   text-decoration: underline;
 }
+
 .order-pharmacy-section {
   margin-top: var(--spacing-4);
 }
+
 .order-pharmacy-section .order-pharmacy-label {
   margin-bottom: 10px;
 }
+
 .order-pharmacy-info-box {
   padding: 12px 14px;
   background: var(--color-primary-bg);
@@ -449,19 +517,23 @@
   font-size: var(--order-content-size);
   color: var(--order-label-color);
 }
+
 .order-pharmacy-info-box a {
   color: var(--order-link-color);
   text-decoration: underline;
   margin-left: 4px;
 }
+
 .order-pharmacy-info-box a:hover {
   color: var(--color-primary-hover);
 }
+
 .order-pharmacy-selects {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
 }
+
 .order-pharmacy-select {
   width: 100%;
   padding: 10px 12px;
@@ -471,10 +543,12 @@
   color: var(--order-label-color);
   background: var(--color-bg-secondary);
 }
+
 .order-pharmacy-select:focus {
   outline: none;
   border-color: var(--order-title-color);
 }
+
 .order-pharmacy-select option[value=""] {
   color: var(--color-text-tertiary);
 }
@@ -485,11 +559,13 @@
   flex-direction: column;
   gap: 12px;
 }
+
 .order-notes-label {
   font-size: var(--order-label-size);
   font-weight: 600;
   color: var(--order-label-color);
 }
+
 .order-notes-input {
   width: 100%;
   min-height: 80px;
@@ -502,9 +578,11 @@
   resize: vertical;
   background: var(--color-bg-secondary);
 }
+
 .order-notes-input::placeholder {
   color: var(--color-text-tertiary);
 }
+
 .order-notes-input:focus {
   outline: none;
   border-color: var(--order-title-color);
@@ -519,23 +597,27 @@
   flex-wrap: wrap;
   gap: 12px;
 }
+
 /* Level 2 - Label: Yêu cầu xuất hoá đơn */
 .order-invoice-label {
   font-size: var(--order-label-size);
   font-weight: 600;
   color: var(--order-label-color);
 }
+
 .order-toggle {
   position: relative;
   display: inline-block;
   width: 48px;
   height: 26px;
 }
+
 .order-toggle input {
   opacity: 0;
   width: 0;
   height: 0;
 }
+
 .order-toggle-slider {
   position: absolute;
   cursor: pointer;
@@ -547,6 +629,7 @@
   border-radius: var(--radius-full);
   transition: 0.3s;
 }
+
 .order-toggle-slider::before {
   position: absolute;
   content: '';
@@ -557,12 +640,14 @@
   background: #fff;
   border-radius: 50%;
   transition: 0.3s;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
-.order-toggle input:checked + .order-toggle-slider {
+
+.order-toggle input:checked+.order-toggle-slider {
   background: var(--color-primary);
 }
-.order-toggle input:checked + .order-toggle-slider::before {
+
+.order-toggle input:checked+.order-toggle-slider::before {
   transform: translateX(22px);
 }
 
@@ -572,6 +657,7 @@
   flex-direction: column;
   gap: 12px;
 }
+
 /* Level 3 - Content: mô tả phương thức thanh toán */
 .order-payment-item {
   display: flex;
@@ -585,14 +671,17 @@
   color: var(--order-label-color);
   transition: border-color 0.2s;
 }
+
 .order-payment-item:hover,
 .order-payment-item:has(input:checked) {
   border-color: var(--order-title-color);
   background: var(--color-primary-bg);
 }
+
 .order-payment-item input {
   accent-color: var(--order-title-color);
 }
+
 /* Đồng bộ kích thước 7 icon: ô cố định 28x28px */
 .order-payment-item .bi {
   width: 28px;
@@ -604,6 +693,7 @@
   color: var(--order-title-color);
   flex-shrink: 0;
 }
+
 .order-payment-icon {
   width: 28px;
   height: 28px;
@@ -631,20 +721,24 @@
   border-radius: var(--radius-md);
   cursor: pointer;
 }
+
 .order-promo-box:hover {
   background: var(--color-primary-lighter);
 }
+
 .order-promo-box .bi:first-of-type {
   color: var(--color-primary);
   font-size: 1.1rem;
   flex-shrink: 0;
 }
+
 .order-promo-box-text {
   flex: 1;
   font-size: 13px;
   font-weight: 700;
   color: var(--color-primary);
 }
+
 .order-promo-box .bi-chevron-right {
   color: var(--color-primary);
   flex-shrink: 0;
@@ -660,6 +754,7 @@
   padding: var(--spacing-3);
   box-shadow: var(--shadow-base);
 }
+
 .order-checkout-section .order-summary {
   background: none;
   box-shadow: none;
@@ -675,6 +770,7 @@
   box-shadow: var(--shadow-base);
   font-size: 14px;
 }
+
 .order-summary-row {
   display: flex;
   justify-content: space-between;
@@ -683,23 +779,29 @@
   font-size: inherit;
   color: var(--color-text-secondary);
 }
+
 .order-summary-row span {
   color: var(--color-text-secondary);
 }
+
 .order-summary-row strong {
   font-weight: 700;
 }
+
 .order-summary-row-total .order-summary-value-total {
   color: var(--color-primary);
 }
+
 .order-summary-value-discount {
   color: var(--color-warning) !important;
 }
+
 .order-summary-row-last {
   margin-bottom: var(--spacing-2);
   padding-bottom: var(--spacing-3);
   border-bottom: 1px solid var(--color-neutral-30);
 }
+
 .order-summary-total {
   border-top: none;
   margin-top: var(--spacing-3);
@@ -708,10 +810,12 @@
   font-weight: 700;
   color: var(--order-label-color);
 }
+
 .order-summary-total span {
   color: var(--order-label-color);
   font-weight: 700;
 }
+
 .order-total-amount {
   color: var(--color-primary) !important;
   font-size: 1.1rem;
@@ -726,6 +830,7 @@
   color: var(--order-content-color);
   cursor: pointer;
 }
+
 .order-hide-products input {
   appearance: none;
   -webkit-appearance: none;
@@ -738,11 +843,13 @@
   flex-shrink: 0;
   transition: border-color 0.2s, background 0.2s;
 }
+
 .order-hide-products input:checked {
   background: var(--order-title-color);
   border-color: var(--order-title-color);
   box-shadow: inset 0 0 0 2px var(--color-bg-secondary);
 }
+
 .order-hide-products input:focus-visible {
   outline: 2px solid var(--order-title-color);
   outline-offset: 2px;
@@ -760,6 +867,7 @@
   cursor: pointer;
   transition: background 0.2s;
 }
+
 .order-btn-buy:hover {
   background: var(--color-primary-hover);
 }
@@ -771,11 +879,13 @@
   margin: 0;
   line-height: 1.5;
 }
+
 .order-terms a {
   color: var(--order-title-color);
   font-weight: 600;
   text-decoration: none;
 }
+
 .order-terms a:hover {
   text-decoration: underline;
 }
@@ -792,10 +902,17 @@
   padding: var(--spacing-4);
   animation: order-addr-fadeIn 0.2s ease-out;
 }
+
 @keyframes order-addr-fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
+
 .order-addr-modal {
   background: var(--color-bg-secondary);
   border-radius: var(--radius-lg);
@@ -808,10 +925,19 @@
   flex-direction: column;
   animation: order-addr-slideUp 0.25s ease-out;
 }
+
 @keyframes order-addr-slideUp {
-  from { opacity: 0; transform: translateY(12px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
+
 .order-addr-modal-header {
   display: flex;
   align-items: center;
@@ -819,12 +945,14 @@
   padding: var(--spacing-4) var(--spacing-5);
   border-bottom: 1px solid var(--color-neutral-30);
 }
+
 .order-addr-modal-title {
   font-size: var(--font-size-lg);
   font-weight: 700;
   color: var(--color-text-primary);
   margin: 0;
 }
+
 .order-addr-modal-close {
   width: 32px;
   height: 32px;
@@ -837,10 +965,12 @@
   cursor: pointer;
   border-radius: var(--radius-md);
 }
+
 .order-addr-modal-close:hover {
   background: var(--color-neutral-20);
   color: var(--color-text-primary);
 }
+
 .order-addr-modal-body {
   padding: var(--spacing-4);
   overflow-y: auto;
@@ -849,12 +979,14 @@
   flex-direction: column;
   gap: var(--spacing-3);
 }
+
 .order-addr-modal-loading {
   font-size: var(--font-size-sm);
   color: var(--color-text-secondary);
   text-align: center;
   padding: var(--spacing-6);
 }
+
 .order-addr-card {
   position: relative;
   padding: var(--spacing-3) var(--spacing-4);
@@ -864,13 +996,16 @@
   cursor: pointer;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
+
 .order-addr-card:hover {
   border-color: var(--color-primary-lighter);
 }
+
 .order-addr-card.is-selected {
   border-color: var(--color-primary);
   box-shadow: 0 0 0 2px var(--color-primary-bg);
 }
+
 .order-addr-card-main {
   display: flex;
   align-items: center;
@@ -878,11 +1013,13 @@
   gap: var(--spacing-2);
   margin-bottom: 6px;
 }
+
 .order-addr-card-name {
   font-size: var(--font-size-base);
   font-weight: 600;
   color: var(--color-text-primary);
 }
+
 .order-addr-card-badge {
   font-size: var(--font-size-xs);
   font-weight: 600;
@@ -891,18 +1028,21 @@
   padding: 2px 8px;
   border-radius: var(--radius-base);
 }
+
 .order-addr-card-address {
   font-size: var(--font-size-sm);
   color: var(--color-text-secondary);
   margin: 0 0 var(--spacing-2);
   line-height: 1.4;
 }
+
 .order-addr-card-actions {
   display: flex;
   justify-content: flex-end;
   gap: var(--spacing-2);
   margin-top: var(--spacing-2);
 }
+
 .order-addr-card-btn {
   display: inline-flex;
   align-items: center;
@@ -918,20 +1058,24 @@
   text-decoration: none;
   transition: background 0.2s, color 0.2s, border-color 0.2s;
 }
+
 .order-addr-card-btn:hover {
   background: var(--color-primary-bg);
   color: var(--color-primary);
   border-color: var(--color-primary-lighter);
 }
+
 .order-addr-card-btn-danger {
   border-color: var(--color-danger);
   color: var(--color-danger);
   background: transparent;
 }
+
 .order-addr-card-btn-danger:hover {
   background: var(--color-danger-bg);
   color: var(--color-danger-hover);
 }
+
 .order-addr-card-check {
   position: absolute;
   top: var(--spacing-3);
@@ -946,6 +1090,7 @@
   justify-content: center;
   font-size: 14px;
 }
+
 .order-addr-add-new {
   display: flex;
   align-items: center;
@@ -963,16 +1108,19 @@
   transition: background 0.2s, border-color 0.2s;
   font-family: inherit;
 }
+
 .order-addr-add-new:hover {
   background: var(--color-primary-bg);
   border-color: var(--color-primary);
 }
+
 .order-addr-modal-footer {
   padding: var(--spacing-4) var(--spacing-5);
   border-top: 1px solid var(--color-neutral-30);
   display: flex;
   justify-content: flex-end;
 }
+
 .order-addr-modal-confirm {
   padding: var(--spacing-3) var(--spacing-6);
   background: var(--color-primary);
@@ -984,6 +1132,7 @@
   cursor: pointer;
   transition: background 0.2s;
 }
+
 .order-addr-modal-confirm:hover {
   background: var(--color-primary-hover);
 }
@@ -1001,6 +1150,7 @@
   padding: var(--spacing-5);
   animation: order-addr-fadeIn 0.2s ease-out;
 }
+
 .order-addr-form-modal {
   position: relative;
   width: 100%;
@@ -1014,6 +1164,7 @@
   font-family: var(--font-family-base);
   animation: order-addr-slideUp 0.25s ease-out;
 }
+
 .order-addr-form-close {
   position: absolute;
   top: 16px;
@@ -1030,10 +1181,12 @@
   transition: background 0.2s, color 0.2s;
   font-size: 14px;
 }
+
 .order-addr-form-close:hover {
   background: var(--color-primary-lighter);
   color: var(--color-primary-hover);
 }
+
 .order-addr-form-title {
   font-family: var(--font-content-title-family);
   font-size: var(--font-size-xl);
@@ -1042,17 +1195,20 @@
   margin: 0 0 var(--spacing-4) 0;
   letter-spacing: 0.04em;
 }
+
 .order-addr-form {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-5);
 }
+
 .order-addr-form-section {
   padding: var(--spacing-4);
   border-radius: var(--radius-lg);
   background: var(--color-neutral-10);
   border: 1px solid var(--color-neutral-30);
 }
+
 .order-addr-form-section-header {
   display: flex;
   align-items: center;
@@ -1063,32 +1219,39 @@
   font-weight: var(--font-weight-semibold);
   color: var(--color-text-primary);
 }
+
 .order-addr-form-section-header i {
   font-size: 20px;
   color: var(--color-primary);
 }
+
 .order-addr-form-grid {
   display: grid;
   grid-template-columns: 1fr;
   gap: var(--spacing-3);
 }
+
 .order-addr-form-grid-2 {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
+
 .order-addr-form-group {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
+
 .order-addr-form-label {
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
   color: var(--color-text-primary);
 }
+
 .order-addr-required {
   color: var(--color-danger);
   margin-left: 2px;
 }
+
 .order-addr-form-input {
   width: 100%;
   padding: 10px 14px;
@@ -1100,23 +1263,28 @@
   background: var(--color-neutral-10);
   transition: border-color 0.2s, box-shadow 0.2s;
 }
+
 .order-addr-form-input::placeholder {
   color: var(--color-text-tertiary);
 }
+
 .order-addr-form-input:focus {
   outline: none;
   border-color: var(--color-primary);
   box-shadow: 0 0 0 3px var(--color-primary-bg);
 }
+
 .order-addr-form-input.order-addr-form-input-error {
   border-color: var(--color-danger);
 }
+
 .order-addr-field-error {
   display: block;
   margin-top: 4px;
   font-size: var(--font-size-sm);
   color: var(--color-danger);
 }
+
 .order-addr-form-default {
   display: inline-flex;
   align-items: center;
@@ -1126,17 +1294,20 @@
   color: var(--color-text-primary);
   cursor: pointer;
 }
+
 .order-addr-form-default input[type="checkbox"] {
   width: 16px;
   height: 16px;
   accent-color: var(--color-primary);
   cursor: pointer;
 }
+
 .order-addr-form-actions {
   display: flex;
   justify-content: flex-end;
   gap: var(--spacing-3);
 }
+
 .order-addr-form-btn {
   min-width: 120px;
   padding: 10px 20px;
@@ -1148,27 +1319,33 @@
   border: 1px solid transparent;
   transition: background 0.2s, color 0.2s, border-color 0.2s;
 }
+
 .order-addr-form-btn-secondary {
   background: var(--color-neutral-10);
   color: var(--color-text-secondary);
   border-color: var(--color-neutral-40);
 }
+
 .order-addr-form-btn-secondary:hover {
   background: var(--color-neutral-20);
   color: var(--color-text-primary);
 }
+
 .order-addr-form-btn-primary {
   background: var(--color-primary);
   color: var(--color-text-inverse);
 }
+
 .order-addr-form-btn-primary:hover {
   background: var(--color-primary-hover);
 }
+
 @media (max-width: 768px) {
   .order-addr-form-modal {
     max-width: 100%;
     padding: var(--spacing-4);
   }
+
   .order-addr-form-grid-2 {
     grid-template-columns: 1fr;
   }
@@ -1176,8 +1353,11 @@
 
 /* ===== Spinner cho nút "Đang xử lý..." ===== */
 @keyframes orderSpin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
+
 .order-spin {
   display: inline-block;
   animation: orderSpin 0.8s linear infinite;
@@ -1195,9 +1375,15 @@
   padding: var(--spacing-4, 16px);
   animation: vcOSFadeIn 0.25s ease-out;
 }
+
 @keyframes vcOSFadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 .vc-order-success-modal {
@@ -1211,9 +1397,17 @@
   position: relative;
   animation: vcOSSlideUp 0.35s cubic-bezier(0.22, 0.61, 0.36, 1);
 }
+
 @keyframes vcOSSlideUp {
-  from { opacity: 0; transform: translateY(30px) scale(0.96); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .vc-order-success-close {
@@ -1233,14 +1427,16 @@
   justify-content: center;
   transition: background 0.2s, color 0.2s;
 }
+
 .vc-order-success-close:hover {
-  background: var(--color-neutral-20, #F5F5F5);
+  background: var(--color-neutral-20, #E5EEF8);
   color: var(--color-neutral-100, #0A0A0A);
 }
 
 .vc-order-success-icon {
   margin-bottom: 20px;
 }
+
 .vc-order-success-icon i {
   font-size: 64px;
   color: #27AE60;
@@ -1274,10 +1470,12 @@
   padding: 14px 20px;
   margin-bottom: 28px;
 }
+
 .vc-order-success-code-label {
   font-size: var(--font-size-sm, 14px);
   color: var(--color-text-secondary, #616161);
 }
+
 .vc-order-success-code-value {
   font-family: var(--font-family-title, 'Inter', sans-serif);
   font-size: var(--font-size-lg, 18px);
@@ -1303,6 +1501,7 @@
   cursor: pointer;
   transition: background 0.2s, color 0.2s, border-color 0.2s, transform 0.15s;
 }
+
 .vc-order-success-btn:active {
   transform: scale(0.98);
 }
@@ -1311,6 +1510,7 @@
   background: var(--color-primary, #00589F);
   color: var(--color-text-inverse, #fff);
 }
+
 .vc-order-success-btn-primary:hover {
   background: var(--color-primary-hover, #2B3E66);
 }
@@ -1320,6 +1520,7 @@
   color: var(--color-primary, #00589F);
   border-color: var(--color-primary, #00589F);
 }
+
 .vc-order-success-btn-secondary:hover {
   background: var(--color-primary-bg, #DAECFF);
 }
@@ -1329,9 +1530,11 @@
     padding: 32px 20px 24px;
     max-width: calc(100vw - 32px);
   }
+
   .vc-order-success-icon i {
     font-size: 52px;
   }
+
   .vc-order-success-code {
     flex-direction: column;
     gap: 4px;
@@ -1343,33 +1546,39 @@
 .order-delivery-time-section {
   padding: 16px 20px;
 }
+
 .order-delivery-time-row {
   display: flex;
   align-items: center;
   gap: 12px;
   flex-wrap: wrap;
 }
+
 .order-delivery-time-left {
   display: flex;
   align-items: center;
   gap: 8px;
 }
+
 .order-delivery-time-icon {
   color: var(--color-primary, #00589F);
   font-size: 18px;
 }
+
 .order-delivery-time-label {
   font-size: var(--order-label-size, 14px);
   font-weight: 600;
   color: var(--order-label-color, #1A1A1A);
   white-space: nowrap;
 }
+
 .order-delivery-time-value {
   font-size: 14px;
   font-weight: 600;
   color: var(--order-label-color, #1A1A1A);
   margin-left: auto;
 }
+
 .order-delivery-time-change {
   background: none;
   border: none;
@@ -1380,6 +1589,7 @@
   padding: 0;
   white-space: nowrap;
 }
+
 .order-delivery-time-change:hover {
   text-decoration: underline;
 }
@@ -1395,9 +1605,15 @@
   justify-content: center;
   animation: vcDeliveryFadeIn 0.2s ease;
 }
+
 @keyframes vcDeliveryFadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 .vc-delivery-modal {
@@ -1412,9 +1628,17 @@
   display: flex;
   flex-direction: column;
 }
+
 @keyframes vcDeliverySlideUp {
-  from { opacity: 0; transform: translateY(24px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .vc-delivery-modal-header {
@@ -1424,12 +1648,14 @@
   padding: 20px 24px 12px;
   border-bottom: 1px solid #eee;
 }
+
 .vc-delivery-modal-header h3 {
   margin: 0;
   font-size: 18px;
   font-weight: 700;
   color: #1A1A1A;
 }
+
 .vc-delivery-modal-close {
   background: none;
   border: none;
@@ -1441,6 +1667,7 @@
   border-radius: 50%;
   transition: background 0.15s;
 }
+
 .vc-delivery-modal-close:hover {
   background: #f0f0f0;
 }
@@ -1486,16 +1713,19 @@
   text-align: center;
   line-height: 1.3;
 }
+
 .vc-delivery-chip:hover {
   border-color: var(--color-primary, #00589F);
   color: var(--color-primary, #00589F);
 }
+
 .vc-delivery-chip.active {
   border-color: var(--color-primary, #00589F);
   color: var(--color-primary, #00589F);
   background: var(--color-primary-bg, #DAECFF);
   font-weight: 400;
 }
+
 .vc-delivery-chip.active i {
   font-size: 13px;
 }
@@ -1526,6 +1756,7 @@
 .vc-delivery-modal-footer {
   padding: 12px 24px 20px;
 }
+
 .vc-delivery-confirm-btn {
   width: 100%;
   padding: 14px 20px;
@@ -1538,36 +1769,44 @@
   cursor: pointer;
   transition: background 0.2s, transform 0.15s;
 }
+
 .vc-delivery-confirm-btn:hover {
   background: var(--color-primary-hover, #2B3E66);
 }
+
 .vc-delivery-confirm-btn:active {
   transform: scale(0.98);
 }
 
 @media (max-width: 480px) {
+
   .vc-delivery-chips,
   .vc-delivery-time-chips {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
   .vc-delivery-modal {
     max-width: calc(100vw - 24px);
   }
+
   .vc-delivery-modal-header,
   .vc-delivery-modal-body,
   .vc-delivery-modal-footer {
     padding-left: 16px;
     padding-right: 16px;
   }
+
   .vc-delivery-chip {
     padding: 8px 14px;
     font-size: 13px;
   }
+
   .order-delivery-time-row {
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
   }
+
   .order-delivery-time-value {
     margin-left: 0;
   }
@@ -1602,6 +1841,7 @@
   padding: 20px 24px 16px;
   border-bottom: 1px solid #eee;
 }
+
 .vc-qr-header h3 {
   margin: 0;
   font-size: 1.125rem;
@@ -1609,6 +1849,7 @@
   color: #1A1A1A;
   letter-spacing: -0.01em;
 }
+
 .vc-qr-close {
   background: none;
   border: none;
@@ -1620,6 +1861,7 @@
   border-radius: 50%;
   transition: background 0.15s, color 0.15s;
 }
+
 .vc-qr-close:hover {
   background: #f0f0f0;
   color: #333;
@@ -1628,6 +1870,7 @@
 .vc-qr-body {
   padding: 20px 24px 16px;
 }
+
 .vc-qr-method {
   margin: 0 0 6px;
   font-size: 0.9375rem;
@@ -1635,12 +1878,14 @@
   color: #1A1A1A;
   line-height: 1.4;
 }
+
 .vc-qr-amount {
   margin: 0 0 20px;
   font-size: 0.9375rem;
   color: #444;
   line-height: 1.4;
 }
+
 .vc-qr-amount strong {
   font-weight: 700;
   color: var(--color-primary, #00589F);
@@ -1662,6 +1907,7 @@
   align-items: center;
   gap: 14px;
 }
+
 /* Mã QR đơn giản: một ô vuông đen */
 .vc-qr-code-placeholder {
   width: 200px;
@@ -1670,6 +1916,7 @@
   background: #1A1A1A;
   flex-shrink: 0;
 }
+
 .vc-qr-note {
   margin: 0;
   font-size: 0.8125rem;
@@ -1684,6 +1931,7 @@
   display: flex;
   gap: 12px;
 }
+
 .vc-qr-btn {
   flex: 1;
   padding: 12px 16px;
@@ -1694,22 +1942,27 @@
   cursor: pointer;
   transition: background 0.2s, color 0.2s, border-color 0.2s, transform 0.15s;
 }
+
 .vc-qr-btn:active {
   transform: scale(0.98);
 }
+
 .vc-qr-btn-cancel {
   background: #fff;
   color: #444;
   border-color: #d0d5dd;
 }
+
 .vc-qr-btn-cancel:hover {
   background: #f5f7fa;
   border-color: #b0b8c0;
 }
+
 .vc-qr-btn-confirm {
   background: var(--color-primary, #00589F);
   color: #fff;
 }
+
 .vc-qr-btn-confirm:hover {
   background: var(--color-primary-hover, #2B3E66);
 }
@@ -1718,15 +1971,16 @@
   .vc-qr-modal {
     max-width: calc(100vw - 24px);
   }
+
   .vc-qr-header,
   .vc-qr-body,
   .vc-qr-footer {
     padding-left: 18px;
     padding-right: 18px;
   }
+
   .vc-qr-code-placeholder {
     width: 180px;
     height: 180px;
   }
 }
-

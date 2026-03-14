@@ -1,8 +1,8 @@
-<div class="container pt-3 pb-4">
+<div class="vc_container pt-2 pb-4">
     <!-- Breadcrumb -->
-    <nav aria-label="breadcrumb" class="mb-1">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a routerLink="/" class="text-decoration-none text-muted">Trang chủ</a></li>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb-vc">
+            <li class="breadcrumb-item"><a routerLink="/">Trang chủ</a></li>
 
             <!-- Breadcrumb for Article Mode -->
             <li class="breadcrumb-item active" aria-current="page" *ngIf="searchMode === 'article' && !currentCategory">
@@ -12,9 +12,9 @@
             <!-- Breadcrumb for Product Mode with Category -->
             <ng-container *ngIf="searchMode === 'product' && currentCategory">
                 <li class="breadcrumb-item" *ngFor="let crumb of breadcrumbs; let last = last" [class.active]="last">
-                    <a *ngIf="!last" [routerLink]="['/category', crumb.slug]" class="text-decoration-none text-muted">{{
+                    <a *ngIf="!last" [routerLink]="['/category', crumb.slug]">{{
                         crumb.name }}</a>
-                    <span *ngIf="last" class="text-primary fw-bold">{{ crumb.name }}</span>
+                    <span *ngIf="last">{{ crumb.name }}</span>
                 </li>
             </ng-container>
 
@@ -26,7 +26,7 @@
     </nav>
     <!-- Search Mode Selector (As per mockup) -->
     <div class="vc_search_type_selector bg-white rounded-4 shadow-sm p-3 mb-2 d-flex align-items-center gap-4"
-        *ngIf="filters.keyword">
+        style="margin-top: -12px;" *ngIf="filters.keyword">
         <span class="fw-bold text-vc-primary">Tìm kiếm theo:</span>
         <div class="d-flex gap-4">
             <div class="d-flex align-items-center gap-2 cursor-pointer" (click)="setSearchMode('product')">
@@ -57,7 +57,7 @@
     </h1>
 
     <!-- Feature Categories (Level 2 Quick Links Slider, Level 3 Grid) -->
-    <app-feature-categories *ngIf="subCategories && subCategories.length > 0" class="d-block mb-1"
+    <app-feature-categories *ngIf="subCategories && subCategories.length > 0" class="d-block mb-0"
         [subCategories]="subCategories" [layoutMode]="featureLayoutMode"
         (categorySelected)="onCategorySelected($event)">
     </app-feature-categories>
@@ -67,10 +67,10 @@
     <div class="row g-4 mt-0 product-two-columns">
         <!-- Cột trái: Bộ lọc (luôn hiển thị, sticky khi cuộn) -->
         <aside class="col-lg-3 d-none d-lg-block pb-4 product-filter-column" *ngIf="searchMode === 'product'">
-            <app-filter [hierarchy]="sidebarHierarchy" [activeCategorySlug]="filters.categorySlug" [brands]="brands"
-                [priceRanges]="priceRanges" [activeFilters]="filters" (filterChanged)="onFilterChanged($event)"
-                (categorySelected)="onCategorySelected($event)">
-            </app-filter>
+            <app-product-filter [hierarchy]="sidebarHierarchy" [activeCategorySlug]="filters.categorySlug"
+                [brands]="brands" [priceRanges]="priceRanges" [activeFilters]="filters"
+                (filterChanged)="onFilterChanged($event)" (categorySelected)="onCategorySelected($event)">
+            </app-product-filter>
         </aside>
 
         <!-- Cột phải: Danh sách sản phẩm -->
@@ -78,18 +78,15 @@
             <!-- Product List -->
             <app-product-list *ngIf="searchMode === 'product'" [products]="products" [total]="totalProducts"
                 [isLoading]="isLoading" [activeSort]="filters.sort" [activeFilters]="filters"
-                (sortChange)="onSortToggle($event)" (loadMoreEvent)="loadMore()"
-                (itemClick)="trackRecentlyViewed($event)" (removeFilter)="onRemoveFilter($event)"
-                (clearAllFilters)="onClearAllFilters()">
+                (sortChange)="onSortToggle($event)" (loadMore)="loadMore()" (itemClick)="trackRecentlyViewed($event)"
+                (removeFilter)="onRemoveFilter($event)" (clearAllFilters)="onClearAllFilters()">
             </app-product-list>
 
             <!-- Blog Article List with Sidebar (tách thành component riêng) -->
             <app-blog-results *ngIf="searchMode === 'article'" [blogs]="blogs" [displayedBlogs]="displayedBlogs"
-                [isLoading]="isLoading" [initialBlogLimit]="initialBlogLimit"
-                [blogDisplayLimit]="blogDisplayLimit" [searchHistory]="searchHistory"
-                (loadMoreBlogs)="loadMoreBlogs()" (collapseBlogs)="collapseBlogs()"
-                (clearSearchHistory)="clearSearchHistory()"
-                (removeSearchHistoryItem)="removeSearchHistoryItem($event)"
+                [isLoading]="isLoading" [initialBlogLimit]="initialBlogLimit" [blogDisplayLimit]="blogDisplayLimit"
+                [searchHistory]="searchHistory" (loadMoreBlogs)="loadMoreBlogs()" (collapseBlogs)="collapseBlogs()"
+                (clearSearchHistory)="clearSearchHistory()" (removeSearchHistoryItem)="removeSearchHistoryItem($event)"
                 (trackRecentlyViewedBlog)="trackRecentlyViewedBlog($event)">
             </app-blog-results>
         </main>
@@ -97,16 +94,13 @@
 
     <!-- Recently Viewed Section (Bottom Full Width) -->
     <!-- Products Recently Viewed -->
-    <app-recently-viewed-products *ngIf="searchMode === 'product'"
-        [products]="recentlyViewedProducts"
-        (clearAll)="clearRecentlyViewed()"
-        (productClick)="trackRecentlyViewed($event)">
+    <app-recently-viewed-products *ngIf="searchMode === 'product'" [products]="recentlyViewedProducts"
+        (clearAll)="clearRecentlyViewed()" (productClick)="trackRecentlyViewed($event)"
+        (removeProduct)="removeRecentlyViewedProduct($event)">
     </app-recently-viewed-products>
 
     <!-- Blogs Recently Viewed -->
-    <app-recently-viewed-blogs *ngIf="searchMode === 'article'"
-        [blogs]="recentlyViewedBlogs"
-        (clearAll)="clearRecentlyViewedBlogs()"
-        (clickBlog)="trackRecentlyViewedBlog($event)">
+    <app-recently-viewed-blogs *ngIf="searchMode === 'article'" [blogs]="recentlyViewedBlogs"
+        (clearAll)="clearRecentlyViewedBlogs()" (clickBlog)="trackRecentlyViewedBlog($event)">
     </app-recently-viewed-blogs>
 </div>

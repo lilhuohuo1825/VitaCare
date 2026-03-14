@@ -67,7 +67,7 @@
     /* Background Colors */
     --color-bg-primary: #00589F;
     --color-bg-secondary: #FFFFFF;
-    --color-bg-light: #F5F5F5;
+    --color-bg-light: #E5EEF8;
 
     /* Text Colors */
     --color-text-primary: #0A0A0A;
@@ -236,6 +236,7 @@
 
 /* Containers */
 :root {
-    --container-max-width: 1400px;
-    --container-padding: var(--spacing-4);
+    --container-max-width: 1200px;
+    --container-padding: 15px;
+    /* Aligns with header and body containers */
 }

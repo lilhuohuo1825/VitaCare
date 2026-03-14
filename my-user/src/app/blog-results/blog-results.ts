@@ -42,5 +42,9 @@ export class BlogResults {
   onTrackRecentlyViewedBlog(blog: any): void {
     this.trackRecentlyViewedBlog.emit(blog);
   }
+
+  handleImageError(event: any): void {
+    event.target.src = 'assets/images/homepage/blogs/ngu_ngon.jpg';
+  }
 }
 

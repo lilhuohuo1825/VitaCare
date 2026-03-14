@@ -213,7 +213,13 @@ export class ProductDetail implements OnInit {
   }
 
   fetchProduct(slug: string): void {
-    if (!slug || slug === 'undefined') return;
+    if (!slug || slug === 'undefined' || slug === 'null') {
+      // Slug không hợp lệ → dừng loading và để UI hiển thị trạng thái "không tìm thấy"
+      this.loading = false;
+      this.product = null;
+      this.cdr.detectChanges();
+      return;
+    }
 
     this.loading = true;
     this.cdr.detectChanges();
@@ -446,6 +452,24 @@ export class ProductDetail implements OnInit {
     const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
     const match = url.match(regExp);
     return (match && match[2].length === 11) ? match[2] : null;
+  }
+
+  getLikeCount(video: any): string {
+    if (!video) return '0';
+    const url = video.url || '';
+    let hash = 0;
+    for (let i = 0; i < url.length; i++) {
+      hash = ((hash << 5) - hash) + url.charCodeAt(i);
+      hash |= 0;
+    }
+    // Tạo con số cơ sở từ 1,000 đến 15,000
+    const baseRaw = Math.abs(hash % 14000) + 1000;
+    const total = baseRaw + (this.isFavorite(video) ? 1 : 0);
+
+    if (total >= 1000) {
+      return (total / 1000).toFixed(1).replace('.0', '') + 'k';
+    }
+    return total.toString();
   }
 
   // Related Products Carousel Logic
@@ -761,15 +785,18 @@ export class ProductDetail implements OnInit {
       return;
     }
 
-    const payload = {
+    const payload: any = {
       sku: this.product.sku,
       question: this.userReviewContent,
-      full_name: fullName
+      full_name: fullName,
     };
+    if (user?.user_id) {
+      payload['user_id'] = user.user_id;
+    }
 
     this.productService.submitConsultation(payload).subscribe({
       next: (res: any) => {
-        alert('Câu hỏi của bạn đã được gửi thành công! VitaCare sẽ phản hồi sớm nhất có thể.');
+        this.authService.showHeaderSuccess('Câu hỏi của bạn đã được gửi thành công! VitaCare sẽ phản hồi sớm nhất có thể.');
         this.closeReviewModal();
         this.fetchConsultations(this.product.sku); // Refresh list
       },

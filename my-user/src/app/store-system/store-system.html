@@ -1,12 +1,13 @@
-<div class="page-wrapper">
+<div class="vc_container pt-2 pb-4">
 
   <!-- PAGE HEADER -->
   <div class="page-header-vc">
-    <div class="breadcrumb">
-      <a href="/">Trang chủ</a>
-      <span class="sep">›</span>
-      <span>Hệ thống nhà thuốc VitaCare</span>
-    </div>
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb-vc">
+        <li class="breadcrumb-item"><a routerLink="/">Trang chủ</a></li>
+        <li class="breadcrumb-item active">Hệ thống nhà thuốc VitaCare</li>
+      </ol>
+    </nav>
     <h1 class="page-title">Hệ thống nhà thuốc VitaCare</h1>
     <p class="page-subtitle">
       Tìm nhà thuốc gần bạn –
@@ -278,7 +279,8 @@
             <div class="rating-num">{{ selectedStore.danh_gia.diem_tb | number:'1.1-1' }}</div>
             <div class="rating-stars">
               <ng-container *ngFor="let s of getStarArray(selectedStore.danh_gia.diem_tb ?? 0)">
-                <span class="material-symbols-rounded star-rate" [class.half]="s==='half'" [class.empty-star]="s==='empty'">
+                <span class="material-symbols-rounded star-rate" [class.half]="s==='half'"
+                  [class.empty-star]="s==='empty'">
                   {{ s === 'full' ? 'star' : s === 'half' ? 'star_half' : 'star_border' }}
                 </span>
               </ng-container>

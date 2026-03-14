@@ -1,21 +1,29 @@
 /**
  * Consultation – dùng biến và layout local, style gốc từ root (variables.css, utilities.css)
  */
+.consultation-page,
+.consultation-page * {
+  font-family: 'Inter', sans-serif !important;
+}
+
 .consultation-page {
-  background-color: #F0F2F5;
+  background-color: #E5EEF8 !important;
   min-height: 100vh;
-  padding: var(--spacing-6) 0;
+  padding: 0 0 var(--spacing-8) 0;
+  /* Removing top padding since header is sticky/takes space */
   overflow: visible;
 }
 
-.consultation-container {
-  max-width: var(--container-max-width);
-  margin-left: auto;
-  margin-right: auto;
-  padding-left: var(--container-padding);
-  padding-right: var(--container-padding);
-  overflow: visible;
-}
+
+
+
+/* .breadcrumb-vc styles inherited from global src/styles/breadcrumb.css */
+
+
+
+
+/* .consultation-container removed in favor of global .vc_container */
+
 
 .consultation-layout {
   display: grid;
@@ -63,7 +71,7 @@
 }
 
 .consultation-section-title:only-child,
-.consultation-section-title + .consultation-desc {
+.consultation-section-title+.consultation-desc {
   margin-bottom: 0;
 }
 
@@ -140,13 +148,96 @@
   margin-bottom: var(--spacing-3);
 }
 
+.consultation-card-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+}
+
+.consultation-card-header-left {
+  display: flex;
+  flex-direction: column;
+}
+
 .consultation-add-icon {
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: var(--font-size-3xl);
-  line-height: 1;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  color: var(--color-primary);
+  transition: transform 0.3s ease;
+}
+
+.consultation-add-icon.rotated {
+  transform: rotate(45deg);
+  color: var(--color-danger);
+}
+
+.consultation-upload-expand {
+  margin-top: var(--spacing-4);
+  padding-top: var(--spacing-4);
+  border-top: 1px solid var(--color-neutral-20);
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.consultation-upload-title {
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0 0 var(--spacing-3) 0;
+}
+
+.consultation-upload-dashed-box {
+  background-color: #F0F7FF;
+  /* Light blue background */
+  border: 1px dashed #275AAB;
+  /* Blue dashed border */
+  border-radius: 8px;
+  padding: 32px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.consultation-upload-dashed-box:hover {
+  background-color: #E6F0FF;
+  border-color: #1e4290;
+}
+
+.consultation-upload-placeholder {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+}
+
+.consultation-camera-icon {
+  font-size: 24px;
+  color: #6c757d;
+}
+
+.consultation-upload-text {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  line-height: 1.5;
 }
 
 .consultation-card-click {
@@ -158,16 +249,20 @@
   box-shadow: var(--card-hover-shadow);
 }
 
-.consultation-sidebar {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-4);
+.consultation-submit-wrap {
+  margin-bottom: var(--spacing-4);
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
 }
+
 
 .consultation-submit {
   width: 100%;
   font-weight: var(--font-weight-bold);
-  padding: var(--spacing-4) var(--spacing-6);
+  padding: var(--spacing-3) var(--spacing-6);
+  /* Giảm từ spacing-4 xuống spacing-3 cho thanh thoát */
   font-size: var(--font-size-base);
   border-radius: var(--radius-md);
   background-color: var(--color-primary);
@@ -249,9 +344,11 @@
   justify-content: center;
   gap: var(--spacing-2);
   padding: var(--spacing-3) var(--spacing-5);
-  background: var(--color-bg-secondary);
+  background: #F0F7FF;
+  /* Nền xanh nhạt nhẹ nhàng */
   color: var(--color-primary);
-  border: 2px solid var(--color-primary);
+  border: 1px solid #B0D4FF;
+  /* Viền xanh nhạt mảnh */
   border-radius: var(--radius-md);
   font-size: var(--font-size-base);
   font-weight: var(--font-weight-semibold);
@@ -259,6 +356,8 @@
   transition: var(--transition-base);
   cursor: pointer;
   width: 100%;
+  margin-top: var(--spacing-4);
+  /* Thêm khoảng cách để không bị dính vào card phía trên */
 }
 
 .consultation-btn-prescription i {
@@ -354,8 +453,57 @@
   color: var(--color-danger);
 }
 
-/* Nút Thêm thuốc / sản phẩm: nền xanh nhạt, viền xanh, chữ xanh */
-/* Base cho 2 nút thêm ảnh / thêm sản phẩm */
+/* CSS for the new product list content */
+.consultation-product-list-content {
+  padding: 0 20px 20px;
+}
+
+.consultation-product-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.consultation-product-item:last-child {
+  border-bottom: none;
+}
+
+.consultation-product-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.consultation-product-name {
+  font-size: 15px;
+  color: #333;
+  line-height: 1.4;
+  margin-right: 12px;
+}
+
+.consultation-product-remove {
+  background: none;
+  border: none;
+  color: #999;
+  cursor: pointer;
+  padding: 4px;
+  transition: color 0.2s;
+  flex-shrink: 0;
+}
+
+.consultation-product-remove:hover {
+  color: #ff4d4f;
+}
+
+/* Remove old blue button styles */
+.consultation-btn-add-product {
+  display: none !important;
+}
+
+/* Base cho 2 nút thêm ảnh / thêm sản phẩm - adjust if needed */
 .consultation-add-row {
   padding: var(--spacing-3) var(--spacing-4);
   border-radius: var(--radius-md);
@@ -366,57 +514,6 @@
   gap: var(--spacing-4);
 }
 
-.consultation-add-row .consultation-add-icon {
-  flex-shrink: 0;
-  font-size: var(--font-size-2xl);
-  line-height: 1;
-}
-
-/* Nút "Thêm ảnh đơn thuốc" – màu Primary (xanh dương) từ root */
-.consultation-btn-add-image {
-  border: 1px solid var(--color-primary);
-  background: var(--color-primary-bg);
-  color: var(--color-primary-hover);
-}
-
-.consultation-btn-add-image .consultation-add-row-text,
-.consultation-btn-add-image .consultation-add-icon {
-  color: var(--color-primary-hover);
-}
-
-.consultation-btn-add-image.consultation-card-click:hover {
-  border-color: var(--color-primary-hover);
-  background: var(--color-primary);
-  color: var(--color-text-inverse);
-}
-
-.consultation-btn-add-image.consultation-card-click:hover .consultation-add-row-text,
-.consultation-btn-add-image.consultation-card-click:hover .consultation-add-icon {
-  color: var(--color-text-inverse);
-}
-
-/* Nút "Thêm thuốc / sản phẩm" – giống "Thêm ảnh" (Primary xanh dương) */
-.consultation-btn-add-product {
-  border: 1px solid var(--color-primary);
-  background: var(--color-primary-bg);
-  color: var(--color-primary-hover);
-}
-
-.consultation-btn-add-product .consultation-add-row-text,
-.consultation-btn-add-product .consultation-add-icon {
-  color: var(--color-primary-hover);
-}
-
-.consultation-btn-add-product.consultation-card-click:hover {
-  border-color: var(--color-primary-hover);
-  background: var(--color-primary);
-  color: var(--color-text-inverse);
-}
-
-.consultation-btn-add-product.consultation-card-click:hover .consultation-add-row-text,
-.consultation-btn-add-product.consultation-card-click:hover .consultation-add-icon {
-  color: var(--color-text-inverse);
-}
 
 /* Ảnh đơn thuốc: input ẩn + preview */
 .consultation-file-input-hidden {

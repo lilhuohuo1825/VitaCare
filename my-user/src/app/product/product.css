@@ -47,12 +47,18 @@
     }
 }
 
+.product-two-columns {
+    margin-top: -12px !important;
+}
+
 /* Category Title */
 .category-title {
     color: #00589F;
     font-weight: 700;
     font-size: 1.15rem;
     /* Reduced from 1.35rem */
+    margin-top: -8px !important;
+    /* Slight shift up to close gap with breadcrumb */
     margin-bottom: 4px;
 }
 
@@ -434,10 +440,12 @@
 
 .recently-viewed-section .btn-cart,
 .recently-viewed-section .btn-buy {
-    font-size: 10px;
+    font-size: 14px;
+    /* Increased from 12.5px */
+    font-weight: 700;
     padding: 1px 2px;
-    height: 30px;
-    /* Reduced from 34px */
+    height: 36px;
+    /* Increased from 32px */
 }
 
 .recently-viewed-section .btn-cart {

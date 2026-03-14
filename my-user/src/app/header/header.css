@@ -2,7 +2,6 @@
   display: block;
   width: 100%;
   font-family: Inter, Arimo, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
-  --container-padding: 170px;
 }
 
 .vc_header.vc_header_fixed {
@@ -24,13 +23,8 @@
 
 
 
-.vc_container {
-  max-width: var(--container-max-width, 1200px);
-  width: 100%;
-  padding-left: var(--container-padding, 20px);
-  padding-right: var(--container-padding, 20px);
-  margin: 0 auto;
-}
+/* vc_container definition moved to utilities.css for global alignment */
+
 
 /* TOP STRIP */
 .vc_top_strip {
@@ -93,7 +87,7 @@
       #2f84c7 65%,
       #5faae5 100%);
   color: #ffffff;
-  padding: 14px 0 10px;
+  padding: 8px 0 6px;
   overflow: visible;
   position: relative;
   z-index: 50;
@@ -102,10 +96,15 @@
 /* row: logo - search - actions */
 .vc_main_inner {
   display: grid;
-  grid-template-columns: auto 1fr auto;
-  /* trái | giữa | phải */
+  grid-template-columns: auto minmax(0, 1.25fr) auto;
+  /* trái (logo lớn hơn) | giữa (search) | phải */
   gap: 24px;
   align-items: center;
+  transition:
+    grid-template-columns 220ms cubic-bezier(0.33, 1, 0.68, 1),
+    gap 220ms cubic-bezier(0.33, 1, 0.68, 1),
+    transform 220ms cubic-bezier(0.33, 1, 0.68, 1);
+  transform: translateY(0) scale(1);
 }
 
 /* logo */
@@ -115,10 +114,10 @@
   /* slogan xuống hàng */
   gap: 4px;
   text-decoration: none;
+  transform: translateY(-5px);
 
-  /* 🔑 quan trọng */
-  max-width: 380px;
-  /* giới hạn bề ngang cụm logo */
+  /* Tăng kích thước cụm logo */
+  max-width: 400px;
   flex-shrink: 0;
   /* không bị ép */
 }
@@ -137,14 +136,14 @@
 }
 
 .vc_logo_img {
-  width: 70px;
+  width: 78px;
   height: auto;
   display: block;
 }
 
 /* TÊN */
 .vc_logo_name {
-  font-size: 26px;
+  font-size: 28px;
   font-weight: 700;
   color: #fff;
   line-height: 1.1;
@@ -163,11 +162,12 @@
 .vc_search_section {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
   align-items: center;
   width: 100%;
   max-width: 720px;
-  margin: 0 auto;
+  /* Đẩy cụm search & keyword lệch sang phải một chút */
+  margin: 0 40px 0 8px;
 }
 
 /* search wrap contains mascot and input */
@@ -180,9 +180,10 @@
 
 .vc_mascot {
   position: absolute;
-  left: -50px;
-  width: 100px;
-  height: 100px;
+  left: -40px;
+  top: -45px;
+  width: 130px;
+  height: 130px;
   object-fit: contain;
   pointer-events: none;
   z-index: 2;
@@ -194,11 +195,11 @@
 
 .vc_search_input {
   width: 100%;
-  height: 42px;
+  height: 38px;
   border: none;
   outline: none;
   border-radius: 999px;
-  padding: 0 18px 0 30px;
+  padding: 0 18px 0 65px;
   /* chừa chỗ mascot */
   font-size: 13px;
   color: #1b2a3a;
@@ -214,8 +215,10 @@
 .vc_actions {
   display: flex;
   justify-content: flex-end;
-  gap: 16px;
+  gap: 12px;
   align-items: center;
+  transform: translateY(-16px);
+  margin-right: 30px;
 }
 
 .vc_action {
@@ -228,8 +231,12 @@
   text-decoration: none;
   font-size: 13px;
   font-weight: 600;
-  padding: 10px 10px;
+  padding: 8px 10px;
   border-radius: 999px;
+}
+
+.vc_action_text {
+  transform: translateY(6px);
 }
 
 .vc_action:hover {
@@ -249,7 +256,7 @@
 }
 
 .vc_action_icon .bi {
-  font-size: 22px;
+  font-size: 26px;
   line-height: 1;
   display: inline-block;
 }
@@ -258,25 +265,37 @@
   background: #00589F;
 }
 
+.vc_action_cart .vc_action_text {
+  transform: translateY(6px);
+  /* Nudge down for perfect centering */
+}
+
+.vc_action_cart .vc_action_icon {
+  transform: translateY(-2px);
+  /* Nudge icon up further for perfect centering */
+}
+
 .vc_badge {
   position: absolute;
   top: -6px;
-  right: -6px;
+  right: -2px;
   min-width: 18px;
   height: 18px;
   border-radius: 999px;
-  background: #ffffff;
-  color: #2f5f8f;
+  background: #fcb05e;
+  color: #00589F;
   display: grid;
   place-items: center;
   font-size: 11px;
   font-weight: 800;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .vc_categories {
   position: relative;
   z-index: 1;
 }
+
 .vc_actions {
   overflow: visible;
   position: relative;
@@ -298,11 +317,12 @@
   min-width: 220px;
   background: #fff;
   border-radius: 12px;
-  box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
   border: 1px solid #e2e8f0;
   z-index: 1500;
   overflow: hidden;
 }
+
 .vc_account_dropdown .vc_dropdown_arrow {
   position: absolute;
   top: -6px;
@@ -314,6 +334,7 @@
   border-top: 1px solid #e2e8f0;
   transform: rotate(45deg);
 }
+
 .vc_account_dropdown .vc_dropdown_item {
   display: flex;
   align-items: center;
@@ -324,12 +345,15 @@
   font-size: 14px;
   transition: background 0.15s;
 }
+
 .vc_account_dropdown .vc_dropdown_item:hover {
   background: #f1f5f9;
 }
+
 .vc_account_dropdown .vc_dropdown_item.text-danger {
   color: #dc2626;
 }
+
 .vc_account_dropdown .vc_dropdown_divider {
   height: 1px;
   background: #e2e8f0;
@@ -345,13 +369,14 @@
   max-height: 380px;
   background: #fff;
   border-radius: 12px;
-  box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
   border: 1px solid #e2e8f0;
   z-index: 1500;
   overflow: hidden;
   display: flex;
   flex-direction: column;
 }
+
 .vc_cart_dropdown .vc_dropdown_arrow {
   position: absolute;
   top: -6px;
@@ -363,6 +388,7 @@
   border-top: 1px solid #e2e8f0;
   transform: rotate(45deg);
 }
+
 .vc_cart_dropdown_header {
   padding: 12px 16px;
   font-weight: 700;
@@ -370,30 +396,37 @@
   color: #1e293b;
   border-bottom: 1px solid #e2e8f0;
 }
+
 .vc_cart_dropdown_body {
   overflow-y: auto;
-  max-height: 240px;
+  max-height: 280px;
+  /* Tăng lên để chứa được khoảng 3.5 - 4 sản phẩm */
   padding: 8px 0;
 }
+
 .vc_cart_dropdown_item {
   display: flex;
   align-items: center;
   gap: 10px;
   padding: 8px 16px;
 }
+
 .vc_cart_dropdown_item:hover {
   background: #f8fafc;
 }
+
 .vc_cart_dropdown_img {
   width: 48px;
   height: 48px;
   object-fit: cover;
   border-radius: 8px;
 }
+
 .vc_cart_dropdown_info {
   flex: 1;
   min-width: 0;
 }
+
 .vc_cart_dropdown_name {
   font-size: 13px;
   color: #1e293b;
@@ -402,6 +435,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
 .vc_cart_dropdown_bottom {
   display: flex;
   justify-content: space-between;
@@ -410,13 +444,16 @@
   font-size: 12px;
   color: #64748b;
 }
+
 .vc_cart_dropdown_price {
   color: #00589F;
   font-weight: 600;
 }
+
 .vc_cart_dropdown_qty {
   color: #64748b;
 }
+
 .vc_cart_delete_btn {
   flex-shrink: 0;
   padding: 6px;
@@ -426,10 +463,12 @@
   cursor: pointer;
   border-radius: 6px;
 }
+
 .vc_cart_delete_btn:hover {
   color: #dc2626;
   background: #fef2f2;
 }
+
 .vc_cart_dropdown_footer {
   padding: 12px 16px;
   border-top: 1px solid #e2e8f0;
@@ -439,10 +478,12 @@
   align-items: center;
   gap: 12px;
 }
+
 .vc_cart_total_info {
   font-size: 13px;
   color: #64748b;
 }
+
 .vc_cart_view_btn {
   width: auto;
   flex-shrink: 0;
@@ -453,15 +494,18 @@
   border-color: var(--color-primary, #00589F);
   color: #fff;
 }
+
 .vc_cart_view_btn:hover {
   background-color: var(--color-primary-hover, #004d8f);
   border-color: var(--color-primary-hover, #004d8f);
   color: #fff;
 }
+
 .vc_cart_dropdown_empty {
   padding: 24px 16px;
   text-align: center;
 }
+
 .vc_cart_empty_text_hover {
   font-size: 14px;
   color: #64748b;
@@ -476,13 +520,14 @@
   max-height: 320px;
   background: #fff;
   border-radius: 12px;
-  box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
   border: 1px solid #e2e8f0;
   z-index: 1500;
   overflow: hidden;
   display: flex;
   flex-direction: column;
 }
+
 .vc_notify_dropdown .vc_dropdown_arrow {
   position: absolute;
   top: -6px;
@@ -494,6 +539,7 @@
   border-top: 1px solid #e2e8f0;
   transform: rotate(45deg);
 }
+
 .vc_notify_header {
   padding: 10px 14px;
   font-weight: 600;
@@ -501,24 +547,29 @@
   color: #1e293b;
   border-bottom: 1px solid #e2e8f0;
 }
+
 .vc_notify_body {
   padding: 8px 0;
   max-height: 220px;
   overflow-y: auto;
 }
+
 .vc_notify_item {
   padding: 8px 14px;
   border-bottom: 1px solid #f1f5f9;
 }
+
 .vc_notify_item:last-child {
   border-bottom: none;
 }
+
 .vc_notify_item_title {
   font-size: 13px;
   font-weight: 600;
   color: #0f172a;
   margin-bottom: 2px;
 }
+
 .vc_notify_item_message {
   font-size: 12px;
   color: #64748b;
@@ -526,6 +577,7 @@
   text-overflow: ellipsis;
   overflow: hidden;
 }
+
 .vc_notify_empty,
 .vc_notify_loading {
   padding: 10px 14px;
@@ -534,12 +586,14 @@
   display: flex;
   align-items: center;
 }
+
 .vc_notify_footer {
   padding: 8px 14px;
   border-top: 1px solid #e2e8f0;
   display: flex;
   justify-content: flex-end;
 }
+
 .vc_notify_all_btn {
   border: none;
   background: transparent;
@@ -549,35 +603,175 @@
   cursor: pointer;
   padding: 4px 0;
 }
+
 .vc_notify_all_btn:hover {
   text-decoration: underline;
+}
+
+.vc_notify_item--remind {
+  border-left: 3px solid #0d9488;
+  padding-left: 10px;
+  margin-left: 2px;
+  background: linear-gradient(90deg, rgba(13, 148, 136, 0.08) 0%, transparent 100%);
+}
+
+.vc_notify_item--remind .vc_notify_item_title {
+  color: #0f766e;
+  font-weight: 700;
+}
+
+/* Thanh ngang nhắc uống thuốc — full width, dưới header */
+.vc_reminder_banner {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  z-index: 10048;
+  padding-top: env(safe-area-inset-top, 0);
+  animation: vc_reminder_banner_in 0.28s ease-out;
+  pointer-events: none;
+}
+
+@keyframes vc_reminder_banner_in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.vc_reminder_banner_inner {
+  pointer-events: auto;
+  margin: 72px 12px 0;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px 14px;
+  flex-wrap: wrap;
+  padding: 10px 16px;
+  background: linear-gradient(90deg, #ecfdf5 0%, #d1fae5 35%, #ecfdf5 100%);
+  border: 1px solid #6ee7b7;
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(13, 148, 136, 0.12);
+}
+
+.vc_header_compact~.vc_reminder_banner .vc_reminder_banner_inner,
+.vc_header.vc_header_compact+.vc_reminder_banner .vc_reminder_banner_inner {
+  margin-top: 56px;
+}
+
+.vc_reminder_banner_icon {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: #fff;
+  color: #0d9488;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+.vc_reminder_banner_text {
+  flex: 1;
+  min-width: 200px;
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #065f46;
+  line-height: 1.35;
+}
+
+.vc_reminder_banner_link {
+  flex-shrink: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: #047857;
+  text-decoration: underline;
+  white-space: nowrap;
+}
+
+.vc_reminder_banner_link:hover {
+  color: #065f46;
+}
+
+.vc_reminder_banner_dismiss {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 8px;
+  font-size: 20px;
+  line-height: 1;
+  color: #64748b;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vc_reminder_banner_dismiss:hover {
+  background: #fff;
+  color: #0f172a;
+}
+
+@media (max-width: 767px) {
+  .vc_reminder_banner_inner {
+    margin-top: 120px;
+  }
 }
 
 /* nav menu keywords under search bar */
 .vc_nav_keywords {
   display: flex;
   gap: 16px;
-  /* Reduced from 24px */
-  justify-content: flex-start;
-  /* Align with search bar start */
   width: 100%;
-  padding-left: 20px;
-  /* Match internal padding of search input roughly */
+  padding: 0 10px;
+  /* Thêm padding để khi scroll 2 mép không bị dính sát */
+  margin-left: -20px;
+  /* Dịch sang trái một chút để cân với thanh search bên trên (bù phần khoảng trống của mascot) */
   flex-wrap: nowrap;
-  /* Prevent wrapping to new line */
-  overflow: hidden;
-  /* Safety for very long lists */
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  /* Firefox */
+  -webkit-mask-image: linear-gradient(to right, transparent, rgba(0, 0, 0, 1) 15px, rgba(0, 0, 0, 1) calc(100% - 15px), transparent);
+  mask-image: linear-gradient(to right, transparent, rgba(0, 0, 0, 1) 15px, rgba(0, 0, 0, 1) calc(100% - 15px), transparent);
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.vc_nav_keywords::-webkit-scrollbar {
+  display: none;
 }
 
 .vc_nav_item {
   color: rgba(255, 255, 255, 0.9);
   text-decoration: none;
-  font-size: 13.5px;
+  font-size: 12.5px;
+  /* Thu nhỏ 1 size để chứa nhiều chữ hơn */
   font-weight: 500;
   padding: 2px 0;
   border-bottom: 2px solid transparent;
   white-space: nowrap;
   transition: all 0.2s;
+}
+
+/* Safe centering for flexbox with overflow: prevents left-side clipping */
+.vc_nav_item:first-child {
+  margin-left: auto;
+}
+
+.vc_nav_item:last-child {
+  margin-right: auto;
 }
 
 .vc_nav_item:hover {
@@ -587,17 +781,23 @@
 
 /* CATEGORY PILLS */
 .vc_categories {
-  background: #ffffff;
-  padding: 12px 0 14px;
+  background: #fff;
+  /*nền sidebar*/
+  padding: 10px 0;
   border-bottom: 1px solid #e8eef6;
 }
 
 .vc_categories_inner {
   display: flex;
   justify-content: space-between;
-  /* Spread items evenly across the width */
+  /* Aligns perfectly with logo and right margin */
+  gap: 10px;
   align-items: center;
   flex-wrap: nowrap;
+  transition:
+    transform 220ms cubic-bezier(0.33, 1, 0.68, 1),
+    gap 220ms cubic-bezier(0.33, 1, 0.68, 1);
+  transform: translateY(0) scale(1);
 }
 
 .vc_cat_item {
@@ -608,15 +808,12 @@
   border: 1px solid #cfe0f3;
   background: #eef6ff;
   color: #2f5f8f;
-  font-size: 14px;
-  /* Increased from 12.5px */
+  font-size: 13.5px;
   font-weight: 700;
-  padding: 8px 14px;
-  /* Increased from 4px 10px */
+  padding: 6px 14px;
   border-radius: 999px;
   cursor: pointer;
   white-space: nowrap;
-  /* Prevent text wrapping */
   transition: all 0.2s;
 }
 
@@ -627,7 +824,7 @@
 .vc_pill.active {
   background: #fff;
   color: #00589F;
-  border-color: transparent;
+  border-color: #00589F;
   position: relative;
 }
 
@@ -651,9 +848,11 @@
   border-color: #00589F;
   position: relative;
 }
+
 .vc_pill.route-active:hover {
   background: #004d8f;
 }
+
 .vc_pill.route-active::after {
   content: '';
   position: absolute;
@@ -757,8 +956,8 @@
 /* Left Panel (Sidebar) */
 .vc_megamenu_left {
   position: relative;
-  /* Changed from absolute to flex child */
-  width: 280px;
+  /* Increased width slightly to prevent name wrapping as requested */
+  width: 270px;
   background: #f8fafc;
   border-right: 1px solid #eef2f6;
   padding: 12px 0;
@@ -826,19 +1025,15 @@
 /* Right Panel */
 .vc_megamenu_right {
   flex: 1;
-  padding: 24px 20px;
-  /* Reduced side padding */
+  padding: 16px 14px;
   background: #eef6ff;
-  /* Matches 'Dược mỹ phẩm' tag background */
   display: flex;
   flex-direction: column;
   gap: 20px;
-  /* Tighter vertical gap */
   overflow-y: auto;
   max-height: 520px;
   position: relative;
-  border-left: 8px solid #f1f5f9;
-  /* Reduced gap from sidebar to be 'closer' */
+  border-left: 1px solid #e2e8f0;
 }
 
 /* ... scrollbar styles omitted ... */
@@ -851,12 +1046,12 @@
   overflow: hidden;
   height: auto;
   min-height: unset;
-  /* Giới hạn chiều cao dropdown, phần dư dùng scroll */
-  max-height: 520px;
-  border: 1px solid #eef2f6;
-  width: 1070px;
-  margin: 0;
+  /* Increased overall width to accommodate wider left panel */
+  width: 970px;
+  /* Slightly wider margin to shift right as requested */
+  margin-left: 40px;
   position: relative;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
 }
 
 /* STACKED LAYOUT (LONG CHAU STYLE) */
@@ -870,11 +1065,11 @@
 
 .vc_leaf_grid {
   display: grid;
-  grid-template-columns: repeat(3, 230px);
-  /* Fixed width columns to prevent over-stretching */
-  gap: 12px;
-  /* Tighter gap for 'fuller' look */
+  grid-template-columns: repeat(3, 1fr);
+  /* Increased gap and width to spread items out as requested */
+  gap: 18px;
   width: 100%;
+  max-width: 720px;
 }
 
 .vc_leaf_card {
@@ -882,14 +1077,14 @@
   background: #fff;
   border: 1px solid #f1f5f9;
   border-radius: 8px;
-  padding: 4px 12px;
+  padding: 2px 8px;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 6px;
   cursor: pointer;
   transition: all 0.2s;
-  height: 56px;
-  /* Optimized height */
+  height: 50px;
+  /* Slightly increased height to avoid squashed look */
 }
 
 .vc_leaf_card:hover {
@@ -905,8 +1100,8 @@
 }
 
 .vc_leaf_img_box {
-  width: 36px;
-  height: 36px;
+  width: 30px;
+  height: 30px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -962,7 +1157,7 @@
 .vc_section_title {
   font-size: 16px;
   font-weight: 700;
-  color: #111827;
+  color: #00589F;
 }
 
 .vc_view_all_link {
@@ -1325,9 +1520,17 @@
   gap: 8px;
 }
 
+.vc_hot_p_price_row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
 .vc_hot_p_price {
   color: #00589f;
-  /* VitaCare Blue */
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
 }
 
 .vc_hot_p_price strong {
@@ -1335,15 +1538,22 @@
   font-weight: 700;
 }
 
-.vc_hot_p_price small {
-  font-size: 11px;
+.vc_hot_p_price .vc_p_consult {
   color: #64748b;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.vc_hot_p_price .vc_p_unit {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .vc_hot_p_old_price {
-  font-size: 12px;
+  font-size: 11px;
   color: #94a3b8;
   text-decoration: line-through;
+  margin-top: 1px;
 }
 
 .vc_remove_history {
@@ -1460,6 +1670,44 @@
   color: #00589F;
 }
 
+.vc_p_unit {
+  font-size: 11px;
+  color: #64748b;
+  margin-left: 2px;
+}
+
+.vc_p_consult {
+  color: #64748b !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+}
+
+.vc_p_price_row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+}
+
+.vc_p_main_price {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.vc_p_unit_badge {
+  display: inline-block;
+  padding: 1px 6px;
+  background: #f1f5f9;
+  border-radius: 4px;
+  font-size: 10px;
+  color: #64748b;
+  font-weight: 600;
+  margin-top: 4px;
+  border: 1px solid #e2e8f0;
+  width: fit-content;
+}
+
 .vc_p_old_price {
   font-size: 11px;
   color: #9ca3af;
@@ -1553,10 +1801,9 @@
   color: #00589F;
   font-weight: 700;
   font-size: 15px;
-  /* Standout price */
 }
 
-.vc_p_price small {
+.vc_p_price .vc_p_unit {
   font-weight: 400;
   font-size: 11px;
   color: #64748b;
@@ -1579,48 +1826,128 @@
 .vc_mascot_left,
 .vc_mascot_right {
   position: absolute;
-  top: 0.09rem;
-  width: 130px;
+  top: 15px;
+  /* hạ xuống thêm một chút */
+  width: 96px;
   height: auto;
   pointer-events: none;
   z-index: 60;
 }
+
 .vc_mascot_left {
-  left: 8px;
+  left: -15px;
+  /* xích trái thêm một chút */
 }
+
 .vc_mascot_right {
-  right: 8px;
+  right: 0;
+  /* sát lề phải, tránh đè cụm giỏ/chuông */
 }
 
 /* COMPACT MODE */
-.vc_header.vc_header_compact .vc_top_strip { display: none !important; }
-.vc_header.vc_header_compact .vc_nav_keywords { display: none !important; }
-.vc_header.vc_header_compact .vc_logo_tagline { display: none !important; }
-.vc_header.vc_header_compact .vc_main_bar { padding: 10px 0 10px !important; }
-.vc_header.vc_header_compact .vc_logo { max-width: 240px; }
-.vc_header.vc_header_compact .vc_logo_img { width: 56px; }
-.vc_header.vc_header_compact .vc_logo_name { font-size: 22px; }
-.vc_header.vc_header_compact .vc_search_input { height: 40px; font-size: 13px; }
-.vc_header.vc_header_compact .vc_actions { gap: 10px; }
-.vc_header.vc_header_compact .vc_action { padding: 8px 10px; }
-.vc_header.vc_header_compact .vc_action_icon .bi { font-size: 20px; }
-.vc_header.vc_header_compact .vc_categories { padding: 8px 0 10px !important; }
+.vc_header.vc_header_compact .vc_top_strip {
+  display: none !important;
+}
+
+.vc_header.vc_header_compact .vc_nav_keywords {
+  display: none !important;
+}
+
+.vc_header.vc_header_compact .vc_logo_tagline {
+  display: none !important;
+}
+
+.vc_header.vc_header_compact .vc_main_bar {
+  padding: 10px 0 10px !important;
+}
+
+.vc_header.vc_header_compact .vc_main_inner {
+  grid-template-columns: auto minmax(0, 1.15fr) auto;
+  gap: 18px;
+  justify-content: center;
+  transform: translateY(-2px) scale(0.96);
+  /* thu nhỏ quanh tâm header */
+}
+
+.vc_header.vc_header_compact .vc_logo {
+  max-width: 320px;
+}
+
+.vc_header.vc_header_compact .vc_logo_img {
+  width: 64px;
+}
+
+.vc_header.vc_header_compact .vc_logo_name {
+  font-size: 24px;
+}
+
+.vc_header.vc_header_compact .vc_search_section {
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.vc_header.vc_header_compact .vc_search_input {
+  height: 40px;
+  font-size: 13px;
+}
+
+.vc_header.vc_header_compact .vc_actions {
+  gap: 10px;
+  transform: translateY(0);
+  /* Reset nudge for compact state */
+}
+
+.vc_header.vc_header_compact .vc_action {
+  padding: 8px 10px;
+}
+
+.vc_header.vc_header_compact .vc_action_icon .bi {
+  font-size: 20px;
+}
+
+.vc_header.vc_header_compact .vc_action_text {
+  transform: translateY(1.5px);
+  /* Tiny nudge for compact text alignment */
+}
+
+/* Reset specific cart internal nudges for compact mode */
+.vc_header.vc_header_compact .vc_action_cart .vc_action_text {
+  transform: translateY(1.5px);
+}
+
+.vc_header.vc_header_compact .vc_action_cart .vc_action_icon {
+  transform: translateY(0);
+}
+
+.vc_header.vc_header_compact .vc_categories {
+  padding: 8px 0 10px !important;
+}
+
 .vc_header.vc_header_compact .vc_categories_inner {
-  justify-content: flex-start !important;
+  justify-content: center !important;
   gap: 10px !important;
   flex-wrap: nowrap !important;
-  overflow-x: auto !important;
-  overflow-y: hidden !important;
+  overflow: visible !important;
+  /* Ensure dropdowns are not clipped */
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
+  transform: translateY(-2px) scale(0.96);
 }
-.vc_header.vc_header_compact .vc_categories_inner::-webkit-scrollbar { display: none; }
+
+.vc_header.vc_header_compact .vc_categories_inner::-webkit-scrollbar {
+  display: none;
+}
+
 .vc_header.vc_header_compact .vc_pill {
   font-size: 12.5px !important;
   padding: 6px 12px !important;
   font-weight: 700 !important;
 }
-.vc_header.vc_header_compact .vc_pill i.bi-chevron-down { font-size: 10px !important; }
+
+.vc_header.vc_header_compact .vc_pill i.bi-chevron-down {
+  font-size: 10px !important;
+}
+
 .vc_header.vc_header_compact .vc_mascot_left,
 .vc_header.vc_header_compact .vc_mascot_right {
   opacity: 0;
@@ -1630,19 +1957,39 @@
 }
 
 /* SMOOTH TRANSITION */
-.vc_top_strip, .vc_main_bar, .vc_categories, .vc_nav_keywords,
-.vc_logo_img, .vc_logo_name, .vc_logo_tagline, .vc_search_input,
-.vc_action, .vc_mascot_left, .vc_mascot_right {
+.vc_top_strip,
+.vc_main_bar,
+.vc_categories,
+.vc_nav_keywords,
+.vc_logo_img,
+.vc_logo_name,
+.vc_logo_tagline,
+.vc_search_input,
+.vc_action,
+.vc_mascot_left,
+.vc_mascot_right {
   transition: padding 220ms cubic-bezier(0.33, 1, 0.68, 1), height 220ms cubic-bezier(0.33, 1, 0.68, 1),
     transform 200ms cubic-bezier(0.33, 1, 0.68, 1), opacity 200ms cubic-bezier(0.33, 1, 0.68, 1),
     max-height 200ms cubic-bezier(0.33, 1, 0.68, 1), font-size 220ms cubic-bezier(0.33, 1, 0.68, 1),
     width 220ms cubic-bezier(0.33, 1, 0.68, 1);
   will-change: padding, height, transform, opacity, font-size, width;
 }
+
 @media (prefers-reduced-motion: reduce) {
-  .vc_top_strip, .vc_main_bar, .vc_categories, .vc_nav_keywords,
-  .vc_logo_img, .vc_logo_name, .vc_logo_tagline, .vc_search_input,
-  .vc_action, .vc_mascot_left, .vc_mascot_right { transition: none !important; }
+
+  .vc_top_strip,
+  .vc_main_bar,
+  .vc_categories,
+  .vc_nav_keywords,
+  .vc_logo_img,
+  .vc_logo_name,
+  .vc_logo_tagline,
+  .vc_search_input,
+  .vc_action,
+  .vc_mascot_left,
+  .vc_mascot_right {
+    transition: none !important;
+  }
 }
 
 /* Xem thêm card - Horizontal Layout */
@@ -1819,6 +2166,7 @@
     position: relative;
     cursor: pointer;
   }
+
   .vc_m_icon_btn .bi {
     font-size: 22px;
     line-height: 1;
@@ -1831,6 +2179,7 @@
     text-decoration: none;
     flex: 1;
   }
+
   .vc_m_logo img {
     height: 28px;
     width: auto;
@@ -1869,10 +2218,12 @@
     padding: 0 14px;
     box-shadow: 0 1px 0 rgba(255, 255, 255, 0.25) inset;
   }
+
   .vc_m_search_icon {
     color: #64748b;
     font-size: 16px;
   }
+
   .vc_m_search_input {
     border: none;
     outline: none;
@@ -1906,11 +2257,12 @@
     flex-direction: column;
   }
 
-  .vc_m_drawer_toggle:checked ~ .vc_m_overlay {
+  .vc_m_drawer_toggle:checked~.vc_m_overlay {
     opacity: 1;
     pointer-events: auto;
   }
-  .vc_m_drawer_toggle:checked ~ .vc_m_drawer {
+
+  .vc_m_drawer_toggle:checked~.vc_m_drawer {
     transform: translateX(0);
   }
 
@@ -1927,20 +2279,24 @@
     align-items: center;
     gap: 10px;
   }
+
   .vc_m_brand img {
     height: 28px;
     width: auto;
     display: block;
   }
+
   .vc_m_brand_text {
     line-height: 1.1;
   }
+
   .vc_m_brand_name {
     font-size: 10px;
     font-weight: 800;
     color: #334155;
     letter-spacing: 0.3px;
   }
+
   .vc_m_brand_main {
     font-size: 14px;
     font-weight: 900;
@@ -1966,15 +2322,18 @@
     border-radius: 14px;
     padding: 12px;
   }
+
   .vc_m_login_title {
     font-size: 13px;
     font-weight: 800;
     margin-bottom: 10px;
   }
+
   .vc_m_login_actions {
     display: flex;
     gap: 10px;
   }
+
   .vc_m_btn {
     height: 36px;
     padding: 0 12px;
@@ -1984,10 +2343,12 @@
     font-size: 13px;
     cursor: pointer;
   }
+
   .vc_m_btn_primary {
     background: #fff;
     color: #1e62a4;
   }
+
   .vc_m_btn_light {
     background: rgba(255, 255, 255, 0.18);
     color: #fff;
@@ -1999,9 +2360,11 @@
     overflow: auto;
     flex: 1;
   }
+
   .vc_m_item {
     border-top: 1px solid #eef2f6;
   }
+
   .vc_m_item_link {
     display: flex;
     align-items: center;
@@ -2011,13 +2374,16 @@
     color: #0f172a;
     text-decoration: none;
   }
+
   .vc_m_item_link:hover {
     background: #f8fafc;
     color: #00589F;
   }
+
   .vc_m_item:last-child {
     border-bottom: 1px solid #eef2f6;
   }
+
   .vc_m_item_sum {
     list-style: none;
     display: flex;
@@ -2029,12 +2395,15 @@
     color: #0f172a;
     cursor: pointer;
   }
+
   .vc_m_item summary::-webkit-details-marker {
     display: none;
   }
+
   .vc_m_item[open] .bi-chevron-down {
     transform: rotate(180deg);
   }
+
   .vc_m_sub {
     display: block;
     padding: 10px 14px 10px 26px;
@@ -2043,6 +2412,7 @@
     font-size: 13px;
     font-weight: 600;
   }
+
   .vc_m_sub:hover {
     background: #f8fafc;
     color: #00589F;
@@ -2055,6 +2425,7 @@
     flex-direction: column;
     gap: 10px;
   }
+
   .vc_m_bottom_btn {
     height: 40px;
     border-radius: 999px;
@@ -2068,6 +2439,7 @@
     color: #0f172a;
     background: #f1f5f9;
   }
+
   .vc_m_bottom_btn_primary {
     background: #00589F;
     color: #fff;
@@ -2098,12 +2470,15 @@
   .vc_logo {
     max-width: 280px;
   }
+
   .vc_logo_img {
     width: 56px;
   }
+
   .vc_logo_name {
     font-size: 22px;
   }
+
   .vc_logo_tagline {
     display: none;
   }
@@ -2113,6 +2488,7 @@
     width: 100%;
     gap: 10px;
   }
+
   .vc_search_input {
     height: 40px;
     font-size: 13px;
@@ -2132,6 +2508,7 @@
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
   }
+
   .vc_nav_keywords::-webkit-scrollbar {
     display: none;
   }
@@ -2139,9 +2516,11 @@
   .vc_actions {
     gap: 10px;
   }
+
   .vc_action {
     padding: 8px;
   }
+
   .vc_action_text {
     display: none;
   }
@@ -2154,9 +2533,11 @@
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
   }
+
   .vc_categories_inner::-webkit-scrollbar {
     display: none;
   }
+
   .vc_pill {
     font-size: 13px;
     padding: 7px 12px;

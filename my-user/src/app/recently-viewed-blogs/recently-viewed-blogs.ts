@@ -21,5 +21,9 @@ export class RecentlyViewedBlogs {
   onClickBlog(blog: any): void {
     this.clickBlog.emit(blog);
   }
+
+  handleImageError(event: any): void {
+    event.target.src = 'assets/images/homepage/blogs/ngu_ngon.jpg';
+  }
 }
 

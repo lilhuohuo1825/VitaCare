@@ -3,6 +3,9 @@ import { CommonModule } from '@angular/common';
 import { CartService } from '../services/cart.service';
 import { CartAnimationService } from '../services/cart-animation.service';
 import { BuyNowService } from '../services/buy-now.service';
+import { QuickViewService } from '../services/quick-view.service';
+import { inject } from '@angular/core';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-product-info-summary',
@@ -20,8 +23,11 @@ export class ProductInfoSummary {
   constructor(
     private cartService: CartService,
     private cartAnimation: CartAnimationService,
-    private buyNowService: BuyNowService
-  ) {}
+    private buyNowService: BuyNowService,
+    private router: Router
+  ) { }
+
+  private quickViewService = inject(QuickViewService);
 
   updateQuantity(delta: number): void {
     const newQty = this.quantity + delta;
@@ -59,6 +65,31 @@ export class ProductInfoSummary {
       price: this.getOldPrice(),
       discount: this.product.discount || 0,
     }, this.quantity);
+
+    // Close the quick view popup after clicking Buy Now
+    this.quickViewService.close();
+
+    // Scroll to top for the order page
+    window.scrollTo(0, 0);
+  }
+
+  requestConsultation(): void {
+    // Đóng popup trước khi chuyển hướng
+    this.quickViewService.close();
+
+    const queryParams: any = {};
+    if (this.product) {
+      const productId = this.product._id?.$oid || this.product._id || this.product.id;
+      if (productId) {
+        queryParams.productId = productId;
+      }
+    }
+
+    // Chuyển hướng sang trang tư vấn
+    this.router.navigate(['/consultation'], { queryParams });
+
+    // Cuộn lên đầu trang (tuỳ chọn)
+    window.scrollTo(0, 0);
   }
 
   getCurrentPrice(): number {
@@ -85,9 +116,9 @@ export class ProductInfoSummary {
   }
 
   getCountryFlag(): string {
-    if (!this.product || !this.product.country) return '';
-
-    const countryText = this.product.country.toLowerCase();
+    if (!this.product) return '';
+    const countryText = (this.product.country || this.product.origin || '').toLowerCase();
+    if (!countryText) return '';
     const flags: { [key: string]: string } = {
       'việt nam': 'https://img.icons8.com/color/48/vietnam.png',
       'hoa kỳ': 'https://img.icons8.com/color/48/usa.png',
@@ -96,9 +127,9 @@ export class ProductInfoSummary {
       'đức': 'https://img.icons8.com/color/48/germany.png',
       'nhật bản': 'https://img.icons8.com/color/48/japan.png',
       'hàn quốc': 'https://img.icons8.com/color/48/south-korea.png',
-      'úc': 'https://img.icons8.com/color/48/australia-flag.png',
-      'uc': 'https://img.icons8.com/color/48/australia-flag.png',
-      'australia': 'https://img.icons8.com/color/48/australia-flag.png',
+      'úc': 'https://flagcdn.com/w40/au.png',
+      'uc': 'https://flagcdn.com/w40/au.png',
+      'australia': 'https://flagcdn.com/w40/au.png',
       'thụy sỹ': 'https://img.icons8.com/color/48/switzerland.png',
       'thụy sĩ': 'https://img.icons8.com/color/48/switzerland.png',
       'anh': 'https://img.icons8.com/color/48/great-britain.png',

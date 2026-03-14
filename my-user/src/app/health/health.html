@@ -1,7 +1,16 @@
 <div class="health-wrapper">
+  <!-- Breadcrumb -->
+  <div class="vc_container pt-2">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb-vc">
+        <li class="breadcrumb-item"><a routerLink="/">Trang chủ</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Công cụ sức khỏe</li>
+      </ol>
+    </nav>
+  </div>
   <!-- Banner CÔNG CỤ SỨC KHOẺ (full-width) -->
   <section class="health-banner">
-    <div class="container health-banner-inner">
+    <div class="vc_container health-banner-inner">
       <div class="health-banner-content">
         <h1 class="health-banner-title">CÔNG CỤ SỨC KHOẺ</h1>
         <p class="health-banner-desc">
@@ -16,7 +25,7 @@
   </section>
 
   <!-- Cards -->
-  <div class="container">
+  <div class="vc_container">
     @if (loadError()) {
     <div class="health-error">
       <p>{{ loadError() }}</p>

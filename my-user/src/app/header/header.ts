@@ -50,7 +50,9 @@ export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
   notificationsPreview: NoticeItem[] = [];
   notificationsLoading = false;
   notificationsError: string | null = null;
-  private hasLoadedNotifications = false;
+  /** Nhắc uống thuốc quá hạn (từ API) — popup góc phải */
+  showReminderPopup = false;
+  medicationDueList: NoticeItem[] = [];
   isAccountDropdownVisible = false;
   private accountDropdownTimeout: ReturnType<typeof setTimeout> | null = null;
   private cartHoverTimeout: ReturnType<typeof setTimeout> | null = null;
@@ -63,8 +65,9 @@ export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
   private rafId: number | null = null;
   private resizeTimer: ReturnType<typeof setTimeout> | null = null;
   private lastScrollY = 0;
-  private readonly COMPACT_SCROLL_Y = 60;
-  private readonly EXPAND_SCROLL_Y = 80;
+  // Ngưỡng scroll để chuyển trạng thái header (giảm jitter, mượt hơn)
+  private readonly COMPACT_SCROLL_Y = 40;  // dưới ~40px: luôn full-size
+  private readonly EXPAND_SCROLL_Y = 90;   // chỉ khi kéo xuống sâu hơn mới thu gọn
 
   activePill: string | null = null;
 
@@ -72,8 +75,30 @@ export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
   isSearchFocused = false;
   search_mode: 'product' | 'article' = 'product';
 
-  main_nav = ['Omega 3', 'Men vi sinh', 'Dung dịch vệ sinh', 'Kẽm', 'Thuốc nhỏ mắt', 'Sữa rửa mặt', 'Sắt'];
-  trendingKeywords = ['Canxi', 'Omega 3', 'Kẽm', 'Men vi sinh', 'Thuốc nhỏ mắt', 'Dung dịch vệ sinh', 'Sữa rửa mặt', 'Sắt', 'Kem chống nắng', 'Siro ho'];
+  main_nav = [
+    'Omega 3',
+    'Men vi sinh',
+    'Dung dịch vệ sinh',
+    'Kẽm',
+    'Thuốc nhỏ mắt',
+    'Sữa rửa mặt',
+    'Sắt',
+    'Vitamin C',
+    'Siro'
+  ];
+  trendingKeywords = [
+    'Canxi',
+    'Vitamin tổng hợp',
+    'Omega 3',
+    'Kẽm',
+    'Men vi sinh',
+    'Thuốc nhỏ mắt',
+    'Dung dịch vệ sinh',
+    'Sữa rửa mặt',
+    'Sắt',
+    'Kem chống nắng',
+    'Siro ho'
+  ];
 
   hotDeals: any[] = [];
   searchBanner = 'assets/icon/banner.png';
@@ -123,7 +148,7 @@ export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
         const uid = (user as any).user_id as string;
         this.fetchCart(uid);
         this.resetNotificationsState();
-        this.fetchNotificationsPreview(uid);
+        this.fetchNotificationsPreview(uid, true);
       } else {
         this.cart = null;
         this.cart_count = 0;
@@ -164,6 +189,10 @@ export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
       filter((e): e is NavigationEnd => e instanceof NavigationEnd)
     ).subscribe((e) => {
       this.updateActivePill(e.urlAfterRedirects || e.url);
+      const uid = (this.authService.currentUser() as { user_id?: string })?.user_id;
+      if (uid) {
+        this.fetchNotificationsPreview(uid, true);
+      }
     });
     this.updateActivePill(this.router.url);
   }
@@ -200,7 +229,6 @@ export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
       this.rafId = null;
       const y = window.scrollY || document.documentElement.scrollTop || 0;
       this.applyCompactState(y);
-      this.syncBodyPaddingTop();
     });
   };
 
@@ -212,15 +240,20 @@ export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
   };
 
   private applyCompactState(scrollY: number): void {
-    const scrollingUp = scrollY < this.lastScrollY;
+    const deltaY = scrollY - this.lastScrollY;
+    const scrollingUp = deltaY < 0;
     this.lastScrollY = scrollY;
 
     let nextCompact: boolean;
     if (scrollY <= this.COMPACT_SCROLL_Y) {
       nextCompact = false;
-    } else if (scrollingUp) {
-      nextCompact = false;
+    } else if ((window as any).isFilteringJump) {
+      nextCompact = true;
+    } else if (this.isHeaderCompact) {
+      // If already compact, stay compact unless we scroll back near the top
+      nextCompact = scrollY > this.COMPACT_SCROLL_Y;
     } else {
+      // If expanded, only go compact if we scroll down past threshold
       nextCompact = scrollY > this.EXPAND_SCROLL_Y;
     }
 
@@ -240,8 +273,15 @@ export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private syncBodyPaddingTop(): void {
     if (!this.headerEl) return;
+    const wasCompact = this.headerEl.classList.contains('vc_header_compact');
+    if (wasCompact) {
+      this.headerEl.classList.remove('vc_header_compact');
+    }
     const h = this.headerEl.getBoundingClientRect().height;
     document.body.style.paddingTop = `${Math.ceil(h)}px`;
+    if (wasCompact) {
+      this.headerEl.classList.add('vc_header_compact');
+    }
   }
 
   updateActivePill(url: string): void {
@@ -292,7 +332,7 @@ export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   get limitedCartItems(): CartItem[] {
-    return this.cart?.items?.slice(0, 3) || [];
+    return this.cart?.items?.slice(0, 10) || [];
   }
 
   onCartMouseEnter(): void {
@@ -329,8 +369,8 @@ export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
     this.isNotifyHoverVisible = true;
     const user = this.authService.currentUser();
     const uid = (user as any)?.user_id as string | undefined;
-    if (uid && !this.hasLoadedNotifications && !this.notificationsLoading) {
-      this.fetchNotificationsPreview(uid);
+    if (uid && !this.notificationsLoading) {
+      this.fetchNotificationsPreview(uid, false);
     }
     this.cdr.markForCheck();
   }
@@ -348,14 +388,48 @@ export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
     this.notificationsPreview = [];
     this.notificationsLoading = false;
     this.notificationsError = null;
-    this.hasLoadedNotifications = false;
+    this.showReminderPopup = false;
+    this.medicationDueList = [];
     this.cdr.markForCheck();
   }
 
-  private fetchNotificationsPreview(userId: string): void {
+  dismissReminderPopup(): void {
+    this.showReminderPopup = false;
+    this.cdr.markForCheck();
+  }
+
+  /** Một dòng cho thanh ngang: "Bạn có 2 lời nhắc uống thuốc lúc 08:00, 14:00" */
+  get reminderBannerLine(): string {
+    const list = this.medicationDueList;
+    if (!list.length) return '';
+    const times = [
+      ...new Set(
+        list.map((n) => {
+          const meta = n.meta || '';
+          const t = meta.split('·')[0]?.trim() || '';
+          if (/^\d{1,2}:\d{2}$/.test(t)) return t;
+          const m = (n.message || '').match(/lịch\s+(\d{1,2}:\d{2})/i);
+          return m ? m[1] : '';
+        }).filter(Boolean),
+      ),
+    ].sort() as string[];
+    const timeStr = times.length ? times.join(', ') : 'hôm nay';
+    const n = list.length;
+    if (n === 1) {
+      return `Bạn có 1 lời nhắc uống thuốc lúc ${timeStr}.`;
+    }
+    return `Bạn có ${n} lời nhắc uống thuốc lúc ${timeStr}.`;
+  }
+
+  openRemindFromPopup(e: Event): void {
+    e.preventDefault();
+    this.dismissReminderPopup();
+    this.router.navigate(['/account'], { queryParams: { menu: 'remind' } });
+  }
+
+  private fetchNotificationsPreview(userId: string, mayShowReminderPopup: boolean): void {
     if (!userId) {
       this.resetNotificationsState();
-      this.hasLoadedNotifications = true;
       return;
     }
     this.notificationsLoading = true;
@@ -364,13 +438,13 @@ export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
     this.noticeService
       .getNotices(userId)
       .pipe(
-        timeout(5000),
+        timeout(8000),
         catchError(() => {
           this.notificationsError = 'Không tải được thông báo.';
           this.notificationsLoading = false;
           this.notificationsPreview = [];
           this.unreadNotifyCount = 0;
-          this.hasLoadedNotifications = true;
+          this.medicationDueList = [];
           this.cdr.markForCheck();
           return of({ success: false, items: [] as NoticeItem[] });
         }),
@@ -378,21 +452,54 @@ export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
       .subscribe((res) => {
         this.notificationsLoading = false;
         if (res.success && Array.isArray(res.items)) {
-          const unread = res.items.filter((n) => !n.read);
-          const source = unread.length > 0 ? unread : res.items;
-          this.notificationsPreview = source.slice(0, 3);
-          this.unreadNotifyCount = unread.length;
+          const items = res.items as NoticeItem[];
+          const dueMed = items.filter((n) => n.type === 'medication_reminder');
+          this.medicationDueList = dueMed;
+          const unread = items.filter((n) => !n.read);
+          this.unreadNotifyCount = Math.min(unread.length, 99);
+          const sorted = [...items].sort((a, b) => {
+            const am = a.type === 'medication_reminder' ? 0 : 1;
+            const bm = b.type === 'medication_reminder' ? 0 : 1;
+            if (am !== bm) return am - bm;
+            const ar = a.read ? 1 : 0;
+            const br = b.read ? 1 : 0;
+            if (ar !== br) return ar - br;
+            return 0;
+          });
+          const pick: NoticeItem[] = [];
+          const seen = new Set<string>();
+          for (const n of sorted) {
+            if (pick.length >= 5) break;
+            if (seen.has(n.id)) continue;
+            if (!n.read || dueMed.some((d) => d.id === n.id)) {
+              pick.push(n);
+              seen.add(n.id);
+            }
+          }
+          if (pick.length < 5) {
+            for (const n of sorted) {
+              if (pick.length >= 5) break;
+              if (!seen.has(n.id)) {
+                pick.push(n);
+                seen.add(n.id);
+              }
+            }
+          }
+          this.notificationsPreview = pick.slice(0, 5);
+          if (mayShowReminderPopup && dueMed.length > 0) {
+            this.showReminderPopup = true;
+          }
         } else {
           this.notificationsPreview = [];
           this.unreadNotifyCount = 0;
+          this.medicationDueList = [];
         }
-        this.hasLoadedNotifications = true;
         this.cdr.markForCheck();
       });
   }
 
   fetchHotDeals(): void {
-    // Fetch top 5 products with highest discount for the search "Hot Deals" section
+    // Vấn đề 2: Mapping dữ liệu sạch cho section Hot Deals
     this.productService.getProducts({ limit: 5, sort: 'discount' }).subscribe(res => {
       this.hotDeals = (res.products || []).map((p: any) => {
         const currentPrice = p.price || 0;
@@ -406,12 +513,12 @@ export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
         return {
           id: p._id?.$oid || p._id?.toString() || p._id,
           name: p.name,
-          price: currentPrice,
+          price: currentPrice || 0, // Fallback tránh hiện lỗi template
           oldPrice: oldPrice,
           discountPercent: discountPercent,
-          unit: 'Hộp',
+          unit: p.unit || 'Hộp',
           image: p.image || 'assets/icon/medical_16660084.png',
-          slug: p.slug
+          slug: p.slug || (p._id?.$oid || p._id?.toString() || p._id)
         };
       });
     });
@@ -508,7 +615,7 @@ export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
       if (!this.megaMenuData['Bệnh & Góc sức khỏe']) {
         this.megaMenuData['Bệnh & Góc sức khỏe'] = {
           type: 'simple',
-          slug: 'benh-va-goc-suc-khoe',
+          slug: '',
           items: [
             { name: 'Góc sức khỏe', icon: 'bi bi-heart-pulse-fill', slug: 'goc-suc-khoe', route: '/bai-viet' },
             { name: 'Tra cứu bệnh', icon: 'bi bi-search-heart-fill', slug: 'tra-cuu-benh', route: '/disease' }
@@ -629,6 +736,10 @@ export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
   // ================= CLICK HANDLERS =================
 
   onCategoryClick(c: string): void {
+    if (c === 'Bệnh & Góc sức khỏe') {
+      this.hoveredCategory = c;
+      return;
+    }
     const root = this.megaMenuData[c];
     if (!root) {
       this.hoveredCategory = null;
@@ -767,6 +878,15 @@ export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
       this.cdr.markForCheck();
     } else {
       this.authService.openAuthModal();
+    }
+  }
+
+  onRemoveFromCart(e: Event, item: any): void {
+    e.preventDefault();
+    e.stopPropagation();
+    const id = item._id || item.id;
+    if (id) {
+      this.cartService.removeItem(id);
     }
   }
 

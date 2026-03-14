@@ -1,40 +1,31 @@
 <div class="recently-viewed-section pt-2 pb-4" *ngIf="products && products.length > 0">
   <div class="d-flex justify-content-between align-items-center mb-1">
     <h5 class="recently-viewed-title">Sản phẩm vừa xem</h5>
-    <a
-      href="javascript:void(0)"
-      class="btn-clear-all d-flex align-items-center gap-1"
-      (click)="onClearAll()"
-    >
+    <a href="javascript:void(0)" class="btn-clear-all d-flex align-items-center gap-1" (click)="onClearAll()">
       <i class="bi bi-trash3"></i>
       Xóa tất cả
     </a>
   </div>
   <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-6 g-3">
     <div class="col" *ngFor="let product of products">
-      <a
-        class="product-card border-0 text-decoration-none"
-        [routerLink]="['/product', getProductSlug(product)]"
-        (click)="onProductClick(product)"
-      >
+      <a class="product-card border-0 text-decoration-none" [routerLink]="['/product', getProductSlug(product)]"
+        (click)="onProductClick(product)">
         <!-- Discount -->
         <div class="discount-badge" *ngIf="product.discount > 0">
           -{{ getDiscountPercentage(product.price, product.discount) }}%
         </div>
 
+        <!-- Remove Button -->
+        <button class="btn-remove-item" (click)="onRemoveProduct(product, $event)" title="Xóa khỏi danh sách">
+          <i class="bi bi-x"></i>
+        </button>
+
         <div class="product-image">
-          <img
-            [src]="product.image"
-            [alt]="product.name"
-            (error)="handleImageError($event)"
-          />
+          <img [src]="product.image" [alt]="product.name" (error)="handleImageError($event)" />
         </div>
 
         <div class="product-content">
-          <p
-            class="product-name"
-            [title]="product.name"
-            style="
+          <p class="product-name" [title]="product.name" style="
               display: -webkit-box;
               -webkit-line-clamp: 2;
               line-clamp: 2;
@@ -44,16 +35,20 @@
               height: 36px;
               line-height: 18px;
               font-size: 12px;
-            "
-          >
+            ">
             {{ product.name }}
           </p>
 
           <div class="price-section">
-            <div class="current-price">
+            <div class="current-price" *ngIf="getDiscountedPrice(product.price, product.discount) > 0">
               {{ getDiscountedPrice(product.price, product.discount) | number }}đ
             </div>
-            <div class="old-price" *ngIf="product.discount > 0">
+            <div class="consultation-text" *ngIf="getDiscountedPrice(product.price, product.discount) <= 0"
+              style="color: #888; font-weight: 600; font-size: 13px;">
+              Cần tư vấn từ dược sĩ
+            </div>
+            <div class="old-price"
+              *ngIf="product.discount > 0 && getDiscountedPrice(product.price, product.discount) > 0">
               {{ product.price | number }}đ
             </div>
           </div>
@@ -63,11 +58,12 @@
             <button class="btn-cart" (click)="addToCart(product, $event)">
               <i class="bi bi-cart-plus-fill"></i>
             </button>
-            <button class="btn-buy" (click)="buyNow(product, $event)">Mua ngay</button>
+            <button class="btn-buy" (click)="buyNow(product, $event)">
+              {{ getDiscountedPrice(product.price, product.discount) > 0 ? 'Mua ngay' : 'Tư vấn' }}
+            </button>
           </div>
         </div>
       </a>
     </div>
   </div>
 </div>
-

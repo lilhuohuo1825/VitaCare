@@ -47,7 +47,7 @@ export class ProductTabsContent {
 
         // 2. Kiểm tra nếu phần đầu khung container bị khuất bởi Header trang web => Scroll Window để kéo khung xuống
         const containerRect = container.getBoundingClientRect();
-        const headerOffset = 80; // Giảm khoảng cách để khung neo cao hơn, che bớt phần trên
+        const headerOffset = 175; // Khớp với CSS top: 175px của left nav
 
         if (containerRect.top < headerOffset) {
           const bodyRect = document.body.getBoundingClientRect().top;
@@ -63,7 +63,7 @@ export class ProductTabsContent {
   }
 
   private performScroll(element: HTMLElement) {
-    const offset = 80; // Trừ hao cho Sticky Header
+    const offset = 175; // Trừ hao cho Sticky Header và Nav (175px)
     const bodyRect = document.body.getBoundingClientRect().top;
     const elementRect = element.getBoundingClientRect().top;
     const elementPosition = elementRect - bodyRect;
@@ -83,7 +83,7 @@ export class ProductTabsContent {
     const sections = ['mo-ta', 'thanh-phan', 'cong-dung', 'cach-dung', 'tac-dung-phu', 'luu-y', 'bao-quan'];
 
     // Offset cho sticky header + padding (khoảng 150px để active sớm hơn)
-    const offset = 150;
+    const offset = 195; // Trigger active sớm hơn một chút (175 + 20px buffer)
 
     for (const sectionId of sections) {
       const element = document.getElementById(sectionId);

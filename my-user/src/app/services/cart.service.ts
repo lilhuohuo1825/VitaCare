@@ -55,7 +55,21 @@ export class CartService {
     private _cartUpdated$ = new Subject<Cart | null>();
     readonly cartUpdated$ = this._cartUpdated$.asObservable();
 
+    private apiBase = 'http://localhost:3000';
+
     constructor(private http: HttpClient) { }
+
+    private normalizeMediaUrl(src?: string | null): string {
+        if (!src) return 'assets/placeholder/product.png';
+        if (typeof src !== 'string') return src as any;
+        if (src.startsWith('http://') || src.startsWith('https://') || src.startsWith('assets/')) {
+            return src;
+        }
+        if (src.startsWith('/')) {
+            return `${this.apiBase}${src}`;
+        }
+        return `${this.apiBase}/${src}`;
+    }
 
     get cartCountValue(): number {
         return this._cartCount$.value;
@@ -73,6 +87,12 @@ export class CartService {
             tap(res => {
                 this.cache = { userId, res, at: Date.now() };
                 if (res.success && res.cart) {
+                    if (res.cart.items) {
+                        res.cart.items = res.cart.items.map(it => ({
+                            ...it,
+                            image: this.normalizeMediaUrl(it.image)
+                        }));
+                    }
                     const totalQty = (res.cart.items || []).reduce(
                         (sum, it) => sum + (Number(it.quantity) || 0),
                         0
@@ -91,6 +111,12 @@ export class CartService {
         return this.http.patch<CartResponse>(this.apiUrl, { user_id: userId, items }).pipe(
             tap(res => {
                 if (res.success && res.cart) {
+                    if (res.cart.items) {
+                        res.cart.items = res.cart.items.map(it => ({
+                            ...it,
+                            image: this.normalizeMediaUrl(it.image)
+                        }));
+                    }
                     this.cache = { userId, res, at: Date.now() };
                     const totalQty = (res.cart.items || []).reduce(
                         (sum, it) => sum + (Number(it.quantity) || 0),
@@ -116,6 +142,64 @@ export class CartService {
             this.addItemToServer(user.user_id, item, quantity);
         } else {
             this.addItemToLocal(item, quantity);
+        }
+    }
+
+    /**
+     * Thiết lập lại số lượng cho các sản phẩm trong luồng "Mua lại".
+     * - Các sản phẩm được truyền vào sẽ có quantity đúng bằng trong đơn hàng gốc.
+     * - Nếu sản phẩm đã có trong giỏ, quantity sẽ được GHI ĐÈ bằng quantity mới (không cộng dồn).
+     * - Các sản phẩm khác trong giỏ vẫn được giữ nguyên.
+     */
+    setItemsForRepurchase(items: Array<Partial<CartItem> & { quantity: number }>): void {
+        if (!items?.length) return;
+
+        const user = this.authService.currentUser();
+        const buildKey = (x: any) => String(x._id || x.id || x.sku || x.slug || '');
+
+        // Chuẩn hoá danh sách sản phẩm repurchase
+        const repurchaseIds = new Set<string>();
+        const repurchaseItems: CartItem[] = items
+            .map((p) => {
+                const id = buildKey(p);
+                if (!id) return null;
+                repurchaseIds.add(id);
+                const now = new Date().toISOString();
+                return {
+                    _id: id,
+                    sku: p.sku || '',
+                    productName: p.productName || (p as any).name || '',
+                    quantity: Math.max(1, Number(p.quantity) || 1),
+                    price: Number(p.price) || 0,
+                    discount: Number(p.discount) || 0,
+                    image: p.image || '',
+                    unit: p.unit || 'Hộp',
+                    category: (p as any).category || '',
+                    addedAt: (p as any).addedAt || now,
+                    updatedAt: now,
+                    hasPromotion: Boolean((p as any).hasPromotion),
+                } as CartItem;
+            })
+            .filter((x): x is CartItem => !!x);
+
+        if (user && user.user_id) {
+            // User đã đăng nhập: lấy giỏ hiện tại từ server rồi patch lại quantity
+            this.getCart(user.user_id).subscribe((res) => {
+                const currentItems = res.cart?.items ?? [];
+                const kept = currentItems.filter(
+                    (it) => !repurchaseIds.has(buildKey(it as any)),
+                );
+                const merged = [...repurchaseItems, ...kept];
+                this.updateCart(user.user_id, merged).subscribe(); // fire-and-forget
+            });
+        } else {
+            // Guest: thao tác trực tiếp trên localStorage
+            const currentItems = this.getGuestCartItems();
+            const kept = currentItems.filter(
+                (it) => !repurchaseIds.has(buildKey(it as any)),
+            );
+            const merged = [...repurchaseItems, ...kept];
+            this.updateGuestCart(merged);
         }
     }
 
@@ -173,7 +257,7 @@ export class CartService {
                 quantity: Math.max(1, Number(p.quantity) || 1),
                 price: Number(p.price) || 0,
                 discount: Number(p.discount) || 0,
-                image: p.image || '',
+                image: this.normalizeMediaUrl(p.image),
                 unit: p.unit || 'Hộp',
                 category: p.category || '',
                 slug: p.slug || '',
@@ -183,6 +267,27 @@ export class CartService {
             }));
         } catch {
             return [];
+        }
+    }
+
+    /**
+     * Xóa sản phẩm khỏi giỏ hàng.
+     */
+    removeItem(productId: string): void {
+        const user = this.authService.currentUser();
+        if (user && user.user_id) {
+            // Server-side (User)
+            this.getCart(user.user_id).subscribe(res => {
+                if (res.success && res.cart) {
+                    const filtered = (res.cart.items || []).filter(it => it._id !== productId);
+                    this.updateCart(user.user_id, filtered).subscribe();
+                }
+            });
+        } else {
+            // Local (Guest)
+            const items = this.getGuestCartItems();
+            const filtered = items.filter(it => it._id !== productId);
+            this.updateGuestCart(filtered);
         }
     }
 

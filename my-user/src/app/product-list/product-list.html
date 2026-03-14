@@ -10,6 +10,10 @@
                 Bán chạy
             </button>
 
+            <button class="sort-btn" (click)="onSort('consultation')" [class.active]="activeSort === 'consultation'">
+                Cần tư vấn
+            </button>
+
             <div class="price-wrapper" (mouseenter)="showPriceSortDropdown = true"
                 (mouseleave)="showPriceSortDropdown = false">
                 <button class="sort-btn" [class.active]="activeSort === 'price_asc' || activeSort === 'price_desc'">
@@ -46,15 +50,21 @@
     </div>
 
     <!-- Active Filters Chips -->
-    <div class="active-filters" *ngIf="activeFilterTags.length > 0">
-        <span class="filter-count">Lọc theo ({{ activeFilterTags.length }})</span>
-
-        <div class="filter-chip" *ngFor="let tag of activeFilterTags">
-            {{ tag.label }}
-            <span class="close-icon" (click)="onRemoveFilter(tag)">&times;</span>
+    <div class="active-filters-container d-flex flex-wrap align-items-center gap-2 px-3 py-2 bg-white"
+        *ngIf="activeFilterTags.length > 0"
+        style="margin-top: 4px; margin-bottom: -4px; border-radius: 8px; border: 1px solid #e9ecef; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
+        <span style="color: #6b7280; font-weight: 500; font-size: 14px;">Lọc theo ({{ activeFilterTags.length
+            }})</span>
+        <div class="d-flex flex-wrap gap-2 align-items-center">
+            <span class="d-flex align-items-center gap-1 px-3 py-1" *ngFor="let tag of activeFilterTags"
+                style="border-radius: 20px; background-color: #f3f4f6; color: #374151; font-size: 14px; font-weight: 500;">
+                <span>{{ tag.label }}</span>
+                <i class="bi bi-x cursor-pointer ms-1 text-muted" (click)="onRemoveFilter(tag)"
+                    style="font-size: 1.1em; line-height: 1;"></i>
+            </span>
+            <a href="javascript:void(0)" class="text-decoration-none ms-2" (click)="onClearAll()"
+                style="color: #005bb5; font-weight: 500; font-size: 14px;">Xóa tất cả</a>
         </div>
-
-        <button class="clear-all-btn" (click)="onClearAll()">Xóa tất cả</button>
     </div>
 </div>
 
@@ -71,8 +81,15 @@
             -{{ getDiscountPercentage(product.price, product.discount) }}%
         </div>
 
+        <!-- Origin Badge -->
+        <div class="origin-badge" *ngIf="product.origin || product.country || 'Việt Nam'">
+            <img [src]="getCountryFlag(product)" [alt]="product.origin || product.country" width="16" height="12"
+                *ngIf="getCountryFlag(product)">
+            <span>{{ product.origin || product.country || 'Việt Nam' }}</span>
+        </div>
+
         <!-- IMAGE -->
-        <a class="product-image" [routerLink]="['/product', getProductSlug(product)]" (click)="handleItemClick(product)"
+        <a class="product-image" href="javascript:void(0)" (click)="handleItemClick(product, $event)"
             [class.list-img]="viewMode === 'list'">
             <img [src]="product.image" [alt]="product.name" (error)="handleImageError($event)">
         </a>
@@ -80,22 +97,32 @@
         <!-- CONTENT -->
         <div class="product-content">
 
-            <a class="product-name" [title]="product.name" [routerLink]="['/product', getProductSlug(product)]"
-                (click)="handleItemClick(product)"
-                style="text-decoration: none; color: inherit; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; height: 42px; line-height: 21px;">
+            <a class="product-name" [title]="product.name" href="javascript:void(0)"
+                (click)="handleItemClick(product, $event)"
+                style="text-decoration: none; color: inherit; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; height: 42px; line-height: 21px;">
                 {{ product.name }}
             </a>
 
             <div class="price-section">
-                <div class="current-price">
-                    {{ getDiscountedPrice(product.price, product.discount) | number }}đ
-                    <span *ngIf="product.unit && !isNumber(product.unit)">/ {{ product.unit }}</span>
-                    <span *ngIf="!product.unit || isNumber(product.unit)">/ Hộp</span>
-                </div>
+                <!-- Regular Price -->
+                <ng-container *ngIf="getDiscountedPrice(product.price, product.discount) > 0">
+                    <div class="current-price">
+                        {{ getDiscountedPrice(product.price, product.discount) | number }}đ
+                        <span *ngIf="product.unit && !isNumber(product.unit)">/ {{ product.unit }}</span>
+                        <span *ngIf="!product.unit || isNumber(product.unit)">/ Hộp</span>
+                    </div>
 
-                <div class="old-price" *ngIf="product.discount > 0 && product.price > product.discount">
-                    {{ product.price | number }}đ
-                </div>
+                    <div class="old-price" *ngIf="product.discount > 0 && product.price > product.discount">
+                        {{ product.price | number }}đ
+                    </div>
+                </ng-container>
+
+                <!-- 0đ / Consultation Price -->
+                <ng-container *ngIf="getDiscountedPrice(product.price, product.discount) <= 0">
+                    <div class="consultation-price">
+                        Cần tư vấn từ dược sĩ
+                    </div>
+                </ng-container>
 
                 <div class="unit-badge" *ngIf="product.unit && !isNumber(product.unit)">
                     {{ product.unit }}
@@ -107,7 +134,14 @@
 
             <div class="button-group">
                 <button class="btn-cart" (click)="addToCart(product, $event)">Thêm vào giỏ</button>
-                <button class="btn-buy" (click)="buyNow(product)">Mua ngay</button>
+
+                <ng-container *ngIf="getDiscountedPrice(product.price, product.discount) > 0">
+                    <button class="btn-buy" (click)="buyNow(product)">Mua ngay</button>
+                </ng-container>
+
+                <ng-container *ngIf="getDiscountedPrice(product.price, product.discount) <= 0">
+                    <button class="btn-buy" (click)="requestConsultation(product)">Yêu cầu tư vấn</button>
+                </ng-container>
             </div>
 
         </div>

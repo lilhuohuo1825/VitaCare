@@ -6,6 +6,7 @@ import { HeaderComponent } from './header/header';
 import { Footer } from './footer/footer';
 import { Cart } from './cart/cart';
 import { FloatingActionsComponent } from './floating-actions/floating-actions';
+import { ProductQuickView } from './product-quick-view/product-quick-view';
 import { AuthService } from './services/auth.service';
 import { ToastService } from './services/toast.service';
 import { ConfirmService } from './services/confirm.service';
@@ -13,7 +14,7 @@ import { ConfirmService } from './services/confirm.service';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, Auth, HeaderComponent, Footer, Cart, FloatingActionsComponent],
+  imports: [CommonModule, RouterOutlet, Auth, HeaderComponent, Footer, Cart, FloatingActionsComponent, ProductQuickView],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })

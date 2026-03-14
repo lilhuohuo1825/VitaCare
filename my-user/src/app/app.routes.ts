@@ -8,7 +8,7 @@ export const routes: Routes = [
     // Route chuyên cho Nhóm bệnh (Tra cứu bệnh)
     // Đặt TRƯỚC các route category chung để không bị match nhầm vào Product
     path: 'category/tra-cuu-benh/:groupSlug',
-    loadComponent: () => import('./disease/disease-group-details/disease-group-details').then(m => m.DiseaseGroupDetails),
+    loadComponent: () => import('./disease-group-details/disease-group-details/disease-group-details').then(m => m.DiseaseGroupDetails),
   },
   {
     path: 'category/:slug/:subslug/:seg3',
@@ -123,6 +123,18 @@ export const routes: Routes = [
     loadComponent: () => import('./about/about').then(m => m.About),
   },
   {
+    path: 'bai-viet/danh-muc/:categorySlug/:subcategorySlug',
+    loadComponent: () => import('./bai-viet/blog-category/blog-category').then(m => m.BlogCategory),
+  },
+  {
+    path: 'bai-viet/chuyen-de/:specialtySlug',
+    loadComponent: () => import('./bai-viet/blog-category/blog-category').then(m => m.BlogCategory),
+  },
+  {
+    path: 'bai-viet/danh-muc/:categorySlug',
+    loadComponent: () => import('./bai-viet/blog-category/blog-category').then(m => m.BlogCategory),
+  },
+  {
     path: 'bai-viet/:slug',
     loadComponent: () => import('./bai-viet/blog-detail/blog-detail').then(m => m.BlogDetail),
   },
@@ -137,7 +149,7 @@ export const routes: Routes = [
   {
     // Chi tiết bệnh: nhận cả id hoặc slug (backend hỗ trợ cả hai)
     path: 'benh/:id',
-    loadComponent: () => import('./disease/disease-details/disease-details').then(m => m.DiseaseDetails),
+    loadComponent: () => import('./disease-details/disease-details/disease-details').then(m => m.DiseaseDetails),
   },
   { path: '**', redirectTo: '' },
 ];

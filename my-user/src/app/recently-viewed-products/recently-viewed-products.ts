@@ -10,19 +10,20 @@ import { BuyNowService } from '../services/buy-now.service';
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './recently-viewed-products.html',
-  styleUrls: ['../product/product.css'],
+  styleUrls: ['../product/product.css', './recently-viewed-products.css'],
 })
 export class RecentlyViewedProducts {
   @Input() products: any[] = [];
 
   @Output() clearAll = new EventEmitter<void>();
   @Output() productClick = new EventEmitter<any>();
+  @Output() removeProduct = new EventEmitter<any>();
 
   constructor(
     private cartService: CartService,
     private cartAnimation: CartAnimationService,
     private buyNowService: BuyNowService
-  ) {}
+  ) { }
 
   onClearAll(): void {
     this.clearAll.emit();
@@ -30,6 +31,12 @@ export class RecentlyViewedProducts {
 
   onProductClick(product: any): void {
     this.productClick.emit(product);
+  }
+
+  onRemoveProduct(product: any, event: MouseEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.removeProduct.emit(product);
   }
 
   addToCart(product: any, event: MouseEvent): void {

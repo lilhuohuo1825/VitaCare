@@ -1282,7 +1282,7 @@
 }
 
 .custom-dropdown-item:hover {
-    background-color: #F5F5F5;
+    background-color: #E5EEF8;
 }
 
 .custom-dropdown-item.selected {
@@ -1321,7 +1321,7 @@
 
 .cancel-btn,
 .cancel-no-btn {
-    background-color: #F5F5F5;
+    background-color: #E5EEF8;
     color: #333;
 }
 

@@ -1,579 +1,587 @@
 <div class="order-page">
-  <a class="order-back" (click)="goBack()" href="javascript:;">
-    <i class="bi bi-arrow-left"></i> {{ isBuyNow ? 'Quay lại' : 'Quay lại giỏ hàng' }}
-  </a>
+  <div class="order-container">
+    <div class="order-back-container">
+      <a class="order-back" (click)="goBack()" href="javascript:;">
+        <i class="bi bi-arrow-left"></i> {{ isBuyNow ? 'Quay lại' : 'Quay lại giỏ hàng' }}
+      </a>
+    </div>
 
-  <div class="order-layout">
-    <!-- Cột trái: chỉ form giao hàng, hoá đơn, thanh toán -->
-    <div class="order-main">
-      <!-- Banner vận chuyển -->
-      <div class="order-banner">
-        Miễn phí vận chuyển đối với đơn hàng trên 300.000₫
-      </div>
-
-      <!-- Hình thức nhận hàng: title và 2 tab cùng một hàng -->
-      <section class="order-section order-delivery-section">
-        <div class="order-delivery-header">
-          <div class="order-section-title">Chọn hình thức nhận hàng <span class="order-label-required">*</span></div>
-          <div class="order-tabs">
-            <button type="button" class="order-tab" [class.active]="deliveryTab === 'home'"
-              (click)="deliveryTab = 'home'">
-              Giao hàng tận nơi
-            </button>
-            <button type="button" class="order-tab" [class.active]="deliveryTab === 'pharmacy'"
-              (click)="deliveryTab = 'pharmacy'">
-              Nhận tại nhà thuốc
-            </button>
-          </div>
+    <div class="order-layout">
+      <!-- Cột trái: chỉ form giao hàng, hoá đơn, thanh toán -->
+      <div class="order-main">
+        <!-- Banner vận chuyển -->
+        <div class="order-banner">
+          Miễn phí vận chuyển đối với đơn hàng trên 300.000₫
         </div>
 
-        <!-- Thông tin người nhận (khi giao tận nơi): địa chỉ mặc định + autocomplete trình duyệt -->
-        <div class="order-recipient-block" *ngIf="deliveryTab === 'home'">
-          <div class="order-recipient-header">
-            <label class="order-field-label"><i class="bi bi-person-fill"></i> Thông tin người nhận <span
-                class="order-label-required">*</span></label>
-            <button type="button" class="order-btn-addr-list" *ngIf="!isGuest" (click)="openAddressList()">Danh sách địa chỉ</button>
-          </div>
-          <div class="order-address-card">
-            <div class="order-address-card-inner">
-              <div class="order-address-line1">
-                <input type="text" class="order-address-input" placeholder="Tên người nhận - SĐT người nhận"
-                  [(ngModel)]="recipientNamePhone" autocomplete="shipping name" name="recipient_name" />
-                <span class="order-addr-tag" *ngIf="isDefaultAddress">Địa chỉ mặc định</span>
-              </div>
-              <div class="order-address-line2">
-                <input type="text" class="order-address-input" placeholder="Địa chỉ người nhận hàng"
-                  [(ngModel)]="recipientAddress" autocomplete="shipping street-address" name="recipient_address" />
-              </div>
+        <!-- Hình thức nhận hàng: title và 2 tab cùng một hàng -->
+        <section class="order-section order-delivery-section">
+          <div class="order-delivery-header">
+            <div class="order-section-title">Chọn hình thức nhận hàng <span class="order-label-required">*</span></div>
+            <div class="order-tabs">
+              <button type="button" class="order-tab" [class.active]="deliveryTab === 'home'"
+                (click)="deliveryTab = 'home'">
+                Giao hàng tận nơi
+              </button>
+              <button type="button" class="order-tab" [class.active]="deliveryTab === 'pharmacy'"
+                (click)="deliveryTab = 'pharmacy'">
+                Nhận tại nhà thuốc
+              </button>
             </div>
           </div>
-        </div>
 
-        <!-- Nhận tại nhà thuốc: Thông tin người đặt + Chọn nhà thuốc (dùng style từ root) -->
-        <div class="order-pharmacy-block" *ngIf="deliveryTab === 'pharmacy'">
-          <div class="order-payer-block">
-            <div class="order-pharmacy-label">
-              <i class="bi bi-person-fill"></i>
-              <span>Thông tin người đặt <span class="order-label-required">*</span></span>
+          <!-- Thông tin người nhận (khi giao tận nơi): địa chỉ mặc định + autocomplete trình duyệt -->
+          <div class="order-recipient-block" *ngIf="deliveryTab === 'home'">
+            <div class="order-recipient-header">
+              <label class="order-field-label"><i class="bi bi-person-fill"></i> Thông tin người nhận <span
+                  class="order-label-required">*</span></label>
+              <button type="button" class="order-btn-addr-list" *ngIf="!isGuest" (click)="openAddressList()">Danh sách
+                địa
+                chỉ</button>
             </div>
-            <div class="order-address-card" style="margin-top: 8px;">
+            <div class="order-address-card">
               <div class="order-address-card-inner">
                 <div class="order-address-line1">
-                  <input type="text" class="order-address-input" placeholder="Họ tên người đặt"
-                    [(ngModel)]="payerName" name="payer_name" />
+                  <input type="text" class="order-address-input" placeholder="Tên người nhận - SĐT người nhận"
+                    [(ngModel)]="recipientNamePhone" autocomplete="shipping name" name="recipient_name" />
+                  <span class="order-addr-tag" *ngIf="isDefaultAddress">Địa chỉ mặc định</span>
                 </div>
                 <div class="order-address-line2">
-                  <input type="text" class="order-address-input" placeholder="Số điện thoại người đặt"
-                    [(ngModel)]="payerPhone" name="payer_phone" />
+                  <input type="text" class="order-address-input" placeholder="Địa chỉ người nhận hàng"
+                    [(ngModel)]="recipientAddress" autocomplete="shipping street-address" name="recipient_address" />
                 </div>
               </div>
             </div>
           </div>
-          <div class="order-pharmacy-section">
-            <div class="order-pharmacy-label">
-              <i class="bi bi-building"></i>
-              <span>Chọn nhà thuốc lấy hàng <span class="order-label-required">*</span></span>
-            </div>
-            <div class="order-pharmacy-info-box">
-              <span>Đơn vị hành chính đã thay đổi theo quy định.</span>
-              <a href="#" target="_blank" rel="noopener">Tra cứu địa chỉ trước và sau sáp nhập</a>
-            </div>
-            <div class="order-pharmacy-selects" style="grid-template-columns: 1fr 1fr 1fr;">
-              <select class="order-pharmacy-select" [(ngModel)]="pharmacyProvince" name="pharmacy_province"
-                (ngModelChange)="onPharmacyProvinceChange($event)">
-                <option value="">Chọn Tỉnh/Thành phố</option>
-                @for (p of allPharmacyLocations; track p.tinh) {
-                <option [value]="p.tinh">{{ p.tinh }}</option>
-                }
-              </select>
-              <select class="order-pharmacy-select" [(ngModel)]="pharmacyDistrict" name="pharmacy_district"
-                (ngModelChange)="onPharmacyDistrictChange($event)" [disabled]="!pharmacyProvince">
-                <option value="">Chọn Quận/Huyện</option>
-                @for (d of availableDistricts; track d.ten) {
-                <option [value]="d.ten">{{ d.ten }}</option>
-                }
-              </select>
-              <select class="order-pharmacy-select" [(ngModel)]="pharmacyWard" name="pharmacy_ward"
-                (ngModelChange)="onPharmacyWardChange($event)" [disabled]="!pharmacyDistrict">
-                <option value="">Chọn Phường/Xã</option>
-                @for (w of availableWards; track w) {
-                <option [value]="w">{{ w }}</option>
-                }
-              </select>
-            </div>
 
-            <!-- Stores List (Only display when Ward is selected) -->
-            <div *ngIf="pharmacyProvince" style="margin-top: 16px;">
-              <label
-                style="font-weight: 600; font-size: 14px; margin-bottom: 8px; display: block; color: var(--vc-neutral-100);">Chọn
-                nhà thuốc lấy hàng <span class="order-label-required">*</span></label>
-
-              <div style="margin-bottom: 12px;">
-                <input type="text"
-                  style="width: 100%; border: 1px solid var(--vc-neutral-40); padding: 10px 12px; border-radius: 8px; font-size: 14px; outline: none; transition: border-color .2s;"
-                  placeholder="Tìm tên đường, tên nhà thuốc..." [(ngModel)]="storeSearchKeyword"
-                  name="storeSearchKeyword" (ngModelChange)="onStoreKeywordChange()">
+          <!-- Nhận tại nhà thuốc: Thông tin người đặt + Chọn nhà thuốc (dùng style từ root) -->
+          <div class="order-pharmacy-block" *ngIf="deliveryTab === 'pharmacy'">
+            <div class="order-payer-block">
+              <div class="order-pharmacy-label">
+                <i class="bi bi-person-fill"></i>
+                <span>Thông tin người đặt <span class="order-label-required">*</span></span>
               </div>
-
-              <div *ngIf="availableStores.length === 0"
-                style="padding: 24px; text-align: center; background: #F8FAFC; border-radius: 8px; font-size: 14px; color: #64748B;">
-                Không tìm thấy nhà thuốc nào tại khu vực đã chọn.
-              </div>
-
-              <div *ngIf="availableStores.length > 0"
-                style="display: grid; grid-template-columns: 1fr; gap: 10px; max-height: 300px; overflow-y: auto;">
-                <div *ngFor="let store of availableStores" class="store-card"
-                  [class.selected]="selectedStore?._id === store._id" (click)="selectStore(store)"
-                  style="padding: 14px; border: 1.5px solid #E2E8F0; border-radius: 12px; cursor: pointer; transition: all 0.2s; display: flex; align-items: flex-start; gap: 12px; background: white;"
-                  [style.borderColor]="selectedStore?._id === store._id ? 'var(--vc-main)' : '#E2E8F0'"
-                  [style.backgroundColor]="selectedStore?._id === store._id ? '#F0F9FF' : 'white'">
-
-                  <!-- Radio indicator -->
-                  <div style="margin-top: 2px;">
-                    <div
-                      style="width: 18px; height: 18px; border-radius: 50%; border: 2px solid; display: flex; align-items: center; justify-content: center;"
-                      [style.borderColor]="selectedStore?._id === store._id ? 'var(--vc-main)' : '#CBD5E1'">
-                      <div *ngIf="selectedStore?._id === store._id"
-                        style="width: 10px; height: 10px; border-radius: 50%; background: var(--vc-main);"></div>
-                    </div>
+              <div class="order-address-card" style="margin-top: 8px;">
+                <div class="order-address-card-inner">
+                  <div class="order-address-line1">
+                    <input type="text" class="order-address-input" placeholder="Họ tên người đặt"
+                      [(ngModel)]="payerName" name="payer_name" />
                   </div>
-
-                  <div style="flex: 1;">
-                    <div style="font-weight: 700; color: #1E293B; margin-bottom: 4px; font-size: 14px;">{{
-                      store.ten_cua_hang }}
-                    </div>
-                    <div
-                      style="font-size: 13px; color: #475569; margin-bottom: 4px; display: flex; align-items: flex-start; gap: 4px;">
-                      <i class="bi bi-geo-alt" style="font-size: 14px; margin-top: 1px; color: #94A3B8;"></i>
-                      <span>{{ store.dia_chi?.dia_chi_day_du ? store.dia_chi?.dia_chi_day_du + ', ' : '' }}{{
-                        store.dia_chi?.phuong_xa
-                        }}, {{ store.dia_chi?.quan_huyen }}, {{ store.dia_chi?.tinh_thanh }}</span>
-                    </div>
-                    <div style="font-size: 12px; color: #10B981; font-weight: 500;">
-                      <i class="bi bi-clock"></i> Đang mở cửa
-                    </div>
+                  <div class="order-address-line2">
+                    <input type="text" class="order-address-input" placeholder="Số điện thoại người đặt"
+                      [(ngModel)]="payerPhone" name="payer_phone" />
                   </div>
                 </div>
               </div>
             </div>
+            <div class="order-pharmacy-section">
+              <div class="order-pharmacy-label">
+                <i class="bi bi-building"></i>
+                <span>Chọn nhà thuốc lấy hàng <span class="order-label-required">*</span></span>
+              </div>
+              <div class="order-pharmacy-info-box">
+                <span>Đơn vị hành chính đã thay đổi theo quy định.</span>
+                <a href="#" target="_blank" rel="noopener">Tra cứu địa chỉ trước và sau sáp nhập</a>
+              </div>
+              <div class="order-pharmacy-selects" style="grid-template-columns: 1fr 1fr 1fr;">
+                <select class="order-pharmacy-select" [(ngModel)]="pharmacyProvince" name="pharmacy_province"
+                  (ngModelChange)="onPharmacyProvinceChange($event)">
+                  <option value="">Chọn Tỉnh/Thành phố</option>
+                  @for (p of allPharmacyLocations; track p.tinh) {
+                  <option [value]="p.tinh">{{ p.tinh }}</option>
+                  }
+                </select>
+                <select class="order-pharmacy-select" [(ngModel)]="pharmacyDistrict" name="pharmacy_district"
+                  (ngModelChange)="onPharmacyDistrictChange($event)" [disabled]="!pharmacyProvince">
+                  <option value="">Chọn Quận/Huyện</option>
+                  @for (d of availableDistricts; track d.ten) {
+                  <option [value]="d.ten">{{ d.ten }}</option>
+                  }
+                </select>
+                <select class="order-pharmacy-select" [(ngModel)]="pharmacyWard" name="pharmacy_ward"
+                  (ngModelChange)="onPharmacyWardChange($event)" [disabled]="!pharmacyDistrict">
+                  <option value="">Chọn Phường/Xã</option>
+                  @for (w of availableWards; track w) {
+                  <option [value]="w">{{ w }}</option>
+                  }
+                </select>
+              </div>
 
+              <!-- Stores List (Only display when Ward is selected) -->
+              <div *ngIf="pharmacyProvince" style="margin-top: 16px;">
+                <label
+                  style="font-weight: 600; font-size: 14px; margin-bottom: 8px; display: block; color: var(--vc-neutral-100);">Chọn
+                  nhà thuốc lấy hàng <span class="order-label-required">*</span></label>
+
+                <div style="margin-bottom: 12px;">
+                  <input type="text"
+                    style="width: 100%; border: 1px solid var(--vc-neutral-40); padding: 10px 12px; border-radius: 8px; font-size: 14px; outline: none; transition: border-color .2s;"
+                    placeholder="Tìm tên đường, tên nhà thuốc..." [(ngModel)]="storeSearchKeyword"
+                    name="storeSearchKeyword" (ngModelChange)="onStoreKeywordChange()">
+                </div>
+
+                <div *ngIf="availableStores.length === 0"
+                  style="padding: 24px; text-align: center; background: #F8FAFC; border-radius: 8px; font-size: 14px; color: #64748B;">
+                  Không tìm thấy nhà thuốc nào tại khu vực đã chọn.
+                </div>
+
+                <div *ngIf="availableStores.length > 0"
+                  style="display: grid; grid-template-columns: 1fr; gap: 10px; max-height: 300px; overflow-y: auto;">
+                  <div *ngFor="let store of availableStores" class="store-card"
+                    [class.selected]="selectedStore?._id === store._id" (click)="selectStore(store)"
+                    style="padding: 14px; border: 1.5px solid #E2E8F0; border-radius: 12px; cursor: pointer; transition: all 0.2s; display: flex; align-items: flex-start; gap: 12px; background: white;"
+                    [style.borderColor]="selectedStore?._id === store._id ? 'var(--vc-main)' : '#E2E8F0'"
+                    [style.backgroundColor]="selectedStore?._id === store._id ? '#F0F9FF' : 'white'">
+
+                    <!-- Radio indicator -->
+                    <div style="margin-top: 2px;">
+                      <div
+                        style="width: 18px; height: 18px; border-radius: 50%; border: 2px solid; display: flex; align-items: center; justify-content: center;"
+                        [style.borderColor]="selectedStore?._id === store._id ? 'var(--vc-main)' : '#CBD5E1'">
+                        <div *ngIf="selectedStore?._id === store._id"
+                          style="width: 10px; height: 10px; border-radius: 50%; background: var(--vc-main);"></div>
+                      </div>
+                    </div>
+
+                    <div style="flex: 1;">
+                      <div style="font-weight: 700; color: #1E293B; margin-bottom: 4px; font-size: 14px;">{{
+                        store.ten_cua_hang }}
+                      </div>
+                      <div
+                        style="font-size: 13px; color: #475569; margin-bottom: 4px; display: flex; align-items: flex-start; gap: 4px;">
+                        <i class="bi bi-geo-alt" style="font-size: 14px; margin-top: 1px; color: #94A3B8;"></i>
+                        <span>{{ store.dia_chi?.dia_chi_day_du ? store.dia_chi?.dia_chi_day_du + ', ' : '' }}{{
+                          store.dia_chi?.phuong_xa
+                          }}, {{ store.dia_chi?.quan_huyen }}, {{ store.dia_chi?.tinh_thanh }}</span>
+                      </div>
+                      <div style="font-size: 12px; color: #10B981; font-weight: 500;">
+                        <i class="bi bi-clock"></i> Đang mở cửa
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <!-- Ghi chú -->
-      <section class="order-section order-notes-section">
-        <span class="order-notes-label">Ghi chú (không bắt buộc)</span>
-        <textarea class="order-notes-input" placeholder="Ví dụ: Hãy gọi cho tôi 15 phút trước khi giao"
-          [(ngModel)]="orderNote" name="order_note" rows="3"></textarea>
-      </section>
+        <!-- Ghi chú -->
+        <section class="order-section order-notes-section">
+          <span class="order-notes-label">Ghi chú (không bắt buộc)</span>
+          <textarea class="order-notes-input" placeholder="Ví dụ: Hãy gọi cho tôi 15 phút trước khi giao"
+            [(ngModel)]="orderNote" name="order_note" rows="3"></textarea>
+        </section>
 
-      <!-- Thời gian nhận hàng dự kiến -->
-      @if (deliveryDates.length > 0) {
-      <section class="order-section order-delivery-time-section">
-        <div class="order-delivery-time-row">
-          <div class="order-delivery-time-left">
-            <i class="bi bi-clock-fill order-delivery-time-icon"></i>
-            <span class="order-delivery-time-label">Thời gian nhận hàng dự kiến</span>
+        <!-- Thời gian nhận hàng dự kiến -->
+        @if (deliveryDates.length > 0) {
+        <section class="order-section order-delivery-time-section">
+          <div class="order-delivery-time-row">
+            <div class="order-delivery-time-left">
+              <i class="bi bi-clock-fill order-delivery-time-icon"></i>
+              <span class="order-delivery-time-label">Thời gian nhận hàng dự kiến</span>
+            </div>
+            <span class="order-delivery-time-value">{{ deliveryTimeLabel }}</span>
+            <button type="button" class="order-delivery-time-change" (click)="openDeliveryTimeModal()">Thay đổi</button>
           </div>
-          <span class="order-delivery-time-value">{{ deliveryTimeLabel }}</span>
-          <button type="button" class="order-delivery-time-change" (click)="openDeliveryTimeModal()">Thay đổi</button>
-        </div>
-      </section>
-      }
+        </section>
+        }
 
-      <!-- Hoá đơn điện tử -->
-      <section class="order-section order-invoice">
-        <span class="order-invoice-label">Yêu cầu xuất hoá đơn điện tử</span>
-        <label class="order-toggle">
-          <input type="checkbox" [(ngModel)]="requestInvoice" />
-          <span class="order-toggle-slider"></span>
-        </label>
-      </section>
+        <!-- Hoá đơn điện tử -->
+        <section class="order-section order-invoice">
+          <span class="order-invoice-label">Yêu cầu xuất hoá đơn điện tử</span>
+          <label class="order-toggle">
+            <input type="checkbox" [(ngModel)]="requestInvoice" />
+            <span class="order-toggle-slider"></span>
+          </label>
+        </section>
 
-      <!-- Phương thức thanh toán -->
-      <section class="order-section">
-        <div class="order-section-title">Chọn phương thức thanh toán <span class="order-label-required">*</span></div>
-        <div class="order-payment-list">
-          <label class="order-payment-item">
-            <input type="radio" name="payment" value="cod" [(ngModel)]="paymentMethod" />
-            <i class="bi bi-cash-stack"></i>
-            <span>Thanh toán tiền mặt khi nhận hàng</span>
-          </label>
-          <label class="order-payment-item">
-            <input type="radio" name="payment" value="qr" [(ngModel)]="paymentMethod" />
-            <i class="bi bi-upc-scan"></i>
-            <span>Thanh toán bằng chuyển khoản (QR Code)</span>
-          </label>
-          <label class="order-payment-item">
-            <input type="radio" name="payment" value="momo" [(ngModel)]="paymentMethod" />
-            <img src="assets/icon/momo.png" alt="MoMo" class="order-payment-icon" />
-            <span>Thanh toán bằng ví MoMo</span>
-          </label>
-          <label class="order-payment-item">
-            <input type="radio" name="payment" value="zalopay" [(ngModel)]="paymentMethod" />
-            <img src="assets/icon/zalo.png" alt="ZaloPay" class="order-payment-icon" />
-            <span>Thanh toán bằng ví Zalopay</span>
-          </label>
-          <label class="order-payment-item">
-            <input type="radio" name="payment" value="card" [(ngModel)]="paymentMethod" />
-            <img src="assets/icon/ThanhToanQuocTe.jpg" alt="Thẻ quốc tế" class="order-payment-icon" />
-            <span>Thanh toán bằng thẻ quốc tế (Visa, Master...), Apple Pay</span>
-          </label>
-          <label class="order-payment-item">
-            <input type="radio" name="payment" value="atm" [(ngModel)]="paymentMethod" />
-            <img src="assets/icon/ThanhToanATM.png" alt="ATM" class="order-payment-icon" />
-            <span>Thanh toán bằng thẻ ATM nội địa, NAPAS</span>
-          </label>
-          <label class="order-payment-item">
-            <input type="radio" name="payment" value="vnpay" [(ngModel)]="paymentMethod" />
-            <img src="assets/icon/vnpay.webp" alt="VNPay" class="order-payment-icon" />
-            <span>Thanh toán bằng cổng VNPay</span>
-          </label>
+        <!-- Phương thức thanh toán -->
+        <section class="order-section">
+          <div class="order-section-title">Chọn phương thức thanh toán <span class="order-label-required">*</span></div>
+          <div class="order-payment-list">
+            <label class="order-payment-item">
+              <input type="radio" name="payment" value="cod" [(ngModel)]="paymentMethod" />
+              <i class="bi bi-cash-stack"></i>
+              <span>Thanh toán tiền mặt khi nhận hàng</span>
+            </label>
+            <label class="order-payment-item">
+              <input type="radio" name="payment" value="qr" [(ngModel)]="paymentMethod" />
+              <i class="bi bi-upc-scan"></i>
+              <span>Thanh toán bằng chuyển khoản (QR Code)</span>
+            </label>
+            <label class="order-payment-item">
+              <input type="radio" name="payment" value="momo" [(ngModel)]="paymentMethod" />
+              <img src="assets/icon/momo.png" alt="MoMo" class="order-payment-icon" />
+              <span>Thanh toán bằng ví MoMo</span>
+            </label>
+            <label class="order-payment-item">
+              <input type="radio" name="payment" value="zalopay" [(ngModel)]="paymentMethod" />
+              <img src="assets/icon/zalo.png" alt="ZaloPay" class="order-payment-icon" />
+              <span>Thanh toán bằng ví Zalopay</span>
+            </label>
+            <label class="order-payment-item">
+              <input type="radio" name="payment" value="card" [(ngModel)]="paymentMethod" />
+              <img src="assets/icon/ThanhToanQuocTe.jpg" alt="Thẻ quốc tế" class="order-payment-icon" />
+              <span>Thanh toán bằng thẻ quốc tế (Visa, Master...), Apple Pay</span>
+            </label>
+            <label class="order-payment-item">
+              <input type="radio" name="payment" value="atm" [(ngModel)]="paymentMethod" />
+              <img src="assets/icon/ThanhToanATM.png" alt="ATM" class="order-payment-icon" />
+              <span>Thanh toán bằng thẻ ATM nội địa, NAPAS</span>
+            </label>
+            <label class="order-payment-item">
+              <input type="radio" name="payment" value="vnpay" [(ngModel)]="paymentMethod" />
+              <img src="assets/icon/vnpay.webp" alt="VNPay" class="order-payment-icon" />
+              <span>Thanh toán bằng cổng VNPay</span>
+            </label>
+          </div>
+        </section>
+      </div>
+
+      <!-- Cột phải: danh sách sản phẩm (chỉ xem) + tổng + mua hàng -->
+      <aside class="order-sidebar">
+        <!-- Danh sách sản phẩm (chỉ hiển thị, thay đổi tại giỏ hàng) -->
+        <section class="order-sidebar-products">
+          <div class="order-sidebar-title">Danh sách sản phẩm</div>
+          <div class="order-loading" *ngIf="cartLoading">
+            <div class="order-loading-spinner"></div>
+            <span>Đang tải giỏ hàng...</span>
+          </div>
+          <ul class="order-product-list" *ngIf="!cartLoading && cart?.items?.length">
+            <li class="order-product-row" *ngFor="let item of cart?.items">
+              <div class="order-product-img-wrap">
+                <img [src]="item.image" [alt]="item.productName" class="order-product-img" />
+              </div>
+              <div class="order-product-info">
+                <span class="order-product-name">{{ item.productName }}</span>
+                <div class="order-product-price-line">
+                  <span class="order-product-total">{{ (item.price * item.quantity) | number:'1.0-0' }}₫</span>
+                  <span class="order-product-qty-unit">x{{ item.quantity }} {{ item.unit || 'hộp' }}</span>
+                </div>
+              </div>
+            </li>
+          </ul>
+          <p class="order-product-empty" *ngIf="!cartLoading && !cart?.items?.length">Chưa có sản phẩm trong giỏ.</p>
+        </section>
+
+        <div class="order-promo-box">
+          <i class="bi bi-ticket-perforated"></i>
+          <span class="order-promo-box-text">Áp dụng ưu đãi từ VitaCare để được giảm giá</span>
+          <i class="bi bi-chevron-right"></i>
         </div>
-      </section>
+
+        <section class="order-checkout-section">
+          <div class="order-summary">
+            <div class="order-sidebar-title">Chi tiết thanh toán</div>
+            <div class="order-summary-row order-summary-row-total">
+              <span>Tổng tiền</span>
+              <strong class="order-summary-value-total">{{ totalPrice | number:'1.0-0' }}₫</strong>
+            </div>
+            <div class="order-summary-row">
+              <span>Giảm giá trực tiếp</span>
+              <strong class="order-summary-value-discount">0₫</strong>
+            </div>
+            <div class="order-summary-row order-summary-row-last">
+              <span>Giảm giá voucher</span>
+              <strong class="order-summary-value-discount">0₫</strong>
+            </div>
+            <div class="order-summary-row">
+              <span>Phí vận chuyển</span>
+              <strong>{{ shippingFee === 0 ? 'Miễn phí' : (shippingFee | number:'1.0-0') + '₫' }}</strong>
+            </div>
+            <div class="order-summary-row order-summary-total">
+              <span>Thành tiền</span>
+              <strong class="order-total-amount">{{ orderTotal | number:'1.0-0' }}₫</strong>
+            </div>
+          </div>
+
+          <label class="order-hide-products">
+            <input type="checkbox" [(ngModel)]="hideProductInfo" />
+            <span>Ẩn thông tin sản phẩm khi giao hàng</span>
+          </label>
+
+          <button type="button" class="order-btn-buy" [disabled]="isSubmitting" (click)="placeOrder()">
+            <span *ngIf="!isSubmitting">Mua hàng</span>
+            <span *ngIf="isSubmitting"><i class="bi bi-arrow-repeat order-spin"></i> Đang xử lý...</span>
+          </button>
+
+          <p class="order-terms">
+            Bằng việc tiến hành đặt mua hàng, bạn đồng ý với
+            <a href="#">Điều khoản dịch vụ</a> của nhà thuốc VitaCare
+          </p>
+        </section>
+      </aside>
     </div>
 
-    <!-- Cột phải: danh sách sản phẩm (chỉ xem) + tổng + mua hàng -->
-    <aside class="order-sidebar">
-      <!-- Danh sách sản phẩm (chỉ hiển thị, thay đổi tại giỏ hàng) -->
-      <section class="order-sidebar-products">
-        <div class="order-sidebar-title">Danh sách sản phẩm</div>
-        <div class="order-loading" *ngIf="cartLoading">
-          <div class="order-loading-spinner"></div>
-          <span>Đang tải giỏ hàng...</span>
+    <!-- Popup danh sách địa chỉ (style từ root) -->
+    @if (showAddressModal) {
+    <div class="order-addr-modal-overlay" (click)="closeAddressModal()" role="dialog"
+      aria-labelledby="order-addr-modal-title">
+      <div class="order-addr-modal" (click)="$event.stopPropagation()">
+        <div class="order-addr-modal-header">
+          <h2 id="order-addr-modal-title" class="order-addr-modal-title">Danh sách địa chỉ</h2>
+          <button type="button" class="order-addr-modal-close" aria-label="Đóng" (click)="closeAddressModal()">
+            <i class="bi bi-x-lg"></i>
+          </button>
         </div>
-        <ul class="order-product-list" *ngIf="!cartLoading && cart?.items?.length">
-          <li class="order-product-row" *ngFor="let item of cart?.items">
-            <div class="order-product-img-wrap">
-              <img [src]="item.image" [alt]="item.productName" class="order-product-img" />
+        <div class="order-addr-modal-body">
+          @if (addressModalLoading) {
+          <div class="order-addr-modal-loading">Đang tải địa chỉ...</div>
+          } @else {
+          @for (addr of addressList; track addr._id) {
+          <div class="order-addr-card" [class.is-selected]="selectedAddressId === addr._id"
+            (click)="selectAddress(addr)">
+            <div class="order-addr-card-main">
+              <span class="order-addr-card-name">{{ addr.name || addr.full_name || '' }} - {{ addr.phone || '' }}</span>
+              @if (addr.isDefault || addr.is_default) {
+              <span class="order-addr-card-badge">Địa chỉ mặc định</span>
+              }
             </div>
-            <div class="order-product-info">
-              <span class="order-product-name">{{ item.productName }}</span>
-              <div class="order-product-price-line">
-                <span class="order-product-total">{{ (item.price * item.quantity) | number:'1.0-0' }}₫</span>
-                <span class="order-product-qty-unit">x{{ item.quantity }} {{ item.unit || 'hộp' }}</span>
-              </div>
+            <p class="order-addr-card-address">{{ addr.fullAddress || addr.full_address || '' }}</p>
+            <div class="order-addr-card-actions">
+              <button type="button" class="order-addr-card-btn" (click)="openAddressFormEdit(addr, $event)">
+                <i class="bi bi-pencil"></i> Sửa
+              </button>
+              <button type="button" class="order-addr-card-btn order-addr-card-btn-danger"
+                (click)="deleteAddress(addr, $event)">
+                <i class="bi bi-trash"></i> Xóa
+              </button>
             </div>
-          </li>
-        </ul>
-        <p class="order-product-empty" *ngIf="!cartLoading && !cart?.items?.length">Chưa có sản phẩm trong giỏ.</p>
-      </section>
-
-      <div class="order-promo-box">
-        <i class="bi bi-ticket-perforated"></i>
-        <span class="order-promo-box-text">Áp dụng ưu đãi từ VitaCare để được giảm giá</span>
-        <i class="bi bi-chevron-right"></i>
-      </div>
-
-      <section class="order-checkout-section">
-        <div class="order-summary">
-          <div class="order-sidebar-title">Chi tiết thanh toán</div>
-          <div class="order-summary-row order-summary-row-total">
-            <span>Tổng tiền</span>
-            <strong class="order-summary-value-total">{{ totalPrice | number:'1.0-0' }}₫</strong>
-          </div>
-          <div class="order-summary-row">
-            <span>Giảm giá trực tiếp</span>
-            <strong class="order-summary-value-discount">0₫</strong>
-          </div>
-          <div class="order-summary-row order-summary-row-last">
-            <span>Giảm giá voucher</span>
-            <strong class="order-summary-value-discount">0₫</strong>
-          </div>
-          <div class="order-summary-row">
-            <span>Phí vận chuyển</span>
-            <strong>{{ shippingFee === 0 ? 'Miễn phí' : (shippingFee | number:'1.0-0') + '₫' }}</strong>
-          </div>
-          <div class="order-summary-row order-summary-total">
-            <span>Thành tiền</span>
-            <strong class="order-total-amount">{{ orderTotal | number:'1.0-0' }}₫</strong>
-          </div>
-        </div>
-
-        <label class="order-hide-products">
-          <input type="checkbox" [(ngModel)]="hideProductInfo" />
-          <span>Ẩn thông tin sản phẩm khi giao hàng</span>
-        </label>
-
-        <button type="button" class="order-btn-buy" [disabled]="isSubmitting" (click)="placeOrder()">
-          <span *ngIf="!isSubmitting">Mua hàng</span>
-          <span *ngIf="isSubmitting"><i class="bi bi-arrow-repeat order-spin"></i> Đang xử lý...</span>
-        </button>
-
-        <p class="order-terms">
-          Bằng việc tiến hành đặt mua hàng, bạn đồng ý với
-          <a href="#">Điều khoản dịch vụ</a> của nhà thuốc VitaCare
-        </p>
-      </section>
-    </aside>
-  </div>
-
-  <!-- Popup danh sách địa chỉ (style từ root) -->
-  @if (showAddressModal) {
-  <div class="order-addr-modal-overlay" (click)="closeAddressModal()" role="dialog"
-    aria-labelledby="order-addr-modal-title">
-    <div class="order-addr-modal" (click)="$event.stopPropagation()">
-      <div class="order-addr-modal-header">
-        <h2 id="order-addr-modal-title" class="order-addr-modal-title">Danh sách địa chỉ</h2>
-        <button type="button" class="order-addr-modal-close" aria-label="Đóng" (click)="closeAddressModal()">
-          <i class="bi bi-x-lg"></i>
-        </button>
-      </div>
-      <div class="order-addr-modal-body">
-        @if (addressModalLoading) {
-        <div class="order-addr-modal-loading">Đang tải địa chỉ...</div>
-        } @else {
-        @for (addr of addressList; track addr._id) {
-        <div class="order-addr-card" [class.is-selected]="selectedAddressId === addr._id" (click)="selectAddress(addr)">
-          <div class="order-addr-card-main">
-            <span class="order-addr-card-name">{{ addr.name || addr.full_name || '' }} - {{ addr.phone || '' }}</span>
-            @if (addr.isDefault || addr.is_default) {
-            <span class="order-addr-card-badge">Địa chỉ mặc định</span>
+            @if (selectedAddressId === addr._id) {
+            <div class="order-addr-card-check"><i class="bi bi-check-lg"></i></div>
             }
           </div>
-          <p class="order-addr-card-address">{{ addr.fullAddress || addr.full_address || '' }}</p>
-          <div class="order-addr-card-actions">
-            <button type="button" class="order-addr-card-btn" (click)="openAddressFormEdit(addr, $event)">
-              <i class="bi bi-pencil"></i> Sửa
-            </button>
-            <button type="button" class="order-addr-card-btn order-addr-card-btn-danger"
-              (click)="deleteAddress(addr, $event)">
-              <i class="bi bi-trash"></i> Xóa
-            </button>
-          </div>
-          @if (selectedAddressId === addr._id) {
-          <div class="order-addr-card-check"><i class="bi bi-check-lg"></i></div>
+          }
+          <button type="button" class="order-addr-add-new" (click)="openAddressFormCreate()">
+            <i class="bi bi-plus-lg"></i> Thêm địa chỉ mới
+          </button>
           }
         </div>
-        }
-        <button type="button" class="order-addr-add-new" (click)="openAddressFormCreate()">
-          <i class="bi bi-plus-lg"></i> Thêm địa chỉ mới
-        </button>
-        }
-      </div>
-      <div class="order-addr-modal-footer">
-        <button type="button" class="order-addr-modal-confirm" (click)="confirmAddressSelection()">Xác nhận</button>
+        <div class="order-addr-modal-footer">
+          <button type="button" class="order-addr-modal-confirm" (click)="confirmAddressSelection()">Xác nhận</button>
+        </div>
       </div>
     </div>
-  </div>
-  }
+    }
 
-  <!-- Popup form Thêm/Sửa địa chỉ (giống sổ địa chỉ tài khoản) -->
-  @if (showAddressFormModal) {
-  <div class="order-addr-form-overlay" (click)="closeAddressFormModal()" role="dialog"
-    aria-labelledby="order-addr-form-title">
-    <div class="order-addr-form-modal" (click)="$event.stopPropagation()">
-      <button type="button" class="order-addr-form-close" aria-label="Đóng" (click)="closeAddressFormModal()">
-        <i class="bi bi-x-lg"></i>
-      </button>
-      <h3 id="order-addr-form-title" class="order-addr-form-title">
-        {{ addressFormMode === 'edit' ? 'CHỈNH SỬA ĐỊA CHỈ' : 'THÊM ĐỊA CHỈ MỚI' }}
-      </h3>
+    <!-- Popup form Thêm/Sửa địa chỉ (giống sổ địa chỉ tài khoản) -->
+    @if (showAddressFormModal) {
+    <div class="order-addr-form-overlay" (click)="closeAddressFormModal()" role="dialog"
+      aria-labelledby="order-addr-form-title">
+      <div class="order-addr-form-modal" (click)="$event.stopPropagation()">
+        <button type="button" class="order-addr-form-close" aria-label="Đóng" (click)="closeAddressFormModal()">
+          <i class="bi bi-x-lg"></i>
+        </button>
+        <h3 id="order-addr-form-title" class="order-addr-form-title">
+          {{ addressFormMode === 'edit' ? 'CHỈNH SỬA ĐỊA CHỈ' : 'THÊM ĐỊA CHỈ MỚI' }}
+        </h3>
 
-      <form class="order-addr-form" (ngSubmit)="submitAddressForm()">
-        <div class="order-addr-form-section">
-          <div class="order-addr-form-section-header">
-            <i class="bi bi-person-circle"></i>
-            <span>Thông tin cá nhân</span>
-          </div>
-          <div class="order-addr-form-grid order-addr-form-grid-2">
-            <div class="order-addr-form-group">
-              <label class="order-addr-form-label">Họ và tên <span class="order-addr-required">*</span></label>
-              <input type="text" class="order-addr-form-input" [(ngModel)]="addressForm.name" name="addr_name" required
-                placeholder="Họ và tên *" />
+        <form class="order-addr-form" (ngSubmit)="submitAddressForm()">
+          <div class="order-addr-form-section">
+            <div class="order-addr-form-section-header">
+              <i class="bi bi-person-circle"></i>
+              <span>Thông tin cá nhân</span>
+            </div>
+            <div class="order-addr-form-grid order-addr-form-grid-2">
+              <div class="order-addr-form-group">
+                <label class="order-addr-form-label">Họ và tên <span class="order-addr-required">*</span></label>
+                <input type="text" class="order-addr-form-input" [(ngModel)]="addressForm.name" name="addr_name"
+                  required placeholder="Họ và tên *" />
+              </div>
+              <div class="order-addr-form-group">
+                <label class="order-addr-form-label">Số điện thoại <span class="order-addr-required">*</span></label>
+                <input type="tel" class="order-addr-form-input" [(ngModel)]="addressForm.phone" name="addr_phone"
+                  required placeholder="Số điện thoại (ít nhất 10 chữ số)" (blur)="validateAddressFormPhone()"
+                  (ngModelChange)="addressFormPhoneError && validateAddressFormPhone()"
+                  [class.order-addr-form-input-error]="addressFormPhoneError" />
+                @if (addressFormPhoneError) {
+                <span class="order-addr-field-error">{{ addressFormPhoneError }}</span>
+                }
+              </div>
             </div>
             <div class="order-addr-form-group">
-              <label class="order-addr-form-label">Số điện thoại <span class="order-addr-required">*</span></label>
-              <input type="tel" class="order-addr-form-input" [(ngModel)]="addressForm.phone" name="addr_phone" required
-                placeholder="Số điện thoại (ít nhất 10 chữ số)" (blur)="validateAddressFormPhone()"
-                (ngModelChange)="addressFormPhoneError && validateAddressFormPhone()"
-                [class.order-addr-form-input-error]="addressFormPhoneError" />
-              @if (addressFormPhoneError) {
-              <span class="order-addr-field-error">{{ addressFormPhoneError }}</span>
-              }
+              <label class="order-addr-form-label">Email (Không bắt buộc)</label>
+              <input type="email" class="order-addr-form-input" [(ngModel)]="addressForm.email" name="addr_email"
+                placeholder="Email (Không bắt buộc)" />
             </div>
           </div>
-          <div class="order-addr-form-group">
-            <label class="order-addr-form-label">Email (Không bắt buộc)</label>
-            <input type="email" class="order-addr-form-input" [(ngModel)]="addressForm.email" name="addr_email"
-              placeholder="Email (Không bắt buộc)" />
-          </div>
-        </div>
 
-        <div class="order-addr-form-section">
-          <div class="order-addr-form-section-header">
-            <i class="bi bi-geo-alt"></i>
-            <span>Địa chỉ nhận hàng</span>
-          </div>
-          <div class="order-addr-form-grid order-addr-form-grid-2">
+          <div class="order-addr-form-section">
+            <div class="order-addr-form-section-header">
+              <i class="bi bi-geo-alt"></i>
+              <span>Địa chỉ nhận hàng</span>
+            </div>
+            <div class="order-addr-form-grid order-addr-form-grid-2">
+              <div class="order-addr-form-group">
+                <label class="order-addr-form-label">Tỉnh/Thành phố <span class="order-addr-required">*</span></label>
+                <select class="order-addr-form-input" [(ngModel)]="addressForm.provinceCode" name="addr_province"
+                  required (ngModelChange)="onAddressFormProvinceChange($event)">
+                  <option value="" disabled selected>Chọn Tỉnh/Thành phố *</option>
+                  @for (p of provinces; track p.code) {
+                  <option [value]="p.code">{{ p.name_with_type }}</option>
+                  }
+                </select>
+              </div>
+              <div class="order-addr-form-group">
+                <label class="order-addr-form-label">Quận/Huyện <span class="order-addr-required">*</span></label>
+                <select class="order-addr-form-input" [(ngModel)]="addressForm.districtCode" name="addr_district"
+                  required (ngModelChange)="onAddressFormDistrictChange($event)" [disabled]="!addressForm.provinceCode">
+                  <option value="" disabled selected>Chọn Quận/Huyện *</option>
+                  @for (d of districts; track d.code) {
+                  <option [value]="d.code">{{ d.name_with_type }}</option>
+                  }
+                </select>
+              </div>
+            </div>
             <div class="order-addr-form-group">
-              <label class="order-addr-form-label">Tỉnh/Thành phố <span class="order-addr-required">*</span></label>
-              <select class="order-addr-form-input" [(ngModel)]="addressForm.provinceCode" name="addr_province" required
-                (ngModelChange)="onAddressFormProvinceChange($event)">
-                <option value="" disabled selected>Chọn Tỉnh/Thành phố *</option>
-                @for (p of provinces; track p.code) {
-                <option [value]="p.code">{{ p.name_with_type }}</option>
+              <label class="order-addr-form-label">Phường/Xã <span class="order-addr-required">*</span></label>
+              <select class="order-addr-form-input" [(ngModel)]="addressForm.wardCode" name="addr_ward" required
+                [disabled]="!addressForm.districtCode">
+                <option value="" disabled selected>Chọn Phường/Xã *</option>
+                @for (w of wards; track w.code) {
+                <option [value]="w.code">{{ w.name_with_type }}</option>
                 }
               </select>
             </div>
             <div class="order-addr-form-group">
-              <label class="order-addr-form-label">Quận/Huyện <span class="order-addr-required">*</span></label>
-              <select class="order-addr-form-input" [(ngModel)]="addressForm.districtCode" name="addr_district" required
-                (ngModelChange)="onAddressFormDistrictChange($event)" [disabled]="!addressForm.provinceCode">
-                <option value="" disabled selected>Chọn Quận/Huyện *</option>
-                @for (d of districts; track d.code) {
-                <option [value]="d.code">{{ d.name_with_type }}</option>
-                }
-              </select>
+              <label class="order-addr-form-label">Địa chỉ cụ thể <span class="order-addr-required">*</span></label>
+              <input class="order-addr-form-input" [(ngModel)]="addressForm.detail" name="addr_detail" required
+                placeholder="Nhập địa chỉ cụ thể *" />
             </div>
+            <label class="order-addr-form-default">
+              <input type="checkbox" [(ngModel)]="addressForm.isDefault" name="addr_isDefault" />
+              <span>Đặt làm địa chỉ mặc định</span>
+            </label>
           </div>
-          <div class="order-addr-form-group">
-            <label class="order-addr-form-label">Phường/Xã <span class="order-addr-required">*</span></label>
-            <select class="order-addr-form-input" [(ngModel)]="addressForm.wardCode" name="addr_ward" required
-              [disabled]="!addressForm.districtCode">
-              <option value="" disabled selected>Chọn Phường/Xã *</option>
-              @for (w of wards; track w.code) {
-              <option [value]="w.code">{{ w.name_with_type }}</option>
-              }
-            </select>
+
+          <div class="order-addr-form-actions">
+            <button type="button" class="order-addr-form-btn order-addr-form-btn-secondary"
+              (click)="closeAddressFormModal()">Hủy</button>
+            <button type="submit" class="order-addr-form-btn order-addr-form-btn-primary">Hoàn thành</button>
           </div>
-          <div class="order-addr-form-group">
-            <label class="order-addr-form-label">Địa chỉ cụ thể <span class="order-addr-required">*</span></label>
-            <input class="order-addr-form-input" [(ngModel)]="addressForm.detail" name="addr_detail" required
-              placeholder="Nhập địa chỉ cụ thể *" />
-          </div>
-          <label class="order-addr-form-default">
-            <input type="checkbox" [(ngModel)]="addressForm.isDefault" name="addr_isDefault" />
-            <span>Đặt làm địa chỉ mặc định</span>
-          </label>
-        </div>
-
-        <div class="order-addr-form-actions">
-          <button type="button" class="order-addr-form-btn order-addr-form-btn-secondary"
-            (click)="closeAddressFormModal()">Hủy</button>
-          <button type="submit" class="order-addr-form-btn order-addr-form-btn-primary">Hoàn thành</button>
-        </div>
-      </form>
-    </div>
-  </div>
-  }
-
-  <!-- Popup đặt hàng thành công -->
-  @if (showOrderSuccess) {
-  <div class="vc-order-success-overlay" (click)="closeOrderSuccess()">
-    <div class="vc-order-success-modal" (click)="$event.stopPropagation()">
-      <button type="button" class="vc-order-success-close" (click)="closeOrderSuccess()">
-        <i class="bi bi-x-lg"></i>
-      </button>
-
-      <div class="vc-order-success-icon">
-        <i class="bi bi-check-circle-fill"></i>
-      </div>
-
-      <h3 class="vc-order-success-title">Đặt hàng thành công!</h3>
-
-      <p class="vc-order-success-desc">
-        Cảm ơn bạn đã đặt hàng tại <strong>VitaCare</strong>.<br>
-        Đơn hàng của bạn đang được xử lý.
-      </p>
-
-      <div class="vc-order-success-code">
-        <span class="vc-order-success-code-label">Mã đơn hàng</span>
-        <span class="vc-order-success-code-value">{{ successOrderId }}</span>
-      </div>
-
-      <div class="vc-order-success-actions">
-        <button type="button" class="vc-order-success-btn vc-order-success-btn-primary" *ngIf="!isGuest" (click)="goToOrders()">
-          Xem đơn hàng
-        </button>
-        <button type="button" class="vc-order-success-btn vc-order-success-btn-secondary" (click)="closeOrderSuccess()">
-          Tiếp tục mua sắm
-        </button>
+        </form>
       </div>
     </div>
-  </div>
-  }
+    }
 
-  <!-- Popup chọn thời gian nhận hàng -->
-  @if (showDeliveryTimeModal) {
-  <div class="vc-delivery-overlay" (click)="closeDeliveryTimeModal()">
-    <div class="vc-delivery-modal" (click)="$event.stopPropagation()">
-      <div class="vc-delivery-modal-header">
-        <h3>Chọn thời gian nhận hàng</h3>
-        <button type="button" class="vc-delivery-modal-close" (click)="closeDeliveryTimeModal()">
+    <!-- Popup đặt hàng thành công -->
+    @if (showOrderSuccess) {
+    <div class="vc-order-success-overlay" (click)="closeOrderSuccess()">
+      <div class="vc-order-success-modal" (click)="$event.stopPropagation()">
+        <button type="button" class="vc-order-success-close" (click)="closeOrderSuccess()">
           <i class="bi bi-x-lg"></i>
         </button>
-      </div>
 
-      <div class="vc-delivery-modal-body">
-        <p class="vc-delivery-section-label">Chọn ngày nhận:</p>
-        <div class="vc-delivery-chips">
-          @for (d of deliveryDates; track d.label; let i = $index) {
-          <button type="button" class="vc-delivery-chip" [class.active]="i === tempDateIdx" (click)="tempDateIdx = i">
-            {{ d.label }}
+        <div class="vc-order-success-icon">
+          <i class="bi bi-check-circle-fill"></i>
+        </div>
+
+        <h3 class="vc-order-success-title">Đặt hàng thành công!</h3>
+
+        <p class="vc-order-success-desc">
+          Cảm ơn bạn đã đặt hàng tại <strong>VitaCare</strong>.<br>
+          Đơn hàng của bạn đang được xử lý.
+        </p>
+
+        <div class="vc-order-success-code">
+          <span class="vc-order-success-code-label">Mã đơn hàng</span>
+          <span class="vc-order-success-code-value">{{ successOrderId }}</span>
+        </div>
+
+        <div class="vc-order-success-actions">
+          <button type="button" class="vc-order-success-btn vc-order-success-btn-primary" *ngIf="!isGuest"
+            (click)="goToOrders()">
+            Xem đơn hàng
           </button>
-          }
-        </div>
-
-        <p class="vc-delivery-section-label">Chọn giờ nhận:</p>
-        <div class="vc-delivery-chips vc-delivery-time-chips">
-          @for (slot of deliveryTimeSlots; track slot) {
-          <button type="button" class="vc-delivery-chip vc-delivery-chip-sm" [class.active]="slot === tempTimeSlot"
-            (click)="tempTimeSlot = slot">
-            {{ slot }}
+          <button type="button" class="vc-order-success-btn vc-order-success-btn-secondary"
+            (click)="closeOrderSuccess()">
+            Tiếp tục mua sắm
           </button>
-          }
         </div>
-
-        <p class="vc-delivery-section-label">Thời gian nhận hàng dự kiến:</p>
-        <div class="vc-delivery-preview">
-          {{ tempDeliveryTimeLabel }}
-        </div>
-      </div>
-
-      <div class="vc-delivery-modal-footer">
-        <button type="button" class="vc-delivery-confirm-btn" (click)="confirmDeliveryTime()">
-          Xác nhận
-        </button>
       </div>
     </div>
-  </div>
-  }
+    }
 
-  <!-- Popup quét QR thanh toán cho các phương thức không phải COD -->
-  @if (showQrPaymentModal) {
-  <div class="vc-qr-overlay" (click)="cancelQrPayment()">
-    <div class="vc-qr-modal" (click)="$event.stopPropagation()">
-      <div class="vc-qr-header">
-        <h3>Quét mã để thanh toán</h3>
-        <button type="button" class="vc-qr-close" (click)="cancelQrPayment()">
-          <i class="bi bi-x-lg"></i>
-        </button>
-      </div>
+    <!-- Popup chọn thời gian nhận hàng -->
+    @if (showDeliveryTimeModal) {
+    <div class="vc-delivery-overlay" (click)="closeDeliveryTimeModal()">
+      <div class="vc-delivery-modal" (click)="$event.stopPropagation()">
+        <div class="vc-delivery-modal-header">
+          <h3>Chọn thời gian nhận hàng</h3>
+          <button type="button" class="vc-delivery-modal-close" (click)="closeDeliveryTimeModal()">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </div>
 
-      <div class="vc-qr-body">
-        <p class="vc-qr-method">{{ paymentMethodLabel }}</p>
-        <p class="vc-qr-amount">Số tiền: <strong>{{ orderTotal | number:'1.0-0' }}₫</strong></p>
+        <div class="vc-delivery-modal-body">
+          <p class="vc-delivery-section-label">Chọn ngày nhận:</p>
+          <div class="vc-delivery-chips">
+            @for (d of deliveryDates; track d.label; let i = $index) {
+            <button type="button" class="vc-delivery-chip" [class.active]="i === tempDateIdx" (click)="tempDateIdx = i">
+              {{ d.label }}
+            </button>
+            }
+          </div>
 
-        <p class="vc-qr-cta">Hãy quét mã để thanh toán</p>
-        <div class="vc-qr-box">
-          <div class="vc-qr-code-placeholder" aria-hidden="true"></div>
-          <p class="vc-qr-note">
-            Mở ứng dụng ngân hàng hoặc ví điện tử, quét mã QR và hoàn tất thanh toán.
-          </p>
+          <p class="vc-delivery-section-label">Chọn giờ nhận:</p>
+          <div class="vc-delivery-chips vc-delivery-time-chips">
+            @for (slot of deliveryTimeSlots; track slot) {
+            <button type="button" class="vc-delivery-chip vc-delivery-chip-sm" [class.active]="slot === tempTimeSlot"
+              (click)="tempTimeSlot = slot">
+              {{ slot }}
+            </button>
+            }
+          </div>
+
+          <p class="vc-delivery-section-label">Thời gian nhận hàng dự kiến:</p>
+          <div class="vc-delivery-preview">
+            {{ tempDeliveryTimeLabel }}
+          </div>
+        </div>
+
+        <div class="vc-delivery-modal-footer">
+          <button type="button" class="vc-delivery-confirm-btn" (click)="confirmDeliveryTime()">
+            Xác nhận
+          </button>
         </div>
       </div>
+    </div>
+    }
 
-      <div class="vc-qr-footer">
-        <button type="button" class="vc-qr-btn vc-qr-btn-cancel" (click)="cancelQrPayment()">
-          Huỷ
-        </button>
-        <button type="button" class="vc-qr-btn vc-qr-btn-confirm" (click)="confirmQrPayment()">
-          Đã thanh toán
-        </button>
+    <!-- Popup quét QR thanh toán cho các phương thức không phải COD -->
+    @if (showQrPaymentModal) {
+    <div class="vc-qr-overlay" (click)="cancelQrPayment()">
+      <div class="vc-qr-modal" (click)="$event.stopPropagation()">
+        <div class="vc-qr-header">
+          <h3>Quét mã để thanh toán</h3>
+          <button type="button" class="vc-qr-close" (click)="cancelQrPayment()">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </div>
+
+        <div class="vc-qr-body">
+          <p class="vc-qr-method">{{ paymentMethodLabel }}</p>
+          <p class="vc-qr-amount">Số tiền: <strong>{{ orderTotal | number:'1.0-0' }}₫</strong></p>
+
+          <p class="vc-qr-cta">Hãy quét mã để thanh toán</p>
+          <div class="vc-qr-box">
+            <div class="vc-qr-code-placeholder" aria-hidden="true"></div>
+            <p class="vc-qr-note">
+              Mở ứng dụng ngân hàng hoặc ví điện tử, quét mã QR và hoàn tất thanh toán.
+            </p>
+          </div>
+        </div>
+
+        <div class="vc-qr-footer">
+          <button type="button" class="vc-qr-btn vc-qr-btn-cancel" (click)="cancelQrPayment()">
+            Huỷ
+          </button>
+          <button type="button" class="vc-qr-btn vc-qr-btn-confirm" (click)="confirmQrPayment()">
+            Đã thanh toán
+          </button>
+        </div>
       </div>
     </div>
+    }
   </div>
-  }
-</div>

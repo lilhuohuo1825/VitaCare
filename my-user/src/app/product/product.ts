@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -8,7 +8,7 @@ import { BlogService } from '../services/blog.service';
 import { Subscription, combineLatest, forkJoin, of } from 'rxjs'; // Import combineLatest, forkJoin, of
 import { timeout, catchError, map } from 'rxjs/operators';
 
-import { Filter } from '../filter/filter';
+import { ProductFilter } from '../product-filter/product-filter';
 import { FeatureCategories } from '../feature-categories/feature-categories';
 import { ProductList } from '../product-list/product-list';
 import { getLocalIcon } from '../header/header-icons';
@@ -23,7 +23,7 @@ import { RecentlyViewedBlogs } from '../recently-viewed-blogs/recently-viewed-bl
         CommonModule,
         FormsModule,
         RouterModule,
-        Filter,
+        ProductFilter,
         FeatureCategories,
         ProductList,
         BlogResults,
@@ -98,6 +98,7 @@ export class Product implements OnInit, OnDestroy {
     viewMode: 'grid' | 'list' = 'grid';
     isLoading = false;
     private routeSub: Subscription | undefined;
+    private previousCategorySlug: string | null = null;
 
     constructor(
         private productService: ProductService,
@@ -105,7 +106,8 @@ export class Product implements OnInit, OnDestroy {
         private blogService: BlogService,
         private route: ActivatedRoute,
         private router: Router,
-        private cdr: ChangeDetectorRef
+        private cdr: ChangeDetectorRef,
+        private ngZone: NgZone
     ) { }
 
     ngOnInit(): void {
@@ -143,6 +145,13 @@ export class Product implements OnInit, OnDestroy {
                 this.filters.categorySlug = '';
             }
 
+            let isCategoryChange = false;
+            // Always treat initial load or category change as true
+            if (this.previousCategorySlug !== fullSlug) {
+                isCategoryChange = true;
+                this.previousCategorySlug = fullSlug;
+            }
+
             // 2. Handle Filters (Query Params)
             this.syncFiltersFromUrl(qParams);
 
@@ -151,8 +160,9 @@ export class Product implements OnInit, OnDestroy {
             if (this.searchMode === 'article') {
                 this.fetchBlogs();
             } else {
-                this.fetchProducts();
+                this.fetchProducts(isCategoryChange);
             }
+            setTimeout(() => this.cdr.detectChanges(), 0);
         });
     }
 
@@ -195,7 +205,7 @@ export class Product implements OnInit, OnDestroy {
         this.filters.brandOrigin = qParams['brandOrigin'] ? qParams['brandOrigin'].split(',') : [];
     }
 
-    fetchProducts() {
+    fetchProducts(isCategoryChange: boolean = false) {
         this.isLoading = true;
         // Save search to history if there's a keyword
         if (this.filters.keyword) {
@@ -208,7 +218,8 @@ export class Product implements OnInit, OnDestroy {
                 this.totalProducts = res.total || 0;
                 this.isLoading = false;
                 this.cdr.detectChanges();
-                console.log(`[Product] Fetched ${this.products.length} products (Total: ${this.total})`);
+                this.scrollToProductTop(isCategoryChange);
+                console.log(`[Product] Fetched ${this.products.length} products`);
             },
             error: (err) => {
                 console.error('[Product] Fetch error:', err);
@@ -224,20 +235,21 @@ export class Product implements OnInit, OnDestroy {
         if (this.filters.keyword) {
             this.saveSearchHistory(this.filters.keyword);
         }
-        this.blogService.getBlogs(this.filters).subscribe({
+        this.blogService.getBlogs({ ...this.filters, limit: 1000 }).subscribe({
             next: (res) => {
                 this.blogs = res.blogs || [];
                 this.total = res.total || 0;
                 this.totalProducts = res.total || 0;
-                // Reset display limit and show initial blogs
-                this.blogDisplayLimit = this.initialBlogLimit;
+                this.blogDisplayLimit = this.initialBlogLimit; // Mặc định hiện 6 bài đầu
                 this.updateDisplayedBlogs();
                 this.isLoading = false;
                 this.cdr.detectChanges();
-                console.log(`[Product] Fetched ${this.blogs.length} blogs (Total: ${this.total})`);
+                console.log(`[Product] Fetched ${this.blogs.length} blogs`);
             },
             error: (err) => {
                 console.error('[Product] Fetch blogs error:', err);
+                this.blogs = [];
+                this.displayedBlogs = [];
                 this.isLoading = false;
                 this.cdr.detectChanges();
             }
@@ -249,7 +261,7 @@ export class Product implements OnInit, OnDestroy {
     }
 
     loadMoreBlogs() {
-        this.blogDisplayLimit += 6;
+        this.blogDisplayLimit = Math.min(this.blogDisplayLimit + 6, this.blogs.length);
         this.updateDisplayedBlogs();
         this.cdr.detectChanges();
     }
@@ -331,8 +343,36 @@ export class Product implements OnInit, OnDestroy {
     onSortToggle(sort: string) {
         this.filters.sort = sort;
         this.showPriceSortDropdown = false;
+        this.filters.page = 1; // Reset to page 1 on sort change
         // Fetch is triggered by URL subscription
         this.updateUrl();
+    }
+
+    private scrollToProductTop(isCategoryChange: boolean = false) {
+        if (typeof window !== 'undefined') {
+            // Khi có từ khoá tìm kiếm: luôn scroll về đầu trang để người dùng thấy thanh chọn (Sản phẩm / Bài viết sức khoẻ)
+            if (this.filters.keyword) {
+                window.scrollTo({ top: 0, behavior: 'auto' });
+                return;
+            }
+            if (isCategoryChange) {
+                // Sang category mới -> scroll lên trên cùng (dưới header)
+                window.scrollTo({ top: 0, behavior: 'auto' });
+            } else {
+                // Chỉ click bộ lọc -> scroll đến list sản phẩm
+                const productSection = document.querySelector('.product-two-columns') || document.querySelector('app-product-list');
+                if (productSection) {
+                    (window as any).isFilteringJump = true;
+                    const y = productSection.getBoundingClientRect().top + window.scrollY - 140;
+                    window.scrollTo({ top: y, behavior: 'auto' });
+                    setTimeout(() => {
+                        (window as any).isFilteringJump = false;
+                    }, 100);
+                } else {
+                    window.scrollTo({ top: 0, behavior: 'auto' });
+                }
+            }
+        }
     }
 
     onFilterChanged(event: any) {
@@ -546,16 +586,23 @@ export class Product implements OnInit, OnDestroy {
     trackRecentlyViewed(product: any) {
         if (!product) return;
         let viewed = JSON.parse(localStorage.getItem('recentlyViewed') || '[]');
-        viewed = viewed.filter((p: any) => p._id !== product._id);
+
+        // So khớp ID chắc chắn
+        const productId = (product._id?.$oid || product._id)?.toString();
+        viewed = viewed.filter((p: any) => {
+            const pid = (p._id?.$oid || p._id)?.toString();
+            return pid !== productId;
+        });
+
         viewed.unshift(product);
-        viewed = viewed.slice(0, 6); // Just 6 latest
+        viewed = viewed.slice(0, 20); // Lưu tối đa 20 sản phẩm
         localStorage.setItem('recentlyViewed', JSON.stringify(viewed));
         this.loadRecentlyViewed();
     }
 
     loadRecentlyViewed() {
         const viewed = JSON.parse(localStorage.getItem('recentlyViewed') || '[]');
-        this.recentlyViewedProducts = viewed.slice(0, 6);
+        this.recentlyViewedProducts = viewed.slice(0, 6); // Only show 6
     }
 
     loadRecentlyViewedBlogs() {
@@ -592,6 +639,18 @@ export class Product implements OnInit, OnDestroy {
     clearRecentlyViewed(e?: Event) {
         if (e) e.stopPropagation();
         localStorage.removeItem('recentlyViewed');
+        this.loadRecentlyViewed();
+    }
+
+    removeRecentlyViewedProduct(product: any) {
+        if (!product) return;
+        let viewed = JSON.parse(localStorage.getItem('recentlyViewed') || '[]');
+        const productId = (product._id?.$oid || product._id)?.toString();
+        viewed = viewed.filter((p: any) => {
+            const pid = (p._id?.$oid || p._id)?.toString();
+            return pid !== productId;
+        });
+        localStorage.setItem('recentlyViewed', JSON.stringify(viewed));
         this.loadRecentlyViewed();
     }
 

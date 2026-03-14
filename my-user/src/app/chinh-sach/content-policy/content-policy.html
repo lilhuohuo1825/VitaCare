@@ -1,8 +1,11 @@
-<div class="pc-container">
+<div class="vc_container pt-2">
     <!-- Breadcrumb -->
-    <div class="pc-breadcrumb">
-        <a routerLink="/">Trang chủ</a> / <span>Chính sách nội dung</span>
-    </div>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb-vc">
+            <li class="breadcrumb-item"><a routerLink="/">Trang chủ</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Chính sách nội dung</li>
+        </ol>
+    </nav>
 
     <div class="pc-layout">
         <!-- Sidebar -->
@@ -20,8 +23,10 @@
                 <li><a [routerLink]="['/chinh-sach/chinh-sach-giao-hang']">Chính sách giao hàng</a></li>
                 <li><a [routerLink]="['/chinh-sach/chinh-sach-bao-mat']">Chính sách bảo mật</a></li>
                 <li><a [routerLink]="['/chinh-sach/chinh-sach-thanh-toan']">Chính sách thanh toán</a></li>
-                <li><a [routerLink]="['/chinh-sach/chinh-sach-bao-mat-du-lieu']">Chính sách bảo mật dữ liệu cá nhân</a></li>
-                <li><a [routerLink]="['/chinh-sach/thong-tin-trung-tam-bao-hanh']">Thông tin trung tâm bảo hành máy thiết bị y tế từng hãng</a></li>
+                <li><a [routerLink]="['/chinh-sach/chinh-sach-bao-mat-du-lieu']">Chính sách bảo mật dữ liệu cá nhân</a>
+                </li>
+                <li><a [routerLink]="['/chinh-sach/thong-tin-trung-tam-bao-hanh']">Thông tin trung tâm bảo hành máy
+                        thiết bị y tế từng hãng</a></li>
                 <li><a [routerLink]="['/chinh-sach/dieu-khoan-su-dung']">Điều khoản sử dụng VitaCare 247</a></li>
             </ul>
         </aside>

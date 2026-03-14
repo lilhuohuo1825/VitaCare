@@ -6,15 +6,14 @@
         <span class="text-secondary">Đang tải thông tin sản phẩm...</span>
     </div>
 
-    <div class="container pt-3 pb-4" *ngIf="!loading && product">
+    <div class="vc_container pt-2 pb-4" *ngIf="!loading && product">
         <!-- Breadcrumbs -->
-        <nav aria-label="breadcrumb" class="mb-1">
-            <ol class="breadcrumb mb-0">
-                <li class="breadcrumb-item"><a routerLink="/" class="text-decoration-none text-muted">Trang chủ</a></li>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb-vc">
+                <li class="breadcrumb-item"><a routerLink="/">Trang chủ</a></li>
                 <li class="breadcrumb-item" *ngFor="let cat of categoryPath; let last = last" [class.active]="last">
-                    <a *ngIf="!last" [routerLink]="['/category', cat.slug]" class="text-decoration-none">{{ cat.name
-                        }}</a>
-                    <span *ngIf="last" class="fw-bold text-primary">{{ cat.name }}</span>
+                    <a *ngIf="!last" [routerLink]="['/category', cat.slug]">{{ cat.name }}</a>
+                    <span *ngIf="last">{{ cat.name }}</span>
                 </li>
             </ol>
         </nav>
@@ -83,9 +82,11 @@
                                     {{ video.title }}
                                 </h5>
                                 <div class="vc_video_meta">
-                                    <span (click)="toggleFavorite(video, $event)" title="Lưu vào cẩm nang hữu ích">
+                                    <span class="d-flex align-items-center gap-1"
+                                        (click)="toggleFavorite(video, $event)" title="Lưu vào cẩm nang hữu ích">
                                         <i class="bi text-danger"
                                             [ngClass]="isFavorite(video) ? 'bi-heart-fill' : 'bi-heart'"></i>
+                                        <span class="vc_video_views text-muted">{{ getLikeCount(video) }}</span>
                                     </span>
                                     <a href="javascript:void(0)" (click)="openVideoDetail(video)"
                                         class="vc_view_details">Xem chi tiết >></a>
@@ -136,9 +137,11 @@
                                 *ngIf="item.discount > 0 && item.price > 0 && (item.discount / item.price) * 100 > 0 && (item.discount / item.price) * 100 < 100">
                                 -{{ (item.discount / item.price * 100) | number:'1.0-0' }}%
                             </div>
-                            <a [routerLink]="['/product', getProductSlug(item)]" class="text-decoration-none text-dark d-block">
+                            <a [routerLink]="['/product', getProductSlug(item)]"
+                                class="text-decoration-none text-dark d-block">
                                 <div class="product-image">
-                                    <img [src]="item.image || 'assets/images/banner/About_us_Hero.png'" [alt]="item.name"
+                                    <img [src]="item.image || 'assets/images/banner/About_us_Hero.png'"
+                                        [alt]="item.name"
                                         (error)="$event.target.src='assets/images/banner/About_us_Hero.png'">
                                 </div>
                                 <h6 class="product-name" [title]="item.name">{{ item.name }}</h6>
@@ -151,7 +154,8 @@
                                 </div>
                             </a>
                             <div class="button-group">
-                                <button class="btn-cart" (click)="addRelatedToCart(item, $event)"><i class="bi bi-cart-plus-fill"></i></button>
+                                <button class="btn-cart" (click)="addRelatedToCart(item, $event)"><i
+                                        class="bi bi-cart-plus-fill"></i></button>
                                 <button class="btn-buy" (click)="buyNowRelated(item)">Mua ngay</button>
                             </div>
                         </div>
@@ -472,7 +476,7 @@
             </div>
         </div>
     </div>
-        <div *ngIf="!loading && !product" class="container py-5 text-center">
+    <div *ngIf="!loading && !product" class="container py-5 text-center">
         <div class="py-5">
             <img src="assets/images/banner/About_us_Hero.png" width="120" class="mb-4 opacity-50">
             <h2 class="text-secondary">Không tìm thấy sản phẩm này</h2>
@@ -522,9 +526,8 @@
             <!-- Họ tên (bắt buộc khi khách vãng lai) -->
             <div class="mb-3" *ngIf="!authService.currentUser()">
                 <label class="form-label fw-medium">Họ tên <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" placeholder="Nhập họ tên của bạn"
-                    [(ngModel)]="guestDisplayName" name="guestDisplayName"
-                    style="font-size: 0.95rem; border-radius: 8px;" />
+                <input type="text" class="form-control" placeholder="Nhập họ tên của bạn" [(ngModel)]="guestDisplayName"
+                    name="guestDisplayName" style="font-size: 0.95rem; border-radius: 8px;" />
             </div>
 
             <!-- Textarea -->

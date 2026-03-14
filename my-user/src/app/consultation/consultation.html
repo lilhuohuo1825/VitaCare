@@ -1,5 +1,14 @@
 <div class="consultation-page">
-  <div class="container consultation-container">
+  <div class="vc_container pt-2 pb-4">
+
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb-vc">
+        <li class="breadcrumb-item"><a routerLink="/">Trang chủ</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Tư vấn đơn thuốc</li>
+      </ol>
+    </nav>
+
     <div class="consultation-layout">
       <!-- Cột trái: form -->
       <div class="consultation-form-col">
@@ -12,205 +21,134 @@
           <div class="consultation-fields">
             <div class="consultation-row">
               <div class="consultation-field">
-                <label class="consultation-label">Họ tên <span class="consultation-label-required" aria-hidden="true">*</span></label>
-                <input
-                  type="text"
-                  class="input"
-                  placeholder="Họ và tên người đặt"
-                  [(ngModel)]="contactName"
-                />
+                <label class="consultation-label">Họ tên <span class="consultation-label-required"
+                    aria-hidden="true">*</span></label>
+                <input type="text" class="input" placeholder="Họ và tên người đặt" [(ngModel)]="contactName" />
               </div>
               <div class="consultation-field">
-                <label class="consultation-label">Số điện thoại <span class="consultation-label-required" aria-hidden="true">*</span></label>
-                <input
-                  type="tel"
-                  class="input"
-                  placeholder="Số điện thoại (ít nhất 10 chữ số)"
-                  [(ngModel)]="contactPhone"
-                  (blur)="validateContactPhone()"
+                <label class="consultation-label">Số điện thoại <span class="consultation-label-required"
+                    aria-hidden="true">*</span></label>
+                <input type="tel" class="input" placeholder="Số điện thoại (ít nhất 10 chữ số)"
+                  [(ngModel)]="contactPhone" (blur)="validateContactPhone()"
                   (ngModelChange)="contactPhoneError && validateContactPhone()"
-                  [class.consultation-input-error]="contactPhoneError"
-                />
+                  [class.consultation-input-error]="contactPhoneError" />
                 @if (contactPhoneError) {
-                  <span class="consultation-field-error">{{ contactPhoneError }}</span>
+                <span class="consultation-field-error">{{ contactPhoneError }}</span>
                 }
               </div>
             </div>
             <div class="consultation-note-wrap">
               <label class="consultation-label">Ghi chú</label>
-              <textarea
-                class="input consultation-textarea"
-                placeholder="Ghi chú (Không bắt buộc)"
-                rows="4"
-                [(ngModel)]="contactNote"
-              ></textarea>
-              <p class="consultation-hint text-secondary text-sm">
-                Ví dụ: Tôi cần tư vấn thuốc về bệnh đau dạ dày
-              </p>
+              <textarea class="input consultation-textarea" placeholder="Ví dụ: Tôi cần tư vấn thuốc về bệnh đau dạ dày"
+                rows="4" [(ngModel)]="contactNote"></textarea>
             </div>
           </div>
         </section>
 
-        <!-- Thêm ảnh đơn thuốc: tải hình ảnh ngay -->
+        <!-- Thêm ảnh đơn thuốc -->
         <section class="card consultation-card">
-          <h2 class="consultation-section-title">Thêm ảnh nếu có đơn thuốc (không bắt buộc)</h2>
-          <p class="consultation-desc consultation-desc-space text-secondary text-sm">Giúp dược sĩ tư vấn chính xác nhất</p>
-          <input
-            #prescriptionFileInput
-            type="file"
-            accept="image/*"
-            multiple
-            class="consultation-file-input-hidden"
-            (change)="onPrescriptionFilesSelected($event)"
-          />
-          @if (prescriptionImages.length > 0) {
+          <div class="consultation-card-header-row" (click)="togglePrescriptionUpload()">
+            <div class="consultation-card-header-left">
+              <h2 class="consultation-section-title">Thêm ảnh nếu có đơn thuốc (không bắt buộc)</h2>
+              <p class="consultation-desc text-secondary text-sm">Giúp dược sĩ tư vấn chính xác nhất</p>
+            </div>
+            <div class="consultation-add-icon" [class.rotated]="showPrescriptionUpload">
+              <i class="bi bi-plus-lg"></i>
+            </div>
+          </div>
+
+          <div class="consultation-upload-expand" *ngIf="showPrescriptionUpload">
+            <h3 class="consultation-upload-title">Ảnh chụp đơn thuốc</h3>
+            <input #prescriptionFileInput type="file" accept="image/*" multiple class="consultation-file-input-hidden"
+              (change)="onPrescriptionFilesSelected($event)" />
+
+            <div class="consultation-upload-dashed-box" (click)="addPrescriptionImage()">
+              <div class="consultation-upload-placeholder">
+                <i class="bi bi-camera-fill consultation-camera-icon"></i>
+                <span class="consultation-upload-text">Thêm tối đa 5 ảnh, mỗi ảnh dưới 5MB (định dạng jpg, jpeg,
+                  png)</span>
+              </div>
+            </div>
+
+            @if (prescriptionImages.length > 0) {
             <div class="consultation-prescription-previews">
               @for (img of prescriptionImages; track $index) {
-                <div class="consultation-prescription-preview">
-                  <img [src]="img" alt="Đơn thuốc" />
-                  <button type="button" class="consultation-prescription-remove" (click)="removePrescriptionImage($index); $event.stopPropagation()" title="Xóa ảnh">
-                    <i class="bi bi-x-lg"></i>
-                  </button>
-                </div>
+              <div class="consultation-prescription-preview">
+                <img [src]="img" alt="Đơn thuốc" />
+                <button type="button" class="consultation-prescription-remove"
+                  (click)="removePrescriptionImage($index); $event.stopPropagation()" title="Xóa ảnh">
+                  <i class="bi bi-x-lg"></i>
+                </button>
+              </div>
               }
             </div>
-          }
-          <div class="consultation-card-content consultation-add-row consultation-btn-add-image consultation-card-click" (click)="addPrescriptionImage()">
-            <span class="consultation-add-row-text font-medium">Thêm ảnh đơn thuốc</span>
+            }
+          </div>
+        </section>
+
+        <section class="card consultation-card">
+          <div class="consultation-card-header-row" (click)="addMedicine()">
+            <div class="consultation-card-header-left">
+              <h2 class="consultation-section-title">Thêm thuốc cần tư vấn (không bắt buộc)</h2>
+              <p class="consultation-desc text-secondary text-sm">Nhập theo tên thuốc hoặc sản phẩm</p>
+            </div>
             <div class="consultation-add-icon">
               <i class="bi bi-plus-lg"></i>
             </div>
           </div>
-        </section>
 
-        <!-- Thêm thuốc cần tư vấn -->
-        <section class="card consultation-card">
-          <h2 class="consultation-section-title">Thêm thuốc cần tư vấn (không bắt buộc)</h2>
-          <p class="consultation-desc consultation-desc-space text-secondary text-sm">Nhập theo tên thuốc hoặc sản phẩm</p>
-          <ng-container *ngIf="productsForConsultation.length > 0">
+          @if (productsForConsultation.length > 0) {
+          <div class="consultation-product-list-content">
             <ul class="consultation-product-list">
               <li *ngFor="let p of productsForConsultation; let i = index" class="consultation-product-item">
                 <div class="consultation-product-img-wrap">
                   <img *ngIf="p.image" [src]="p.image" [alt]="p.productName" class="consultation-product-img" />
                   <div *ngIf="!p.image" class="consultation-product-img consultation-product-img-placeholder"></div>
                 </div>
-                <span class="consultation-product-name font-bold">{{ p.productName }}</span>
-                <span class="consultation-product-qty text-secondary text-sm">{{ p.quantity ?? 1 }} x {{ p.unit ?? 'SP' }}</span>
-                <button type="button" class="consultation-product-remove" (click)="removeProduct(i); $event.stopPropagation()" title="Xóa">
+                <div class="consultation-product-info">
+                  <span class="consultation-product-name font-bold">{{ p.productName }}</span>
+                  <span class="consultation-product-qty text-secondary text-sm">{{ p.quantity ?? 1 }} x {{ p.unit ??
+                    'SP'
+                    }}</span>
+                </div>
+                <button type="button" class="consultation-product-remove"
+                  (click)="removeProduct(i); $event.stopPropagation()" title="Xóa">
                   <i class="bi bi-x-lg"></i>
                 </button>
               </li>
             </ul>
-          </ng-container>
-          <div class="consultation-card-content consultation-add-row consultation-btn-add-product consultation-card-click" (click)="addMedicine()">
-            <span class="consultation-add-row-text font-medium">Thêm thuốc / sản phẩm</span>
-            <div class="consultation-add-icon">
-              <i class="bi bi-plus-lg"></i>
-            </div>
           </div>
+          }
         </section>
       </div>
 
-      <!-- Popup chọn sản phẩm: tìm kiếm + bộ lọc -->
-      <div class="consultation-modal-overlay" *ngIf="showAddProductModal" (click)="closeAddProductModal()">
-        <div class="consultation-modal" (click)="$event.stopPropagation()">
-          <div class="consultation-modal-header">
-            <h3 class="consultation-modal-title">Chọn sản phẩm cần tư vấn</h3>
-            <button type="button" class="consultation-modal-close" (click)="closeAddProductModal()" aria-label="Đóng">
-              <i class="bi bi-x-lg"></i>
-            </button>
-          </div>
-          <div class="consultation-modal-body">
-            <div class="consultation-modal-filters">
-              <div class="consultation-search-wrap">
-                <i class="bi bi-search consultation-search-icon"></i>
-                <input
-                  type="text"
-                  class="input consultation-search-input"
-                  placeholder="Tìm theo tên thuốc hoặc sản phẩm..."
-                  [(ngModel)]="searchKeyword"
-                  (keyup.enter)="runSearch()"
-                />
-                <button type="button" class="btn btn-primary consultation-search-btn" (click)="runSearch()">Tìm kiếm</button>
-              </div>
-              <div class="consultation-filter-row">
-                <div class="consultation-filter-group">
-                  <label class="consultation-label">Danh mục</label>
-                  <select class="input consultation-select" [(ngModel)]="selectedCategorySlug" (ngModelChange)="onFilterChange()">
-                    <option value="">Tất cả danh mục</option>
-                    <option *ngFor="let c of categories" [value]="c.slug">{{ c.name }}</option>
-                  </select>
-                </div>
-                <div class="consultation-filter-group">
-                  <label class="consultation-label">Khoảng giá</label>
-                  <select class="input consultation-select" [(ngModel)]="selectedPriceRangeIndex" (ngModelChange)="onPriceRangeChange(); onFilterChange()">
-                    <option *ngFor="let r of priceRanges; let i = index" [value]="i">
-                      {{ r.label }}
-                    </option>
-                  </select>
-                </div>
-              </div>
-            </div>
-            <div class="consultation-modal-list-wrap">
-              <p class="consultation-modal-hint text-secondary text-sm" *ngIf="!searchLoading && searchProducts.length === 0">
-                Nhập từ khóa hoặc chọn bộ lọc rồi bấm Tìm kiếm.
-              </p>
-              <div class="consultation-modal-loading" *ngIf="searchLoading">
-                <i class="bi bi-arrow-repeat icon-spin"></i> Đang tải...
-              </div>
-              <ul class="consultation-modal-product-list" *ngIf="!searchLoading && searchProducts.length > 0">
-                <li
-                  *ngFor="let prod of searchProducts"
-                  class="consultation-modal-product-item consultation-card-click"
-                  (click)="selectProductForConsultation(prod)"
-                >
-                  <div class="consultation-product-img-wrap">
-                    <img *ngIf="prod.image" [src]="prod.image" [alt]="prod.name" class="consultation-product-img" />
-                    <div *ngIf="!prod.image" class="consultation-product-img consultation-product-img-placeholder"></div>
-                  </div>
-                  <div class="consultation-modal-product-info">
-                    <span class="consultation-product-name font-bold">{{ prod.name }}</span>
-                    <span class="consultation-product-qty text-secondary text-sm">{{ prod.unit || 'Hộp' }}</span>
-                  </div>
-                  <i class="bi bi-plus-lg consultation-modal-add-icon"></i>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Cột phải: quy trình + nút gửi -->
+      <!-- Cột phải: tóm tắt -->
       <aside class="consultation-sidebar">
-        <button type="button" class="btn btn-primary btn-lg w-full consultation-submit" (click)="submitRequest()">
-          Gửi yêu cầu tư vấn
-        </button>
+        <div class="consultation-submit-wrap">
+          <button type="button" class="consultation-submit" (click)="submitConsultation()" [disabled]="isSubmitting">
+            <span *ngIf="!isSubmitting">Gửi yêu cầu tư vấn</span>
+            <span *ngIf="isSubmitting">Đang gửi...</span>
+          </button>
+        </div>
 
-        <section class="card consultation-card">
+        <div class="card consultation-card">
           <h2 class="consultation-section-title">Quy trình tư vấn tại VitaCare</h2>
-          <ol class="consultation-steps">
+          <ul class="consultation-steps">
             <li class="consultation-step">
-              <span class="consultation-step-num">1</span>
-              <span>Quý khách vui lòng điền thông tin liên hệ, cung cấp ảnh đơn thuốc hoặc tên sản phẩm cần tư vấn (nếu có).</span>
+              <div class="consultation-step-num">1</div>
+              <div>Quý khách vui lòng điền thông tin liên hệ, cung cấp ảnh đơn thuốc hoặc tên sản phẩm cần tư vấn (nếu
+                có).</div>
             </li>
             <li class="consultation-step">
-              <span class="consultation-step-num">2</span>
-              <span>Dược sĩ chuyên môn của nhà thuốc sẽ gọi lại tư vấn miễn phí cho quý khách.</span>
+              <div class="consultation-step-num">2</div>
+              <div>Dược sĩ chuyên môn của nhà thuốc sẽ gọi lại tư vấn miễn phí cho quý khách.</div>
             </li>
             <li class="consultation-step">
-              <span class="consultation-step-num">3</span>
-              <span>Quý khách có thể tới các Nhà thuốc Long Châu gần nhất để được hỗ trợ mua hàng trực tiếp.</span>
+              <div class="consultation-step-num">3</div>
+              <div>Quý khách có thể tới các Nhà thuốc Long Châu gần nhất để được hỗ trợ mua hàng trực tiếp.</div>
             </li>
-          </ol>
-        </section>
-
-        <section class="card consultation-card">
-          <h2 class="consultation-section-title">Lưu ý</h2>
-          <ul class="consultation-notes">
-            <li>Nếu mua thuốc kê đơn, vui lòng mang theo đơn thuốc.</li>
-            <li>Dược sĩ vẫn sẽ chủ động tư vấn cho quý khách kể cả trong trường hợp không có đơn thuốc.</li>
           </ul>
-        </section>
+        </div>
 
         <a routerLink="/account" [queryParams]="{ menu: 'prescriptions' }" class="consultation-btn-prescription">
           <i class="bi bi-file-earmark-text"></i>
@@ -220,39 +158,97 @@
     </div>
   </div>
 
-  <!-- Popup tạo đơn thuốc tư vấn thành công (giống popup đặt hàng) -->
-  @if (showPrescriptionSuccess) {
-    <div class="vc-prescription-success-overlay" (click)="closePrescriptionSuccess()">
-      <div class="vc-prescription-success-modal" (click)="$event.stopPropagation()">
-        <button type="button" class="vc-prescription-success-close" (click)="closePrescriptionSuccess()">
+  <!-- Popup chọn sản phẩm -->
+  <div class="consultation-modal-overlay" *ngIf="showAddProductModal" (click)="closeAddProductModal()">
+    <div class="consultation-modal" (click)="$event.stopPropagation()">
+      <div class="consultation-modal-header">
+        <h3 class="consultation-modal-title">Chọn sản phẩm cần tư vấn</h3>
+        <button type="button" class="consultation-modal-close" (click)="closeAddProductModal()">
           <i class="bi bi-x-lg"></i>
         </button>
-
-        <div class="vc-prescription-success-icon">
-          <i class="bi bi-check-circle-fill"></i>
+      </div>
+      <div class="consultation-modal-body">
+        <!-- Bộ lọc -->
+        <div class="consultation-modal-filters">
+          <div class="consultation-search-wrap">
+            <i class="bi bi-search consultation-search-icon"></i>
+            <input type="text" class="consultation-search-input" placeholder="Tìm tên sản phẩm..."
+              [(ngModel)]="searchKeyword" (ngModelChange)="runSearch()" />
+          </div>
+          <div class="consultation-filter-row">
+            <div class="consultation-filter-group">
+              <label class="consultation-label">Danh mục</label>
+              <select class="consultation-select" [(ngModel)]="selectedCategorySlug" (change)="onFilterChange()">
+                <option value="">Tất cả danh mục</option>
+                <option *ngFor="let cat of categories" [value]="cat.slug">{{ cat.name }}</option>
+              </select>
+            </div>
+            <div class="consultation-filter-group">
+              <label class="consultation-label">Khoảng giá</label>
+              <select class="consultation-select" [(ngModel)]="selectedPriceRangeIndex" (change)="onFilterChange()">
+                <option *ngFor="let r of priceRanges; let i = index" [value]="i">{{ r.label }}</option>
+              </select>
+            </div>
+          </div>
         </div>
 
-        <h3 class="vc-prescription-success-title">Đã tạo yêu cầu tư vấn đơn thuốc!</h3>
+        <!-- Danh sách kết quả -->
+        <div class="consultation-modal-list-wrap">
+          <div *ngIf="searchLoading" class="consultation-modal-loading">
+            <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+            <span>Đang tải sản phẩm...</span>
+          </div>
 
-        <p class="vc-prescription-success-desc">
-          Cảm ơn bạn đã gửi thông tin tại <strong>VitaCare</strong>.<br>
-          Dược sĩ sẽ liên hệ tư vấn trong thời gian sớm nhất.
-        </p>
+          <div *ngIf="!searchLoading && searchProducts.length === 0" class="consultation-modal-hint">
+            Không tìm thấy sản phẩm phù hợp.
+          </div>
 
-        <div class="vc-prescription-success-code" *ngIf="successPrescriptionId">
-          <span class="vc-prescription-success-code-label">Mã đơn thuốc</span>
-          <span class="vc-prescription-success-code-value">{{ successPrescriptionId }}</span>
-        </div>
-
-        <div class="vc-prescription-success-actions">
-          <button type="button" class="vc-prescription-success-btn vc-prescription-success-btn-primary" *ngIf="authService.currentUser()" (click)="goToPrescriptions()">
-            Xem đơn thuốc
-          </button>
-          <button type="button" class="vc-prescription-success-btn vc-prescription-success-btn-secondary" (click)="closePrescriptionSuccess()">
-            Về trang chủ
-          </button>
+          <ul *ngIf="!searchLoading && searchProducts.length > 0" class="consultation-modal-product-list">
+            <li *ngFor="let p of searchProducts" class="consultation-modal-product-item"
+              (click)="selectProductForConsultation(p)">
+              <div class="consultation-product-img-wrap">
+                <img [src]="p.image || 'assets/icon/medical_16660084.png'" class="consultation-product-img"
+                  [alt]="p.name" />
+              </div>
+              <div class="consultation-modal-product-info">
+                <span class="consultation-product-name font-bold">{{ p.name }}</span>
+                <span class="text-secondary text-sm">
+                  <ng-container *ngIf="p.price > 0; else consultPrice">
+                    {{ p.price | number:'1.0-0' }}đ / {{ p.unit || 'Hộp' }}
+                  </ng-container>
+                  <ng-template #consultPrice>
+                    <span class="text-primary font-bold">Cần tư vấn từ dược sĩ</span> / {{ p.unit || 'Hộp' }}
+                  </ng-template>
+                </span>
+              </div>
+              <i class="bi bi-plus-circle consultation-modal-add-icon"></i>
+            </li>
+          </ul>
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- Popup thành công -->
+  @if (showPrescriptionSuccess) {
+  <div class="vc-prescription-success-overlay" (click)="closePrescriptionSuccess()">
+    <div class="vc-prescription-success-modal" (click)="$event.stopPropagation()">
+      <button type="button" class="vc-prescription-success-close" (click)="closePrescriptionSuccess()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+      <div class="vc-prescription-success-icon"><i class="bi bi-check2-circle"></i></div>
+      <h2 class="vc-prescription-success-title">Gửi yêu cầu thành công!</h2>
+      <p class="vc-prescription-success-desc">VitaCare đã tiếp nhận yêu cầu tư vấn của quý khách. Dược sĩ sẽ liên hệ lại
+        trong thời gian sớm nhất.</p>
+      <div class="vc-prescription-success-code">Mã yêu cầu: <span class="vc-prescription-success-code-value">{{
+          successPrescriptionId }}</span></div>
+      <div class="vc-prescription-success-actions">
+        <button type="button" class="vc-prescription-success-btn vc-prescription-success-btn-primary"
+          *ngIf="authService.currentUser()" (click)="goToPrescriptions()">Xem đơn thuốc</button>
+        <button type="button" class="vc-prescription-success-btn vc-prescription-success-btn-secondary"
+          (click)="closePrescriptionSuccess()">Về trang chủ</button>
+      </div>
+    </div>
+  </div>
   }
 </div>

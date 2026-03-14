@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, ChangeDetectorRef, ViewChild, ElementRef } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
@@ -33,6 +33,7 @@ export class Consultation implements OnInit {
   private http = inject(HttpClient);
   private toast = inject(ToastService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
 
   @ViewChild('prescriptionFileInput') prescriptionFileInput?: ElementRef<HTMLInputElement>;
 
@@ -49,6 +50,7 @@ export class Consultation implements OnInit {
 
   /** Popup thêm sản phẩm */
   showAddProductModal = false;
+  showPrescriptionUpload = false; // Flag to toggle the upload area
   searchKeyword = '';
   selectedCategorySlug = '';
   selectedMinPrice: number | null = null;
@@ -68,6 +70,8 @@ export class Consultation implements OnInit {
   /** Popup thông báo tạo đơn thuốc tư vấn thành công */
   showPrescriptionSuccess = false;
   successPrescriptionId = '';
+  isSubmitting = false;
+
 
   ngOnInit(): void {
     const fromCart = this.consultationCartService.getProductsFromCart();
@@ -112,7 +116,7 @@ export class Consultation implements OnInit {
             productName: p.productName,
             quantity: p.quantity ?? 1,
             unit: p.unit ?? 'SP',
-            image: p.image,
+            image: this.normalizeImageUrl(p.image),
             _id: p._id,
           })),
         ];
@@ -123,7 +127,74 @@ export class Consultation implements OnInit {
       this.consultationCartService.clearFromPrescription();
     }
 
+    // Lấy query param productId để tự động thêm vào danh sách
+    this.route.queryParams.subscribe(params => {
+      const productId = params['productId'];
+      if (productId) {
+        this.autoFetchProductForConsultation(productId);
+      }
+    });
+
     this.loadCategories();
+    // Tự động tạo ghi chú nếu có sản phẩm từ giỏ hàng hoặc tư vấn lại
+    this.updateAutoNote();
+  }
+
+  autoFetchProductForConsultation(productId: string): void {
+    // Sử dụng ProductService để lấy chi tiết sản phẩm và tự động chuẩn hoá URL
+    this.productService.getProductBySlug(productId).subscribe({
+      next: (product) => {
+        if (product) {
+          const exist = this.productsForConsultation.find(p => p._id === (product._id || product.id));
+          if (!exist) {
+            this.productsForConsultation.push({
+              productName: product.name || product.productName || '',
+              quantity: 1,
+              unit: product.unit || 'Hộp',
+              image: this.normalizeImageUrl(product.image),
+              _id: product._id || product.id,
+            });
+
+            this.updateAutoNote();
+            this.cdr.detectChanges();
+          }
+        }
+      },
+      error: (err) => console.error('[Consultation] Error auto fetching product:', err)
+    });
+  }
+
+  updateAutoNote(): void {
+    if (this.productsForConsultation.length === 0) {
+      if (this.contactNote.startsWith('Tôi cần tư vấn')) {
+        this.contactNote = '';
+      }
+      return;
+    }
+
+    // Nếu người dùng đã nhập một nội dung gì đó khác với định dạng auto, chúng ta không đè lên
+    // (Kiểm tra đơn giản bằng cách xem nó có bắt đầu bằng "Tôi cần tư vấn" không)
+    if (this.contactNote && !this.contactNote.startsWith('Tôi cần tư vấn')) {
+      return;
+    }
+
+    if (this.productsForConsultation.length === 1) {
+      this.contactNote = `Tôi cần tư vấn về sản phẩm ${this.productsForConsultation[0].productName}`;
+    } else {
+      let note = 'Tôi cần tư vấn về các sản phẩm:\n';
+      this.productsForConsultation.forEach(p => {
+        note += `- ${p.productName}\n`;
+      });
+      this.contactNote = note.trim();
+    }
+    this.cdr.detectChanges();
+  }
+
+  private normalizeImageUrl(url?: string): string {
+    if (!url) return 'assets/icon/medical_16660084.png';
+    if (url.startsWith('http') || url.startsWith('assets/')) return url;
+    const base = 'http://localhost:3000';
+    return url.startsWith('/') ? `${base}${url}` : `${base}/${url}`;
   }
 
   loadCategories(): void {
@@ -138,6 +209,10 @@ export class Consultation implements OnInit {
         this.cdr.detectChanges();
       },
     });
+  }
+
+  togglePrescriptionUpload(): void {
+    this.showPrescriptionUpload = !this.showPrescriptionUpload;
   }
 
   addPrescriptionImage(): void {
@@ -238,11 +313,15 @@ export class Consultation implements OnInit {
       image: product.image,
       _id: product._id,
     });
+    this.updateAutoNote();
+    this.toast.showSuccess(`Đã thêm ${name} vào danh sách tư vấn`);
+    this.closeAddProductModal();
     this.cdr.detectChanges();
   }
 
   removeProduct(index: number): void {
     this.productsForConsultation.splice(index, 1);
+    this.updateAutoNote();
   }
 
   /** Ràng buộc SĐT: ít nhất 10 chữ số, chỉ số. Trả về true nếu hợp lệ. */
@@ -269,12 +348,14 @@ export class Consultation implements OnInit {
     return true;
   }
 
-  submitRequest(): void {
+  submitConsultation(): void {
     if (!this.contactName.trim()) {
       this.toast.showError('Vui lòng nhập họ tên.');
       return;
     }
     if (!this.validateContactPhone()) return;
+
+    this.isSubmitting = true;
 
     const user = this.authService.currentUser();
     const userId = (user as any)?.user_id as string | undefined;
@@ -307,14 +388,14 @@ export class Consultation implements OnInit {
             // Sau khi gửi thành công có thể reset ghi chú, ảnh
             this.contactNote = '';
             this.prescriptionImages = [];
-          } else {
-            this.toast.showError(res.message || 'Không thể tạo yêu cầu tư vấn đơn thuốc.');
           }
-          this.cdr.detectChanges();
         },
         error: (err) => {
-          console.error('[Consultation] submitRequest error:', err);
+          console.error('[Consultation] submitConsultation error:', err);
           this.toast.showError('Lỗi kết nối máy chủ. Vui lòng thử lại.');
+        },
+        complete: () => {
+          this.isSubmitting = false;
           this.cdr.detectChanges();
         },
       });

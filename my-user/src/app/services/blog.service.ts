@@ -4,12 +4,12 @@ import { Observable, of } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 
 @Injectable({
-    providedIn: 'root'
+  providedIn: 'root'
 })
 export class BlogService {
-    /** Dùng /api để proxy qua ng serve (proxy.conf.json → localhost:3000) */
-    private apiUrl = '/api';
-    private readonly apiBase = '';
+  /** Dùng /api để proxy qua ng serve (proxy.conf.json → localhost:3000) */
+  private apiUrl = '/api';
+  private readonly apiBase = '';
 
   /** Cache đơn giản để tránh gọi lại API nhiều lần cho cùng một bộ filters trong thời gian ngắn. */
   private readonly cache = new Map<string, { timestamp: number; data: any }>();
@@ -19,23 +19,23 @@ export class BlogService {
   private readonly cacheBySlug = new Map<string, { timestamp: number; data: any }>();
   private readonly cacheBySlugTTLms = 120_000; // 2 phút
 
-    /** Chuẩn hoá URL ảnh từ backend (blog). */
-    private normalizeImageUrl(src?: string | null): string | undefined {
-        if (!src) return undefined;
-        if (typeof src !== 'string') return src as any;
-        if (src.startsWith('http://') || src.startsWith('https://') || src.startsWith('assets/')) {
-            return src;
-        }
-        if (src.startsWith('/')) return src;
-        return `/${src}`;
+  /** Chuẩn hoá URL ảnh từ backend (blog). */
+  private normalizeImageUrl(src?: string | null): string | undefined {
+    if (!src) return undefined;
+    if (typeof src !== 'string') return src as any;
+    if (src.startsWith('http://') || src.startsWith('https://') || src.startsWith('assets/')) {
+      return src;
     }
+    if (src.startsWith('/')) return src;
+    return `/${src}`;
+  }
 
-    constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) { }
 
-    /** Lấy blog theo chỉ số sức khỏe (BMI, bloodPressure, ...). Trừ medication. */
-    getBlogsByIndicator(healthIndicator: string, limit = 6): Observable<any> {
-        return this.getBlogs({ healthIndicator, limit, page: 1 });
-    }
+  /** Lấy blog theo chỉ số sức khỏe (BMI, bloodPressure, ...). Trừ medication. */
+  getBlogsByIndicator(healthIndicator: string, limit = 6): Observable<any> {
+    return this.getBlogs({ healthIndicator, limit, page: 1 });
+  }
 
   getBlogs(filters: any = {}): Observable<any> {
     const key = JSON.stringify(filters || {});
@@ -58,14 +58,19 @@ export class BlogService {
     return this.http.get<any>(`${this.apiUrl}/blogs`, { params }).pipe(
       map((res) => {
         const blogs = Array.isArray(res?.blogs)
-          ? res.blogs.map((b: any) => ({
+          ? res.blogs.map((b: any) => {
+            let pImg = b.primaryImage;
+            if (typeof pImg === 'string') pImg = { url: pImg };
+
+            return {
               ...b,
-              primaryImage: b.primaryImage
-                ? { ...b.primaryImage, url: this.normalizeImageUrl(b.primaryImage.url) }
-                : b.primaryImage,
+              primaryImage: (pImg && pImg.url)
+                ? { ...pImg, url: this.normalizeImageUrl(pImg.url) }
+                : null,
               image: this.normalizeImageUrl(b.image) || b.image,
               imageUrl: this.normalizeImageUrl(b.imageUrl) || b.imageUrl,
-            }))
+            };
+          })
           : [];
         return { ...res, blogs };
       }),
@@ -95,11 +100,15 @@ export class BlogService {
     return this.http.get<any>(`${this.apiUrl}/blogs/${encodeURIComponent(id)}`).pipe(
       map((b) => {
         if (!b || b.message === 'Not found') return b;
+
+        let pImg = b.primaryImage;
+        if (typeof pImg === 'string') pImg = { url: pImg };
+
         return {
           ...b,
-          primaryImage: b.primaryImage
-            ? { ...b.primaryImage, url: this.normalizeImageUrl(b.primaryImage.url) }
-            : b.primaryImage,
+          primaryImage: (pImg && pImg.url)
+            ? { ...pImg, url: this.normalizeImageUrl(pImg.url) }
+            : null,
           image: this.normalizeImageUrl(b.image) || b.image,
           imageUrl: this.normalizeImageUrl(b.imageUrl) || b.imageUrl,
         };

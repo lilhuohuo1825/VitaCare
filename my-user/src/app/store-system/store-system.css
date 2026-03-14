@@ -36,9 +36,10 @@
    PAGE WRAPPER
 ═══════════════════════════════════════════ */
 .page-wrapper {
-  max-width: 1200px;
+  max-width: var(--container-max-width, 1200px) !important;
+  width: 100% !important;
   margin: 0 auto;
-  padding: 24px;
+  padding: 16px var(--container-padding, 15px) 24px var(--container-padding, 15px) !important;
   font-family: var(--font-body), sans-serif;
   background-color: transparent;
 }
@@ -51,27 +52,10 @@
 
 /* PAGE HEADER */
 .page-header-vc {
-  margin-bottom: 20px;
+  margin-bottom: 12px;
 }
 
-.breadcrumb {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 13px;
-  color: var(--vc-neutral-60);
-  margin-bottom: 10px;
-}
 
-.breadcrumb a {
-  color: var(--vc-primary);
-  text-decoration: none;
-  font-weight: 500;
-}
-
-.sep {
-  color: var(--vc-neutral-50);
-}
 
 .page-title {
   font-family: var(--font-title), sans-serif;

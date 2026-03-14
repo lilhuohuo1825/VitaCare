@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, inject, ChangeDetectorRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
@@ -61,6 +61,7 @@ export class Order implements OnInit, OnDestroy {
   private cdr = inject(ChangeDetectorRef);
   private toastService = inject(ToastService);
   private storeService = inject(StoreService);
+  private location = inject(Location);
 
   cart: Cart | null = null;
   cartLoading = true;
@@ -769,7 +770,7 @@ export class Order implements OnInit, OnDestroy {
       this.router.navigate(['/']);
       return;
     }
-    this.router.navigate(['/']);
+    this.location.back();
   }
 
   /** Nhãn hiển thị phí vận chuyển: "Miễn phí" hoặc "0₫" khi miễn phí, ngược lại số tiền */
@@ -833,7 +834,7 @@ export class Order implements OnInit, OnDestroy {
     const payload: any = {
       user_id: userId,
       paymentMethod: this.paymentMethod,
-      statusPayment: this.paymentMethod === 'cod' ? 'unpaid' : 'pending',
+      statusPayment: this.paymentMethod === 'cod' ? 'unpaid' : 'paid',
       atPharmacy: this.deliveryTab === 'pharmacy',
       pharmacyAddress: this.deliveryTab === 'pharmacy' && this.selectedStore
         ? `${this.selectedStore.ten_cua_hang} - ${this.selectedStore.dia_chi?.dia_chi_day_du}, ${this.selectedStore.dia_chi?.phuong_xa}, ${this.selectedStore.dia_chi?.quan_huyen}, ${this.selectedStore.dia_chi?.tinh_thanh}`
@@ -856,6 +857,7 @@ export class Order implements OnInit, OnDestroy {
         unit: i.unit || 'Hộp',
         hasPromotion: i.hasPromotion || false,
         image: i.image || '',
+        slug: (i as any).slug || '',
       })),
       shippingInfo: this.deliveryTab === 'home' ? {
         fullName,

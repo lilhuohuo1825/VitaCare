@@ -1,15 +1,13 @@
 <div class="bmi-page">
     <!-- Breadcrumb -->
-    <div class="breadcrumb-wrapper">
-        <div class="container">
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a routerLink="/">Trang chủ</a></li>
-                    <li class="breadcrumb-item"><a routerLink="/health">Sổ sức khoẻ</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Chỉ số BMI/BMR</li>
-                </ol>
-            </nav>
-        </div>
+    <div class="vc_container pt-2">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb-vc">
+                <li class="breadcrumb-item"><a routerLink="/">Trang chủ</a></li>
+                <li class="breadcrumb-item"><a routerLink="/health">Sổ sức khoẻ</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Chỉ số BMI/BMR</li>
+            </ol>
+        </nav>
     </div>
 
     <div class="container bmi-container">
@@ -89,7 +87,8 @@
                 <!-- Actions -->
                 <div class="bmi-actions">
                     <button type="button" class="bmi-btn bmi-btn--reset" (click)="reset()">Đặt lại</button>
-                    <button type="button" class="bmi-btn bmi-btn--save" *ngIf="authService.currentUser()" (click)="save()">Lưu kết quả</button>
+                    <button type="button" class="bmi-btn bmi-btn--save" *ngIf="authService.currentUser()"
+                        (click)="save()">Lưu kết quả</button>
                 </div>
             </div>
         </div>
@@ -99,7 +98,8 @@
         <section class="bmi-related-blogs">
             <div class="bmi-blogs-header">
                 <h2 class="bmi-blogs-title">Góc sức khỏe</h2>
-                <a routerLink="/products" [queryParams]="{ keyword: 'BMI', mode: 'article' }" class="bmi-blogs-more">Xem thêm</a>
+                <a routerLink="/products" [queryParams]="{ keyword: 'BMI', mode: 'article' }" class="bmi-blogs-more">Xem
+                    thêm</a>
             </div>
             <div class="bmi-blogs-layout">
                 @if (bmiBlogs()[0]; as mainBlog) {
@@ -135,7 +135,8 @@
         <section class="bmi-related-blogs">
             <div class="bmi-blogs-header">
                 <h2 class="bmi-blogs-title">Góc sức khỏe</h2>
-                <a routerLink="/products" [queryParams]="{ keyword: 'BMR', mode: 'article' }" class="bmi-blogs-more">Xem thêm</a>
+                <a routerLink="/products" [queryParams]="{ keyword: 'BMR', mode: 'article' }" class="bmi-blogs-more">Xem
+                    thêm</a>
             </div>
             <div class="bmi-blogs-layout">
                 @if (bmrBlogs()[0]; as mainBlog) {
