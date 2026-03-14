@@ -240,7 +240,7 @@ export class BlogCategory implements OnInit {
     this.currentCategoryItems = cat;
     if (cat) {
       this.categoryName = cat.name;
-      this.titleService.setTitle(cat.name + ' - Bài viết');
+      this.titleService.setTitle(cat.name + ' - Góc sức khoẻ');
     } else {
       this.categoryName = 'Danh mục bài viết';
     }

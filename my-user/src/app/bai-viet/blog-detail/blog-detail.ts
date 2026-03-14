@@ -121,14 +121,14 @@ export class BlogDetail implements OnInit {
   }
 
   get categoryName(): string {
-    if (!this.blog) return 'Bài viết';
+    if (!this.blog) return 'Góc sức khoẻ';
     const cats = this.blog.categories;
     if (Array.isArray(cats) && cats.length > 0) {
       const first = cats[0];
       const name = (first as any)?.category?.name ?? (first as any)?.name;
       if (name) return name;
     }
-    return (this.blog as any).categoryName ?? 'Bài viết';
+    return (this.blog as any).categoryName ?? 'Góc sức khoẻ';
   }
 
   get authorName(): string {
@@ -289,7 +289,7 @@ export class BlogDetail implements OnInit {
           .map((b) => {
             const s = (b.slug || (b as any)._id?.toString() || '').replace(/^bai-viet\/?/i, '').trim();
             return {
-              title: b.title || b.name || 'Bài viết',
+              title: b.title || b.name || 'Góc sức khoẻ',
               link: s ? `/bai-viet/${s}` : undefined,
             };
           });

@@ -1,0 +1,37 @@
+<main class="cd-page">
+    <div class="cd-container">
+        <!-- Breadcrumb -->
+        <nav class="cd-breadcrumb">
+            <a routerLink="/">Trang chủ</a>
+            <span class="cd-sep">/</span>
+            <a routerLink="/bai-viet">Góc sức khỏe</a>
+            <span class="cd-sep">/</span>
+            <span class="cd-current">Chuyên đề</span>
+        </nav>
+
+        <header class="cd-header">
+            <h1 class="cd-title">Chuyên đề nổi bật</h1>
+            <p class="cd-subtitle">Tổng hợp các chủ đề sức khỏe hữu ích được quan tâm nhất tại VitaCare.</p>
+        </header>
+
+        <!-- Loading State -->
+        <div *ngIf="loading" class="cd-loading">
+            <div class="cd-spinner"></div>
+            <p>Đang tải danh sách chuyên đề...</p>
+        </div>
+
+        <!-- Topics Grid -->
+        <div *ngIf="!loading" class="cd-grid">
+            <a *ngFor="let item of featuredTopicCategories" [routerLink]="['/bai-viet/danh-muc', item.slug]"
+                class="cd-card">
+                <div class="cd-card-content">
+                    <span class="cd-card-tag"># {{ item.name }}</span>
+                    <div class="cd-card-footer">
+                        <span class="cd-card-count">{{ item.count }} bài viết</span>
+                        <i class="bi bi-arrow-right"></i>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+</main>

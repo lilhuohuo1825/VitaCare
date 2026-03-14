@@ -124,11 +124,15 @@ export const routes: Routes = [
   },
   {
     path: 'bai-viet/danh-muc/:categorySlug/:subcategorySlug',
-    loadComponent: () => import('./bai-viet/blog-category/blog-category').then(m => m.BlogCategory),
+    loadComponent: () => import('./bai-viet/blog-sub-category/blog-sub-category').then(m => m.BlogSubCategory),
   },
   {
     path: 'bai-viet/danh-muc/:categorySlug',
     loadComponent: () => import('./bai-viet/blog-category/blog-category').then(m => m.BlogCategory),
+  },
+  {
+    path: 'chuyen-de',
+    loadComponent: () => import('./bai-viet/chuyen-de/chuyen-de').then(m => m.ChuyenDe),
   },
   {
     path: 'bai-viet/:slug',

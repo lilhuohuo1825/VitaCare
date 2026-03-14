@@ -24,7 +24,7 @@
           <a *ngIf="mainBlog" [routerLink]="getBlogDetailLink(mainBlog)" class="bv-blog-main">
             <div class="bv-blog-main-img">
               <img [src]="mainBlog.image || 'assets/placeholder/blog-main.jpg'" [alt]="mainBlog.title" />
-              <span class="bv-badge">{{ mainBlog.categoryName || 'Bài viết' }}</span>
+              <span class="bv-badge">{{ mainBlog.categoryName || 'Góc sức khoẻ' }}</span>
             </div>
             <div class="bv-blog-main-body">
               <h3>{{ mainBlog.title }}</h3>
@@ -35,7 +35,7 @@
             <a *ngFor="let b of relatedBlogs" [routerLink]="getBlogDetailLink(b)" class="bv-blog-side-item">
               <img [src]="b.image || 'assets/placeholder/blog-thumb.jpg'" [alt]="b.title" loading="lazy" />
               <div class="bv-blog-side-content">
-                <span class="bv-badge-sm">{{ b.categoryName || 'Bài viết' }}</span>
+                <span class="bv-badge-sm">{{ b.categoryName || 'Góc sức khoẻ' }}</span>
                 <span class="bv-blog-side-title">{{ b.title }}</span>
               </div>
             </a>
@@ -349,6 +349,7 @@
                   </a>
                 </ng-container>
               </div>
+              <a routerLink="/chuyen-de" class="bv-ft-viewall">Xem tất cả <i class="bi bi-chevron-right"></i></a>
             </div>
             <div class="bv-expert-team-box">
               <h3 class="bv-et-title">Đội ngũ chuyên môn</h3>

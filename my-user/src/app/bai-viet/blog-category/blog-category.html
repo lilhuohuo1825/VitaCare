@@ -4,7 +4,7 @@
         <nav class="bv-cat-breadcrumb">
             <a routerLink="/" class="text-secondary"><i class="bi bi-house-door"></i> Trang chủ</a>
             <i class="bi bi-chevron-right separator"></i>
-            <a routerLink="/bai-viet" class="text-secondary">Bài viết</a>
+            <a routerLink="/bai-viet" class="text-secondary">Góc sức khoẻ</a>
             <i class="bi bi-chevron-right separator"></i>
             <ng-container *ngIf="subcat">
                 <a [routerLink]="['/bai-viet/danh-muc', categorySlug]" class="text-secondary">{{ categoryName }}</a>

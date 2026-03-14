@@ -1,0 +1,156 @@
+.cd-page {
+    background: #f0f7ff;
+    padding: 32px 0 64px;
+    min-height: 80vh;
+    font-family: Inter, system-ui, -apple-system, sans-serif;
+}
+
+.cd-container {
+    width: min(1200px, calc(100% - 40px));
+    margin: 0 auto;
+}
+
+.cd-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 24px;
+    font-size: 14px;
+    color: #5f6368;
+}
+
+.cd-breadcrumb a {
+    text-decoration: none;
+    color: #1a73e8;
+    transition: color 0.2s;
+}
+
+.cd-breadcrumb a:hover {
+    color: #1557b0;
+    text-decoration: underline;
+}
+
+.cd-sep {
+    color: #9aa0a6;
+}
+
+.cd-current {
+    color: #202124;
+    font-weight: 500;
+}
+
+.cd-header {
+    margin-bottom: 40px;
+    text-align: center;
+}
+
+.cd-title {
+    font-size: 32px;
+    font-weight: 800;
+    color: #0047AB;
+    margin: 0 0 12px;
+}
+
+.cd-subtitle {
+    font-size: 16px;
+    color: #5f6368;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.cd-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 80px 0;
+}
+
+.cd-spinner {
+    width: 48px;
+    height: 48px;
+    border: 4px solid #e8eaed;
+    border-top-color: #0047AB;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-bottom: 16px;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.cd-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 24px;
+}
+
+.cd-card {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 24px;
+    text-decoration: none;
+    color: inherit;
+    box-shadow: 0 4px 12px rgba(0, 71, 171, 0.04);
+    border: 1px solid rgba(0, 71, 171, 0.08);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 120px;
+}
+
+.cd-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 71, 171, 0.12);
+    border-color: #0047AB;
+}
+
+.cd-card-tag {
+    font-size: 18px;
+    font-weight: 700;
+    color: #202124;
+    display: block;
+    margin-bottom: 12px;
+    transition: color 0.3s;
+}
+
+.cd-card:hover .cd-card-tag {
+    color: #0047AB;
+}
+
+.cd-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.cd-card-count {
+    font-size: 14px;
+    color: #5f6368;
+}
+
+.cd-card-footer i {
+    color: #0047AB;
+    font-size: 18px;
+    opacity: 0;
+    transform: translateX(-8px);
+    transition: all 0.3s;
+}
+
+.cd-card:hover .cd-card-footer i {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+@media (max-width: 768px) {
+    .cd-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .cd-title {
+        font-size: 28px;
+    }
+}

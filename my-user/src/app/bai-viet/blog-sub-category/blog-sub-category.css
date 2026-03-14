@@ -1,0 +1,174 @@
+.bv-subcategory-page {
+    background-color: #ffffff;
+    min-height: 100vh;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+.bv-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+/* Breadcrumb */
+.bv-breadcrumb-container {
+    background-color: #f8f9fa;
+    padding: 0.75rem 0;
+}
+
+.bv-breadcrumb {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    font-size: 0.85rem;
+    color: #637381;
+}
+
+.bv-breadcrumb-item {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.bv-breadcrumb-item:hover {
+    color: #007bff;
+}
+
+.bv-breadcrumb-item.active {
+    color: #212b36;
+    font-weight: 500;
+}
+
+.bv-breadcrumb-separator {
+    margin: 0 0.5rem;
+}
+
+/* Hero Section */
+.bv-hero-section {
+    position: relative;
+    height: 180px;
+    background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+    background-image: url('https://nhathuoclongchau.com.vn/estore-images/blog/bg-blog-list.png');
+    /* Placeholder for reference */
+    background-size: cover;
+    background-position: center;
+    overflow: hidden;
+}
+
+.bv-hero-title-box {
+    background-color: #ffffff;
+    padding: 1rem 3rem;
+    border-radius: 50px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    z-index: 2;
+}
+
+.bv-hero-title {
+    margin: 0;
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #1e3a8a;
+    text-transform: uppercase;
+}
+
+/* Section Header */
+.bv-section-header {
+    border-bottom: 2px solid #f4f6f8;
+    padding-bottom: 0.75rem;
+}
+
+.bv-section-icon {
+    font-size: 1.5rem;
+    color: #1e3a8a;
+}
+
+.bv-section-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #212b36;
+}
+
+/* Blog Card */
+.bv-blog-card {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    height: 100%;
+    transition: transform 0.3s ease;
+}
+
+.bv-blog-card:hover {
+    transform: translateY(-5px);
+}
+
+.bv-blog-img-wrapper {
+    aspect-ratio: 16/9;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 0.75rem;
+}
+
+.bv-blog-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.bv-blog-card:hover .bv-blog-img {
+    transform: scale(1.1);
+}
+
+.bv-blog-content {
+    padding: 0.25rem 0;
+}
+
+.bv-blog-title {
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.4;
+    color: #212b36;
+    margin-bottom: 0.5rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    transition: color 0.2s;
+}
+
+.bv-blog-card:hover .bv-blog-title {
+    color: #007bff;
+}
+
+/* Load More Button */
+.bv-load-more-btn {
+    background: transparent;
+    border: 1px solid #dfe3e8;
+    border-radius: 30px;
+    padding: 0.75rem 2.5rem;
+    font-weight: 600;
+    color: #212b36;
+    transition: all 0.3s;
+}
+
+.bv-load-more-btn:hover {
+    background-color: #F1ECFA;
+    border-color: #d8c5f5;
+    color: #673ab7;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .bv-hero-section {
+        height: 140px;
+    }
+
+    .bv-hero-title-box {
+        padding: 0.75rem 1.5rem;
+    }
+
+    .bv-hero-title {
+        font-size: 1.25rem;
+    }
+}
