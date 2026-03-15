@@ -3,7 +3,7 @@ import { provideRouter, withInMemoryScrolling } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
 
 import { routes } from './app.routes';
-import { BlogService } from './services/blog.service';
+import { BlogService } from './core/services/blog.service';
 
 /** Gọi API blog sớm (không chặn app) → vào Home thường trúng cache, popup không cần skeleton */
 function prefetchHomeBlogs(blog: BlogService) {

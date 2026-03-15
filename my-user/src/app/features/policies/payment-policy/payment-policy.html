@@ -1,0 +1,119 @@
+<div class="vc_container pt-2">
+  <!-- Breadcrumb -->
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb-vc">
+      <li class="breadcrumb-item"><a routerLink="/">Trang chủ</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Chính sách thanh toán</li>
+    </ol>
+  </nav>
+
+  <div class="pc-layout">
+    <!-- Sidebar -->
+    <aside class="pc-sidebar">
+      <div class="pc-sidebar-header">
+        <span class="pc-icon-list">☰</span> Bài viết trong danh mục
+      </div>
+
+      <ul class="pc-menu">
+        <li><a [routerLink]="['/chinh-sach/gioi-thieu']">Giới thiệu nhà thuốc</a></li>
+        <li><a [routerLink]="['/chinh-sach/giay-phep-kinh-doanh']">Giấy phép kinh doanh</a></li>
+        <li><a [routerLink]="['/chinh-sach/quy-che-hoat-dong']">Quy chế hoạt động</a></li>
+        <li><a [routerLink]="['/chinh-sach/chinh-sach-dat-coc']">Chính sách đặt cọc</a></li>
+        <li><a [routerLink]="['/chinh-sach/chinh-sach-noi-dung']">Chính sách nội dung</a></li>
+        <li><a [routerLink]="['/chinh-sach/chinh-sach-doi-tra']">Chính sách đổi trả thuốc</a></li>
+        <li><a [routerLink]="['/chinh-sach/chinh-sach-giao-hang']">Chính sách giao hàng</a></li>
+        <li><a [routerLink]="['/chinh-sach/chinh-sach-bao-mat']">Chính sách bảo mật</a></li>
+        <li class="active">
+          <a [routerLink]="['/chinh-sach/chinh-sach-thanh-toan']">Chính sách thanh toán</a>
+        </li>
+
+        <li><a [routerLink]="['/chinh-sach/chinh-sach-bao-mat-du-lieu']">Chính sách bảo mật dữ liệu cá nhân</a></li>
+        <li><a [routerLink]="['/chinh-sach/trung-tam-bao-hanh']">Thông tin trung tâm bảo hành máy thiết bị y tế từng
+            hãng</a></li>
+        <li><a [routerLink]="['/chinh-sach/dieu-khoan-su-dung']">Điều khoản sử dụng VitaCare 247</a></li>
+      </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="pc-content">
+      <h1 class="pc-title">Chính sách thanh toán</h1>
+
+      <div class="pc-section">
+        <p>
+          Về thanh toán, Quý khách có thể thanh toán cho Nhà thuốc VitaCare bằng các hình thức sau:
+        </p>
+
+        <h3>1. Thanh toán khi nhận hàng (COD)</h3>
+        <p>
+          VitaCare sẽ liên hệ xác nhận đơn hàng và thông tin giao nhận. Quý khách thanh toán trực tiếp cho nhân viên
+          giao hàng khi nhận sản phẩm.
+        </p>
+
+        <h3>2. Thanh toán qua ví điện tử</h3>
+        <p>
+          Quý khách có thể thanh toán qua các ví/cổng thanh toán: ZaloPay, MoMo, VNPay (tùy theo phương thức hiển thị
+          tại bước thanh toán).
+        </p>
+
+        <h3>3. Thanh toán qua thẻ ngân hàng</h3>
+        <p>Chấp nhận thanh toán nhiều thương hiệu và loại thẻ bao gồm:</p>
+        <ul>
+          <li><strong>Thẻ nội địa:</strong> thẻ ATM (Napas) và thanh toán qua tài khoản ngân hàng</li>
+          <li><strong>Thẻ quốc tế:</strong> Visa, Mastercard, JCB,… và Apple Pay (nếu khả dụng tại cổng thanh toán)</li>
+        </ul>
+
+        <h3>4. Thanh toán qua chuyển khoản (QR code)</h3>
+        <p>
+          Khách hàng có thể chọn quét mã QR động (dynamic QR) được cung cấp riêng cho mỗi giao dịch để chuyển khoản
+          thanh toán nhanh chóng và chính xác.
+        </p>
+
+        <p>
+          (Giá sản phẩm niêm yết trên website là giá đã bao gồm thuế, chưa bao gồm chi phí vận chuyển.
+          Chi tiết biểu phí vận chuyển Quý khách vui lòng xem tại
+          <a [routerLink]="['/chinh-sach/chinh-sach-giao-hang']">Chính sách giao hàng</a>.)
+        </p>
+      </div>
+    </main>
+  </div>
+
+  <!-- Feature Icons Footer -->
+  <div class="pc-features">
+    <div class="pc-feature-item">
+      <div class="pc-feature-icon">
+        <img src="assets/images/policy/pill.png" alt="Thuốc chính hãng">
+      </div>
+      <div class="pc-feature-text">
+        <strong>THUỐC CHÍNH HÃNG</strong>
+        <span>đa dạng và chuyên sâu</span>
+      </div>
+    </div>
+    <div class="pc-feature-item">
+      <div class="pc-feature-icon">
+        <img src="assets/images/policy/change.png" alt="Đổi trả">
+      </div>
+      <div class="pc-feature-text">
+        <strong>ĐỔI TRẢ TRONG 30 NGÀY</strong>
+        <span>kể cả thuốc đã bóc seal</span>
+      </div>
+    </div>
+    <div class="pc-feature-item">
+      <div class="pc-feature-icon">
+        <img src="assets/images/policy/pill-shield.png" alt="Cam kết">
+      </div>
+      <div class="pc-feature-text">
+        <strong>CAM KẾT 100%</strong>
+        <span>chất lượng sản phẩm</span>
+      </div>
+    </div>
+    <div class="pc-feature-item">
+      <div class="pc-feature-icon">
+        <img src="assets/images/policy/shipping.png" alt="Vận chuyển">
+      </div>
+      <div class="pc-feature-text">
+        <strong>MIỄN PHÍ VẬN CHUYỂN</strong>
+        <span>theo chính sách giao hàng</span>
+      </div>
+    </div>
+  </div>
+</div>

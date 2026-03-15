@@ -1,0 +1,369 @@
+<!-- VitaCare Homepage – Static (Pixel-close to design) -->
+<div class="vc-homepage">
+
+    <!-- BACKGROUND BANNER (2 lớp để fade mượt) -->
+    <div class="vc-homepage-bg-layer bg-a" aria-hidden="true" [style.background-image]="'url(' + bgA + ')'"
+        [class.is-active]="activeLayer === 'A'">
+    </div>
+
+    <div class="vc-homepage-bg-layer bg-b" aria-hidden="true" [style.background-image]="'url(' + bgB + ')'"
+        [class.is-active]="activeLayer === 'B'">
+    </div>
+
+    <!-- Slider controls (left/right arrows + dots) -->
+    <div class="vc-homepage-controls" aria-hidden="true">
+        <button class="vc-homepage-btn vc-homepage-prev" (click)="prevBanner()" aria-label="Previous banner">‹</button>
+        <div class="vc-homepage-dots">
+            <button *ngFor="let b of banners; let i = index" class="dot" [class.active]="i === currentBannerIndex"
+                (click)="setBanner(i)" [attr.aria-label]="'Banner ' + (i+1)"></button>
+        </div>
+        <button class="vc-homepage-btn vc-homepage-next" (click)="nextBanner()" aria-label="Next banner">›</button>
+    </div>
+
+    <!-- ========== HERO / BANNER SLIDER (mobile: vuốt trái/phải đổi banner) ========== -->
+    <section class="vc-hero" (touchstart)="onBannerTouchStart($event)" (touchend)="onBannerTouchEnd($event)">
+        <div class="vc-hero-main">
+            <img src="assets/images/banner/Banner Homepage  (2).png" alt="Hero banner" />
+        </div>
+        <div class="vc-hero-side">
+            <img src="assets/images/banner/Banner Homepage  (1).png" />
+            <img src="assets/images/banner/Banner Homepage .png" />
+        </div>
+    </section>
+
+    <!-- ========== QUICK ACTIONS ========== -->
+    <section class="vc-quick-actions">
+        <div class="qa-item" *ngFor="let qa of quickActions" (click)="onQuickActionClick(qa)" role="button"
+            tabindex="0">
+            <div class="qa-icon">
+                <img [src]="qa.publicPath" [alt]="qa.label" />
+            </div>
+            <span [innerHTML]="qa.label"></span>
+        </div>
+    </section>
+
+    <!-- ========== FLASH SALE (giống thiết kế: gradient, mascot, badge, tabs, thẻ SP) ========== -->
+    <section class="vc-flash-sale-container">
+        <div class="vc-flash-sale-header">
+            <div class="fs-mascot-wrap">
+                <img src="assets/images/banner/shipping_on_time.png" class="fs-mascot"
+                    style="width: 200px; height: auto; object-fit: contain; object-position: left bottom;"
+                    alt="Mascot Flashsale" />
+            </div>
+            <a href="#" class="btn-see-now">XEM NGAY</a>
+        </div>
+
+        <div class="fs-deal-row">
+            <div class="fs-deal-text-wrap">
+                <span class="fs-deal-text">DEAL XỊN QUÀ XINH</span>
+            </div>
+            <div class="fs-badge-40 fs-badge-inline">
+                <span class="fs-badge-line">Giảm đến</span>
+                <span class="fs-badge-value">40%</span>
+            </div>
+        </div>
+
+        <div class="fs-tabs">
+            <div class="fs-tab" [class.active]="activeFlashSlot === 0"
+                (click)="activeFlashSlot = 0; computeFlashCountdown()">
+                <span class="time">{{ flashSlotTodayLabel }}</span>
+                <span class="status">{{ flashSlotTodayStatus }}</span>
+            </div>
+            <div class="fs-tab" [class.active]="activeFlashSlot === 1"
+                (click)="activeFlashSlot = 1; computeFlashCountdown()">
+                <span class="time">{{ flashSlotTomorrowLabel }}</span>
+                <span class="status">{{ flashSlotTomorrowStatus }}</span>
+            </div>
+        </div>
+
+        <div class="fs-countdown-row">
+            <span class="fs-countdown-label">{{ flashCountdownLabel }}</span>
+            <div class="fs-countdown-boxes" *ngIf="!flashCountdownEnded">
+                <span class="fs-countdown-num">{{ flashCountdownHours | number:'2.0-0' }}</span>
+                <span class="fs-countdown-sep">:</span>
+                <span class="fs-countdown-num">{{ flashCountdownMinutes | number:'2.0-0' }}</span>
+                <span class="fs-countdown-sep">:</span>
+                <span class="fs-countdown-num">{{ flashCountdownSeconds | number:'2.0-0' }}</span>
+            </div>
+        </div>
+
+        <div class="flash-products-wrap">
+            <button type="button" class="flash-nav flash-nav-prev" (click)="scrollFlashPrev()" aria-label="Trước">
+                <i class="bi bi-chevron-left"></i>
+            </button>
+            <div class="flash-products" #flashProductsSlider>
+                <div class="product-card fs-card" *ngFor="let p of flashSaleProducts" (click)="goToProductDetail(p)"
+                    role="button" tabindex="0">
+                    <div class="fs-img-wrap">
+                        <span class="fs-sale-tag" *ngIf="getFlashSaleTag(p) !== '0%'">{{ getFlashSaleTag(p) }}</span>
+                        <img [src]="p.image" [alt]="p.name" />
+                    </div>
+                    <h4 class="fs-product-name">{{ p.name }}</h4>
+                    <div class="price-row">
+                        <span class="price">{{ getFlashPriceDisplay(p) }}đ<span class="price-unit">/Hộp</span></span>
+                        <span class="original-price" *ngIf="p.originalPrice && p.originalPrice > p.price">
+                            {{ getFlashOriginalPriceDisplay(p) }}đ/Hộp
+                        </span>
+                    </div>
+                    <div class="home-product-button-group">
+                        <button type="button" class="btn-home-cart"
+                            (click)="addToCart(p, $event); $event.stopPropagation()">Thêm vào giỏ</button>
+                        <button type="button" class="btn-home-buy" (click)="buyNow(p); $event.stopPropagation()">Mua
+                            ngay</button>
+                    </div>
+                </div>
+            </div>
+            <button type="button" class="flash-nav flash-nav-next" (click)="scrollFlashNext()" aria-label="Sau">
+                <i class="bi bi-chevron-right"></i>
+            </button>
+        </div>
+    </section>
+
+    <!-- ========== CATEGORIES ========== -->
+    <section class="vc-title">
+        <div class="section-title">
+            <img class="section-icon" src="assets/images/homepage/title/1.webp" alt="Danh mục" />
+            <h2>Danh mục sản phẩm</h2>
+        </div>
+
+        <div class="category-grid">
+            <div class="category-item" *ngFor="let c of homepageCategories" (click)="onCategoryClick(c)" role="button"
+                tabindex="0">
+                <img [src]="c.icon" [alt]="c.name" />
+                <span>{{ c.name }}</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== FAVORITE BRANDS (căn lề + nút giống Sản phẩm nổi bật) ========== -->
+    <section class="vc-title vc-favorite-brands">
+        <div class="section-title">
+            <img class="section-icon" src="assets/images/homepage/title/2.webp" alt="Thương hiệu" />
+            <h2>Thương hiệu yêu thích</h2>
+        </div>
+        <div class="brand-slider-nav">
+            <button class="brand-nav prev" (click)="scrollBrandPrev()" aria-label="Prev brand">‹</button>
+            <div class="brand-slider" #brandSlider>
+                <div class="brand-item" *ngFor="let b of favBrands" (click)="onBrandClick(b)" role="button"
+                    tabindex="0">
+                    <div class="brand-card">
+                        <img [src]="b.img" [alt]="b.label" />
+                    </div>
+                    <div class="brand-label">
+                        <img *ngIf="b.labelImg" [src]="b.labelImg" [alt]="b.label" />
+                        <span *ngIf="!b.labelImg">{{ b.label }}</span>
+                    </div>
+                </div>
+            </div>
+            <button class="brand-nav next" (click)="scrollBrandNext()" aria-label="Next brand">›</button>
+        </div>
+    </section>
+
+    <!-- ========== FEATURED PRODUCTS ========== -->
+    <section class="vc-title vc-featured-products">
+        <div class="section-title">
+            <img class="section-icon" src="assets/images/homepage/title/3.webp" alt="Nổi bật" />
+            <h2>Sản phẩm nổi bật hôm nay</h2>
+        </div>
+        <div class="product-slider-nav">
+            <button class="product-nav prev" (click)="scrollProductPrev()" aria-label="Prev products">‹</button>
+            <div class="product-grid" #productSlider>
+                <!-- Loading skeleton shown while fetching -->
+                <div class="product-card skeleton" *ngIf="isLoadingFeaturedProducts">
+                    <div class="img-skel"></div>
+                    <div class="text-skel short"></div>
+                    <div class="text-skel long"></div>
+                    <div class="btn-skel"></div>
+                </div>
+
+                <!-- Actual products -->
+                <ng-container *ngIf="!isLoadingFeaturedProducts && !isFeaturedProductsError">
+                    <div class="product-card" *ngFor="let product of products" (click)="goToProductDetail(product)"
+                        role="button" tabindex="0">
+                        <!-- Discount badge nếu có khuyến mãi (dùng hàm helper để tránh lỗi TS "possibly undefined") -->
+                        <div class="discount-badge" *ngIf="getFeaturedDiscountPercent(product) > 0">
+                            -{{ getFeaturedDiscountPercent(product) | number:'1.0-0' }}%
+                        </div>
+                        <img [src]="product.image" [alt]="product.name" />
+                        <h4>{{ product.name }}</h4>
+                        <p class="price">{{ product.price | number:'1.0-0' }}đ</p>
+                        <div class="home-product-button-group">
+                            <button type="button" class="btn-home-cart"
+                                (click)="addToCart(product, $event); $event.stopPropagation()">Thêm vào giỏ</button>
+                            <button type="button" class="btn-home-buy"
+                                (click)="buyNow(product); $event.stopPropagation()">Mua ngay</button>
+                        </div>
+                    </div>
+                </ng-container>
+
+                <!-- Fallback when no products or error -->
+                <div class="product-card empty" *ngIf="!isLoadingFeaturedProducts && isFeaturedProductsError">
+                    <img src="assets/images/banner/About_us_Hero.png" alt="Sản phẩm mẫu" />
+                    <h4>Không có sản phẩm nổi bật</h4>
+                    <p class="price">—</p>
+                    <div class="home-product-button-group">
+                        <button type="button" class="btn-home-cart" disabled>Thêm vào giỏ</button>
+                        <button type="button" class="btn-home-buy" disabled>Mua ngay</button>
+                    </div>
+                </div>
+            </div>
+            <button class="product-nav next" (click)="scrollProductNext()" aria-label="Next products">›</button>
+        </div>
+    </section>
+
+    <!-- ========== KIỂM TRA SỨC KHỎE (Health Quiz) – Chữ trên, thẻ + ảnh dưới ========== -->
+    <section class="vc-health-quiz-wrap">
+        <div class="quiz-banner">
+            <div class="quiz-banner-top">
+                <h2 class="quiz-banner-title">Kiểm tra sức khỏe</h2>
+                <p class="quiz-banner-subtitle">Kết quả đánh giá sẽ cho bạn lời khuyên xử trí phù hợp!</p>
+            </div>
+            <div class="quiz-banner-bottom">
+                <div class="quiz-banner-cards-wrap">
+                    <button class="quiz-chevron quiz-chevron-prev" (click)="scrollQuizPrev()" aria-label="Trước">
+                        <i class="bi bi-chevron-left"></i>
+                    </button>
+                    <div class="quiz-banner-cards" #quizSlider>
+                        <div class="quiz-card" *ngFor="let q of quizItems" (click)="startQuiz(q)" role="button"
+                            tabindex="0">
+                            <div class="quiz-card-icon">
+                                <span class="material-symbols-rounded">{{ q.icon }}</span>
+                            </div>
+                            <h3 class="quiz-card-title">{{ q.description }}</h3>
+                        </div>
+                    </div>
+                    <button class="quiz-chevron quiz-chevron-next" (click)="scrollQuizNext()" aria-label="Sau">
+                        <i class="bi bi-chevron-right"></i>
+                    </button>
+                </div>
+                <div class="quiz-banner-doctors">
+                    <img src="assets/images/banner/2_young_doctor.png" alt="Bác sĩ tư vấn" />
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== HEALTH BLOG (Góc sức khoẻ) ========== -->
+    <section class="vc-blogs">
+        <div class="section-title">
+            <img class="section-icon" src="assets/images/homepage/title/4.webp" alt="Blog" />
+            <h2>Góc sức khỏe <span class="section-sep">|</span><a [routerLink]="['/bai-viet']"
+                    class="section-view-all">Xem tất cả <i class="bi bi-chevron-right"></i></a></h2>
+        </div>
+        <div class="blog-layout">
+            <a [href]="blogs[0].link || '#'" class="blog-main" *ngIf="blogs && blogs.length; else blogFallback">
+                <div class="blog-main-img-wrap">
+                    <img [src]="blogs[0].image || 'assets/placeholder/blog-main.jpg'" [alt]="blogs[0].title" />
+                    <span class="blog-badge">{{ blogs[0].categoryName || 'Góc sức khoẻ' }}</span>
+                </div>
+                <div class="blog-main-body">
+                    <h3>{{ blogs[0].title }}</h3>
+                    <p>{{ blogs[0].excerpt || 'Mô tả ngắn bài viết nổi bật...' }}</p>
+                </div>
+            </a>
+            <ng-template #blogFallback>
+                <div class="blog-main">
+                    <div class="blog-main-img-wrap">
+                        <img src="assets/images/homepage/blogs/ngu_ngon.jpg" alt="" />
+                        <span class="blog-badge">Bài viết</span>
+                    </div>
+                    <div class="blog-main-body">
+                        <h3>Tiêu đề bài viết nổi bật</h3>
+                        <p>Mô tả ngắn bài viết nổi bật...</p>
+                    </div>
+                </div>
+            </ng-template>
+
+            <div class="blog-list-box">
+                <div class="blog-item" *ngFor="let b of blogs.slice(1, 6)">
+                    <a [href]="b.link || '#'" class="blog-item-link">
+                        <img [src]="b.image || 'assets/images/homepage/blogs/an_gi.jpg'" [alt]="b.title" />
+                        <div class="blog-item-content">
+                            <span class="blog-badge blog-badge-sm">{{ b.categoryName || 'Góc sức khoẻ' }}</span>
+                            <span class="blog-item-title">{{ b.title }}</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== DISEASE BY GROUP ========== -->
+    <section class="vc-diseases">
+        <div class="section-title">
+            <img class="section-icon" src="assets/images/homepage/title/5.webp" alt="Bệnh" />
+            <h2>Bệnh <span class="section-sep">|</span><a [routerLink]="['/disease']" class="section-view-all">Xem tất
+                    cả <i class="bi bi-chevron-right"></i></a></h2>
+        </div>
+        <div class="disease-tabs">
+            <button [class.active]="activeDiseaseTab === 'doi_tuong'" (click)="activeDiseaseTab='doi_tuong'">Bệnh theo
+                đối tượng</button>
+            <button [class.active]="activeDiseaseTab === 'mua'" (click)="goToSeasonal()">Bệnh theo mùa</button>
+        </div>
+
+        <div class="disease-tab-panel">
+            <div class="disease-tab-content" *ngIf="activeDiseaseTab === 'doi_tuong'">
+                <div class="disease-grid">
+                    <div class="disease-card" *ngFor="let d of diseases">
+                        <div class="d-card-media">
+                            <img [src]="d.image || 'assets/images/homepage/benh/doi_tuong_1.webp'" [alt]="d.name" />
+                        </div>
+                        <h4>{{ d.name }}</h4>
+                        <ul class="disease-list">
+                            <li *ngFor="let it of d.items">{{ it }}</li>
+                        </ul>
+                        <a href="#" (click)="onDiseaseGroupClick(d, $event)" class="disease-link">Tìm hiểu thêm ></a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="disease-tab-content" *ngIf="activeDiseaseTab === 'mua'">
+                <div class="seasonal-slider-wrap">
+                    <button class="seasonal-nav prev" (click)="scrollSeasonalPrev()" aria-label="Trước">‹</button>
+                    <div class="seasonal-slider" #seasonalSlider>
+                        <div class="seasonal-card" *ngFor="let s of seasonalDiseasesToShow">
+                            <div class="d-card-media">
+                                <img [src]="s.image" [alt]="s.name" />
+                            </div>
+                            <h4>{{ s.name }}</h4>
+                            <p class="disease-summary">{{ s.items ? s.items.slice(0,2).join(', ') : '' }}</p>
+                            <a href="#" (click)="onSeasonalDiseaseClick(s, $event)" class="disease-link">
+                                Tìm hiểu thêm <i class="bi bi-chevron-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <button class="seasonal-nav next" (click)="scrollSeasonalNext()" aria-label="Sau">›</button>
+                </div>
+                <button type="button" class="disease-show-more"
+                    *ngIf="seasonalDiseasesRemainingCount > 0 && !showAllSeasonalDiseases"
+                    (click)="showMoreSeasonalDiseases()">
+                    <i class="bi bi-chevron-down"></i> Xem thêm {{ seasonalDiseasesRemainingCount }} bệnh
+                </button>
+            </div>
+        </div>
+    </section>
+
+</div>
+<!-- End of VitaCare Homepage -->
+
+<!-- Popup sau 3s — chỉ render khi đã có đủ data (prefetch + cache từ APP_INITIALIZER) -->
+<div class="vc-blog-popup-overlay" *ngIf="showBlogPopup && popupBlog" (click)="closeBlogPopup()">
+    <div class="vc-blog-popup" (click)="$event.stopPropagation()">
+        <button type="button" class="vc-blog-popup__close" (click)="closeBlogPopup()" aria-label="Đóng">
+            <i class="bi bi-x-lg"></i>
+        </button>
+        <div class="vc-blog-popup__image-wrap">
+            <img [src]="popupBlog.image" [alt]="popupBlog.title" class="vc-blog-popup__image"
+                (error)="$any($event.target).src='assets/images/homepage/blogs/ngu_ngon.jpg'" />
+            <div class="vc-blog-popup__image-fade"></div>
+        </div>
+        <div class="vc-blog-popup__body">
+            <span class="vc-blog-popup__label">Có thể bạn chưa biết?</span>
+            <h3 class="vc-blog-popup__title">{{ popupBlog.title }}</h3>
+            <p class="vc-blog-popup__excerpt" *ngIf="popupBlog.excerpt">{{ popupBlog.excerpt }}</p>
+            <button type="button" class="vc-blog-popup__cta" (click)="goToBlogPopup()">
+                Xem ngay <i class="bi bi-arrow-right"></i>
+            </button>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,72 @@
+<main class="bv-subcategory-page">
+    <!-- Breadcrumb Section -->
+    <div class="bv-breadcrumb-container">
+        <div class="bv-container">
+            <nav class="bv-breadcrumb">
+                <a routerLink="/" class="bv-breadcrumb-item">Trang chủ</a>
+                <span class="bv-breadcrumb-separator">/</span>
+                <a routerLink="/bai-viet" class="bv-breadcrumb-item">Góc sức khoẻ</a>
+                <span class="bv-breadcrumb-separator">/</span>
+                <a [routerLink]="['/bai-viet/danh-muc', categorySlug]" class="bv-breadcrumb-item">{{ categoryName }}</a>
+                <span class="bv-breadcrumb-separator">/</span>
+                <span class="bv-breadcrumb-item active">{{ subcategoryName }}</span>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Hero Header Section -->
+    <section class="bv-hero-section">
+        <div class="bv-hero-overlay"></div>
+        <div class="bv-container d-flex justify-content-center align-items-center h-100">
+            <div class="bv-hero-title-box">
+                <h1 class="bv-hero-title">{{ subcategoryName }}</h1>
+            </div>
+        </div>
+    </section>
+
+    <!-- Content Section -->
+    <div class="bv-container mt-5">
+        <div class="bv-section-header mb-4">
+            <div class="d-flex align-items-center">
+                <i class="bi bi-book-half bv-section-icon me-2"></i>
+                <h2 class="bv-section-title mb-0">Các bài viết liên quan</h2>
+            </div>
+        </div>
+
+        <!-- Loading state -->
+        <div *ngIf="loading" class="bv-loading text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-3 text-secondary">Đang tải bài viết...</p>
+        </div>
+
+        <!-- Empty state -->
+        <div *ngIf="!loading && blogs.length === 0" class="bv-no-data text-center py-5">
+            <i class="bi bi-journal-x fs-1 text-light"></i>
+            <p class="mt-3 fs-5 text-secondary">Chưa có bài viết nào trong danh mục này.</p>
+            <button routerLink="/bai-viet" class="btn btn-primary rounded-pill px-4 mt-2">Quay lại trang chính</button>
+        </div>
+
+        <!-- Article Grid -->
+        <div *ngIf="!loading && blogs.length > 0" class="row g-4 mb-5">
+            <div class="col-12 col-sm-6 col-md-4 col-lg-3" *ngFor="let blog of displayedBlogs">
+                <a [routerLink]="blog.link" class="bv-blog-card">
+                    <div class="bv-blog-img-wrapper">
+                        <img [src]="blog.image" [alt]="blog.title" class="bv-blog-img">
+                    </div>
+                    <div class="bv-blog-content">
+                        <h3 class="bv-blog-title">{{ blog.title }}</h3>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <div *ngIf="remainingCount > 0" class="text-center mb-5 pb-5">
+            <button class="bv-load-more-btn" (click)="loadMore()">
+                Xem thêm {{ remainingCount }} bài viết
+            </button>
+        </div>
+    </div>
+</main>

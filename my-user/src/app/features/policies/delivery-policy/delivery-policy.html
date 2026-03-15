@@ -1,0 +1,221 @@
+<div class="vc_container pt-2">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb-vc">
+            <li class="breadcrumb-item"><a routerLink="/">Trang chủ</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Chính sách giao hàng</li>
+        </ol>
+    </nav>
+
+    <div class="pc-layout">
+        <!-- Sidebar -->
+        <aside class="pc-sidebar">
+            <div class="pc-sidebar-header">
+                <span class="pc-icon-list">☰</span> Bài viết trong danh mục
+            </div>
+            <ul class="pc-menu">
+                <li><a [routerLink]="['/chinh-sach/gioi-thieu']">Giới thiệu nhà thuốc</a></li>
+                <li><a [routerLink]="['/chinh-sach/giay-phep-kinh-doanh']">Giấy phép kinh doanh</a></li>
+                <li><a [routerLink]="['/chinh-sach/quy-che-hoat-dong']">Quy chế hoạt động</a></li>
+                <li><a [routerLink]="['/chinh-sach/chinh-sach-dat-coc']">Chính sách đặt cọc</a></li>
+                <li><a [routerLink]="['/chinh-sach/chinh-sach-noi-dung']">Chính sách nội dung</a></li>
+                <li><a [routerLink]="['/chinh-sach/chinh-sach-doi-tra']">Chính sách đổi trả thuốc</a></li>
+                <li class="active"><a [routerLink]="['/chinh-sach/chinh-sach-giao-hang']">Chính sách giao hàng</a></li>
+                <li><a [routerLink]="['/chinh-sach/chinh-sach-bao-mat']">Chính sách bảo mật</a></li>
+                <li><a [routerLink]="['/chinh-sach/chinh-sach-thanh-toan']">Chính sách thanh toán</a></li>
+                <li><a [routerLink]="['/chinh-sach/chinh-sach-bao-mat-du-lieu']">Chính sách bảo mật dữ liệu cá nhân</a>
+                </li>
+                <li><a [routerLink]="['/chinh-sach/thong-tin-trung-tam-bao-hanh']">Thông tin trung tâm bảo hành máy
+                        thiết bị y tế từng hãng</a></li>
+                <li><a [routerLink]="['/chinh-sach/dieu-khoan-su-dung']">Điều khoản sử dụng VitaCare 247</a></li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="pc-content">
+            <h1 class="pc-title">Chính sách giao hàng</h1>
+
+            <div class="pc-section">
+
+                <h3>I. Về đơn thuốc</h3>
+                <h4>1. Nhà thuốc VitaCare có giao hàng thuốc không?</h4>
+                <p><strong>Thuốc kê đơn:</strong> Nhà thuốc VitaCare chỉ bán thuốc kê đơn tại nhà thuốc khi có đơn thuốc
+                    hợp lệ, theo đúng chỉ định của người kê đơn. Thuốc kê đơn không bán trực tuyến.</p>
+                <p><strong>Thuốc không kê đơn:</strong> Quý khách có thể đặt hàng thuốc không kê đơn trực tuyến qua
+                    trang web <strong>[Domain Website VitaCare]</strong> hoặc liên hệ tổng đài <strong>1800
+                        6821</strong> để được hỗ trợ miễn phí.</p>
+
+                <h4>2. Khi nào tôi có thể nhận được đơn hàng?</h4>
+                <p>Tại thời điểm đặt hàng, Quý Khách có thể liên hệ tổng đài miễn cước <strong>1800 6821</strong> để
+                    biết được thời gian nhận được đơn hàng dự kiến.</p>
+
+                <h3>II. Giao hàng</h3>
+                <h4>1. Phí giao hàng</h4>
+
+                <div class="pc-table-wrapper">
+                    <table class="pc-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 25%;">Kênh mua hàng áp dụng</th>
+                                <th style="width: 35%;">Giá trị đơn hàng</th>
+                                <th style="width: 20%;">Phí giao hàng Nội tỉnh/Thành phố</th>
+                                <th style="width: 20%;">Phí giao hàng Liên tỉnh/ Thành phố</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td rowspan="2">Tổng đài/ Website/ Facebook</td>
+                                <td>Đơn hàng từ 300.000 VND trở lên</td>
+                                <td>Miễn phí</td>
+                                <td>40.000 VND</td>
+                            </tr>
+                            <tr>
+                                <td>Đơn hàng dưới 300.000 VND</td>
+                                <td>25.000 VND</td>
+                                <td>40.000 VND</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h4>2. Thời gian giao hàng</h4>
+
+                <div class="pc-table-wrapper">
+                    <table class="pc-table">
+                        <thead>
+                            <tr>
+                                <th>Khu vực</th>
+                                <th>Khoảng cách</th>
+                                <th>Thời gian giao hàng dự kiến</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td rowspan="2">HN/HCM/ĐN</td>
+                                <td>&lt;10 km</td>
+                                <td>Từ 8h - 20h tất cả các ngày trong tuần</td>
+                            </tr>
+                            <tr>
+                                <td>&gt;10km</td>
+                                <td>Từ 8h - 20h tất cả các ngày trong tuần</td>
+                            </tr>
+                            <tr>
+                                <td rowspan="2">Nội tỉnh/thành phố (trừ HN/HCM/ĐN)</td>
+                                <td>&lt;10 km</td>
+                                <td>Từ 8h - 20h tất cả các ngày trong tuần</td>
+                            </tr>
+                            <tr>
+                                <td>&gt;10km</td>
+                                <td>Từ 1 - 2 ngày làm việc</td>
+                            </tr>
+                            <tr>
+                                <td rowspan="2">Liên tỉnh/thành phố</td>
+                                <td>Dưới 200km</td>
+                                <td>Từ 2 - 3 ngày làm việc</td>
+                            </tr>
+                            <tr>
+                                <td>Từ 200 Km trở lên</td>
+                                <td>Từ 3 - 5 ngày làm việc</td>
+                            </tr>
+                            <tr>
+                                <td>Tuyến Huyện/ Xã</td>
+                                <td>-</td>
+                                <td>Từ 4 - 6 ngày làm việc</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <p><em>Lưu ý: Thời gian giao hàng dự kiến áp dụng cho các sản phẩm có sẵn. Nếu sản phẩm tạm hết, thời
+                        gian giao hàng có thể kéo dài hơn dự kiến từ 5-7 ngày làm việc.</em></p>
+                <p><strong>Giao hàng quốc tế:</strong> Nhà thuốc VitaCare hiện tại chỉ giao hàng trong lãnh thổ Việt Nam
+                    và chưa hỗ trợ giao hàng quốc tế.</p>
+                <p><strong>Hình thức thanh toán, có 3 cách:</strong></p>
+                <ul>
+                    <li><strong>Thanh toán tại chỗ (Ship COD):</strong> VitaCare sẽ gọi lại cho khách hàng để xin địa
+                        chỉ giao hàng tận nơi và nhận thanh toán tại chỗ.</li>
+                    <li><strong>Thanh toán qua thẻ ngân hàng:</strong> Chấp nhận thanh toán nhiều thương hiệu và loại
+                        thẻ bao gồm thẻ ATM, thẻ Visa, MasterCard,...</li>
+                    <li><strong>Chuyển khoản trước:</strong> Khách hàng có thể chọn chuyển khoản trước vào tài khoản của
+                        Nhà thuốc VitaCare.
+                        <ul>
+                            <li><strong>Số tài khoản:</strong> [Số tài khoản VitaCare]</li>
+                            <li><strong>Chủ tài khoản:</strong> Nhà thuốc VitaCare</li>
+                            <li><strong>Ngân Hàng:</strong> [Ngân hàng VitaCare]</li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <h3>III. Thông tin giao hàng</h3>
+                <h4>1. Nhà thuốc VitaCare có giao hàng vào cuối tuần và ngày lễ không?</h4>
+                <p>Nhà thuốc VitaCare giao hàng vào tất cả các ngày trong tuần.</p>
+
+                <h4>2. Tôi đang rất cần sản phẩm, nhà thuốc VitaCare có thể giao gấp cho tôi được không?</h4>
+                <p>Nhà thuốc VitaCare sẽ cố gắng giao hàng trong thời gian sớm nhất cho quý khách hàng.</p>
+
+                <h4>3. Làm sao để tôi biết được chính xác khi nào tôi nhận được hàng?</h4>
+                <p>Theo qui định, VitaCare tiếp nhận thông tin và xử lý đơn hàng, trong vòng 15 ngày kể từ ngày đặt hàng
+                    đầu tiên VitaCare sẽ liên hệ khách hàng nhận đơn hàng đã đặt.</p>
+
+                <h4>4. Tôi có thể hẹn thời gian giao hàng được không?</h4>
+                <p>Quý Khách hàng có thể hẹn giờ giao hàng từ 8h - 20h tất cả các ngày trong tuần.</p>
+
+                <h4>5. Kiểm tra hàng trước khi thanh toán</h4>
+                <p>Trước khi thanh toán cho đơn hàng, quý khách có thể yêu cầu nhân viên giao nhận mở kiện hàng để kiểm
+                    tra tình trạng ngoại quan của sản phẩm (không bao gồm việc dùng thử sản phẩm).</p>
+                <p>Trong trường hợp quý khách không hài lòng với bất kì sản phẩm trong đơn hàng, ngay tại thời điểm được
+                    giao hàng, quý khách vui lòng từ chối không nhận toàn bộ kiện hàng hoặc thanh toán toàn bộ giá trị
+                    đơn hàng và hoàn trả lại cho bưu tá giao hàng.</p>
+                <p>Nếu có bất kỳ thắc mắc nào, vui lòng liên hệ bộ phận chăm sóc khách hàng <strong>1800 6821</strong>
+                    nhánh số 3 của Nhà thuốc VitaCare để được hỗ trợ nhanh chóng.</p>
+
+                <h4>6. Nếu giao hàng không thành công, Nhà thuốc VitaCare có thông báo cho tôi biết không?</h4>
+                <p>Trong trường hợp đơn hàng chưa được giao thành công đến quý khách lần thứ nhất, nhà thuốc VitaCare sẽ
+                    liên hệ với quý khách để sắp xếp lại lịch giao hàng.</p>
+                <p>Trường hợp Nhà thuốc VitaCare không thể kết nối được với quý khách hoặc đơn vị vận chuyển không thể
+                    giao hàng thành công đến quý khách đơn hàng sẽ được hủy bởi hệ thống.</p>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Feature Icons Footer -->
+    <div class="pc-features">
+        <div class="pc-feature-item">
+            <div class="pc-feature-icon">
+                <img src="assets/images/policy/pill.png" alt="Thuốc chính hãng">
+            </div>
+            <div class="pc-feature-text">
+                <strong>THUỐC CHÍNH HÃNG</strong>
+                <span>đa dạng và chuyên sâu</span>
+            </div>
+        </div>
+        <div class="pc-feature-item">
+            <div class="pc-feature-icon">
+                <img src="assets/images/policy/change.png" alt="Đổi trả">
+            </div>
+            <div class="pc-feature-text">
+                <strong>ĐỔI TRẢ TRONG 30 NGÀY</strong>
+                <span>kể cả thuốc đã bóc seal</span>
+            </div>
+        </div>
+        <div class="pc-feature-item">
+            <div class="pc-feature-icon">
+                <img src="assets/images/policy/pill-shield.png" alt="Cam kết">
+            </div>
+            <div class="pc-feature-text">
+                <strong>CAM KẾT 100%</strong>
+                <span>chất lượng sản phẩm</span>
+            </div>
+        </div>
+        <div class="pc-feature-item">
+            <div class="pc-feature-icon">
+                <img src="assets/images/policy/shipping.png" alt="Vận chuyển">
+            </div>
+            <div class="pc-feature-text">
+                <strong>MIỄN PHÍ VẬN CHUYỂN</strong>
+                <span>theo chính sách giao hàng</span>
+            </div>
+        </div>
+    </div>
+</div>

@@ -2377,12 +2377,63 @@ const HEALTH_INDICATOR_KEYWORDS = {
   pregnancy: ['thai kỳ', 'mẹ bầu', 'bà bầu', 'mang thai'],
 };
 
+// GET /api/blogs/category-counts - Thống kê số lượng bài viết theo danh mục
+app.get('/api/blogs/category-counts', async (req, res) => {
+  try {
+    const db = mongoose.connection.db;
+    const blogCount = await db.collection('blog').countDocuments().catch(() => 0);
+    const collName = blogCount > 0 ? 'blog' : 'blogs';
+    const blogsCol = db.collection(collName);
+
+    const filter = {
+      $and: [
+        {
+          $or: [
+            { isActive: true },
+            { isApproved: true },
+            { isActive: { $exists: false }, isApproved: { $exists: false } }
+          ]
+        }
+      ]
+    };
+
+    const stats = await blogsCol.aggregate([
+      { $match: filter },
+      {
+        $project: {
+          categories: {
+            $setUnion: [
+              { $ifNull: ["$categories.category.name", []] },
+              { $ifNull: ["$categories.name", []] },
+              { $cond: [{ $eq: [{ $type: "$category.name" }, "string"] }, ["$category.name"], []] },
+              { $cond: [{ $eq: [{ $type: "$categoryName" }, "string"] }, ["$categoryName"], []] }
+            ]
+          }
+        }
+      },
+      { $unwind: "$categories" },
+      { $group: { _id: "$categories", count: { $sum: 1 } } }
+    ]).toArray();
+
+    const counts = {};
+    stats.forEach(s => {
+      if (s._id) counts[s._id] = s.count;
+    });
+
+    res.json({ success: true, counts });
+  } catch (err) {
+    console.error('[GET /api/blogs/category-counts] Error:', err);
+    res.status(500).json({ success: false, message: 'Lỗi server', error: err.message });
+  }
+});
+
 // GET /api/blogs - danh sách bài viết sức khỏe (từ MongoDB collection blog/blogs)
 app.get('/api/blogs', async (req, res) => {
   try {
     const keyword = String(req.query.keyword || '').trim();
     const healthIndicator = String(req.query.healthIndicator || '').trim();
     const category = String(req.query.category || '').trim();
+    const subcategory = String(req.query.subcategory || '').trim();
     const page = Math.max(1, parseInt(req.query.page, 10) || 1);
     const limit = Math.min(Math.max(1, parseInt(req.query.limit, 10) || 10), 1000);
     const hasSkip = req.query.skip !== undefined;
@@ -2405,18 +2456,39 @@ app.get('/api/blogs', async (req, res) => {
       });
     }
 
-    // Build simple filter — don't restrict by isActive/isApproved since seed data may not have those fields
-    const filter = orConds.length || category ? { $and: [] } : {};
+    // Hỗ trợ isActive, isApproved; nếu không có thì lấy tất cả (dữ liệu local có thể thiếu field)
+    const filter = {
+      $and: [
+        {
+          $or: [
+            { isActive: true },
+            { isApproved: true },
+            { isActive: { $exists: false }, isApproved: { $exists: false } }
+          ]
+        }
+      ]
+    };
     if (orConds.length) {
       filter.$and.push({ $or: orConds });
     }
+
     if (category) {
       filter.$and.push({
         $or: [
-          { 'category.name': { $regex: escapeRegExp(category), $options: 'i' } },
-          { 'categories.name': { $regex: escapeRegExp(category), $options: 'i' } },
-          { 'categories.category.name': { $regex: escapeRegExp(category), $options: 'i' } },
-          { categoryName: { $regex: escapeRegExp(category), $options: 'i' } }
+          { 'category.name': { $regex: category, $options: 'i' } },
+          { 'categories.name': { $regex: category, $options: 'i' } },
+          { 'categories.category.name': { $regex: category, $options: 'i' } },
+          { categoryName: { $regex: category, $options: 'i' } }
+        ]
+      });
+    }
+
+    if (subcategory) {
+      filter.$and.push({
+        $or: [
+          { 'categories.1.name': { $regex: subcategory, $options: 'i' } },
+          { 'categories.category.name': { $regex: subcategory, $options: 'i' } },
+          { 'category.name': { $regex: subcategory, $options: 'i' } }
         ]
       });
     }
@@ -2424,14 +2496,7 @@ app.get('/api/blogs', async (req, res) => {
     // Collection: prioritize 'blogs' (populated) then 'blog'
     const db = mongoose.connection.db;
     const colls = await db.listCollections({ name: { $in: ['blog', 'blogs'] } }).toArray();
-    let collName = 'blogs'; // default
-    if (colls.some(c => c.name === 'blogs')) {
-      const cnt = await db.collection('blogs').countDocuments();
-      if (cnt > 0) collName = 'blogs';
-      else if (colls.some(c => c.name === 'blog')) collName = 'blog';
-    } else if (colls.some(c => c.name === 'blog')) {
-      collName = 'blog';
-    }
+    const collName = colls.some((c) => c.name === 'blog') ? 'blog' : 'blogs';
     const blogsCol = db.collection(collName);
     const projection = {
       title: 1,
@@ -2529,8 +2594,8 @@ app.get('/api/blogs/:slug', async (req, res) => {
     if (!slugParam) return res.status(400).json({ message: 'Not found' });
 
     const db = mongoose.connection.db;
-    const colls = await db.listCollections({ name: { $in: ['blog', 'blogs'] } }).toArray();
-    const collName = colls.some((c) => c.name === 'blog') ? 'blog' : 'blogs';
+    const blogCount = await db.collection('blog').countDocuments().catch(() => 0);
+    const collName = blogCount > 0 ? 'blog' : 'blogs';
     const blogsCol = db.collection(collName);
 
     // Chuẩn hoá slug: có thể nhận "1-cai-xuc-xich..." hoặc "bai-viet/1-cai-xuc-xich....html"

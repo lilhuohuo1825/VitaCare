@@ -1,15 +1,15 @@
 import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { Auth } from './auth/auth';
-import { HeaderComponent } from './header/header';
-import { Footer } from './footer/footer';
-import { Cart } from './cart/cart';
-import { FloatingActionsComponent } from './floating-actions/floating-actions';
-import { ProductQuickView } from './product-quick-view/product-quick-view';
-import { AuthService } from './services/auth.service';
-import { ToastService } from './services/toast.service';
-import { ConfirmService } from './services/confirm.service';
+import { Auth } from './features/accounts/auth/auth';
+import { HeaderComponent } from './shared/header/header';
+import { Footer } from './shared/footer/footer';
+import { Cart } from './features/accounts/cart/cart';
+import { FloatingActionsComponent } from './shared/floating-actions/floating-actions';
+import { ProductQuickView } from './features/products/product-quick-view/product-quick-view';
+import { AuthService } from './core/services/auth.service';
+import { ToastService } from './core/services/toast.service';
+import { ConfirmService } from './core/services/confirm.service';
 
 @Component({
   selector: 'app-root',

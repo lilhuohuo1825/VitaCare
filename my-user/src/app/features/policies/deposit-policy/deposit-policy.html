@@ -1,0 +1,163 @@
+<div class="vc_container pt-2">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb-vc">
+            <li class="breadcrumb-item"><a routerLink="/">Trang chủ</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Chính sách đặt cọc</li>
+        </ol>
+    </nav>
+
+    <div class="pc-layout">
+        <!-- Sidebar -->
+        <aside class="pc-sidebar">
+            <div class="pc-sidebar-header">
+                <span class="pc-icon-list">☰</span> Bài viết trong danh mục
+            </div>
+            <ul class="pc-menu">
+                <li><a [routerLink]="['/chinh-sach/gioi-thieu']">Giới thiệu nhà thuốc</a></li>
+                <li><a [routerLink]="['/chinh-sach/giay-phep-kinh-doanh']">Giấy phép kinh doanh</a></li>
+                <li><a [routerLink]="['/chinh-sach/quy-che-hoat-dong']">Quy chế hoạt động</a></li>
+                <li class="active"><a [routerLink]="['/chinh-sach/chinh-sach-dat-coc']">Chính sách đặt cọc</a></li>
+                <li><a [routerLink]="['/chinh-sach/chinh-sach-noi-dung']">Chính sách nội dung</a></li>
+                <li><a [routerLink]="['/chinh-sach/chinh-sach-doi-tra']">Chính sách đổi trả thuốc</a></li>
+                <li><a [routerLink]="['/chinh-sach/chinh-sach-giao-hang']">Chính sách giao hàng</a></li>
+                <li><a [routerLink]="['/chinh-sach/chinh-sach-bao-mat']">Chính sách bảo mật</a></li>
+                <li><a [routerLink]="['/chinh-sach/chinh-sach-thanh-toan']">Chính sách thanh toán</a></li>
+                <li><a [routerLink]="['/chinh-sach/chinh-sach-bao-mat-du-lieu']">Chính sách bảo mật dữ liệu cá nhân</a>
+                </li>
+                <li><a [routerLink]="['/chinh-sach/thong-tin-trung-tam-bao-hanh']">Thông tin trung tâm bảo hành máy
+                        thiết bị y tế từng hãng</a></li>
+                <li><a [routerLink]="['/chinh-sach/dieu-khoan-su-dung']">Điều khoản sử dụng VitaCare 247</a></li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="pc-content">
+            <h1 class="pc-title">Chính sách đặt cọc VitaCare</h1>
+
+            <div class="pc-section">
+                <p><strong>Quy trình đặt cọc mua hàng tại VitaCare</strong></p>
+                <p><em>*Liên hệ 1800 6821 - Tư vấn miễn phí</em></p>
+
+                <h3>Những câu hỏi thường gặp khi đặt cọc tại VitaCare</h3>
+
+                <h3>1. Khi nào tôi cần đặt cọc?</h3>
+                <p>Khi khách hàng mua hàng hóa số lượng lớn hoặc có nhu cầu mua hàng hóa là hàng đặc biệt đặc chủng thì
+                    cần tiến hành đặt cọc cho đơn hàng này.</p>
+
+                <h3>2. Tôi cần đặt cọc bao nhiêu?</h3>
+                <p>Quý Khách cần đặt cọc 30% tổng giá trị đơn hàng.</p>
+
+                <h3>3. Thời gian nhận hàng sau khi đặt cọc như thế nào?</h3>
+                <p>Theo qui định, VitaCare tiếp nhận thông tin và xử lý đơn hàng, trong vòng 15 ngày kể từ ngày đặt cọc
+                    đầu tiên VitaCare sẽ liên hệ khách hàng nhận đơn hàng đã đặt cọc.</p>
+
+                <h3>4. Khi không còn nhu cầu mua hàng nữa, tôi hủy cọc được không?</h3>
+                <p>Khi có nhu cầu hủy cọc, khách hàng cần thông báo với VitaCare để được hỗ trợ.</p>
+                <p>Ngoài ra, sau 15 ngày kể từ ngày đặt cọc đầu tiên khách hàng không đến VitaCare để nhận hàng thì được
+                    xem như là hủy cọc và VitaCare không hỗ trợ hoàn tiền trong trường hợp này.</p>
+
+                <h3>5. Khi hủy cọc tôi có nhận được 100% giá trị đã đặt cọc không?</h3>
+
+                <div class="pc-table-wrapper">
+                    <table class="pc-table">
+                        <thead>
+                            <tr>
+                                <th>Thời gian</th>
+                                <th>Trường hợp</th>
+                                <th>Chi phí đặt cọc</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>24h</td>
+                                <td>Khách hàng hủy cọc</td>
+                                <td>Hoàn 100% giá trị đặt cọc (Hủy cọc không mất phí)</td>
+                            </tr>
+                            <tr>
+                                <td>Sau 24h</td>
+                                <td>Khách hàng hủy cọc</td>
+                                <td>Không hoàn tiền (Hủy cọc mất phí)</td>
+                            </tr>
+                            <tr>
+                                <td>Từ 2 - 15 ngày</td>
+                                <td>VitaCare không đủ hàng để giao cho khách hàng</td>
+                                <td>Hoàn 100% giá trị đặt cọc (Hủy cọc không mất phí)</td>
+                            </tr>
+                            <tr>
+                                <td>Từ 2 - 15 ngày</td>
+                                <td>VitaCare đủ hàng để giao cho khách hàng nhưng khách hàng hủy cọc</td>
+                                <td>Không hoàn tiền (Hủy cọc mất phí)</td>
+                            </tr>
+                            <tr>
+                                <td>Sau 15 ngày</td>
+                                <td>Khách hàng không đến lấy sản phẩm, hệ thống tự động hủy đơn cọc</td>
+                                <td>Không hoàn tiền (Hủy cọc mất phí)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3>6. Tôi muốn thay đổi sản phẩm khác với sản phẩm đã đặt cọc được không?</h3>
+                <p>Khách hàng có ý định thay đổi sản phẩm khác với sản phẩm được đặt cọc ban đầu. khách hàng cần thông
+                    báo với VitaCare để được hỗ trợ.</p>
+                <p>Trong trường hợp sản phẩm thay đổi:</p>
+                <ul>
+                    <li>Có giá trị thấp hơn giá trị đặt cọc, khách hàng được hoàn lại phần tiền chênh lệch.</li>
+                    <li>Có giá trị cao hơn giá trị đặt cọc, khách hàng cần trả thêm phần tiền chênh lệch.</li>
+                </ul>
+
+                <h3>7. Khi hủy cọc tiền được hoàn lại cho tôi như thế nào?</h3>
+                <ul>
+                    <li><strong>Hoàn tiền tại quầy</strong>: Cửa hàng Chi tiền tại quầy cho khách hàng</li>
+                    <li><strong>Khách hàng chuyển khoản hoặc cà thẻ, thời gian hoàn tiền</strong>: Khách hàng điền thông
+                        tin chuyển khoản vào đường link nhận từ nhà thuốc VitaCare ở điện thoại. VitaCare sẽ hoàn lại
+                        tiền cho khách hàng từ 2-3 ngày kể từ ngày yêu cầu (không kể thứ 7, CN, ngày lễ)</li>
+                </ul>
+
+                <p>Để được hỗ trợ thêm, vui lòng liên hệ với phòng Chăm Sóc Khách Hàng <strong>1800 6821</strong> nhánh
+                    số 3</p>
+            </div>
+        </main>
+    </div>
+
+    <!-- Feature Icons Footer -->
+    <div class="pc-features">
+        <div class="pc-feature-item">
+            <div class="pc-feature-icon">
+                <img src="assets/images/policy/pill.png" alt="Thuốc chính hãng">
+            </div>
+            <div class="pc-feature-text">
+                <strong>THUỐC CHÍNH HÃNG</strong>
+                <span>đa dạng và chuyên sâu</span>
+            </div>
+        </div>
+        <div class="pc-feature-item">
+            <div class="pc-feature-icon">
+                <img src="assets/images/policy/change.png" alt="Đổi trả">
+            </div>
+            <div class="pc-feature-text">
+                <strong>ĐỔI TRẢ TRONG 30 NGÀY</strong>
+                <span>kể cả thuốc đã bóc seal</span>
+            </div>
+        </div>
+        <div class="pc-feature-item">
+            <div class="pc-feature-icon">
+                <img src="assets/images/policy/pill-shield.png" alt="Cam kết">
+            </div>
+            <div class="pc-feature-text">
+                <strong>CAM KẾT 100%</strong>
+                <span>chất lượng sản phẩm</span>
+            </div>
+        </div>
+        <div class="pc-feature-item">
+            <div class="pc-feature-icon">
+                <img src="assets/images/policy/shipping.png" alt="Vận chuyển">
+            </div>
+            <div class="pc-feature-text">
+                <strong>MIỄN PHÍ VẬN CHUYỂN</strong>
+                <span>theo chính sách giao hàng</span>
+            </div>
+        </div>
+    </div>
+</div>
