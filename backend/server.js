@@ -4713,6 +4713,13 @@ app.delete('/api/admin/products/:id', async (req, res) => {
   } catch (error) { res.status(500).json({ success: false, message: error.message }); }
 });
 
+app.get('/api/admin/categories', async (req, res) => {
+  try {
+    const data = await CategoryModel.find().lean();
+    res.json({ success: true, data });
+  } catch (error) { res.status(500).json({ success: false, message: error.message }); }
+});
+
 app.post('/api/admin/categories', async (req, res) => {
   try {
     const item = new CategoryModel(req.body);
