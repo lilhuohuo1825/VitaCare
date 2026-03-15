@@ -604,6 +604,11 @@ export class Disease implements OnInit, OnDestroy, AfterViewInit {
           this.ngZone.run(() => {
             entry.target.classList.add('active');
           });
+        } else {
+          // REMOVE: allow re-triggering when scrolling back
+          this.ngZone.run(() => {
+            entry.target.classList.remove('active');
+          });
         }
       });
     }, options);

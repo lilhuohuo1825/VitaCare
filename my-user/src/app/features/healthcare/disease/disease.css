@@ -290,7 +290,7 @@
     opacity: 0;
     filter: blur(15px);
     transform: scale(0.95);
-    transition: opacity 2s ease-out, filter 2.5s ease-out, transform 1.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transition: opacity 1.2s ease-out, filter 1.5s ease-out, transform 1.2s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .vc_three_canvas.vc_3d_ready {
