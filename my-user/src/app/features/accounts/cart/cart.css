@@ -260,6 +260,33 @@
   background-repeat: no-repeat;
 }
 
+/* Link sang trang chi tiết sản phẩm (ảnh + tên) */
+.cart-sidebar-item-link {
+  display: grid;
+  grid-column: span 2;
+  grid-template-columns: 56px 1fr;
+  gap: 10px 12px;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+  min-width: 0;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.cart-sidebar-item-link:hover {
+  opacity: 0.85;
+}
+
+.cart-sidebar-item-link .cart-sidebar-item-img {
+  width: 56px;
+  height: 56px;
+}
+
+.cart-sidebar-item-link .cart-sidebar-item-name {
+  min-width: 0;
+}
+
 .cart-sidebar-item-img {
   width: 56px;
   height: 56px;

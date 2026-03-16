@@ -37,11 +37,13 @@
               <input type="checkbox" [checked]="isItemSelected(item)" [disabled]="item.stock === 0"
                 (change)="onItemCheck(item, $any($event.target).checked)" />
             </label>
-            <img [src]="item.image" [alt]="item.productName" class="cart-sidebar-item-img" />
-            <div class="cart-sidebar-item-name">
-              {{ item.productName }}
-              <div class="text-danger small mt-1" *ngIf="item.stock === 0">Tạm hết hàng</div>
-            </div>
+            <a [routerLink]="['/product', item['slug'] || item._id]" (click)="close()" class="cart-sidebar-item-link">
+              <img [src]="item.image" [alt]="item.productName" class="cart-sidebar-item-img" />
+              <div class="cart-sidebar-item-name">
+                {{ item.productName }}
+                <div class="text-danger small mt-1" *ngIf="item.stock === 0">Tạm hết hàng</div>
+              </div>
+            </a>
             <div class="cart-sidebar-item-price">
               {{ (item.price * (item.quantity || 1)) | number:'1.0-0' }}₫
               <div class="cart-low-stock-limit"
