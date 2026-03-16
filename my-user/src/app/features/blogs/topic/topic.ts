@@ -32,7 +32,7 @@ export class Topic implements OnInit {
                     const newTopics = res.counts.map((item: any) => ({
                         name: item.name,
                         count: item.count,
-                        slug: item.slug
+                        slug: this.normalizeTopicSlug(item.slug || this.slugify(item.name))
                     }));
 
                     this.allTopics = [...this.allTopics, ...newTopics];
@@ -58,5 +58,24 @@ export class Topic implements OnInit {
 
     get remainingCount(): number {
         return Math.max(0, this.totalTopics - this.allTopics.length);
+    }
+
+    private normalizeTopicSlug(slug: string): string {
+        if (!slug) return '';
+        return slug.replace(/^chuyen-de\//i, '').replace(/^\/+/, '');
+    }
+
+    private slugify(text: string): string {
+        if (!text) return '';
+        return text
+            .toString()
+            .toLowerCase()
+            .normalize('NFD') // Tách các dấu tiếng Việt
+            .replace(/[\u0300-\u036f]/g, '') // Loại bỏ các dấu
+            .replace(/[đĐ]/g, 'd') // Thay đ thành d
+            .replace(/[^a-z0-9\s-]/g, '') // Loại bỏ ký tự đặc biệt
+            .trim()
+            .replace(/\s+/g, '-') // Thay khoảng trắng bằng dấu gạch ngang
+            .replace(/-+/g, '-'); // Loại bỏ các dấu gạch ngang dư thừa
     }
 }

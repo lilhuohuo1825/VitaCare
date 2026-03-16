@@ -355,7 +355,7 @@
               <div class="bv-ft-list">
                 <ng-container *ngFor="let item of featuredTopicCategories">
                   <a *ngIf="item.name.toLowerCase().indexOf('khuyến mãi') === -1 && item.name.toLowerCase().indexOf('phân loại') === -1 && item.name.toLowerCase().indexOf('truyền thông') === -1"
-                    [routerLink]="['/bai-viet', item.slug]" class="bv-ft-item" [attr.data-category]="item.name">
+                    [routerLink]="['/chuyen-de', item.slug]" class="bv-ft-item" [attr.data-category]="item.name">
                     <span class="bv-ft-name"># {{ item.name }}</span>
                     <span class="bv-ft-count">{{ item.count }} bài viết</span>
                   </a>

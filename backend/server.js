@@ -2593,7 +2593,20 @@ app.get('/api/blogs', async (req, res) => {
     }
 
     if (tagSlug) {
-      filter.$and.push({ "tags.slug": tagSlug });
+      const cleanSlug = tagSlug.replace(/^chuyen-de\//i, '').replace(/^\/+/, '');
+      const possibleSlugs = [cleanSlug, `chuyen-de/${cleanSlug}`];
+
+      // Regular expression for title matching (relaxed for hyphens/spaces)
+      const tagRegex = new RegExp('^' + escapeRegExp(cleanSlug).replace(/-/g, '[\\s-]') + '$', 'i');
+
+      filter.$and.push({
+        $or: [
+          { "tags.slug": { $in: possibleSlugs } },
+          { "tags.title": { $regex: tagRegex } },
+          // Special case for common tags if the regex isn't enough
+          { "tags.title": { $regex: new RegExp('^' + cleanSlug.replace(/-/g, '.*') + '$', 'i') } }
+        ]
+      });
     }
 
     // Collection: prioritize 'blogs' (populated) then 'blog'

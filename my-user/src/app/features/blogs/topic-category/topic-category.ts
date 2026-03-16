@@ -52,7 +52,12 @@ export class TopicCategory implements OnInit {
         'ung-thư': 'Ung thư',
         'dinh-duong': 'Dinh dưỡng',
         'y-hoc-the-thao': 'Y học thể thao',
-        'phuc-hoi-chuc-nang': 'Phục hồi chức năng'
+        'phuc-hoi-chuc-nang': 'Phục hồi chức năng',
+        'lam-dep': 'Làm đẹp',
+        'khoe-dep': 'Khỏe đẹp',
+        'me-va-be': 'Mẹ và bé',
+        'phong-benh-song-khoe': 'Phòng bệnh & Sống khỏe',
+        'tin-tuc-suc-khoe': 'Tin tức sức khỏe'
     };
 
     constructor(
@@ -64,9 +69,12 @@ export class TopicCategory implements OnInit {
 
     ngOnInit(): void {
         this.route.paramMap.subscribe(params => {
-            this.tagSlug = params.get('specialtySlug') || '';
+            const rawSlug = params.get('specialtySlug') || '';
+            this.tagSlug = this.normalizeTopicSlug(rawSlug);
+
+            // Priority: tagMap (accented) -> formatted normalizeTopicSlug
             this.tagName = this.tagMap[this.tagSlug] || this.formatSlug(this.tagSlug);
-            this.titleService.setTitle(`${this.tagName} - Chuyên đề sức khỏe`);
+            this.titleService.setTitle(`Bài viết ${this.tagName} - VitaCare`);
 
             this.skip = 0;
             this.blogs = [];
@@ -75,9 +83,16 @@ export class TopicCategory implements OnInit {
     }
 
     private formatSlug(slug: string): string {
-        return slug
-            .split('-')
-            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        if (!slug) return '';
+        // Remove prefixes and separate words
+        const clean = slug
+            .replace(/^chuyen-de\//i, '')
+            .replace(/-/g, ' ');
+
+        return clean
+            .split(' ')
+            .filter(word => word.length > 0)
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
             .join(' ');
     }
 
@@ -124,5 +139,18 @@ export class TopicCategory implements OnInit {
             slug: slug,
             categoryName: categoryName
         };
+    }
+
+    private normalizeTopicSlug(slug: string): string {
+        if (!slug) return '';
+        // Handle encoded slashes and double prefixes aggressively
+        let normalized = decodeURIComponent(slug);
+
+        // Remove any occurrences of 'chuyen-de/' prefix multiple times if necessary
+        while (normalized.toLowerCase().includes('chuyen-de/')) {
+            normalized = normalized.replace(/chuyen-de\//i, '');
+        }
+
+        return normalized.replace(/^\/+/, '').trim();
     }
 }

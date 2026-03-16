@@ -116,41 +116,6 @@
           </div>
         </div>
 
-        <!-- Sản phẩm liên quan (Carousel) -->
-        <div class="related-products-section" *ngIf="relatedProducts.length > 0">
-          <div class="rp-header">
-            <div class="rp-title">
-              <i class="bi bi-lightbulb-fill"></i>
-              <h3>Có thể bạn quan tâm</h3>
-            </div>
-          </div>
-
-          <div class="rp-carousel-wrapper">
-            <button class="rp-nav prev" (click)="scrollProductPrev()" aria-label="Previous">‹</button>
-
-            <div class="rp-slider" #productSlider>
-              <div class="product-card" *ngFor="let p of relatedProducts" (click)="goToProductDetail(p)">
-                <div class="p-img-wrap">
-                  <img [src]="p.image || p.imageUrl || 'assets/images/products/placeholder.jpg'" [alt]="p.name">
-                </div>
-                <div class="p-content">
-                  <h4 class="p-name">{{ p.name }}</h4>
-                  <div class="p-price-row">
-                    <span class="p-price">{{ (p.displayPrice || 0) | number:'1.0-0' }}đ <small class="p-unit">/ {{
-                        p.displayUnit || 'Hộp' }}</small></span>
-                  </div>
-                  <div class="p-actions">
-                    <button class="btn-cart" (click)="addToCart(p, $event)">Thêm vào giỏ</button>
-                    <button class="btn-buy" (click)="buyNow(p); $event.stopPropagation()">Mua ngay</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <button class="rp-nav next" (click)="scrollProductNext()" aria-label="Next">›</button>
-          </div>
-        </div>
-
         <!-- Thông tin tham khảo -->
         <div class="bd-disclaimer">
           <p>Thông tin và sản phẩm gợi ý trong bài viết chỉ mang tính chất tham khảo, vui lòng liên hệ với Bác sĩ, Dược
