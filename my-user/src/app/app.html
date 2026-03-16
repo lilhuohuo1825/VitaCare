@@ -30,9 +30,10 @@
 }
 
 @if (authService.headerSuccessMessage(); as msg) {
-<div class="logout-success-toast" [class.logout-warning-toast]="msg.includes('đăng nhập')" role="alert">
-  <i class="bi" [class.bi-check-circle-fill]="!msg.includes('đăng nhập')"
-    [class.bi-x-circle-fill]="msg.includes('đăng nhập')"></i>
+<div class="logout-success-toast"
+  [class.logout-warning-toast]="msg.includes('đăng nhập') && !msg.includes('thành công')" role="alert">
+  <i class="bi" [class.bi-check-circle-fill]="!msg.includes('đăng nhập') || msg.includes('thành công')"
+    [class.bi-x-circle-fill]="msg.includes('đăng nhập') && !msg.includes('thành công')"></i>
   <span>{{ msg }}</span>
 </div>
 }
