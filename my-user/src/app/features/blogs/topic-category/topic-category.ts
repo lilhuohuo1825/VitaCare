@@ -28,6 +28,7 @@ export class TopicCategory implements OnInit {
     total = 0;
     tagSlug: string = '';
     tagName: string = '';
+    featuredTopicCategories: { name: string; count: number; slug: string }[] = [];
 
     private tagMap: { [key: string]: string } = {
         'noi-tiet-chuyen-hoa': 'Nội tiết - Chuyển hóa',
@@ -68,6 +69,7 @@ export class TopicCategory implements OnInit {
     ) { }
 
     ngOnInit(): void {
+        this.loadTopicCounts();
         this.route.paramMap.subscribe(params => {
             const rawSlug = params.get('specialtySlug') || '';
             this.tagSlug = this.normalizeTopicSlug(rawSlug);
@@ -152,5 +154,41 @@ export class TopicCategory implements OnInit {
         }
 
         return normalized.replace(/^\/+/, '').trim();
+    }
+
+    private loadTopicCounts(): void {
+        const url = 'http://localhost:3000/api/blogs/topic-counts?limit=10';
+        this.http.get<any>(url).subscribe({
+            next: (res) => {
+                if (res?.success && Array.isArray(res?.counts)) {
+                    this.featuredTopicCategories = res.counts.map((item: any) => ({
+                        name: item.name,
+                        count: item.count,
+                        slug: this.normalizeTopicSlug(item.slug || this.slugify(item.name))
+                    })).filter((c: any) => {
+                        const lower = c.name.toLowerCase();
+                        return !lower.includes('khuyến mãi') && !lower.includes('phân loại') && !lower.includes('truyền thông');
+                    });
+                    this.cdr.detectChanges();
+                }
+            },
+            error: (err) => {
+                console.error('Lỗi khi lấy số lượng bài viết theo chuyên đề:', err);
+            }
+        });
+    }
+
+    private slugify(text: string): string {
+        if (!text) return '';
+        return text
+            .toString()
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/[đĐ]/g, 'd')
+            .replace(/[^a-z0-9\s-]/g, '')
+            .trim()
+            .replace(/\s+/g, '-')
+            .replace(/-+/g, '-');
     }
 }
