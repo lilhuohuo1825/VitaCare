@@ -60,10 +60,6 @@ export const routes: Routes = [
     loadComponent: () => import('./features/accounts/prescriptions/prescriptions').then(m => m.Prescriptions),
   },
   {
-    path: 'auth',
-    loadComponent: () => import('./features/accounts/auth/auth').then(m => m.Auth),
-  },
-  {
     path: 'consultation',
     loadComponent: () => import('./features/healthcare/consultation/consultation').then(m => m.Consultation),
   },
