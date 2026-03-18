@@ -79,9 +79,13 @@
 
                     <div class="dropdown-divider"></div>
                     <div class="dropdown-actions">
-                        <button class="btn-clear-filter" (click)="clearAllFilters()">
+                        <button class="btn btn-sm btn-clear-filter" (click)="clearAllFilters()">
                             <i class="bi bi-trash"></i>
-                            <span>Xóa tất cả bộ lọc</span>
+                            <span>Xóa lọc</span>
+                        </button>
+                        <button class="btn btn-sm btn-close-filter" (click)="isFilterOpen = false">
+                            <i class="bi bi-x"></i>
+                            <span>Đóng</span>
                         </button>
                     </div>
                 </div>

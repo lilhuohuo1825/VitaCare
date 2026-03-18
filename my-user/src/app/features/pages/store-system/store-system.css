@@ -67,7 +67,7 @@
 
 .page-subtitle {
   font-size: 13px;
-  color: var(--vc-neutral-70);
+  color: #00589F;
   margin: 0;
 }
 
@@ -115,7 +115,7 @@
   font-family: var(--font-body), sans-serif;
   font-size: 13.5px;
   font-weight: 500;
-  color: var(--vc-neutral-60);
+  color: #00589F;
   cursor: pointer;
   position: relative;
   transition: color .2s;
@@ -162,7 +162,7 @@
   left: 11px;
   top: 50%;
   transform: translateY(-50%);
-  color: #000;
+  color: #00589F;
   font-size: 20px;
 }
 
@@ -174,14 +174,14 @@
   border-radius: var(--radius-md);
   font-family: var(--font-body), sans-serif;
   font-size: 14px;
-  color: #000;
+  color: #00589F;
   outline: none;
   background: #FFFFFF;
   transition: border-color .2s, box-shadow .2s;
 }
 
 .kw-input::placeholder {
-  color: #000;
+  color: #00589F;
 }
 
 .kw-input:focus {
@@ -229,7 +229,7 @@
   cursor: pointer;
   background: #FFFFFF;
   font-size: 13.5px;
-  color: #000;
+  color: #00589F;
   transition: border-color .2s;
   margin-bottom: 8px;
   user-select: none;
@@ -241,7 +241,7 @@
 
 .loc-select .material-icons {
   font-size: 20px;
-  color: #000;
+  color: #00589F;
 }
 
 .loc-dropdown {
@@ -635,7 +635,7 @@
 /* Features view */
 .info-intro {
   font-size: 14px;
-  color: var(--vc-neutral-80);
+  color: #00589F;
   line-height: 1.65;
   margin-bottom: 24px;
   padding-bottom: 20px;
@@ -643,7 +643,7 @@
 }
 
 .info-intro strong {
-  color: var(--vc-primary);
+  color: #00589F;
 }
 
 .features-grid {
@@ -684,37 +684,38 @@
   background: #daecff;
 }
 
-.feat-icon .material-icons {
+.feat-icon .material-symbols-rounded {
   font-size: 22px;
+  color: #00589F;
 }
 
-.feat-icon.blue .material-icons {
-  color: var(--vc-primary);
+.feat-icon.blue .material-symbols-rounded {
+  color: #00589F;
 }
 
-.feat-icon.orange .material-icons {
-  color: var(--vc-warning);
+.feat-icon.orange .material-symbols-rounded {
+  color: #00589F;
 }
 
-.feat-icon.green .material-icons {
-  color: #2e7d32;
+.feat-icon.green .material-symbols-rounded {
+  color: #00589F;
 }
 
-.feat-icon.purple .material-icons {
-  color: var(--vc-info);
+.feat-icon.purple .material-symbols-rounded {
+  color: #00589F;
 }
 
 .feat-body h4 {
   font-family: var(--font-title), sans-serif;
   font-size: 13.5px;
   font-weight: 700;
-  color: var(--vc-neutral-100);
+  color: #00589F;
   margin: 0 0 4px;
 }
 
 .feat-body p {
   font-size: 12.5px;
-  color: var(--vc-neutral-70);
+  color: #00589F;
   line-height: 1.55;
   margin: 0;
 }
@@ -904,7 +905,7 @@
   align-items: center;
   gap: 16px;
   padding: 14px 16px;
-  background: #daecff;
+  background: #EBF4FF;
   border-radius: var(--radius-md);
   margin-bottom: 16px;
 }
@@ -1069,7 +1070,7 @@
 .pharmacist-card {
   margin-bottom: 16px;
   padding: 14px 16px;
-  background: #daecff;
+  background: #EBF4FF;
   border-radius: var(--radius-md);
   border-left: 3px solid var(--vc-primary);
 }
@@ -1099,7 +1100,7 @@
 /* License */
 .license-section {
   padding: 14px 16px;
-  background: #daecff;
+  background: #EBF4FF;
   border-radius: var(--radius-md);
   border-left: 3px solid #00589F;
   margin-bottom: 16px;
@@ -1134,7 +1135,7 @@
   font-size: 11.5px;
   padding: 3px 10px;
   border-radius: 20px;
-  background: #daecff;
+  background: #EBF4FF;
   color: #00589F;
   font-weight: 600;
   border: 1px solid rgba(0, 88, 159, .15);
@@ -1152,7 +1153,7 @@
   font-size: 11.5px;
   padding: 3px 10px;
   border-radius: 20px;
-  background: #daecff;
+  background: #EBF4FF;
   color: #00589F;
   font-weight: 600;
   border: 1px solid rgba(0, 88, 159, .15);
@@ -1160,7 +1161,7 @@
 
 /* Opening hours */
 .hours-section {
-  background: #daecff;
+  background: #EBF4FF;
   border-radius: var(--radius-md);
   padding: 14px 16px;
   margin-bottom: 8px;
@@ -1182,7 +1183,7 @@
   font-size: 13px;
   color: #00589F;
   padding: 5px 0;
-  border-bottom: 1px solid var(--vc-neutral-20);
+  border-bottom: 1px solid rgba(0, 88, 159, .1);
 }
 
 .hours-row:last-of-type {

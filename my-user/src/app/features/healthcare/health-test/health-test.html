@@ -327,8 +327,7 @@
                     <div style="font-size: 13px; color: var(--vc-main);"><span style="font-weight: 600;">Điểm số:</span>
                         {{ record.score }}</div>
                 </div>
-                <div [ngClass]="record.score === 0 ? 'low' : 'high'"
-                    style="font-weight: 800; font-size: 24px; padding: 12px 16px; border-radius: 12px; background: var(--vc-main-bg); color: var(--vc-main);">
+                <div class="ht-history-badge" [ngClass]="record.score === 0 ? 'low' : 'high'">
                     {{ record.score === 0 ? 'Tốt' : 'Lưu ý' }}
                 </div>
             </div>

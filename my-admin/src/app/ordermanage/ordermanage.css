@@ -361,7 +361,7 @@
 }
 
 .dropdown-item:hover {
-    background: #f3e5f5;
+    background: #daecff;
     color: var(--color-primary);
 }
 
@@ -413,7 +413,7 @@
 }
 
 .dropdown-option:hover {
-    background: #f3e5f5;
+    background: #daecff;
 }
 
 .price-range-inputs {
@@ -450,7 +450,7 @@
 }
 
 .dropdown-option:hover {
-    background: #f3e5f5;
+    background: #daecff;
 }
 
 .dropdown-option input[type="checkbox"],
@@ -482,7 +482,7 @@
 }
 
 .sort-option-btn:hover {
-    background-color: #f3e5f5;
+    background-color: #daecff;
     color: var(--color-primary);
 }
 

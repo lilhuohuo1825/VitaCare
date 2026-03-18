@@ -172,11 +172,14 @@ export class HealthTestComponent implements OnInit {
       id: "R_DEFAULT",
       condition: { operator: ">=", value: 0 },
       title: "Đã ghi nhận kết quả",
-      description: "Thông tin của bạn đã được hệ thống ghi nhận. Vui lòng tham khảo ý kiến bác sĩ chuyên khoa để được tư vấn chính xác nhất.",
-      isLow: score === 0
+      description: "Thông tin của bạn đã được hệ thống ghi nhận. Vui lòng tham khảo ý kiến bác sĩ chuyên khoa để được tư vấn chính xác nhất."
     };
 
-    this.result = { ...finalRes, score };
+    this.result = {
+      ...finalRes,
+      score,
+      isLow: res ? (res.id.includes('low')) : (score === 0)
+    };
     this.screen = 'result';
 
     // Submit to backend

@@ -1,4 +1,4 @@
-﻿/* Product Manage Styles - Based on Order Manage for Consistency */
+/* Product Manage Styles - Based on Order Manage for Consistency */
 .product-manage-container {
     display: flex;
     flex-direction: column;
@@ -253,7 +253,7 @@
 }
 
 .dropdown-item:hover {
-    background: #f3e5f5;
+    background: #daecff;
     color: var(--color-primary);
 }
 
@@ -267,12 +267,27 @@
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
     min-width: 200px;
     padding: 8px 0;
-    display: none;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(-10px);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 1001;
+    display: block;
 }
 
 .dropdown-item-parent:hover>.dropdown-submenu {
-    display: block;
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(0);
+}
+
+.dropdown-submenu::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: -15px;
+    width: 15px;
+    height: 100%;
 }
 
 .dropdown-option {
@@ -287,7 +302,7 @@
 }
 
 .dropdown-option:hover {
-    background: #f3e5f5;
+    background: #daecff;
 }
 
 .dropdown-option input[type="checkbox"],
@@ -303,25 +318,49 @@
     margin: 8px 0;
 }
 
-.btn-clear-filter {
-    width: 100%;
+.dropdown-actions {
+    display: flex;
+    gap: 8px;
+    padding: 8px 16px;
+}
+
+.btn-clear-filter,
+.btn-close-filter {
+    flex: 1;
     padding: 10px;
-    background: #fff5f5;
-    border: 1px solid #ffe3e3;
     border-radius: 8px;
-    color: #d32f2f;
     font-weight: 600;
     font-size: 13px;
     cursor: pointer;
-    display: flex;
+    display: flex !important;
     align-items: center;
     justify-content: center;
     gap: 8px;
     transition: all 0.2s;
+    box-shadow: none !important;
+    transform: none !important;
+}
+
+.btn-clear-filter {
+    background: #fff5f5 !important;
+    border: 1px solid #ffe3e3 !important;
+    color: #d32f2f !important;
 }
 
 .btn-clear-filter:hover {
-    background: #ffe3e3;
+    background: #ffe3e3 !important;
+    transform: none !important;
+}
+
+.btn-close-filter {
+    background: #f1f5f9 !important;
+    border: 1px solid #e2e8f0 !important;
+    color: #475569 !important;
+}
+
+.btn-close-filter:hover {
+    background: #e2e8f0 !important;
+    transform: none !important;
 }
 
 .selected-badge {

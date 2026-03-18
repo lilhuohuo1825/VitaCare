@@ -625,3 +625,22 @@
     font-size: 13.5px;
     color: var(--vc-neutral-80);
 }
+
+/* HISTORY BADGE */
+.ht-history-badge {
+    font-weight: 800;
+    font-size: 24px;
+    padding: 12px 16px;
+    border-radius: 12px;
+    transition: all 0.2s ease;
+}
+
+.ht-history-badge.low {
+    background: var(--vc-main-bg);
+    color: var(--vc-main);
+}
+
+.ht-history-badge.high {
+    background: var(--vc-danger-bg);
+    color: var(--vc-danger);
+}
