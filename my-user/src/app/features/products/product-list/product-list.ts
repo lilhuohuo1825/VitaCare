@@ -211,6 +211,7 @@ export class ProductList implements OnInit {
       }
     }
     this.router.navigate(['/consultation'], { queryParams });
+    window.scrollTo(0, 0);
   }
 
   isNumber(val: any): boolean {

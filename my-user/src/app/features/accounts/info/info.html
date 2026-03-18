@@ -192,22 +192,7 @@
                         aria-label="Mở camera chụp ảnh đại diện"><i class="bi bi-camera"></i></span>
                 </div>
                 <div class="user-basic-info">
-                    <div class="name-row">
-                      <h4 class="name">{{ fullName }}</h4>
-                      @if (tiering) {
-                        <span class="info-tier-badge">
-                          {{
-                            tiering === 'gold'
-                              ? 'Vàng'
-                              : tiering === 'silver'
-                                ? 'Bạc'
-                                : tiering === 'bronze'
-                                  ? 'Đồng'
-                                  : tiering
-                          }}
-                        </span>
-                      }
-                    </div>
+                    <h4 class="name">{{ fullName }}</h4>
                     <p class="phone">{{ phone }}</p>
                 </div>
             </div>
@@ -227,11 +212,8 @@
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="birthDate" class="form-label">Ngày sinh</label>
-                        <app-date-picker
-                          [value]="birthDate || null"
-                          (valueChange)="birthDate = $event || ''"
-                          placeholder="dd/mm/yyyy">
-                        </app-date-picker>
+                        <input type="date" class="form-control" id="birthDate" [(ngModel)]="birthDate" name="birthDate"
+                            placeholder="mm / dd / yyyy">
                     </div>
                 </div>
                 <div class="col-md-6">
@@ -282,11 +264,21 @@
                 </div>
             </div>
 
-            <!-- Submit & Actions -->
+            <!-- Mật khẩu (chỉ hiển thị; đổi mật khẩu qua popup OTP) -->
+            <div class="form-group">
+                <label for="password" class="form-label">Mật khẩu:</label>
+                <div class="password-input-wrapper">
+                    <input [type]="showPassword ? 'text' : 'password'" class="form-control" id="password"
+                        [value]="passwordDisplay" name="password" placeholder="••••••••••••" readonly>
+                    <button type="button" class="password-toggle" (click)="togglePassword()" [attr.aria-label]="showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'">
+                        <i class="bi" [class.bi-eye]="!showPassword" [class.bi-eye-slash]="showPassword" class="toggle-icon"></i>
+                    </button>
+                </div>
+                <a href="#" class="change-password-link" (click)="changePassword($event)">Thay đổi mật khẩu</a>
+            </div>
+
+            <!-- Submit Button -->
             <div class="form-actions">
-                <button type="button" class="btn-change-password" (click)="changePassword($event)">
-                    Thay đổi mật khẩu
-                </button>
                 <button type="submit" class="btn-update">Cập nhật thông tin</button>
             </div>
         </form>

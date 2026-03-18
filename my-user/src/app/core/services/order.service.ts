@@ -21,10 +21,6 @@ export interface Order {
     status: string;
     statusPayment: string;
     totalAmount: number;
-    subtotal?: number;
-    directDiscount?: number;
-    voucherDiscount?: number;
-    shippingFee?: number;
     item: OrderProduct[]; // Backend uses 'item', frontend interface might need adjustment
     route?: {
         pending?: string;

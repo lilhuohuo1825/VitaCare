@@ -6,13 +6,11 @@ import { FormsModule } from '@angular/forms';
 import { DiseaseService } from '../../../core/services/disease.service';
 import { ProductService } from '../../../core/services/product.service';
 import { AuthService } from '../../../core/services/auth.service';
-import { ToastService } from '../../../core/services/toast.service';
-import { LoadingShippingComponent } from '../../../shared/loading-shipping/loading-shipping';
 
 @Component({
   selector: 'app-disease-details',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, LoadingShippingComponent],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './disease-details.html',
   styleUrl: './disease-details.css',
 })
@@ -79,7 +77,6 @@ export class DiseaseDetails implements OnInit, OnDestroy {
     private diseaseService: DiseaseService,
     private productService: ProductService,
     readonly authService: AuthService,
-    private toastService: ToastService,
     private sanitizer: DomSanitizer,
     private cdr: ChangeDetectorRef,
     private ngZone: NgZone
@@ -577,14 +574,6 @@ export class DiseaseDetails implements OnInit, OnDestroy {
     this.isQuestionMode = true;
     this.showReviewModal = true;
     this.userReviewContent = '';
-
-    if (!this.authService.currentUser()) {
-      const randomCode = Math.floor(1000 + Math.random() * 9000);
-      this.guestDisplayName = `Khách vãng lai ${randomCode}`;
-    } else {
-      this.guestDisplayName = '';
-    }
-
     document.body.style.overflow = 'hidden';
   }
 
@@ -595,7 +584,7 @@ export class DiseaseDetails implements OnInit, OnDestroy {
 
   submitQuestion() {
     if (!this.userReviewContent.trim()) {
-      this.toastService.showError('Vui lòng nhập nội dung câu hỏi');
+      alert('Vui lòng nhập nội dung câu hỏi');
       return;
     }
     const user = this.authService.currentUser();
@@ -626,13 +615,13 @@ export class DiseaseDetails implements OnInit, OnDestroy {
 
     this.diseaseService.postConsultation(payload).subscribe({
       next: (res) => {
-        this.toastService.showSuccess('Câu hỏi của bạn đã được gửi thành công! VitaCare sẽ phản hồi sớm nhất có thể.');
+        alert('Câu hỏi của bạn đã được gửi thành công! VitaCare sẽ phản hồi sớm nhất có thể.');
         this.closeReviewModal();
         this.fetchConsultations(payload.sku);
       },
       error: (err) => {
         console.error('Submit question error:', err);
-        this.toastService.showError('Có lỗi xảy ra khi gửi câu hỏi. Vui lòng thử lại.');
+        alert('Có lỗi xảy ra khi gửi câu hỏi. Vui lòng thử lại.');
       }
     });
   }
@@ -668,7 +657,7 @@ export class DiseaseDetails implements OnInit, OnDestroy {
 
   submitReplyConsultation(question: any) {
     if (!this.consultationReplyContent.trim()) {
-      this.toastService.showError('Vui lòng nhập nội dung trả lời');
+      alert('Vui lòng nhập nội dung trả lời');
       return;
     }
 
@@ -682,7 +671,7 @@ export class DiseaseDetails implements OnInit, OnDestroy {
 
     this.productService.replyToConsultation(payload).subscribe({
       next: (data) => {
-        this.toastService.showSuccess('Đã gửi phản hồi thành công!');
+        alert('Đã gửi phản hồi thành công!');
         this.consultationsData = data;
         this.replyingToQuestionId = null;
         this.consultationReplyContent = '';
@@ -690,7 +679,7 @@ export class DiseaseDetails implements OnInit, OnDestroy {
       },
       error: (err) => {
         console.error('Reply consultation error:', err);
-        this.toastService.showError('Lỗi gửi phản hồi. Vui lòng thử lại.');
+        alert('Lỗi gửi phản hồi. Vui lòng thử lại.');
       }
     });
   }

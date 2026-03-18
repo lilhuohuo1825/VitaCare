@@ -73,13 +73,6 @@ export class ReminderService {
     });
   }
 
-  markUncomplete(id: string, date: string, time: string): Observable<{ success: boolean; reminder?: Reminder }> {
-    return this.http.post<{ success: boolean; reminder?: Reminder }>(`${API}/reminders/${id}/uncomplete`, {
-      date,
-      time,
-    });
-  }
-
   uploadImage(file: File): Observable<{ success: boolean; url?: string }> {
     const formData = new FormData();
     formData.append('file', file);

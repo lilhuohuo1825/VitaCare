@@ -65,9 +65,6 @@ interface Order {
   | 'returning'
   | 'returned';
   totalAmount: number;
-  subtotal?: number;
-  directDiscount?: number;
-  voucherDiscount?: number;
   products: OrderProduct[];
   shippingInfo?: ShippingInfo;
   shippingFee?: number;
@@ -114,9 +111,9 @@ export class OrderDetailAcc {
     this.searchQuery = '';
     this.showDetailModal = true;
 
-    // Auto-select first order or specified order (match by id hoặc orderNumber)
+    // Auto-select first order or specified order
     if (selectedOrderId) {
-      const order = this.allOrders.find(o => o.id === selectedOrderId || o.orderNumber === selectedOrderId);
+      const order = this.allOrders.find(o => o.id === selectedOrderId);
       if (order) {
         this.selectedOrder = order;
       } else if (this.allOrders.length > 0) {
