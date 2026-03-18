@@ -225,6 +225,15 @@ export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
         this.fetchNotificationsPreview(uid, true);
       }
     });
+
+    // Listen for manual notification refreshes
+    this.noticeService.refresh$.subscribe(() => {
+      const uid = (this.authService.currentUser() as { user_id?: string })?.user_id;
+      if (uid) {
+        this.fetchNotificationsPreview(uid, true);
+      }
+    });
+
     this.updateActivePill(this.router.url);
   }
 
@@ -488,7 +497,7 @@ export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
   private setReminderAckSession(): void {
     try {
       sessionStorage.setItem(HeaderComponent.REMINDER_ACK_KEY, '1');
-    } catch (_) {}
+    } catch (_) { }
     this.reminderBadgeService.setPopupAcked();
   }
 
@@ -499,7 +508,7 @@ export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
   private setPrescriptionPopupAckSession(): void {
     try {
       sessionStorage.setItem(HeaderComponent.PRESCRIPTION_POPUP_ACK_KEY, '1');
-    } catch (_) {}
+    } catch (_) { }
   }
   private getOrderPopupAckSession(): boolean {
     if (typeof sessionStorage === 'undefined') return false;
@@ -508,7 +517,7 @@ export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
   private setOrderPopupAckSession(): void {
     try {
       sessionStorage.setItem(HeaderComponent.ORDER_POPUP_ACK_KEY, '1');
-    } catch (_) {}
+    } catch (_) { }
   }
 
   /** Chạy hiệu ứng đóng (trượt ra) rồi gọi callback (nếu có). */
@@ -540,7 +549,7 @@ export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
       this.setReminderAckSession();
       if (userId && ids.length) {
         ids.forEach((id) =>
-          this.noticeService.markAsRead(id, userId).subscribe({ error: () => {} })
+          this.noticeService.markAsRead(id, userId).subscribe({ error: () => { } })
         );
       }
     });
@@ -574,7 +583,7 @@ export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
       this.setPrescriptionPopupAckSession();
       if (userId && ids.length) {
         ids.forEach((id) =>
-          this.noticeService.markAsRead(id, userId).subscribe({ error: () => {} })
+          this.noticeService.markAsRead(id, userId).subscribe({ error: () => { } })
         );
       }
     });
@@ -616,7 +625,7 @@ export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
       this.setOrderPopupAckSession();
       if (userId && ids.length) {
         ids.forEach((id) =>
-          this.noticeService.markAsRead(id, userId).subscribe({ error: () => {} })
+          this.noticeService.markAsRead(id, userId).subscribe({ error: () => { } })
         );
       }
     });
