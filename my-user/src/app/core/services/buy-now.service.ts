@@ -20,6 +20,9 @@ export interface BuyNowSummary {
     subtotal: number;
     directDiscount: number;
     voucherDiscount: number;
+    /** Thông tin khuyến mãi đang áp dụng (nếu có) */
+    promotionId?: string;
+    promotionName?: string;
 }
 
 const SESSION_KEY = 'vitacare_buy_now';
@@ -55,7 +58,13 @@ export class BuyNowService {
         const subtotal = (item.price + item.discount) * item.quantity;
         const directDiscount = item.discount * item.quantity;
         const voucherDiscount = 0;
-        this.summary = { subtotal, directDiscount, voucherDiscount };
+        this.summary = {
+            subtotal,
+            directDiscount,
+            voucherDiscount,
+            promotionId: undefined,
+            promotionName: undefined,
+        };
         try {
             sessionStorage.setItem(SESSION_KEY, JSON.stringify(this.items));
             sessionStorage.setItem(SESSION_SUMMARY_KEY, JSON.stringify(this.summary));
@@ -95,7 +104,13 @@ export class BuyNowService {
                 (s, i) => s + i.discount * i.quantity,
                 0,
             );
-            this.summary = { subtotal, directDiscount, voucherDiscount: 0 };
+            this.summary = {
+                subtotal,
+                directDiscount,
+                voucherDiscount: 0,
+                promotionId: undefined,
+                promotionName: undefined,
+            };
         }
         try {
             sessionStorage.setItem(SESSION_KEY, JSON.stringify(this.items));

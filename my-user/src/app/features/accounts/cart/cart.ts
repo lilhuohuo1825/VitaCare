@@ -144,7 +144,20 @@ export class Cart implements OnInit, OnDestroy {
       if (updatedCart && this.cartSidebar.isOpen()) {
         this.cart.set(updatedCart as CartModel);
         const items = updatedCart.items ?? [];
-        this.cartSelectedIds.set(this.getPreselectedIds(items as any));
+        const prevIds = this.cartSelectedIds();
+        let nextIds: Set<string>;
+        if (prevIds.size > 0) {
+          // Giữ nguyên lựa chọn hiện tại, chỉ bỏ những sản phẩm đã bị xoá
+          nextIds = new Set(
+            items
+              .map((i: any) => String(i._id ?? (i as any)._id))
+              .filter(id => prevIds.has(id)),
+          );
+        } else {
+          // Nếu trước đó chưa có lựa chọn nào (lần đầu mở hoặc từ Mua lại) → áp dụng logic preselect
+          nextIds = this.getPreselectedIds(items as any);
+        }
+        this.cartSelectedIds.set(nextIds);
         this.cdr.markForCheck();
       }
     });
@@ -175,8 +188,20 @@ export class Cart implements OnInit, OnDestroy {
           });
         }
         (c as any).totalPrice = tp;
-        this.cart.set(c);
-        this.cartSelectedIds.set(this.getPreselectedIds(c.items ?? []));
+        this.cart.set(c as CartModel);
+        const items = c.items ?? [];
+        const prevIds = this.cartSelectedIds();
+        let nextIds: Set<string>;
+        if (prevIds.size > 0) {
+          nextIds = new Set(
+            items
+              .map((i: any) => String(i._id ?? (i as any)._id))
+              .filter(id => prevIds.has(id)),
+          );
+        } else {
+          nextIds = this.getPreselectedIds(items as any);
+        }
+        this.cartSelectedIds.set(nextIds);
         this.cdr.markForCheck();
       }
     });
@@ -481,6 +506,8 @@ export class Cart implements OnInit, OnDestroy {
       subtotal: this.selectedSubtotal(),
       directDiscount: this.selectedDirectDiscount(),
       voucherDiscount: this.voucherDiscount(),
+      promotionId: this.appliedPromotion()?.promotion_id,
+      promotionName: this.appliedPromotion()?.name,
     });
     this.close();
     this.router.navigate(['/order']);
