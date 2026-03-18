@@ -1,4 +1,4 @@
-﻿/* Product Manage Styles - Based on Order Manage for Consistency */
+/* Product Manage Styles - Based on Order Manage for Consistency */
 .product-manage-container {
     display: flex;
     flex-direction: column;
@@ -269,6 +269,21 @@
     padding: 8px 0;
     display: none;
     z-index: 1001;
+    max-height: 320px;
+    overflow-y: auto;
+}
+
+.dropdown-submenu::-webkit-scrollbar {
+    width: 6px;
+}
+
+.dropdown-submenu::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+
+.dropdown-submenu::-webkit-scrollbar-track {
+    background: transparent;
 }
 
 .dropdown-item-parent:hover>.dropdown-submenu {
@@ -428,6 +443,43 @@ input[type="checkbox"] {
 .price {
     font-weight: 600;
     color: var(--color-primary);
+}
+
+/* Category Pill Hierarchy */
+.category-pill-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    align-items: center;
+}
+
+.cat-pill {
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    display: inline-flex;
+    align-items: center;
+}
+
+.cat-parent {
+    background-color: #EEF2FF;
+    color: #4A55A2;
+    border: 1px solid #DDE4FF;
+}
+
+.cat-child {
+    background-color: #F8FAFC;
+    color: #64748B;
+    border: 1px solid #E2E8F0;
+}
+
+.cat-sep {
+    color: #CBD5E1;
+    font-size: 10px;
+    margin: 0 2px;
 }
 
 

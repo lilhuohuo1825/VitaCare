@@ -1,0 +1,283 @@
+<div class="container h-full flex flex-col pt-4">
+    <!-- Breadcrumb -->
+    <div class="breadcrumb text-sm mb-2 font-medium" style="color: var(--color-neutral-60);">
+        <span class="cursor-pointer" (click)="goBack()">Blog & tin tức</span> / <span class="cursor-pointer" (click)="goBack()">Quản lý bệnh</span> / Chi tiết bệnh
+    </div>
+
+    <!-- Header Box -->
+    <div class="detail-header-card">
+        <div class="header-left-group" style="display: flex; align-items: center; gap: 20px;">
+            <button class="btn-back" (click)="goBack()">
+                <i class="bi bi-arrow-left" style="font-size: 20px;"></i>
+            </button>
+            <h1 class="header-title">
+                {{ isEditMode ? 'CẬP NHẬT KIẾN THỨC BỆNH' : 'THÊM MỚI KIẾN THỨC BỆNH' }}
+            </h1>
+        </div>
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; font-weight: 700; user-select: none;">
+                <input type="checkbox" [(ngModel)]="diseaseData.is_approved" style="width: 16px; height: 16px; cursor: pointer; accent-color: var(--color-primary);">
+                <span [style.color]="diseaseData.is_approved ? 'var(--color-primary)' : '#94a3b8'">
+                    <i class="bi" [ngClass]="diseaseData.is_approved ? 'bi-check-circle-fill' : 'bi-clock'"></i>
+                    {{ diseaseData.is_approved ? 'Đã duyệt' : 'Chờ duyệt' }}
+                </span>
+            </label>
+            <button class="btn btn-save" (click)="saveDisease()">Lưu</button>
+        </div>
+    </div>
+
+    <div *ngIf="isLoading" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-2 text-secondary">Đang tải dữ liệu....</p>
+    </div>
+
+    <div *ngIf="!isLoading" class="disease-detail-form pb-5">
+        <!-- Sidebar Column (Meta data) -->
+        <div class="meta-column flex flex-col gap-5">
+            <div class="card-premium">
+                <span class="section-label">HÌNH ẢNH MINH HỌA</span>
+                <div class="image-upload-box" (click)="triggerPrimaryImageInput()">
+                    <img *ngIf="diseaseData.image?.url" [src]="diseaseData.image.url" class="image-preview" alt="Cover" referrerpolicy="no-referrer">
+                    <div *ngIf="!diseaseData.image?.url" class="upload-placeholder">
+                        <i class="bi bi-cloud-arrow-up" style="font-size: 3rem; color: #cbd5e1;"></i>
+                        <p class="text-xs font-bold mt-2">CHỌN ẢNH ĐẠI DIỆN</p>
+                    </div>
+                </div>
+                <input type="file" id="primaryDiseaseImageUpload" (change)="onPrimaryImageSelected($event)" (click)="$event.stopPropagation()" accept="image/*" style="display: none;">
+                <div class="text-xs text-neutral-40 text-center mb-0">Hỗ trợ JPG, PNG (Max 5MB)</div>
+            </div>
+
+            <div class="card-premium">
+                <span class="section-label">THÔNG TIN CHUNG</span>
+                
+                <div class="form-group">
+                    <label class="form-label-bold">Tên bệnh:</label>
+                    <input type="text" class="form-input-premium" [(ngModel)]="diseaseData.name" (ngModelChange)="onNameChange()" placeholder="Ví dụ: Béo phì độ 2">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label-bold">Slug (Link):</label>
+                    <input type="text" class="form-input-premium" [(ngModel)]="diseaseData.slug" placeholder="benh/ten-benh.html">
+                    <small class="text-xs text-neutral-40" style="margin-top: 4px; display: block;">Link tự động tạo từ tên bệnh</small>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label-bold">Nhóm chủ đề chính:</label>
+                    <select class="form-select-premium" [(ngModel)]="diseaseData.groupId">
+                        <option value="">---- Chọn nhóm bệnh ----</option>
+                        <option *ngFor="let g of groups" [value]="g._id || g.id">{{ g.name }}</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label-bold">Phân loại (disease_type):</label>
+                    <input type="text" class="form-input-premium" [(ngModel)]="diseaseData.disease_type" placeholder="Bệnh / Hội chứng / ...">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label-bold">Bộ phận cơ thể (Body Part):</label>
+                    <input type="text" class="form-input-premium" [(ngModel)]="diseaseData.bodyPart" placeholder="Ví dụ: Cổ, Gan, Tim...">
+                    <div *ngIf="relatedBodyParts.length > 0" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px;">
+                        <span *ngFor="let part of relatedBodyParts"
+                            style="display: inline-flex; align-items: center; gap: 6px; background: #EFF6FF; color: #2563EB; padding: 5px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; border: 1px solid #BFDBFE;">
+                            <i class="bi bi-diagram-2" style="font-size: 11px;"></i>
+                            {{ part }}
+                        </span>
+                    </div>
+                </div>
+
+            </div>
+            
+
+        </div>
+
+        <!-- Main Column (Long Text Content) -->
+        <div class="main-column flex flex-col gap-5">
+            <div class="card-premium">
+                <h3 class="header-title" style="font-size: 20px; border-bottom: 2px solid #f1f5f9; padding-bottom: 15px; margin-bottom: 25px;">
+                    <i class="bi bi-journal-medical"></i> CHI TIẾT KIẾN THỨC BỆNH
+                </h3>
+                
+                <div class="form-group mb-4">
+                    <label class="form-label-bold">A. TIÊU ĐỀ CHÍNH (TITLE)</label>
+                    <input type="text" class="form-input-premium" [(ngModel)]="diseaseData.title" placeholder="Tiêu đề hiển thị trên thanh tiêu đề trình duyệt">
+                </div>
+
+                <div class="form-group mb-4">
+                    <label class="form-label-bold">B. TIÊU ĐỀ PHỤ (HEADLINE)</label>
+                    <input type="text" class="form-input-premium" [(ngModel)]="diseaseData.headline" placeholder="Ví dụ: Béo phì độ 2 là gì? Nguyên nhân và cách điều trị">
+                </div>
+
+                <div class="knowledge-section">
+                    <div class="knowledge-title"><i class="bi bi-card-text"></i> 1. Tóm tắt ngắn (Summary)</div>
+                    <textarea class="knowledge-textarea" style="min-height: 80px;" [(ngModel)]="diseaseData.summary" placeholder="Mô tả ngắn gọn hiển thị ở danh sách..."></textarea>
+                </div>
+
+                <div class="knowledge-section">
+                    <div class="knowledge-title"><i class="bi bi-info-circle"></i> 2. Tổng quan (Overview)</div>
+                    <textarea class="knowledge-textarea" [(ngModel)]="diseaseData.overview" placeholder="Tóm tắt ngắn gọn về bệnh và mức độ phổ biến..."></textarea>
+                </div>
+
+                <div class="knowledge-section">
+                    <div class="knowledge-title"><i class="bi bi-book"></i> 3. Định nghĩa (Definition)</div>
+                    <textarea class="knowledge-textarea" [(ngModel)]="diseaseData.definition" placeholder="Phát biểu khoa học về bệnh này là gì..."></textarea>
+                </div>
+
+                <div class="knowledge-section">
+                    <div class="knowledge-title"><i class="bi bi-search"></i> 4. Nguyên nhân (Cause)</div>
+                    <textarea class="knowledge-textarea" [(ngModel)]="diseaseData.cause" placeholder="Liệt kê các nguyên nhân trực tiếp và gián tiếp..."></textarea>
+                </div>
+
+                <div class="knowledge-section">
+                    <div class="knowledge-title"><i class="bi bi-activity"></i> 5. Triệu chứng (Symptoms)</div>
+                    <textarea class="knowledge-textarea" [(ngModel)]="diseaseData.symptoms" placeholder="Các dấu hiệu lâm sàng tiêu chuẩn..."></textarea>
+                </div>
+
+                <div class="knowledge-section">
+                    <div class="knowledge-title"><i class="bi bi-clipboard-pulse"></i> 6. Chẩn đoán & Xét nghiệm</div>
+                    <textarea class="knowledge-textarea" [(ngModel)]="diseaseData.diagnosis" placeholder="Các phương pháp chẩn đoán chuyên môn..."></textarea>
+                </div>
+
+                <div class="knowledge-section">
+                    <div class="knowledge-title"><i class="bi bi-shield-check"></i> 7. Cách phòng ngừa</div>
+                    <textarea class="knowledge-textarea" [(ngModel)]="diseaseData.prevention" placeholder="Các biện pháp phòng tránh bệnh..."></textarea>
+                </div>
+
+                <div class="knowledge-section">
+                    <div class="knowledge-title"><i class="bi bi-heart-pulse"></i> 8. Phương pháp Điều trị</div>
+                    <textarea class="knowledge-textarea" [(ngModel)]="diseaseData.treatment" placeholder="Quy trình và phương án điều trị phổ biến..."></textarea>
+                </div>
+
+                <div class="form-group mb-4">
+                    <label class="form-label-bold">VIDEO MINH HỌA (YOUTUBE URL):</label>
+                    <input type="text" class="form-input-premium" [(ngModel)]="diseaseData.video_url" placeholder="https://www.youtube.com/watch?v=...">
+                </div>
+
+                <div class="form-group mb-4">
+                    <label class="form-label-bold">NGUỒN THAM KHẢO (REFERENCE):</label>
+                    <textarea class="knowledge-textarea" style="min-height: 60px;" [(ngModel)]="diseaseData.reference_source" placeholder="Tên sách, báo, hoặc link nguồn..."></textarea>
+                </div>
+
+                <div class="faq-section mt-5">
+                    <div class="flex justify-between items-center mb-3">
+                        <h4 class="text-lg font-bold text-primary m-0"><i class="bi bi-question-circle"></i> CÂU HỎI THƯỜNG GẶP (FAQs)</h4>
+                        <button class="btn btn-sm btn-outline-primary" (click)="addFaq()">+ Thêm câu hỏi</button>
+                    </div>
+                    <div class="faq-list flex flex-col gap-4">
+                        <div *ngFor="let faq of diseaseData.faqs; let i = index" class="faq-item p-4 border rounded-xl bg-neutral-5 relative">
+                            <button class="btn-remove-faq position-absolute top-2 end-2" (click)="removeFaq(i)" style="border: none; background: transparent; color: #ef4444;">
+                                <i class="bi bi-x-circle-fill"></i>
+                            </button>
+                            <div class="form-group mb-2">
+                                <label class="text-xs font-bold text-neutral-50">CÂU HỎI {{ i + 1 }}:</label>
+                                <input type="text" class="form-input-premium bg-white border-neutral-20" [(ngModel)]="faq.question" placeholder="Nhập câu hỏi...">
+                            </div>
+                            <div class="form-group mb-0">
+                                <label class="text-xs font-bold text-neutral-50">CÂU TRẢ LỜI:</label>
+                                <textarea class="knowledge-textarea bg-white border-neutral-20" style="min-height: 80px;" [(ngModel)]="faq.answer_text" placeholder="Nhập câu trả lời..."></textarea>
+                            </div>
+                        </div>
+                        <div *ngIf="!diseaseData.faqs || diseaseData.faqs.length === 0" class="text-center py-4 text-neutral-40 bg-neutral-5 rounded-xl border border-dashed">
+                            Chưa có câu hỏi nào. Nhấn "+ Thêm câu hỏi" để bắt đầu.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Related Diseases -->
+            <div class="card-premium">
+                <h3 class="header-title" style="font-size: 17px; border-bottom: 2px solid #f1f5f9; padding-bottom: 15px; margin-bottom: 20px;">
+                    <i class="bi bi-diagram-3"></i> BỆNH LIÊN QUAN
+                </h3>
+                <div class="form-group" style="position: relative;">
+                    <label class="form-label-bold">Tìm và thêm bệnh liên quan:</label>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <input type="text" class="form-input-premium" [(ngModel)]="relatedSearch"
+                            (input)="searchRelatedDiseases()" (focus)="showRelatedDropdown = relatedSearchResults.length > 0"
+                            placeholder="Nhập tên bệnh để tìm kiếm..."
+                            style="flex: 1;">
+                        <span *ngIf="isSearchingRelated" class="spinner-border spinner-border-sm text-primary" style="flex-shrink: 0;"></span>
+                    </div>
+                    <div *ngIf="showRelatedDropdown && relatedSearchResults.length > 0"
+                        style="position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: white; border: 1px solid #e2e8f0; border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); z-index: 100; overflow: hidden;">
+                        <div *ngFor="let r of relatedSearchResults"
+                            class="related-option"
+                            (click)="addRelatedDisease(r)"
+                            style="padding: 10px 16px; cursor: pointer; font-size: 14px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 10px; transition: background 0.15s;">
+                            <i class="bi bi-plus-circle text-primary"></i>
+                            <span>{{ r.name }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div *ngIf="diseaseData.related_diseases && diseaseData.related_diseases.length > 0" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px;">
+                    <span *ngFor="let r of diseaseData.related_diseases"
+                        style="display: inline-flex; align-items: center; gap: 6px; background: #EEF2FF; color: var(--color-primary); padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; border: 1px solid #C7D2FE;">
+                        <i class="bi bi-activity" style="font-size: 11px;"></i>
+                        {{ r.name }}
+                        <button (click)="removeRelatedDisease(r._id || r.id)"
+                            style="background: none; border: none; color: #6366F1; cursor: pointer; font-size: 14px; padding: 0; line-height: 1; margin-left: 2px;"
+                            title="Xóa">×</button>
+                    </span>
+                </div>
+                <div *ngIf="!diseaseData.related_diseases || diseaseData.related_diseases.length === 0" class="text-center py-3 text-neutral-40 bg-neutral-5 rounded-xl border border-dashed" style="border-color: #e2e8f0; background: #f8fafc; font-size: 13px; margin-top: 12px;">
+                    Chưa có bệnh liên quan. Tìm kiếm và thêm phía trên.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="notification-toast" *ngIf="notification.show" [ngClass]="notification.type">
+        <i class="bi" [ngClass]="notification.type === 'success' ? 'bi-check-circle-fill' : 'bi-x-circle-fill'"></i>
+        <span>{{ notification.message }}</span>
+    </div>
+    
+    <div style="height: 50px;"></div>
+
+    <!-- Image Library Modal (Unified with Blog) -->
+    <div class="modal-wrapper" *ngIf="isImageLibraryOpen" style="z-index: 3000;">
+        <div class="modal-backdrop" (click)="closeImageLibrary()"></div>
+        <div class="modal-content-wrapper" style="width: 800px; max-width: 95%; max-height: 90vh;">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-images"></i> Thư viện hình ảnh</h5>
+                <button type="button" class="close-btn" (click)="closeImageLibrary()">&times;</button>
+            </div>
+            <div class="modal-body scrollable p-4">
+                <div class="flex flex-col gap-4">
+                    <!-- Upload Section -->
+                    <div class="upload-box p-5 border-2 border-dashed border-neutral-30 rounded-xl text-center cursor-pointer hover:bg-neutral-5 transition-all"
+                        (click)="triggerImageInput()">
+                        <input type="file" id="imageLibraryUpload" (change)="onFileSelected($event)" accept="image/*" style="display: none;">
+                        <i class="bi bi-cloud-arrow-up text-4xl text-primary"></i>
+                        <p class="mt-2 font-medium">Tải ảnh mới lên từ thiết bị</p>
+                        <p class="text-xs text-neutral-50 mt-1">Hỗ trợ JPG, PNG, GIF (Max 5MB)</p>
+                    </div>
+
+                    <!-- Recent Images -->
+                    <div *ngIf="imageLibrary.length > 0">
+                        <h6 class="text-sm font-bold mb-3">Ảnh đã tải lên gần đây:</h6>
+                        <div class="grid grid-cols-4 sm:grid-cols-6 gap-3">
+                            <div *ngFor="let img of imageLibrary" class="library-item cursor-pointer relative group" (click)="selectImageFromLibrary(img)">
+                                <img [src]="img" class="w-full h-24 object-cover rounded-lg border border-neutral-20 hover:border-primary transition-all">
+                                <div class="absolute inset-0 bg-primary bg-opacity-10 group-hover:bg-opacity-20 transition-all rounded-lg flex items-center justify-center">
+                                    <i class="bi bi-plus-circle text-white opacity-0 group-hover:opacity-100 text-xl"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div *ngIf="imageLibrary.length === 0" class="text-center py-10 opacity-50">
+                        <i class="bi bi-card-image text-5xl"></i>
+                        <p class="mt-2">Chưa có hình ảnh nào trong thư viện.</p>
+                        <p class="text-xs">Hãy tải ảnh lên từ thiết bị của bạn.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-cancel" (click)="closeImageLibrary()" 
+                    style="background: #eee; color: #666; border: none; padding: 10px 20px; border-radius: 8px;">Hủy bỏ</button>
+            </div>
+        </div>
+    </div>
+</div>

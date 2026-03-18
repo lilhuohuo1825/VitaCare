@@ -24,7 +24,7 @@ export class Blogmanage implements OnInit {
   selectAll: boolean = false;
 
   categories: any[] = [];
-  selectedCategoryId: string = '';
+  selectedCategoryIds: string[] = [];
   selectedStatus: string = '';
 
   isFilterOpen: boolean = false;
@@ -51,6 +51,7 @@ export class Blogmanage implements OnInit {
 
   ngOnInit() {
     this.loadBlogs();
+    this.loadCategories();
   }
 
   loadBlogs(page: number = 1) {
@@ -68,6 +69,7 @@ export class Blogmanage implements OnInit {
           this.blogs = res.data.map(b => ({
             ...b,
             selected: false,
+            authorName: (typeof b.display_author === 'object' ? b.display_author?.fullName : b.display_author) || b.author?.fullName || b.author?.full_name || 'Ẩn danh',
             publishedAt: parseMongoDate(b.publishedAt) || b.publishedAt,
             createdAt: parseMongoDate(b.createdAt) || b.createdAt
           }));
@@ -91,15 +93,36 @@ export class Blogmanage implements OnInit {
     // Extract unique categories from the current list of blogs
     const catsMap = new Map();
     this.blogs.forEach(b => {
+      // Main category
       if (b.category && b.category.name) {
         catsMap.set(b.category.id || b.category._id || b.category.name, b.category.name);
+      }
+      // Categories array
+      if (Array.isArray(b.categories)) {
+        b.categories.forEach((cat: any) => {
+          if (cat && cat.name) {
+            catsMap.set(cat.id || cat._id || cat.name, cat.name);
+          }
+        });
       }
     });
     this.categories = Array.from(catsMap.entries()).map(([id, name]) => ({ id, name }));
   }
 
   loadCategories() {
-    // No longer used, categories are extracted from blogs
+    this.blogService.getCategories().subscribe({
+      next: (res: any) => {
+        if (res && res.success && Array.isArray(res.data)) {
+          this.categories = res.data.map((c: any) => ({
+            id: c.id || c._id || c.slug || c.name,
+            name: c.name,
+            slug: c.slug
+          }));
+          this.cdr.markForCheck();
+        }
+      },
+      error: (err) => console.error('Error loading blog categories', err)
+    });
   }
 
   onSearch(event: any) {
@@ -119,17 +142,28 @@ export class Blogmanage implements OnInit {
         (b.title && b.title.toLowerCase().includes(this.searchTerm)) ||
         (b.author?.fullName && b.author.fullName.toLowerCase().includes(this.searchTerm)) ||
         (b.slug && b.slug.toLowerCase().includes(this.searchTerm)) ||
-        (b.category?.name && b.category.name.toLowerCase().includes(this.searchTerm))
+        (b.category?.name && b.category.name.toLowerCase().includes(this.searchTerm)) ||
+        (Array.isArray(b.categories) && b.categories.some((cat: any) =>
+          cat.name && cat.name.toLowerCase().includes(this.searchTerm)
+        ))
       );
     }
 
-    if (this.selectedCategoryId) {
-      results = results.filter(b =>
-        (b.categoryId === this.selectedCategoryId) ||
-        (b.category?.id == this.selectedCategoryId) ||
-        (b.category?._id === this.selectedCategoryId) ||
-        (b.category?.name === this.selectedCategoryId)
-      );
+    if (this.selectedCategoryIds.length > 0) {
+      results = results.filter(b => {
+        const inMain = this.selectedCategoryIds.includes(b.categoryId) ||
+          this.selectedCategoryIds.includes(b.category?.id) ||
+          this.selectedCategoryIds.includes(b.category?._id) ||
+          this.selectedCategoryIds.includes(b.category?.name);
+
+        const inArray = Array.isArray(b.categories) && b.categories.some((cat: any) =>
+          this.selectedCategoryIds.includes(cat.id) ||
+          this.selectedCategoryIds.includes(cat._id) ||
+          this.selectedCategoryIds.includes(cat.name)
+        );
+
+        return inMain || inArray;
+      });
     }
 
     if (this.selectedStatus !== '') {
@@ -233,7 +267,7 @@ export class Blogmanage implements OnInit {
   editSelected() {
     const selected = this.filteredBlogs.find(b => b.selected);
     if (selected) {
-      this.viewDetail(selected._id);
+      this.viewDetail(selected._id || selected.id);
     } else {
       this.showNotification('Vui lòng chọn một bài viết để chỉnh sửa!', 'error');
     }
@@ -245,8 +279,13 @@ export class Blogmanage implements OnInit {
     this.isSortDropdownOpen = false;
   }
 
-  onCategorySelect(id: string) {
-    this.selectedCategoryId = id;
+  toggleCategory(id: string) {
+    const index = this.selectedCategoryIds.indexOf(id);
+    if (index === -1) {
+      this.selectedCategoryIds.push(id);
+    } else {
+      this.selectedCategoryIds.splice(index, 1);
+    }
     this.filterBlogs();
   }
 
@@ -256,7 +295,7 @@ export class Blogmanage implements OnInit {
   }
 
   clearAllFilters() {
-    this.selectedCategoryId = '';
+    this.selectedCategoryIds = [];
     this.selectedStatus = '';
     this.searchTerm = '';
     this.filterBlogs();

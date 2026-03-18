@@ -1,0 +1,257 @@
+/* Disease Detail Layout - Consistent with Blog Detail */
+.container {
+    max-width: 1000px;
+    margin: 0 auto;
+    font-family: var(--font-family-base);
+    min-height: 100vh;
+}
+
+.detail-header-card {
+    background-color: var(--color-bg-secondary);
+    border-radius: 12px;
+    padding: 16px 24px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.header-left-group {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.header-title {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--color-primary);
+    margin: 0;
+    text-transform: uppercase;
+}
+
+.btn-back {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #F1F5F9;
+    border: none;
+    color: #64748B;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-back:hover {
+    background: var(--color-primary);
+    color: white;
+}
+
+.btn-save {
+    background-color: var(--color-primary);
+    color: white;
+    border-radius: 10px;
+    padding: 10px 32px;
+    font-weight: 700;
+    border: none;
+    transition: all 0.3s;
+    cursor: pointer;
+    text-transform: uppercase;
+    font-size: 14px;
+}
+
+.btn-save:hover {
+    background-color: var(--color-primary-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(74, 85, 162, 0.2);
+}
+
+/* Related diseases dropdown hover */
+.related-option:hover {
+    background: #f8fafc;
+}
+
+/* Content Layout (Modified for Disease Grid) */
+.disease-detail-form {
+    display: grid;
+    grid-template-columns: 350px 1fr;
+    gap: 30px;
+    background-color: var(--color-bg-secondary);
+    border-radius: 12px;
+    padding: 32px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    align-items: start;
+}
+
+.meta-column {
+    position: sticky;
+    top: 16px;
+    align-self: flex-start;
+}
+
+/* Card Premium Styling - Unified */
+.card-premium {
+    background: #FFFFFF;
+    border-radius: 16px;
+    padding: 24px;
+    border: 1px solid #F1F5F9;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    margin-bottom: 20px;
+}
+
+.section-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--color-neutral-40);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 20px;
+    border-left: 3.5px solid var(--color-primary);
+    padding-left: 12px;
+}
+
+/* Form Controls - Unified with Blog Detail */
+.form-group {
+    margin-bottom: 24px;
+}
+
+.form-label-bold {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    color: #334155;
+    margin-bottom: 8px;
+}
+
+.form-input-premium, .form-select-premium {
+    width: 100%;
+    padding: 12px 16px;
+    border-radius: 10px;
+    border: 1px solid #E2E8F0;
+    background: #F8FAFC;
+    font-size: 14px;
+    color: var(--color-text-primary);
+    transition: all 0.2s;
+    outline: none;
+}
+
+.form-input-premium:focus, .form-select-premium:focus {
+    border-color: var(--color-primary);
+    background: white;
+    box-shadow: 0 0 0 4px rgba(74, 85, 162, 0.08);
+}
+
+/* Image Upload Unified */
+.image-upload-box {
+    width: 100%;
+    aspect-ratio: 16/9;
+    background: #F8FAFC;
+    border: 2px dashed #CBD5E1;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    overflow: hidden;
+    position: relative;
+    margin-bottom: 12px;
+}
+
+.image-upload-box:hover {
+    border-color: var(--color-primary);
+    background: #F1F5F9;
+}
+
+.image-preview {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Switches Grid */
+.switch-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.form-check-input {
+    width: 36px;
+    height: 18px;
+}
+
+/* Knowledge Sections (Textareas) */
+.knowledge-section {
+    margin-bottom: 32px;
+}
+
+.knowledge-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--color-primary);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.knowledge-textarea {
+    width: 100%;
+    min-height: 120px;
+    padding: 16px;
+    border-radius: 12px;
+    border: 1px solid #E2E8F0;
+    background: #F8FAFC;
+    font-size: 15px;
+    line-height: 1.7;
+    resize: vertical;
+    outline: none;
+    transition: all 0.2s;
+}
+
+.knowledge-textarea:focus {
+    border-color: var(--color-primary);
+    background: white;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+/* Notification Toast */
+.notification-toast {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    padding: 16px 24px;
+    border-radius: 12px;
+    background: white;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    z-index: 5000;
+    border-left: 5px solid #10B981;
+    font-weight: 700;
+}
+
+.notification-toast.error {
+    border-left-color: #EF4444;
+}
+
+/* Dark Mode Overrides (if any) */
+body.dark-mode .disease-detail-form,
+body.dark-mode .card-premium {
+    background-color: var(--color-bg-secondary);
+    border-color: var(--color-neutral-30);
+}
+
+body.dark-mode .form-input-premium,
+body.dark-mode .knowledge-textarea {
+    background-color: #1e293b;
+    color: #f8fafc;
+    border-color: #334155;
+}

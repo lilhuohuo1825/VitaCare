@@ -13,7 +13,8 @@ export class ProductService {
     getProducts(page: number = 1, limit: number = 20, filters: any = {}): Observable<any> {
         let url = `${this.apiUrl}?page=${page}&limit=${limit}`;
         if (filters.search) url += `&search=${encodeURIComponent(filters.search)}`;
-        if (filters.categoryId) url += `&categoryId=${filters.categoryId}`;
+        if (filters.categoryIds) url += `&categoryIds=${encodeURIComponent(filters.categoryIds)}`;
+        else if (filters.categoryId) url += `&categoryId=${encodeURIComponent(filters.categoryId)}`;
         if (filters.minPrice) url += `&minPrice=${filters.minPrice}`;
         if (filters.maxPrice) url += `&maxPrice=${filters.maxPrice}`;
         if (filters.units && filters.units.length > 0) url += `&units=${filters.units.join(',')}`;

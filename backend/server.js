@@ -56,6 +56,7 @@ const ConsultationProductModel = mongoose.model('admin_consultations_product', g
 const ConsultationDiseaseModel = mongoose.model('admin_consultations_disease', genericSchema, 'consultations_disease');
 const ConsultationPrescriptionModel = mongoose.model('admin_consultations_prescription', genericSchema, 'consultations_prescription');
 const ReviewModel = mongoose.model('admin_reviews', genericSchema, 'reviews');
+const DiseaseModel = mongoose.model('admin_diseases', genericSchema, 'benh');
 const DiseaseGroupModel = mongoose.model('disease_groups_metadata', genericSchema, 'disease_groups');
 
 // --- CUSTOMER TIERING HELPERS ---
@@ -89,6 +90,12 @@ if (!fs.existsSync(reminderUploads)) {
 }
 app.use('/uploads', express.static(uploadsRoot));
 
+// Static uploads cho blog images
+const blogUploads = path.join(uploadsRoot, 'blogs');
+if (!fs.existsSync(blogUploads)) {
+  fs.mkdirSync(blogUploads, { recursive: true });
+}
+
 const reminderImageStorage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, reminderUploads);
@@ -103,6 +110,23 @@ const reminderImageStorage = multer.diskStorage({
 
 const uploadReminderImage = multer({
   storage: reminderImageStorage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+}).single('file');
+
+const blogImageStorage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, blogUploads);
+  },
+  filename: function (req, file, cb) {
+    const ext = path.extname(file.originalname) || '';
+    const base = path.basename(file.originalname, ext).replace(/[^a-z0-9_-]/gi, '').toLowerCase();
+    const unique = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    cb(null, `${base || 'blog'}-${unique}${ext}`);
+  },
+});
+
+const uploadBlogImage = multer({
+  storage: blogImageStorage,
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
 }).single('file');
 
@@ -2762,6 +2786,7 @@ app.get('/api/blogs', async (req, res) => {
     const API_BASE = process.env.API_URL || `http://localhost:${PORT}`;
     const normImg = (url) => {
       if (!url || typeof url !== 'string') return url;
+      if (url.startsWith('data:') || url.startsWith('blob:')) return url;
       if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('assets/')) return url;
 
       let cleanUrl = url.trim();
@@ -2861,6 +2886,7 @@ app.get('/api/blogs/:slug', async (req, res) => {
     const API_BASE = process.env.API_URL || `http://localhost:${PORT}`;
     const normImg = (url) => {
       if (!url || typeof url !== 'string') return url;
+      if (url.startsWith('data:') || url.startsWith('blob:')) return url;
       if (url.startsWith('http://') || url.startsWith('https://')) return url;
       return `${API_BASE}${url.startsWith('/') ? url : `/${url}`}`;
     };
@@ -4693,9 +4719,17 @@ async function ensureBlogSlugIndex() {
     for (const name of ['blog', 'blogs']) {
       try {
         await db.collection(name).createIndex({ slug: 1 }, { background: true });
+        await db.collection(name).createIndex({ publishedAt: -1 }, { background: true });
+        await db.collection(name).createIndex({ 'category.name': 1 }, { background: true });
       } catch (e) {
         if (!e.message?.includes('already exists')) console.warn(`Index ${name}.slug:`, e.message);
       }
+    }
+    try {
+      await db.collection('benh').createIndex({ created_at: -1 }, { background: true });
+      await db.collection('benh').createIndex({ 'categories.fullPathSlug': 1 }, { background: true });
+    } catch (e) {
+      if (!e.message?.includes('already exists')) console.warn('Index benh:', e.message);
     }
   } catch (e) {
     console.warn('ensureBlogSlugIndex:', e.message);
@@ -4918,7 +4952,7 @@ app.get('/api/admin/admins', async (req, res) => {
 // Products with Advanced Filtering
 app.get('/api/admin/products', async (req, res) => {
   try {
-    const { page = 1, limit = 20, search, categoryId, minPrice, maxPrice, units, stockStatus } = req.query;
+    const { page = 1, limit = 20, search, categoryId, categoryIds, minPrice, maxPrice, units, stockStatus } = req.query;
     const pageNum = parseInt(page);
     const limitNum = parseInt(limit);
     const skip = (pageNum - 1) * limitNum;
@@ -4935,7 +4969,8 @@ app.get('/api/admin/products', async (req, res) => {
       });
     }
 
-    if (categoryId) {
+    const catIdParam = categoryIds || categoryId;
+    if (catIdParam) {
       const cats = await CategoryModel.find().lean();
       const getIdStr = (id) => id ? String(id._id || id) : '';
       const getChildIds = (pid) => {
@@ -4945,7 +4980,10 @@ app.get('/api/admin/products', async (req, res) => {
         children.forEach(c => { ids = [...ids, ...getChildIds(c._id)]; });
         return ids;
       };
-      const allCatIdsStrings = [...new Set(getChildIds(categoryId))];
+      const inputIds = String(catIdParam).split(',').map(s => s.trim()).filter(Boolean);
+      const allCatIdsSet = new Set();
+      inputIds.forEach(cid => getChildIds(cid).forEach(id => allCatIdsSet.add(id)));
+      const allCatIdsStrings = [...allCatIdsSet];
       const allCatIdsMixed = [];
       allCatIdsStrings.forEach(id => {
         if (!id) return;
@@ -5187,7 +5225,7 @@ app.get('/api/admin/promotions', async (req, res) => {
       const code = p.code;
       const usageData = usages.filter(u => (pid && u.promotion_id === pid) || (code && u.code === code));
       const targetData = targets.filter(t => (pid && t.promotion_id === pid) || (code && t.code === code));
-      
+
       const clean = { ...p };
       delete clean.id;
       delete clean.selected;
@@ -5267,8 +5305,8 @@ app.post('/api/admin/promotions', async (req, res) => {
       await PromotionTarget.create(targetData);
     }
     res.status(201).json({ success: true, data });
-  } catch (error) { 
-    res.status(500).json({ success: false, message: error.message }); 
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
   }
 });
 
@@ -5276,7 +5314,7 @@ app.put('/api/admin/promotions/:id', async (req, res) => {
   try {
     const id = req.params.id;
     const targetId = mongoose.Types.ObjectId.isValid(id) ? new mongoose.Types.ObjectId(id) : id;
-    
+
     const updateData = sanitizePromotion(req.body);
     delete updateData._id;
 
@@ -5292,11 +5330,11 @@ app.put('/api/admin/promotions/:id', async (req, res) => {
     };
 
     const data = await PromotionModel.findOneAndUpdate(
-      { _id: targetId }, 
-      { $set: updateData, $unset: unsetFields }, 
+      { _id: targetId },
+      { $set: updateData, $unset: unsetFields },
       { new: true }
     );
-    
+
     if (data) {
       const rawType = (data.type || 'customer').toString().toLowerCase();
       let targetType = 'Customer';
@@ -5345,10 +5383,10 @@ app.put('/api/admin/promotions/:id', async (req, res) => {
         await PromotionTarget.deleteMany({ promotion_oid: id });
       }
     }
-    
+
     res.json({ success: true, data });
-  } catch (error) { 
-    res.status(500).json({ success: false, message: error.message }); 
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
   }
 });
 
@@ -5356,13 +5394,13 @@ app.delete('/api/admin/promotions/:id', async (req, res) => {
   try {
     const id = req.params.id;
     const targetId = mongoose.Types.ObjectId.isValid(id) ? new mongoose.Types.ObjectId(id) : id;
-    
+
     await PromotionModel.deleteOne({ _id: targetId });
     await PromotionTarget.deleteMany({ promotion_oid: id });
-    
+
     res.json({ success: true });
-  } catch (error) { 
-    res.status(500).json({ success: false, message: error.message }); 
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
   }
 });
 
@@ -5747,9 +5785,35 @@ app.get('/api/admin/users', async (req, res) => {
   }
 });
 
+app.get('/api/admin/users/:id/profile', async (req, res) => {
+  try {
+    const rawId = String(req.params.id || '').trim();
+    const userQueries = [{ user_id: rawId }, { _id: rawId }];
+    if (mongoose.Types.ObjectId.isValid(rawId)) {
+      userQueries.push({ _id: new mongoose.Types.ObjectId(rawId) });
+    }
+
+    const customer = await UserModel.findOne({ $or: userQueries }).lean();
+    if (!customer) return res.status(404).json({ success: false, message: 'User not found' });
+
+    const userId = String(customer.user_id || customer._id || rawId);
+    const [orders, addresses] = await Promise.all([
+      OrderModel.find({ user_id: userId }).lean(),
+      addressesCollection().find({ user_id: userId }).toArray()
+    ]);
+
+    res.json({ success: true, data: { customer, orders, addresses } });
+  } catch (error) { res.status(500).json({ success: false, message: error.message }); }
+});
+
 app.get('/api/admin/users/:id', async (req, res) => {
   try {
-    const data = await UserModel.findOne({ _id: String(req.params.id) });
+    const rawId = String(req.params.id || '').trim();
+    const query = [{ _id: rawId }, { user_id: rawId }];
+    if (mongoose.Types.ObjectId.isValid(rawId)) {
+      query.push({ _id: new mongoose.Types.ObjectId(rawId) });
+    }
+    const data = await UserModel.findOne({ $or: query });
     if (!data) return res.status(404).json({ success: false, message: 'User not found' });
     res.json({ success: true, data });
   } catch (error) { res.status(500).json({ success: false, message: error.message }); }
@@ -5789,8 +5853,18 @@ app.get('/api/admin/blogs', async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 20;
     const skip = (page - 1) * limit;
-    const totalItems = await BlogModel.countDocuments();
-    const data = await BlogModel.find().sort({ publishedAt: -1 }).skip(skip).limit(limit).lean();
+    const includeContent = req.query.includeContent === 'true';
+
+    const [totalItems, data] = await Promise.all([
+      BlogModel.countDocuments(),
+      BlogModel.find()
+        .select(includeContent ? {} : { descriptionHtml: 0, content: 0, body: 0 })
+        .sort({ publishedAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean()
+    ]);
+
     res.json({
       success: true,
       data,
@@ -5802,6 +5876,96 @@ app.get('/api/admin/blogs', async (req, res) => {
       }
     });
   } catch (error) { res.status(500).json({ success: false, message: error.message }); }
+});
+
+app.get('/api/admin/blogs/:id', async (req, res) => {
+  try {
+    const id = req.params.id;
+    const query = [{ _id: id }];
+    if (mongoose.Types.ObjectId.isValid(id)) {
+      query.push({ _id: new mongoose.Types.ObjectId(id) });
+    }
+    const data = await BlogModel.findOne({ $or: query }).lean();
+    if (!data) return res.status(404).json({ success: false, message: 'Blog not found' });
+    res.json({ success: true, data });
+  } catch (error) { res.status(500).json({ success: false, message: error.message }); }
+});
+
+// Danh sách chuyên mục blog (trích từ collection blog/blogs trong Mongo)
+app.get('/api/admin/blog-categories', async (req, res) => {
+  try {
+    const db = mongoose.connection.db;
+    const colls = await db.listCollections({ name: { $in: ['blog', 'blogs'] } }).toArray();
+    const collName = colls.some((c) => c.name === 'blog') ? 'blog' : 'blogs';
+    const blogsCol = db.collection(collName);
+
+    const catsMap = new Map();
+
+    // Strategy 1: category.name (single category object)
+    const catDocs = await blogsCol.find(
+      { 'category.name': { $exists: true, $ne: '' } },
+      { projection: { 'category.name': 1, 'category.slug': 1, 'category._id': 1, 'category.id': 1 } }
+    ).limit(5000).toArray().catch(() => []);
+    for (const doc of catDocs) {
+      const c = doc.category;
+      if (c && c.name) {
+        const key = String(c.name).trim();
+        if (key && !catsMap.has(key)) {
+          catsMap.set(key, { id: String(c.id || c._id || c.slug || key), name: key, slug: String(c.slug || '') });
+        }
+      }
+    }
+
+    // Strategy 2: categories array (nested objects)
+    const catArrDocs = await blogsCol.find(
+      { categories: { $exists: true, $type: 'array' } },
+      { projection: { categories: 1 } }
+    ).limit(5000).toArray().catch(() => []);
+    for (const doc of catArrDocs) {
+      if (!Array.isArray(doc.categories)) continue;
+      for (const item of doc.categories) {
+        if (!item) continue;
+        const name = String(item.name || item?.category?.name || '').trim();
+        if (name && !catsMap.has(name)) {
+          const slug = String(item.slug || item?.category?.slug || '');
+          const id = String(item.id || item._id || item?.category?.id || slug || name);
+          catsMap.set(name, { id, name, slug });
+        }
+      }
+    }
+
+    // Strategy 3: categoryName (plain string field)
+    if (catsMap.size === 0) {
+      const names = await blogsCol.distinct('categoryName').catch(() => []);
+      for (const n of (names || [])) {
+        const name = String(n || '').trim();
+        if (name && !catsMap.has(name)) {
+          catsMap.set(name, { id: name, name, slug: '' });
+        }
+      }
+    }
+
+    const data = Array.from(catsMap.values()).sort((a, b) => a.name.localeCompare(b.name));
+    res.json({ success: true, data });
+  } catch (error) {
+    console.error('[GET /api/admin/blog-categories] Error:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Upload ảnh cho blog (primary image / editor images)
+app.post('/api/admin/blogs/upload-image', (req, res) => {
+  uploadBlogImage(req, res, (err) => {
+    if (err) {
+      return res.status(400).json({ success: false, message: err.message || 'Upload failed' });
+    }
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: 'No file uploaded' });
+    }
+    const relUrl = `/uploads/blogs/${req.file.filename}`;
+    const API_BASE = process.env.API_URL || `http://localhost:${PORT}`;
+    return res.json({ success: true, url: relUrl, fullUrl: `${API_BASE}${relUrl}` });
+  });
 });
 
 app.post('/api/admin/blogs', async (req, res) => {
@@ -5833,6 +5997,150 @@ app.delete('/api/admin/blogs/:id', async (req, res) => {
     }
     await BlogModel.findOneAndDelete({ $or: query });
     res.json({ success: true });
+  } catch (error) { res.status(500).json({ success: false, message: error.message }); }
+});
+
+app.get('/api/admin/check-benh', async (req, res) => {
+  try {
+    const data = await DiseaseModel.find().limit(5).lean();
+    res.json({ success: true, count: data.length, sample: data });
+  } catch (error) { res.status(500).send(error.message); }
+});
+
+app.get('/api/admin/diseases', async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const skip = (page - 1) * limit;
+    const search = String(req.query.search || '').trim();
+    const status = String(req.query.status || '').trim();
+    const sortColumn = String(req.query.sortColumn || 'created_at').trim();
+    const sortDirection = String(req.query.sortDirection || 'desc').trim() === 'asc' ? 1 : -1;
+    const groupIds = String(req.query.groupIds || '').split(',').map(s => s.trim()).filter(Boolean);
+
+    const query = {};
+    const andFilters = [];
+
+    if (search) {
+      andFilters.push({
+        $or: [
+          { name: { $regex: escapeRegExp(search), $options: 'i' } },
+          { headline: { $regex: escapeRegExp(search), $options: 'i' } },
+          { slug: { $regex: escapeRegExp(search), $options: 'i' } }
+        ]
+      });
+    }
+
+    if (status === 'approved' || status === 'pending') {
+      andFilters.push({ is_approved: status === 'approved' });
+    }
+
+    if (groupIds.length > 0) {
+      const groupDocs = await DiseaseGroupModel.find().lean();
+      const selectedGroups = groupDocs.filter((g) => groupIds.includes(String(g?._id || g?.id || '').trim()));
+      const selectedSlugs = selectedGroups.map((g) => String(g?.slug || '').trim()).filter(Boolean);
+
+      const groupMixedIds = [];
+      groupIds.forEach((id) => {
+        groupMixedIds.push(id);
+        try { groupMixedIds.push(new mongoose.Types.ObjectId(id)); } catch (e) { }
+      });
+
+      const slugConditions = selectedSlugs.flatMap((slug) => ([
+        { 'categories.fullPathSlug': { $regex: `benh\\/(nhom-benh|benh-thuong-gap)\\/${escapeRegExp(slug)}`, $options: 'i' } },
+        { 'categories.full_path_slug': { $regex: `benh\\/(nhom-benh|benh-thuong-gap)\\/${escapeRegExp(slug)}`, $options: 'i' } }
+      ]));
+
+      andFilters.push({
+        $or: [
+          { groupId: { $in: groupMixedIds } },
+          { 'group._id': { $in: groupMixedIds } },
+          { 'group.id': { $in: groupMixedIds } },
+          ...slugConditions
+        ]
+      });
+    }
+
+    if (andFilters.length > 0) query.$and = andFilters;
+
+    const allowedSort = ['created_at', 'updated_at', 'name', 'headline', 'published_at'];
+    const effectiveSortColumn = allowedSort.includes(sortColumn) ? sortColumn : 'created_at';
+    const sortObj = { [effectiveSortColumn]: sortDirection };
+
+    const [totalItems, data] = await Promise.all([
+      DiseaseModel.countDocuments(query),
+      DiseaseModel.find(query)
+        .select({ descriptionHtml: 0, content: 0, body: 0 })
+        .sort(sortObj)
+        .skip(skip)
+        .limit(limit)
+        .lean()
+    ]);
+    res.json({
+      success: true,
+      data,
+      pagination: {
+        total: totalItems,
+        page,
+        limit,
+        totalPages: Math.ceil(totalItems / limit) || 1
+      }
+    });
+  } catch (error) { res.status(500).json({ success: false, message: error.message }); }
+});
+
+app.get('/api/admin/diseases/:id', async (req, res) => {
+  try {
+    const id = req.params.id;
+    const query = [{ _id: id }];
+    if (mongoose.Types.ObjectId.isValid(id)) {
+      query.push({ _id: new mongoose.Types.ObjectId(id) });
+    }
+    if (!isNaN(id)) {
+      query.push({ id: parseInt(id) });
+    }
+    const data = await DiseaseModel.findOne({ $or: query }).lean();
+    if (!data) return res.status(404).json({ success: false, message: 'Không tìm thấy bệnh' });
+    res.json({ success: true, data });
+  } catch (error) { res.status(500).json({ success: false, message: error.message }); }
+});
+
+app.post('/api/admin/diseases', async (req, res) => {
+  try {
+    const item = new DiseaseModel(req.body);
+    const data = await item.save();
+    res.status(201).json({ success: true, data });
+  } catch (error) { res.status(500).json({ success: false, message: error.message }); }
+});
+
+app.put('/api/admin/diseases/:id', async (req, res) => {
+  try {
+    const id = req.params.id;
+    const query = [{ _id: id }];
+    if (mongoose.Types.ObjectId.isValid(id)) {
+      query.push({ _id: new mongoose.Types.ObjectId(id) });
+    }
+    const data = await DiseaseModel.findOneAndUpdate({ $or: query }, req.body, { new: true });
+    res.json({ success: true, data });
+  } catch (error) { res.status(500).json({ success: false, message: error.message }); }
+});
+
+app.delete('/api/admin/diseases/:id', async (req, res) => {
+  try {
+    const id = req.params.id;
+    const query = [{ _id: id }];
+    if (mongoose.Types.ObjectId.isValid(id)) {
+      query.push({ _id: new mongoose.Types.ObjectId(id) });
+    }
+    await DiseaseModel.findOneAndDelete({ $or: query });
+    res.json({ success: true });
+  } catch (error) { res.status(500).json({ success: false, message: error.message }); }
+});
+
+app.get('/api/admin/disease-groups', async (req, res) => {
+  try {
+    const data = await DiseaseGroupModel.find().lean();
+    res.json({ success: true, data });
   } catch (error) { res.status(500).json({ success: false, message: error.message }); }
 });
 

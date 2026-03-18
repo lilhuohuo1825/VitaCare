@@ -1,4 +1,4 @@
-<div class="container customer-detail-container" *ngIf="!isLoading && customer">
+<div class="container customer-detail-container" *ngIf="customer">
     <!-- Breadcrumb -->
     <div class="breadcrumb text-sm mb-2 font-medium" style="color: var(--color-neutral-60);">
         Quản lý khách hàng <span class="mx-1">/</span> <span style="color: var(--color-primary);">Hồ sơ khách
@@ -60,17 +60,23 @@
                 <span class="tier-pill tier-{{customer.tiering | lowercase}}">{{ customer.tiering }}</span>
             </div>
 
-            <!-- Recent Orders -->
+            <!-- Orders -->
             <div class="card orders-card">
-                <div class="card-header" style="display: flex; justify-content: space-between; margin-bottom: 16px;">
+                <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
                     <h3 style="margin: 0; font-size: 16px; font-weight: bold; color: var(--color-primary);">Đơn hàng
+                        <span style="font-size: 13px; font-weight: normal; color: var(--color-text-secondary);">({{ orders.length }})</span>
                     </h3>
-                    <a href="#" style="color: var(--color-primary-light); font-size: 13px; text-decoration: none;">Xem
-                        tất cả</a>
+                    <button *ngIf="orders.length > 3" (click)="toggleShowAllOrders()"
+                        style="background: none; border: none; color: var(--color-primary); font-size: 13px; cursor: pointer; padding: 0;">
+                        {{ showAllOrders ? 'Thu gọn' : 'Xem tất cả' }}
+                    </button>
                 </div>
 
-                <div *ngIf="orders.length > 0">
-                    <div class="order-item" *ngFor="let o of orders | slice:0:3">
+                <div *ngIf="isLoadingRelated" style="text-align: center; color: var(--color-text-tertiary); padding: 20px;">
+                    Đang tải đơn hàng...
+                </div>
+                <div *ngIf="!isLoadingRelated && orders.length > 0">
+                    <div class="order-item" *ngFor="let o of displayedOrders">
                         <div class="order-header"
                             style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--color-neutral-30); padding-bottom: 8px; margin-bottom: 8px;">
                             <span style="font-weight: bold; color: var(--color-text-primary);">Đơn hàng #{{ o.order_id
@@ -84,20 +90,33 @@
                             style="display: flex; justify-content: space-between; font-size: 13px; color: var(--color-text-primary);">
                             <div class="col">
                                 <div style="color: var(--color-text-secondary);">Ngày đặt</div>
-                                <div style="font-weight: 600;">{{ o.route?.pending | date:'dd/MM/yyyy' }}</div>
+                                <div style="font-weight: 600;">{{ getOrderDate(o) | date:'dd/MM/yyyy HH:mm' }}</div>
                             </div>
                             <div class="col text-center">
                                 <div style="color: var(--color-text-secondary);">Sản phẩm</div>
-                                <div style="font-weight: 600;">{{ o.item ? o.item.length : 0 }} sản phẩm</div>
+                                <div style="font-weight: 600;">{{ getOrderItems(o).length }} sản phẩm</div>
                             </div>
                             <div class="col text-right">
                                 <div style="color: var(--color-text-secondary);">Tổng tiền</div>
                                 <div style="font-weight: 600;">{{ o.totalAmount | number:'1.0-0' }}</div>
                             </div>
                         </div>
+                        <div *ngIf="getOrderAddress(o)" style="margin-top: 10px; font-size: 13px; color: var(--color-text-secondary);">
+                            <strong style="color: var(--color-text-primary);">Giao đến:</strong> {{ getOrderAddress(o) }}
+                        </div>
+                        <div *ngIf="getOrderItems(o).length > 0" style="margin-top: 10px; display: flex; flex-direction: column; gap: 6px;">
+                            <div *ngFor="let item of getOrderItems(o) | slice:0:3"
+                                style="display: flex; justify-content: space-between; gap: 12px; font-size: 13px; color: var(--color-text-secondary); background: var(--color-bg-light); padding: 8px 10px; border-radius: 8px;">
+                                <span style="color: var(--color-text-primary);">{{ item.name || item.product_name || item.title || 'Sản phẩm' }}</span>
+                                <span>x{{ item.quantity || item.qty || 1 }}</span>
+                            </div>
+                            <div *ngIf="getOrderItems(o).length > 3" style="font-size: 12px; color: var(--color-text-tertiary);">
+                                + {{ getOrderItems(o).length - 3 }} sản phẩm khác
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div *ngIf="orders.length === 0"
+                <div *ngIf="!isLoadingRelated && orders.length === 0"
                     style="text-align: center; color: var(--color-text-tertiary); padding: 20px;">
                     Không có đơn hàng nào
                 </div>
@@ -131,15 +150,26 @@
             <div class="card address-card">
                 <h3 style="margin: 0 0 16px 0; font-size: 16px; font-weight: bold; color: var(--color-primary);">Địa chỉ
                     giao hàng
+                    <span style="font-size: 13px; font-weight: normal; color: var(--color-text-secondary);">({{ addressList.length }})</span>
                 </h3>
-                <div class="address-box" *ngFor="let addr of addressList; let i = index">
-                    <div
-                        style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px;">
-                        <span style="font-weight: 600; color: var(--color-text-primary);">{{ customer.full_name
-                            }}</span>
-                        <span class="badge-default" *ngIf="i === 0">Mặc định</span>
+                <div *ngIf="isLoadingRelated" style="text-align: center; color: var(--color-text-tertiary); padding: 16px; font-size: 13px;">
+                    Đang tải địa chỉ giao hàng...
+                </div>
+                <div class="address-box" *ngFor="let addr of !isLoadingRelated ? addressList : []; let i = index">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px;">
+                        <span style="font-weight: 600; color: var(--color-text-primary);">
+                            {{ loadedAddresses[i]?.name || customer.full_name }}
+                            <span *ngIf="loadedAddresses[i]?.phone" style="font-weight: 400; color: var(--color-text-secondary); font-size: 13px; margin-left: 6px;">
+                                — {{ loadedAddresses[i].phone }}
+                            </span>
+                        </span>
+                        <span class="badge-default" *ngIf="loadedAddresses[i]?.isDefault || i === 0">Mặc định</span>
                     </div>
                     <div style="color: var(--color-text-secondary); font-size: 14px;">{{ addr }}</div>
+                </div>
+                <div *ngIf="!isLoadingRelated && (addressList.length === 0 || (addressList.length === 1 && addressList[0] === 'Chưa cập nhật'))"
+                    style="text-align: center; color: var(--color-text-tertiary); padding: 16px; font-size: 13px;">
+                    Chưa có địa chỉ giao hàng
                 </div>
             </div>
         </div>

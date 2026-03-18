@@ -1,7 +1,7 @@
 import { Component, OnInit, Inject, HostListener, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, CurrencyPipe, DatePipe, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { CustomerService } from '../services/customer.service';
 
 @Component({
@@ -43,6 +43,7 @@ export class Customermanage implements OnInit {
 
   constructor(
     @Inject(CustomerService) private customerService: CustomerService,
+    private router: Router,
     private cdr: ChangeDetectorRef
   ) { }
 
@@ -191,6 +192,15 @@ export class Customermanage implements OnInit {
 
   updateSelection() {
     this.selectedCount = this.filteredCustomers.filter(c => c.selected).length;
+  }
+
+  viewDetail(customer: any) {
+    const id = customer?._id || customer?.user_id;
+    if (!id) {
+      this.showNotification('Không tìm thấy mã khách hàng để mở chi tiết', 'warning');
+      return;
+    }
+    this.router.navigate(['/admin/customers/detail', id]);
   }
 
   // === ACTION BUTTONS ===
