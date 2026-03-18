@@ -45,8 +45,9 @@
 
 
         <!-- Loading state -->
-        <div *ngIf="loading" class="bv-loading-new">
-            <app-loading-shipping text="Đang xử lý..."></app-loading-shipping>
+        <div *ngIf="loading" class="bv-loading">
+            <div class="bv-loading-spinner"></div>
+            <p>Đang tải bài viết...</p>
         </div>
 
         <ng-container *ngIf="!loading">

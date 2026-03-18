@@ -72,24 +72,16 @@ export class Auth implements OnDestroy {
     });
     // Sau khi đăng xuất: xóa sạch thông tin đăng nhập trong form
     effect(() => {
-      const user = this.authService.currentUser();
-      console.log('[AuthComponent] currentUser change detected:', user);
-      if (user === null) {
+      if (this.authService.currentUser() === null) {
         this.phone = '';
         this.password = '';
         this.confirmPassword = '';
-        this.isSubmitting = false;
         this.errors = {};
         this.toast.set(null);
         if (this.toastTimeout) {
           clearTimeout(this.toastTimeout);
           this.toastTimeout = null;
         }
-      } else {
-        // AUTO-CLOSE Logic: If a user exists, the modal MUST close
-        console.log('[AuthComponent] User exists, ensuring modal is closed');
-        this.authService.closeAuthModal();
-        this.cdr.detectChanges();
       }
     });
   }
@@ -202,23 +194,12 @@ export class Auth implements OnDestroy {
       this.toast.set(null);
       this.authApi.login({ phone: this.phone, password: this.password }).subscribe({
         next: (res: any) => {
-          console.log('[AuthComponent] login next - res:', res);
           if (res.success && res.user) {
-            console.log('[AuthComponent] login success, setting user');
             this.authService.setUser(res.user as import('../../../core/services/auth.service').LoggedUser);
-
-            // Defensively ensure modal is closed and state is propagated
             this.authService.closeAuthModal();
-            this.cdr.detectChanges();
-
             this.authService.showHeaderSuccess('Bạn đã đăng nhập thành công');
-
-            // Delay navigation slightly to ensure UI transition is smooth
-            setTimeout(() => {
-              this.router.navigate(['/']);
-            }, 100);
+            this.router.navigate(['/']);
           } else {
-            console.warn('[AuthComponent] login success false or no user in res');
             const msg = 'Thông tin đăng nhập sai, vui lòng thử lại.';
             this.errors = { ...this.errors, password: msg };
             this.showToast('error', msg);
@@ -480,13 +461,7 @@ export class Auth implements OnDestroy {
               this.authService.setUser(res.user as import('../../../core/services/auth.service').LoggedUser);
             }
             this.authService.closeAuthModal();
-            this.cdr.detectChanges();
-
             this.authService.showHeaderSuccess('Đổi mật khẩu thành công. Bạn đã đăng nhập.');
-
-            setTimeout(() => {
-              this.router.navigate(['/']);
-            }, 100);
           } else {
             this.errors = { ...this.errors, password: res.message || 'Không thể đổi mật khẩu.' };
           }
@@ -614,13 +589,7 @@ export class Auth implements OnDestroy {
           if (res.success && res.user) {
             this.authService.setUser(res.user as import('../../../core/services/auth.service').LoggedUser);
             this.authService.closeAuthModal();
-            this.cdr.detectChanges();
-
             this.authService.showHeaderSuccess('Bạn đã đăng ký tài khoản thành công!');
-
-            setTimeout(() => {
-              this.router.navigate(['/']);
-            }, 100);
           } else {
             this.errors = { ...this.errors, phone: res.message || 'Đăng ký thất bại.' };
           }

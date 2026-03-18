@@ -5,14 +5,13 @@ import { AuthService } from '../../../core/services/auth.service';
 import { AuthApiService } from '../../../core/services/auth-api.service';
 import { InfoApiService } from './info-api.service';
 import { ToastService } from '../../../core/services/toast.service';
-import { DatePickerComponent } from '../../../shared/date-picker/date-picker';
 
 type OtpPurpose = 'password' | 'phone';
 
 @Component({
   selector: 'app-info',
   standalone: true,
-  imports: [CommonModule, FormsModule, DatePickerComponent],
+  imports: [CommonModule, FormsModule],
   templateUrl: './info.html',
   styleUrl: './info.css',
 })
@@ -33,7 +32,6 @@ export class Info implements OnInit {
   email = '';
   birthDate = '';
   gender = 'male';
-  tiering: string | null = null;
   /** Hiển thị trên form (readonly); đổi mật khẩu qua popup OTP */
   passwordDisplay = '••••••••';
   showPassword = false;
@@ -87,7 +85,6 @@ export class Info implements OnInit {
       this.email = (user.email as string) ?? '';
       this.birthDate = (user['birthday'] as string) ?? '';
       this.gender = (user['gender'] as string) ?? 'male';
-      this.tiering = (user['tiering'] as string) ?? null;
       this.originalUser = { ...user };
     }
   }
@@ -598,10 +595,6 @@ export class Info implements OnInit {
         if (res.success && res.user) {
           this.authService.setUser(res.user as import('../../../core/services/auth.service').LoggedUser);
           this.toastService.showSuccess('Thông tin đã được cập nhật thành công!');
-          // Reload lại trang để đồng bộ ngay sidebar, header và các khu vực khác dùng thông tin user
-          setTimeout(() => {
-            window.location.reload();
-          }, 400);
         } else {
           this.toastService.showError((res as { message?: string }).message || 'Cập nhật thất bại.');
         }

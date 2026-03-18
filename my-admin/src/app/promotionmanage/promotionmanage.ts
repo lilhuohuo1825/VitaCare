@@ -8,8 +8,8 @@ import { CustomerService } from '../services/customer.service';
 import { forkJoin } from 'rxjs';
 
 interface Promotion {
+  id?: string;
   _id?: string;
-  promotion_id?: string;
   code: string;
   name: string;
   description: string;
@@ -30,11 +30,9 @@ interface Promotion {
   statusClass?: string;
   updated_at: string;
   selected?: boolean;
-  customer_group_id?: string | string[];
-  customer_tiers?: string[];          // tiering khách hàng
-  customer_target_mode?: string;      // 'all' | 'group' | 'tier'
-  product_group_id?: string | string[];
-  target_category_id?: string | string[];
+  customer_group_id?: string;
+  product_group_id?: string;
+  target_category_id?: string;
   images?: string[];
   typeBanner?: string;
 }
@@ -82,33 +80,7 @@ export class Promotionmanage implements OnInit {
   ];
   customerGroups: any[] = [];
   productGroups: any[] = [];
-  categories: any[] = [];
-  formattedCategories: any[] = [];
-  // Category tree for level selection (similar to productmanage)
-  allCategories: any[] = [];
-  categoryMap: { [key: string]: any } = {};
-  promoCategoriesL1: any[] = []; // root categories (level 1)
   imageInput: string = '';
-
-  // Customer target options
-  customerTargetMode: 'all' | 'group' | 'tier' = 'all';
-  customerTierOptions: string[] = ['Đồng', 'Bạc', 'Vàng', 'Kim cương'];
-
-  // UI state cho dropdown chọn đối tượng áp dụng
-  showCustomerTargetDropdown = false;
-  showProductTargetDropdown = false;
-  showCategoryTargetDropdown = false;
-
-  // Danh mục – chọn theo cấp độ (giống chip khách hàng)
-  categoryLevels: { level1: boolean; level2: boolean; level3: boolean } = {
-    level1: true,
-    level2: false,
-    level3: false,
-  };
-  selectedCatLevel1: string[] = [];
-  selectedCatLevel2: string[] = [];
-  selectedCatLevel3: string[] = [];
-  selectedPromoCategoryId: string | null = null;
 
   constructor(
     @Inject(PromotionService) private promotionService: PromotionService,
@@ -130,58 +102,6 @@ export class Promotionmanage implements OnInit {
     this.productService.getGroups().subscribe({
       next: (res) => { if (res.success) this.productGroups = res.data; }
     });
-    this.productService.getCategories().subscribe({
-      next: (res) => { 
-        const cats = res.success ? res.data : (Array.isArray(res) ? res : []);
-        this.categories = cats;
-        this.formattedCategories = this.formatCategoryTree(cats);
-        this.allCategories = cats;
-        this.buildCategoryTree();
-      }
-    });
-  }
-
-  formatCategoryTree(allCats: any[]): any[] {
-    const map = new Map();
-    allCats.forEach(cat => map.set(cat._id, { ...cat, children: [] }));
-    
-    const roots: any[] = [];
-    allCats.forEach(cat => {
-      const item = map.get(cat._id);
-      if (cat.parentId && map.has(cat.parentId)) {
-        map.get(cat.parentId).children.push(item);
-      } else {
-        roots.push(item);
-      }
-    });
-
-    const result: any[] = [];
-    const flatten = (nodes: any[], level: number) => {
-      nodes.forEach(node => {
-        result.push({
-          ...node,
-          displayName: '—'.repeat(level) + (level > 0 ? ' ' : '') + node.name
-        });
-        if (node.children && node.children.length > 0) {
-          flatten(node.children, level + 1);
-        }
-      });
-    };
-    flatten(roots, 0);
-    return result;
-  }
-
-  buildCategoryTree() {
-    this.categoryMap = {};
-    this.allCategories.forEach(cat => {
-      this.categoryMap[cat._id] = cat;
-    });
-    // L1 = các danh mục không có parent
-    this.promoCategoriesL1 = this.allCategories.filter(c => !c.parentId);
-  }
-
-  getSubCategories(parentId: string): any[] {
-    return this.allCategories.filter(c => c.parentId === parentId);
   }
 
 
@@ -249,12 +169,13 @@ export class Promotionmanage implements OnInit {
 
           return {
             ...p,
+            id: p._id || p.id,
             code: p.code || 'NO_CODE',
             name: p.name || 'Khuyến mãi không tên',
             status: statusStr,
             statusTitle: sTitle,
             statusClass: sClass,
-            type: (p.type || 'order').toLowerCase() === 'product' ? 'product' : (p.type === 'category' ? 'category' : 'customer'),
+            type: (p.type || 'order').toLowerCase() === 'product' ? 'product' : 'customer',
             scope: (p.scope || 'order').toLowerCase(),
             usage_count: usageMap[p.code] || 0, // Real usage from orders
             usage_limit: p.usage_limit || 0,
@@ -353,23 +274,21 @@ export class Promotionmanage implements OnInit {
 
   confirmDelete() {
     const selectedIds = this.filteredPromotions.filter(p => p.selected).map(p => p._id);
-    if (selectedIds.length === 0) return;
-    
     this.isLoading = true;
-    const requests = selectedIds.map(id => this.promotionService.deletePromotion(id!));
 
-    forkJoin(requests).subscribe({
-      next: () => {
-        this.showNotification('Đã xóa thành công');
-        this.fetchData();
-        this.isDeleteConfirmModalOpen = false;
-        // Selection state will be reset in fetchData map
-      },
-      error: (err) => {
-        this.isLoading = false;
-        this.showNotification('Lỗi khi xóa khuyến mãi', 'error');
-        console.error('Delete error:', err);
-      }
+    // Simple mock bulk delete
+    let completed = 0;
+    selectedIds.forEach(id => {
+      this.promotionService.deletePromotion(id!).subscribe({
+        next: () => {
+          completed++;
+          if (completed === selectedIds.length) {
+            this.showNotification('Đã xóa thành công');
+            this.fetchData();
+            this.isDeleteConfirmModalOpen = false;
+          }
+        }
+      });
     });
   }
 
@@ -384,18 +303,7 @@ export class Promotionmanage implements OnInit {
       return;
     }
     this.isEditMode = true;
-    this.setCurrentPromotionFrom(selected[0]);
-  }
-
-  // Mở popup chi tiết / chỉnh sửa trực tiếp khi click vào một dòng
-  openPromotionDetail(promo: Promotion) {
-    if (!promo) return;
-    this.isEditMode = true;
-    this.setCurrentPromotionFrom(promo);
-  }
-
-  private setCurrentPromotionFrom(source: any) {
-    this.currentPromotion = { ...source };
+    this.currentPromotion = { ...selected[0] };
     if (this.currentPromotion.start_date) this.currentPromotion.start_date = new Date(this.currentPromotion.start_date).toISOString().split('T')[0];
     if (this.currentPromotion.end_date) this.currentPromotion.end_date = new Date(this.currentPromotion.end_date).toISOString().split('T')[0];
     if (!this.currentPromotion.images) this.currentPromotion.images = [];
@@ -404,60 +312,7 @@ export class Promotionmanage implements OnInit {
       this.currentPromotion.images = [this.currentPromotion.image];
     }
     delete this.currentPromotion.image;
-    // Đảm bảo các trường target là mảng để binding với multiple-select
-    if (this.currentPromotion.customer_group_id && !Array.isArray(this.currentPromotion.customer_group_id)) {
-      this.currentPromotion.customer_group_id = [this.currentPromotion.customer_group_id];
-    }
-    if (this.currentPromotion.product_group_id && !Array.isArray(this.currentPromotion.product_group_id)) {
-      this.currentPromotion.product_group_id = [this.currentPromotion.product_group_id];
-    }
-    if (this.currentPromotion.target_category_id && !Array.isArray(this.currentPromotion.target_category_id)) {
-      this.currentPromotion.target_category_id = [this.currentPromotion.target_category_id];
-    }
-    if (this.currentPromotion.customer_tiers && !Array.isArray(this.currentPromotion.customer_tiers)) {
-      this.currentPromotion.customer_tiers = [this.currentPromotion.customer_tiers];
-    }
-    this.customerTargetMode = (this.currentPromotion.customer_target_mode as any) || 'all';
-    // Khởi tạo lại state chọn danh mục cho UI dạng chip/popup
-    this.categoryLevels = { level1: true, level2: false, level3: false };
-    this.selectedCatLevel1 = [];
-    this.selectedCatLevel2 = [];
-    this.selectedCatLevel3 = [];
-    this.selectedPromoCategoryId = null;
-
-    const catIds: string[] = this.currentPromotion.target_category_id || [];
-    // nếu chỉ có 1 id, lưu lại để có thể dùng nếu muốn chọn 1 danh mục đơn
-    if (catIds.length === 1) {
-      this.selectedPromoCategoryId = catIds[0];
-    }
-    // phân bổ id theo level dựa trên parentId
-    catIds.forEach(id => {
-      const cat = this.categoryMap[id];
-      if (!cat) { return; }
-      let level = 1;
-      let cur = cat;
-      while (cur.parentId && this.categoryMap[cur.parentId] && level < 3) {
-        level++;
-        cur = this.categoryMap[cur.parentId];
-      }
-      if (level === 1) {
-        if (!this.selectedCatLevel1.includes(id)) this.selectedCatLevel1.push(id);
-      } else if (level === 2) {
-        if (!this.selectedCatLevel2.includes(id)) this.selectedCatLevel2.push(id);
-      } else {
-        if (!this.selectedCatLevel3.includes(id)) this.selectedCatLevel3.push(id);
-      }
-    });
     this.isModalOpen = true;
-  }
-
-  onRowClick(promo: Promotion, event: MouseEvent) {
-    // Nếu click vào checkbox thì không mở popup
-    const target = event.target as HTMLElement;
-    if (target && (target.tagName === 'INPUT' || target.closest('input[type="checkbox"]'))) {
-      return;
-    }
-    this.openPromotionDetail(promo);
   }
 
   closeModal() { this.isModalOpen = false; }
@@ -468,26 +323,9 @@ export class Promotionmanage implements OnInit {
       return;
     }
     this.isLoading = true;
-    if (!this.currentPromotion.promotion_id) {
-      this.currentPromotion.promotion_id = 'PRM-' + Date.now().toString().slice(-8);
-    }
-
-    // Clean up UI/Calculated fields before saving to DB
-    const dataToSave = { ...this.currentPromotion };
-    delete dataToSave.id;
-    delete (dataToSave as any).selected;
-    delete (dataToSave as any).status;
-    delete (dataToSave as any).statusClass;
-    delete (dataToSave as any).statusTitle;
-    delete (dataToSave as any).targets;
-    delete (dataToSave as any).usages;
-    delete (dataToSave as any).usage_count;
-    // Lưu mode target khách hàng
-    (dataToSave as any).customer_target_mode = this.customerTargetMode;
-
     const action = this.isEditMode
-      ? this.promotionService.updatePromotion(this.currentPromotion._id, dataToSave)
-      : this.promotionService.createPromotion(dataToSave);
+      ? this.promotionService.updatePromotion(this.currentPromotion._id, this.currentPromotion)
+      : this.promotionService.createPromotion(this.currentPromotion);
 
     action.subscribe({
       next: () => {
@@ -504,23 +342,14 @@ export class Promotionmanage implements OnInit {
 
   resetForm() {
     this.currentPromotion = {
-      promotion_id: '',
       code: '', name: '', description: '', type: 'customer', scope: 'order',
       discount_type: 'percent', discount_value: 0, min_order_value: 0,
       max_discount_value: 0, start_date: '', end_date: '', usage_limit: 0,
       user_limit: 0, is_first_order_only: false,
-      customer_group_id: [], customer_tiers: [], customer_target_mode: 'all',
-      product_group_id: [], target_category_id: [],
+      customer_group_id: '', product_group_id: '', target_category_id: '',
       images: [], typeBanner: 'none'
     };
     this.imageInput = '';
-    this.customerTargetMode = 'all';
-    // reset state chọn danh mục
-    this.categoryLevels = { level1: true, level2: false, level3: false };
-    this.selectedCatLevel1 = [];
-    this.selectedCatLevel2 = [];
-    this.selectedCatLevel3 = [];
-    this.selectedPromoCategoryId = null;
   }
 
   selectBannerSlot(slotId: string) {
@@ -529,252 +358,6 @@ export class Promotionmanage implements OnInit {
 
   isBannerSlotSelected(slotId: string): boolean {
     return this.currentPromotion.typeBanner === slotId;
-  }
-
-  // --- Category multi-select helpers cho UI chip/popup ---
-  setActiveCategoryLevel(level: 1 | 2 | 3) {
-    this.categoryLevels = {
-      level1: level === 1,
-      level2: level === 2,
-      level3: level === 3
-    };
-  }
-
-  onToggleCatLevel(level: 1 | 2 | 3, id: string, checked: boolean) {
-    const key =
-      level === 1 ? 'selectedCatLevel1' :
-      level === 2 ? 'selectedCatLevel2' :
-                    'selectedCatLevel3';
-
-    const arr = (this as any)[key] as string[];
-    if (checked) {
-      if (!arr.includes(id)) arr.push(id);
-    } else {
-      const idx = arr.indexOf(id);
-      if (idx >= 0) arr.splice(idx, 1);
-    }
-
-    // Ràng buộc: nếu bỏ hết cấp 1 thì tự động xoá luôn cấp 2 & 3
-    if (level === 1 && this.selectedCatLevel1.length === 0) {
-      this.selectedCatLevel2 = [];
-      this.selectedCatLevel3 = [];
-    }
-    // Ràng buộc: nếu bỏ hết cấp 2 thì tự động xoá luôn cấp 3
-    if (level === 2 && this.selectedCatLevel2.length === 0) {
-      this.selectedCatLevel3 = [];
-    }
-
-    const allIds = [
-      ...this.selectedCatLevel1,
-      ...this.selectedCatLevel2,
-      ...this.selectedCatLevel3
-    ];
-    this.currentPromotion.target_category_id = allIds;
-  }
-
-  setSelectedCategorySingle(id: string | null) {
-    this.selectedPromoCategoryId = id;
-    this.selectedCatLevel1 = [];
-    this.selectedCatLevel2 = [];
-    this.selectedCatLevel3 = [];
-    if (id) {
-      this.currentPromotion.target_category_id = [id];
-    } else {
-      this.currentPromotion.target_category_id = [];
-    }
-  }
-
-  // Lấy danh mục cấp 2 dựa trên danh mục cấp 1 đã chọn
-  getLevel2CategoriesForPopup(): any[] {
-    if (!this.selectedCatLevel1.length) {
-      return [];
-    }
-    return this.allCategories.filter(c =>
-      c.parentId && this.selectedCatLevel1.includes(c.parentId)
-    );
-  }
-
-  // Lấy danh mục cấp 3 dựa trên danh mục cấp 2 đã chọn
-  getLevel3CategoriesForPopup(): any[] {
-    if (!this.selectedCatLevel2.length) {
-      return [];
-    }
-    return this.allCategories.filter(c =>
-      c.parentId && this.selectedCatLevel2.includes(c.parentId)
-    );
-  }
-
-  toggleTargetDropdown(type: 'customer' | 'product' | 'category') {
-    if (type === 'customer') {
-      this.showCustomerTargetDropdown = !this.showCustomerTargetDropdown;
-    } else if (type === 'product') {
-      this.showProductTargetDropdown = !this.showProductTargetDropdown;
-    } else {
-      this.showCategoryTargetDropdown = !this.showCategoryTargetDropdown;
-    }
-  }
-
-  // ----- Helpers cho UI chọn nhiều nhóm / danh mục -----
-
-  private ensureArrayField(key: 'customer_group_id' | 'product_group_id' | 'target_category_id') {
-    if (!Array.isArray(this.currentPromotion[key])) {
-      this.currentPromotion[key] = this.currentPromotion[key]
-        ? [this.currentPromotion[key]]
-        : [];
-    }
-  }
-
-  toggleTargetSelection(
-    type: 'customer' | 'product' | 'category',
-    id: string,
-    checked: boolean
-  ) {
-    const fieldMap: any = {
-      customer: 'customer_group_id',
-      product: 'product_group_id',
-      category: 'target_category_id'
-    };
-    const field = fieldMap[type] as 'customer_group_id' | 'product_group_id' | 'target_category_id';
-    this.ensureArrayField(field);
-    const arr: string[] = this.currentPromotion[field] as string[];
-
-    if (checked) {
-      if (!arr.includes(id)) arr.push(id);
-    } else {
-      const idx = arr.indexOf(id);
-      if (idx >= 0) arr.splice(idx, 1);
-    }
-  }
-
-  selectAllTargets(type: 'customer' | 'product' | 'category', selectAll: boolean) {
-    const fieldMap: any = {
-      customer: 'customer_group_id',
-      product: 'product_group_id',
-      category: 'target_category_id'
-    };
-    const sourceMap: any = {
-      customer: this.customerGroups,
-      product: this.productGroups,
-      category: this.formattedCategories
-    };
-
-    const field = fieldMap[type] as 'customer_group_id' | 'product_group_id' | 'target_category_id';
-    this.ensureArrayField(field);
-
-    if (selectAll) {
-      this.currentPromotion[field] = (sourceMap[type] || []).map((x: any) => x._id);
-    } else {
-      this.currentPromotion[field] = [];
-    }
-  }
-
-  isTargetChecked(type: 'customer' | 'product' | 'category', id: string): boolean {
-    const fieldMap: any = {
-      customer: 'customer_group_id',
-      product: 'product_group_id',
-      category: 'target_category_id'
-    };
-    const field = fieldMap[type] as 'customer_group_id' | 'product_group_id' | 'target_category_id';
-    this.ensureArrayField(field);
-    const arr: string[] = this.currentPromotion[field] as string[];
-    return arr.includes(id);
-  }
-
-  getSelectedTargetSummary(type: 'customer' | 'product' | 'category'): string {
-    const fieldMap: any = {
-      customer: 'customer_group_id',
-      product: 'product_group_id',
-      category: 'target_category_id'
-    };
-    const sourceMap: any = {
-      customer: this.customerGroups,
-      product: this.productGroups,
-      category: this.formattedCategories
-    };
-
-    const field = fieldMap[type] as 'customer_group_id' | 'product_group_id' | 'target_category_id';
-    this.ensureArrayField(field);
-    const ids: string[] = this.currentPromotion[field] as string[];
-    const all = sourceMap[type] || [];
-
-    // Không chọn nhóm cụ thể nào => hiểu là áp dụng cho TẤT CẢ đối tượng
-    if (!ids.length) {
-      if (type === 'customer') return 'Áp dụng cho TẤT CẢ khách hàng';
-      if (type === 'product') return 'Áp dụng cho TẤT CẢ nhóm sản phẩm';
-      return 'Áp dụng cho TẤT CẢ danh mục';
-    }
-    if (ids.length === all.length) return 'Đang áp dụng cho TẤT CẢ';
-
-    const names = all
-      .filter((x: any) => ids.includes(x._id))
-      .map((x: any) => x.name || x.displayName)
-      .filter(Boolean);
-
-    const preview = names.slice(0, 2).join(', ');
-    const more = names.length > 2 ? ` +${names.length - 2} ...` : '';
-    return preview + more;
-  }
-
-  // Hiển thị tên danh mục, cách nhau bằng " | " cho phần Danh mục sản phẩm áp dụng
-  getSelectedCategorySummaryForPopup(): string {
-    this.ensureArrayField('target_category_id');
-    const ids: string[] = this.currentPromotion.target_category_id as string[];
-
-    if (!ids.length) {
-      return 'Áp dụng cho TẤT CẢ danh mục';
-    }
-
-    // Sắp xếp theo đúng thứ tự cấp: cấp 1 -> cấp 2 -> cấp 3
-    const level1Names: string[] = [];
-    const level2Names: string[] = [];
-    const level3Names: string[] = [];
-
-    ids.forEach(id => {
-      const cat = this.categoryMap[id];
-      if (!cat) return;
-      let level = 1;
-      let cur = cat;
-      while (cur.parentId && this.categoryMap[cur.parentId] && level < 3) {
-        level++;
-        cur = this.categoryMap[cur.parentId];
-      }
-      const name = cat.name;
-      if (!name) return;
-      if (level === 1 && !level1Names.includes(name)) {
-        level1Names.push(name);
-      } else if (level === 2 && !level2Names.includes(name)) {
-        level2Names.push(name);
-      } else if (level === 3 && !level3Names.includes(name)) {
-        level3Names.push(name);
-      }
-    });
-
-    const ordered = [...level1Names, ...level2Names, ...level3Names];
-    if (!ordered.length) {
-      return `${ids.length} danh mục được chọn`;
-    }
-
-    return ordered.join(' | ');
-  }
-
-  // Tier selection helpers for customer promotions
-  toggleTierSelection(tier: string, checked: boolean) {
-    if (!this.currentPromotion.customer_tiers) {
-      this.currentPromotion.customer_tiers = [];
-    }
-    const arr: string[] = this.currentPromotion.customer_tiers;
-    if (checked) {
-      if (!arr.includes(tier)) arr.push(tier);
-    } else {
-      const idx = arr.indexOf(tier);
-      if (idx >= 0) arr.splice(idx, 1);
-    }
-  }
-
-  isTierSelected(tier: string): boolean {
-    return Array.isArray(this.currentPromotion.customer_tiers)
-      ? this.currentPromotion.customer_tiers.includes(tier)
-      : false;
   }
 
   showNotification(message: string, type: 'success' | 'error' | 'warning' = 'success') {
