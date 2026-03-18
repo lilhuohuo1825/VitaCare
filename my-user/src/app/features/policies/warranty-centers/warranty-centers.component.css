@@ -1,5 +1,5 @@
 /* Container */
-.pc-container {
+.vc_container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
@@ -33,6 +33,8 @@
 /* Sidebar */
 .pc-sidebar {
   width: 280px;
+  min-width: 280px;
+  flex-shrink: 0;
   background: #fff;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
@@ -55,40 +57,33 @@
 
 .pc-menu li {
   border-bottom: 1px solid #f0f0f0;
+  margin-bottom: 2px;
 }
 
 .pc-menu li a {
   display: block;
   padding: 12px 15px;
   text-decoration: none;
-  color: #333;
-  transition: background 0.2s;
+  color: #000;
+  font-weight: bold;
+  border-radius: 10px;
+  transition: all 0.2s ease;
   font-size: 14px;
 }
 
 .pc-menu li a:hover {
-  background-color: #f9f9f9;
+  background-color: #f5f5f5;
 }
 
 .pc-menu li.active a {
-  background-color: #E8EAF6;
-  /* Light purple/blue active bg */
-  color: #000;
-  font-weight: 600;
-  border-left: 4px solid #000;
-  /* Assuming black accent from image */
+  background-color: #f0f2f5;
+  color: #00589F;
+  /* Premium Blue */
 }
 
-/* Adjust active style to match image strictly */
+/* Remove old active styles */
 .pc-menu li.active {
-  background-color: #F3F0F5;
-  /* Very light purple */
-}
-
-.pc-menu li.active a {
-  font-weight: bold;
-  border-left: none;
-  /* Image doesn't show border-left clearly, let's stick to bg */
+  background-color: transparent !important;
 }
 
 /* Main Content */

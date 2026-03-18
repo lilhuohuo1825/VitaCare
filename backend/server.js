@@ -2638,6 +2638,16 @@ app.get('/api/blogs', async (req, res) => {
       orConds.push({ title: { $regex: esc, $options: 'i' } });
     }
 
+    if (keywordsParam) {
+      const kwList = keywordsParam.split(',').map((k) => k.trim()).filter((k) => k);
+      kwList.forEach((kw) => {
+        const esc = kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        orConds.push({ title: { $regex: esc, $options: 'i' } });
+        orConds.push({ shortDescription: { $regex: esc, $options: 'i' } });
+        orConds.push({ excerpt: { $regex: esc, $options: 'i' } });
+      });
+    }
+
     if (healthIndicator && HEALTH_INDICATOR_KEYWORDS[healthIndicator]) {
       const terms = HEALTH_INDICATOR_KEYWORDS[healthIndicator];
       terms.forEach((term) => {
@@ -2663,11 +2673,12 @@ app.get('/api/blogs', async (req, res) => {
     }
 
     if (category) {
+      // Ưu tiên khớp categories.0.name (Level 1) như yêu cầu của user
       filter.$and.push({
         $or: [
-          { 'category.name': { $regex: category, $options: 'i' } },
+          { 'categories.0.name': { $regex: category, $options: 'i' } },
           { 'categories.name': { $regex: category, $options: 'i' } },
-          { 'categories.category.name': { $regex: category, $options: 'i' } },
+          { 'category.name': { $regex: category, $options: 'i' } },
           { categoryName: { $regex: category, $options: 'i' } }
         ]
       });
@@ -5167,7 +5178,7 @@ app.get('/api/admin/promotions', async (req, res) => {
       const code = p.code;
       const usageData = usages.filter(u => (pid && u.promotion_id === pid) || (code && u.code === code));
       const targetData = targets.filter(t => (pid && t.promotion_id === pid) || (code && t.code === code));
-      
+
       const clean = { ...p };
       delete clean.id;
       delete clean.selected;
@@ -5204,51 +5215,26 @@ app.post('/api/admin/promotions', async (req, res) => {
     const item = new PromotionModel(cleanBody);
     const data = await item.save();
 
-    // Lưu thêm bản ghi target vào collection promotion_promotion_target
-    const rawType = (data.type || 'customer').toString().toLowerCase();
-    let targetType = 'Customer';
-    let targetRefs = [];
+    let targetRef = '';
+    const type = data.type || 'customer';
+    if (type === 'category') targetRef = data.target_category_id;
+    else if (type === 'product') targetRef = data.product_group_id;
+    else if (type === 'customer') targetRef = data.customer_group_id;
 
-    if (rawType === 'category' && data.target_category_id) {
-      targetType = 'Category';
-      targetRefs = Array.isArray(data.target_category_id)
-        ? data.target_category_id
-        : [data.target_category_id];
-    } else if (rawType === 'product' && data.product_group_id) {
-      targetType = 'ProductGroup';
-      targetRefs = Array.isArray(data.product_group_id)
-        ? data.product_group_id
-        : [data.product_group_id];
-    } else if (rawType === 'customer') {
-      const mode = data.customer_target_mode || 'all';
-      if (mode === 'group' && data.customer_group_id) {
-        targetType = 'CustomerGroup';
-        targetRefs = Array.isArray(data.customer_group_id)
-          ? data.customer_group_id
-          : [data.customer_group_id];
-      } else if (mode === 'tier' && data.customer_tiers) {
-        targetType = 'CustomerTier';
-        targetRefs = Array.isArray(data.customer_tiers)
-          ? data.customer_tiers
-          : [data.customer_tiers];
-      }
-    }
+    const targetData = {
+      promotion_oid: data._id.toString(),
+      promotion_id: data.promotion_id || '',
+      target_type: [type],
+      target_ref: targetRef || '',
+      code: data.code || '',
+      name: data.name || '',
+      status: data.status || 'active'
+    };
 
-    // Nếu không chọn nhóm/đối tượng cụ thể nào => áp dụng cho TẤT CẢ
-    // => Không tạo bản ghi promotion_promotion_target, để phía user hiểu là không giới hạn target
-    if (targetRefs.length > 0) {
-      const targetData = {
-        promotion_oid: data._id.toString(),
-        promotion_id: data.promotion_id || '',
-        target_type: targetType,
-        target_ref: targetRefs,
-      };
-
-      await PromotionTarget.create(targetData);
-    }
+    await PromotionTarget.create(targetData);
     res.status(201).json({ success: true, data });
-  } catch (error) { 
-    res.status(500).json({ success: false, message: error.message }); 
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
   }
 });
 
@@ -5256,7 +5242,7 @@ app.put('/api/admin/promotions/:id', async (req, res) => {
   try {
     const id = req.params.id;
     const targetId = mongoose.Types.ObjectId.isValid(id) ? new mongoose.Types.ObjectId(id) : id;
-    
+
     const updateData = sanitizePromotion(req.body);
     delete updateData._id;
 
@@ -5272,11 +5258,11 @@ app.put('/api/admin/promotions/:id', async (req, res) => {
     };
 
     const data = await PromotionModel.findOneAndUpdate(
-      { _id: targetId }, 
-      { $set: updateData, $unset: unsetFields }, 
+      { _id: targetId },
+      { $set: updateData, $unset: unsetFields },
       { new: true }
     );
-    
+
     if (data) {
       const rawType = (data.type || 'customer').toString().toLowerCase();
       let targetType = 'Customer';
@@ -5325,10 +5311,10 @@ app.put('/api/admin/promotions/:id', async (req, res) => {
         await PromotionTarget.deleteMany({ promotion_oid: id });
       }
     }
-    
+
     res.json({ success: true, data });
-  } catch (error) { 
-    res.status(500).json({ success: false, message: error.message }); 
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
   }
 });
 
@@ -5336,13 +5322,13 @@ app.delete('/api/admin/promotions/:id', async (req, res) => {
   try {
     const id = req.params.id;
     const targetId = mongoose.Types.ObjectId.isValid(id) ? new mongoose.Types.ObjectId(id) : id;
-    
+
     await PromotionModel.deleteOne({ _id: targetId });
     await PromotionTarget.deleteMany({ promotion_oid: id });
-    
+
     res.json({ success: true });
-  } catch (error) { 
-    res.status(500).json({ success: false, message: error.message }); 
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
   }
 });
 

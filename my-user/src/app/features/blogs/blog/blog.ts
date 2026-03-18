@@ -361,7 +361,7 @@ export class Blog implements OnInit {
   beautySubCategories = ['Chăm sóc tóc', 'Dưỡng da', 'Chăm sóc cơ thể', 'Mỹ phẩm'];
 
   /** Sub-categories cho thẻ "Giới tính" (nav ngang) */
-  genderSubCategories = ['Sức khỏe sinh sản', 'Đời sống tình dục'];
+  genderSubCategories = ['Sức khỏe giới tính', 'Đời sống tình dục'];
 
   /** Sub-categories cho thẻ "Tin tức sức khoẻ" (nav ngang) */
   healthNewsSubCategories = ['Tin y dược', 'Dịch bệnh', 'Bệnh viện'];
