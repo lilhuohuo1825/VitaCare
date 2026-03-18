@@ -37,7 +37,7 @@
 
             <!-- Right: Summary Stats Column -->
             <div class="stats-column">
-                <div class="stat-card-mini">
+                <div class="stat-card-mini" (click)="viewAllProducts()" style="cursor: pointer;">
                     <div class="stat-info">
                         <p class="label">Sản phẩm</p>
                         <h2 class="value">{{ totalProductsCount }}</h2>
@@ -45,7 +45,7 @@
                     </div>
                     <div class="stat-icon-bg blue"><i class="bi bi-capsule"></i></div>
                 </div>
-                <div class="stat-card-mini">
+                <div class="stat-card-mini" (click)="viewAllOrders()" style="cursor: pointer;">
                     <div class="stat-info">
                         <p class="label">Đơn hàng</p>
                         <h2 class="value">{{ totalOrdersCount }}</h2>
@@ -61,7 +61,7 @@
                     </div>
                     <div class="stat-icon-bg green"><i class="bi bi-wallet2"></i></div>
                 </div>
-                <div class="stat-card-mini">
+                <div class="stat-card-mini" (click)="viewAllCustomers()" style="cursor: pointer;">
                     <div class="stat-info">
                         <p class="label">Khách hàng</p>
                         <h2 class="value">{{ totalCustomersCount }}</h2>

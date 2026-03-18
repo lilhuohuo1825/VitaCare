@@ -5,6 +5,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Title } from '@angular/platform-browser';
 import { LoadingShippingComponent } from '../../../shared/loading-shipping/loading-shipping';
 
+
 export interface BlogItem {
     title: string;
     image: string;

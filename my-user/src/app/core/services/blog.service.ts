@@ -23,6 +23,7 @@ export class BlogService {
   private normalizeImageUrl(src?: string | null): string | undefined {
     if (!src) return undefined;
     if (typeof src !== 'string') return src as any;
+    if (src.startsWith('data:') || src.startsWith('blob:')) return src;
     if (src.startsWith('http://') || src.startsWith('https://') || src.startsWith('assets/')) {
       return src;
     }

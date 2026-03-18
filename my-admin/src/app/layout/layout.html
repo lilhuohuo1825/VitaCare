@@ -45,13 +45,41 @@
                         <span class="text">Khách hàng</span>
                     </a>
                 </li>
-                <li class="nav-item" routerLinkActive="active">
-                    <a routerLink="/admin/blogs" class="nav-link">
+                <li class="nav-item has-submenu" [class.open]="isBlogMenuOpen" [class.active]="isBlogMenuOpen">
+                    <a href="javascript:void(0)" class="nav-link" (click)="toggleBlogMenu()">
                         <div class="icon-wrapper">
                             <img src="assets/icon/edit.png" class="icon" alt="Blog">
                         </div>
-                        <span class="text">Blog & tin tức</span>
+                        <span class="text submenu-title">Blog & tin tức <i class="bi"
+                                [ngClass]="isBlogMenuOpen ? 'bi-chevron-up' : 'bi-chevron-down'"></i></span>
                     </a>
+                    <ul class="submenu" *ngIf="isBlogMenuOpen">
+                        <li>
+                            <a routerLink="/admin/blogs" routerLinkActive="active" class="submenu-link">
+                                Quản lý Blog
+                            </a>
+                        </li>
+                        <li>
+                            <a routerLink="/admin/diseases" routerLinkActive="active" class="submenu-link">
+                                Quản lý Bệnh
+                            </a>
+                        </li>
+                    </ul>
+                    <!-- Floating submenu when sidebar collapsed (shown on hover) -->
+                    <div class="consultation-float-menu" *ngIf="isSidebarCollapsed">
+                        <ul>
+                            <li>
+                                <a routerLink="/admin/blogs" routerLinkActive="active" class="submenu-link">
+                                    Quản lý Blog
+                                </a>
+                            </li>
+                            <li>
+                                <a routerLink="/admin/diseases" routerLinkActive="active" class="submenu-link">
+                                    Quản lý Bệnh
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                 </li>
                 <li class="nav-item" routerLinkActive="active">
                     <a routerLink="/admin/promotions" class="nav-link">

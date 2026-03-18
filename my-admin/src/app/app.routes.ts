@@ -60,6 +60,18 @@ export const routes: Routes = [
         loadComponent: () => import('./promotionmanage/promotionmanage').then((m) => m.Promotionmanage)
       },
       {
+        path: 'diseases',
+        loadComponent: () => import('./diseasemanage/diseasemanage').then((m) => m.Diseasemanage)
+      },
+      {
+        path: 'diseases/detail',
+        loadComponent: () => import('./diseasedetail/diseasedetail').then((m) => m.Diseasedetail)
+      },
+      {
+        path: 'diseases/create',
+        loadComponent: () => import('./diseasedetail/diseasedetail').then((m) => m.Diseasedetail)
+      },
+      {
         path: 'consultation-prescription',
         loadComponent: () => import('./consultationprescription/consultationprescription').then((m) => m.Consultationprescription)
       },

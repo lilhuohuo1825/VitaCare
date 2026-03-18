@@ -272,7 +272,6 @@
     transform: translateX(-10px);
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 1001;
-    display: block;
 }
 
 .dropdown-item-parent:hover>.dropdown-submenu {
@@ -467,6 +466,43 @@ input[type="checkbox"] {
 .price {
     font-weight: 600;
     color: var(--color-primary);
+}
+
+/* Category Pill Hierarchy */
+.category-pill-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    align-items: center;
+}
+
+.cat-pill {
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    display: inline-flex;
+    align-items: center;
+}
+
+.cat-parent {
+    background-color: #EEF2FF;
+    color: #4A55A2;
+    border: 1px solid #DDE4FF;
+}
+
+.cat-child {
+    background-color: #F8FAFC;
+    color: #64748B;
+    border: 1px solid #E2E8F0;
+}
+
+.cat-sep {
+    color: #CBD5E1;
+    font-size: 10px;
+    margin: 0 2px;
 }
 
 

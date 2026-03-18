@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject, ViewChild, ElementRef, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, Inject, ViewChild, ElementRef, ChangeDetectorRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -18,6 +18,8 @@ export class Blogdetail implements OnInit {
     isLoading: boolean = false;
     blogData: any = {
         title: '',
+        shortDescription: '',
+        excerpt: '',
         tags: [],
         author: { fullName: '', email: '' },
         publishedAt: '',
@@ -25,9 +27,23 @@ export class Blogdetail implements OnInit {
         categoryId: '',
         slug: '',
         primaryImage: { url: '' },
-        category: { name: '', slug: '' },
+        url: '',
+        category: null,
+        categories: [],
+        parentCategory: null,
+        isActive: true,
         isApproved: false
     };
+
+    isImageLibraryOpen: boolean = false;
+    imageLibrary: string[] = [];
+    currentInsertingType: 'primary' | 'editor' = 'primary';
+    isUploading: boolean = false;
+
+    searchTerm: string = '';
+    filteredCategoriesList: any[] = [];
+    isCategoryDropdownOpen: boolean = false;
+    tagsText: string = '';
 
     notification = {
         show: false,
@@ -45,6 +61,7 @@ export class Blogdetail implements OnInit {
     historyIndex: number = -1;
     isUpdatingContent: boolean = false;
     historySaveTimeout: any = null;
+    private readonly backendBaseUrl = 'http://localhost:3000';
 
     constructor(
         private route: ActivatedRoute,
@@ -61,21 +78,124 @@ export class Blogdetail implements OnInit {
                 this.isEditMode = true;
                 this.loadBlogDetail(this.blogId);
             } else {
-                this.blogData = {
-                    title: '',
-                    tags: [],
-                    author: { fullName: '', email: '' },
-                    publishedAt: this.formatDateForInput(new Date()),
-                    descriptionHtml: '',
-                    categoryId: '',
-                    slug: '',
-                    primaryImage: { url: '' },
-                    category: { name: '', slug: '' },
-                    isApproved: false
-                };
+                this.blogData = this.createEmptyBlog();
+                this.filteredCategoriesList = [...this.categories];
+                this.syncTagsTextFromData();
                 setTimeout(() => this.initEditorContent(), 100);
             }
         });
+    }
+
+    @HostListener('document:click', ['$event'])
+    onDocumentClick(event: MouseEvent) {
+        const target = event.target as HTMLElement;
+        if (!target.closest('.category-search-container')) {
+            this.isCategoryDropdownOpen = false;
+        }
+    }
+
+    private createEmptyBlog() {
+        return {
+            title: '',
+            shortDescription: '',
+            excerpt: '',
+            tags: [],
+            author: { fullName: '', email: '' },
+            publishedAt: this.formatDateForInput(new Date()),
+            descriptionHtml: '',
+            categoryId: '',
+            slug: '',
+            primaryImage: { url: '' },
+            url: '',
+            category: null,
+            categories: [],
+            parentCategory: null,
+            isActive: true,
+            isApproved: false
+        };
+    }
+
+    private parseDateLike(value: any): string {
+        if (!value) return '';
+        if (typeof value === 'string' || typeof value === 'number') {
+            const d = new Date(value);
+            return isNaN(d.getTime()) ? '' : this.formatDateForInput(d);
+        }
+        // Mongo export style: { $date: ... }
+        const v = value?.$date ?? value?.date;
+        if (v) {
+            const d = new Date(v);
+            return isNaN(d.getTime()) ? '' : this.formatDateForInput(d);
+        }
+        return '';
+    }
+
+    private normalizeAuthor(author: any, fallback?: any) {
+        if (author && typeof author === 'object') {
+            const fullName = author.fullName || author.full_name || author.name || author.displayName || '';
+            const email = author.email || author.mail || '';
+            return { fullName, email };
+        }
+        const s = typeof author === 'string' ? author : (typeof fallback === 'string' ? fallback : '');
+        return { fullName: s || '', email: '' };
+    }
+
+    private normalizeTags(tags: any): any[] {
+        if (!tags) return [];
+        if (Array.isArray(tags)) {
+            return tags
+                .map((t: any) => {
+                    if (!t) return null;
+                    if (typeof t === 'string') {
+                        const title = t.trim();
+                        return title ? { title, slug: '' } : null;
+                    }
+                    const title = String(t.title || t.name || t.label || '').trim();
+                    const slug = String(t.slug || '').trim();
+                    if (!title && !slug) return null;
+                    return { title: title || slug, slug };
+                })
+                .filter(Boolean);
+        }
+        if (typeof tags === 'string') {
+            return tags.split(',').map(s => s.trim()).filter(Boolean).map(title => ({ title, slug: '' }));
+        }
+        return [];
+    }
+
+    private syncTagsTextFromData() {
+        const arr = this.normalizeTags(this.blogData?.tags);
+        this.blogData.tags = arr;
+        this.tagsText = arr.map(t => t?.title).filter(Boolean).join(', ');
+    }
+
+    private normalizeImageUrl(url: string): string {
+        const value = String(url || '').trim();
+        if (!value) return '';
+        if (
+            value.startsWith('http://') ||
+            value.startsWith('https://') ||
+            value.startsWith('data:') ||
+            value.startsWith('blob:')
+        ) {
+            return value;
+        }
+        if (value.startsWith('/')) return `${this.backendBaseUrl}${value}`;
+        return `${this.backendBaseUrl}/${value}`;
+    }
+
+    private normalizeHtmlImageUrls(html: string): string {
+        const raw = String(html || '');
+        if (!raw) return '';
+        return raw.replace(/src=(['"])(\/uploads\/[^'"]+)\1/gi, (_m, quote, relPath) => {
+            return `src=${quote}${this.backendBaseUrl}${relPath}${quote}`;
+        });
+    }
+
+    onTagsTextChange() {
+        const raw = String(this.tagsText || '');
+        const titles = raw.split(',').map(s => s.trim()).filter(Boolean);
+        this.blogData.tags = titles.map((title: string) => ({ title, slug: '' }));
     }
 
     initEditorContent() {
@@ -94,6 +214,7 @@ export class Blogdetail implements OnInit {
                         name: c.name,
                         slug: c.slug
                     }));
+                    this.filteredCategoriesList = [...this.categories];
                 }
             },
             error: (err) => console.error('Lỗi tải danh mục', err)
@@ -102,21 +223,44 @@ export class Blogdetail implements OnInit {
 
     loadBlogDetail(id: string) {
         this.isLoading = true;
-        this.blogService.getBlogs(1, 1000).subscribe({
+        this.blogService.getBlogById(id).subscribe({
             next: (res) => {
-                if (res && res.success) {
-                    const foundBlog = res.data.find((b: any) => b._id === id || b.id === id);
+                if (res && res.success && res.data) {
+                    const foundBlog = res.data;
                     if (foundBlog) {
-                        this.blogData = { ...foundBlog };
-                        if (!this.blogData.author) this.blogData.author = { fullName: '', email: '' };
+                        const b = { ...foundBlog };
+                        this.blogData = {
+                            ...this.createEmptyBlog(),
+                            ...b,
+                            author: this.normalizeAuthor(b.author, b.display_author || b.authorName),
+                            tags: this.normalizeTags(b.tags),
+                            shortDescription: b.shortDescription || b.excerpt || b.description || '',
+                            excerpt: b.excerpt || '',
+                            url: b.url || b.originalUrl || '',
+                            isActive: (typeof b.isActive === 'boolean') ? b.isActive : true,
+                            isApproved: (typeof b.isApproved === 'boolean') ? b.isApproved : ((typeof b.is_approved === 'boolean') ? b.is_approved : false),
+                        };
+
+                        // Normalize primaryImage
+                        if (typeof this.blogData.primaryImage === 'string') {
+                            this.blogData.primaryImage = { url: this.blogData.primaryImage };
+                        }
+                        if (!this.blogData.primaryImage) this.blogData.primaryImage = { url: '' };
+                        if (this.blogData.primaryImage && typeof this.blogData.primaryImage === 'object' && typeof this.blogData.primaryImage.url !== 'string') {
+                            this.blogData.primaryImage.url = '';
+                        }
+                        this.blogData.primaryImage.url = this.normalizeImageUrl(this.blogData.primaryImage.url);
+                        this.blogData.descriptionHtml = this.normalizeHtmlImageUrls(this.blogData.descriptionHtml || b.descriptionHtml || '');
+
                         if (!this.blogData.categoryId && this.blogData.category) {
                             this.blogData.categoryId = this.blogData.category.id || this.blogData.category._id;
                         }
-                        // Remove plural categories if exist to unify
-                        if (this.blogData.categories) delete this.blogData.categories;
-                        if (this.blogData.publishedAt) {
-                            this.blogData.publishedAt = this.formatDateForInput(new Date(this.blogData.publishedAt));
-                        }
+                        
+                        // Fix for multiple categories & parent category
+                        if (!this.blogData.categories) this.blogData.categories = [];
+                        
+                        this.blogData.publishedAt = this.parseDateLike(this.blogData.publishedAt) || this.parseDateLike(b.published_at) || this.parseDateLike(b.createdAt) || this.parseDateLike(b.created_at);
+                        this.syncTagsTextFromData();
                         this.cdr.markForCheck(); // Force immediate view update
                         setTimeout(() => this.initEditorContent(), 100);
                     } else {
@@ -145,6 +289,37 @@ export class Blogdetail implements OnInit {
         return [year, month, day].join('-');
     }
 
+    filterCategories() {
+        if (!this.searchTerm) {
+            this.filteredCategoriesList = [...this.categories];
+        } else {
+            const term = this.searchTerm.toLowerCase();
+            this.filteredCategoriesList = this.categories.filter(c => 
+                c.name.toLowerCase().includes(term) || (c.slug && c.slug.toLowerCase().includes(term))
+            );
+        }
+    }
+
+    toggleCategoryDropdown(event?: Event) {
+        event?.stopPropagation();
+        this.isCategoryDropdownOpen = !this.isCategoryDropdownOpen;
+        if (this.isCategoryDropdownOpen) {
+            this.filterCategories();
+        }
+    }
+
+    selectCategory(cat: any) {
+        this.blogData.categoryId = cat?.id || '';
+        this.searchTerm = '';
+        this.filterCategories();
+        this.isCategoryDropdownOpen = false;
+    }
+
+    get selectedCategoryName(): string {
+        const cat = this.categories.find(c => c.id === this.blogData.categoryId);
+        return cat?.name || '';
+    }
+
     showNotification(message: string, type: 'success' | 'error' = 'success') {
         this.notification = { show: true, message, type };
         setTimeout(() => {
@@ -154,22 +329,109 @@ export class Blogdetail implements OnInit {
         }, 3000);
     }
 
-    triggerImageInput() {
-        const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
-        if (fileInput) fileInput.click();
+    triggerImageInput(type: 'primary' | 'editor' = 'primary') {
+        this.currentInsertingType = type;
+        const fileInput = document.getElementById('imageLibraryUpload') as HTMLInputElement;
+        if (fileInput) {
+            fileInput.value = '';
+            fileInput.click();
+        }
+    }
+
+    triggerPrimaryImageInput() {
+        const input = document.getElementById('primaryImageUpload') as HTMLInputElement;
+        if (!input) return;
+        input.value = '';
+        input.click();
+    }
+
+    onPrimaryImageSelected(event: any) {
+        const file = event?.target?.files?.[0];
+        if (!file) return;
+        event.target.value = '';
+        this.isUploading = true;
+        this.blogService.uploadBlogImage(file).subscribe({
+            next: (res) => {
+                this.isUploading = false;
+                const url = this.normalizeImageUrl(res?.fullUrl || res?.url);
+                if (!url) {
+                    this.showNotification('Upload ảnh thất bại!', 'error');
+                    return;
+                }
+                if (!this.blogData.primaryImage) this.blogData.primaryImage = { url: '' };
+                this.blogData.primaryImage.url = url;
+                this.imageLibrary.unshift(url);
+                this.cdr.detectChanges();
+                this.showNotification('Đã tải ảnh bìa từ thiết bị!', 'success');
+            },
+            error: (err) => {
+                console.error('Upload primary image error', err);
+                this.isUploading = false;
+                this.showNotification('Upload ảnh thất bại (kiểm tra backend)!', 'error');
+            }
+        });
     }
 
     onFileSelected(event: any) {
-        const file = event.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (e: any) => {
-                if (!this.blogData.primaryImage) this.blogData.primaryImage = { url: '' };
-                this.blogData.primaryImage.url = e.target.result;
-                this.showNotification('Đã tải lên ảnh xem trước thành công!');
-            };
-            reader.readAsDataURL(file);
+        const file = event?.target?.files?.[0];
+        if (!file) return;
+        event.target.value = '';
+        this.isUploading = true;
+        this.blogService.uploadBlogImage(file).subscribe({
+            next: (res) => {
+                this.isUploading = false;
+                const url = this.normalizeImageUrl(res?.fullUrl || res?.url);
+                if (!url) {
+                    this.showNotification('Upload ảnh thất bại!', 'error');
+                    return;
+                }
+                this.imageLibrary.unshift(url);
+                if (this.currentInsertingType === 'primary') {
+                    if (!this.blogData.primaryImage) this.blogData.primaryImage = { url: '' };
+                    this.blogData.primaryImage.url = url;
+                    this.showNotification('Đã upload ảnh thành công!', 'success');
+                } else if (this.currentInsertingType === 'editor') {
+                    this.insertImageToEditor(url);
+                    this.closeImageLibrary();
+                    this.showNotification('Đã chèn ảnh vào nội dung!', 'success');
+                }
+                this.cdr.detectChanges();
+            },
+            error: (err) => {
+                console.error('Upload image error', err);
+                this.isUploading = false;
+                this.showNotification('Upload ảnh thất bại (kiểm tra backend)!', 'error');
+            }
+        });
+    }
+
+    openImageLibrary(type: 'primary' | 'editor' = 'primary') {
+        this.currentInsertingType = type;
+        this.isImageLibraryOpen = true;
+    }
+
+    closeImageLibrary() {
+        this.isImageLibraryOpen = false;
+    }
+
+    selectImageFromLibrary(url: string) {
+        if (this.currentInsertingType === 'primary') {
+            if (!this.blogData.primaryImage) this.blogData.primaryImage = { url: '' };
+            this.blogData.primaryImage.url = url;
+        } else {
+            this.insertImageToEditor(url);
         }
+        this.closeImageLibrary();
+    }
+
+    insertImageToEditor(url: string) {
+        if (!this.contentEditor?.nativeElement) return;
+        const editor = this.contentEditor.nativeElement;
+        editor.focus();
+        const img = `<img src="${url}" alt="Ảnh" style="max-width: 100%; height: auto; border-radius: 8px; margin: 16px 0; display: block;">`;
+        document.execCommand('insertHTML', false, img);
+        this.saveToHistory();
+        this.updateBlogContent({ target: editor } as any);
     }
 
     saveBlog() {
@@ -180,12 +442,27 @@ export class Blogdetail implements OnInit {
 
         this.isLoading = true;
 
+        // Normalize author/tags before saving
+        this.blogData.author = this.normalizeAuthor(this.blogData.author);
+        this.blogData.tags = this.normalizeTags(this.blogData.tags);
+        // If user typed tagsText, prefer it
+        if (typeof this.tagsText === 'string' && this.tagsText.trim()) {
+            this.onTagsTextChange();
+        }
+
+        // Keep shortDescription as primary excerpt field
+        if (!this.blogData.shortDescription && this.blogData.excerpt) {
+            this.blogData.shortDescription = this.blogData.excerpt;
+        }
+
         // Find complete category from choices
         const cat = this.categories.find(c => c.id === this.blogData.categoryId);
         if (cat) {
             this.blogData.category = { id: cat.id, name: cat.name, slug: cat.slug };
-            // Ensure plural is gone
-            if (this.blogData.categories) delete this.blogData.categories;
+            // Populate categories array if it's empty
+            if (!this.blogData.categories || this.blogData.categories.length === 0) {
+                this.blogData.categories = [this.blogData.category];
+            }
         }
 
         // Final slug check
@@ -461,21 +738,63 @@ export class Blogdetail implements OnInit {
     }
 
     insertImage(): void {
-        if (!this.contentEditor?.nativeElement) return;
-        const editor = this.contentEditor.nativeElement;
-        editor.focus();
-        const url = prompt('Nhập URL của ảnh (ví dụ: https://example.com/image.jpg):', 'https://');
-        if (url && url.trim()) {
-            const imageUrl = url.trim();
-            if (!imageUrl.startsWith('http://') && !imageUrl.startsWith('https://') && !imageUrl.startsWith('data:')) {
-                this.showNotification('URL không hợp lệ. Vui lòng nhập URL hình ảnh hợp lệ.', 'error');
-                return;
+        this.openImageLibrary('editor');
+    }
+
+    private savedEditorRange: Range | null = null;
+
+    insertImageFromDevice(): void {
+        if (this.contentEditor?.nativeElement) {
+            this.contentEditor.nativeElement.focus();
+            const sel = window.getSelection();
+            if (sel && sel.rangeCount > 0) {
+                this.savedEditorRange = sel.getRangeAt(0).cloneRange();
             }
-            const img = `<img src="${imageUrl}" alt="Ảnh" style="max-width: 100%; height: auto; border-radius: 8px; margin: 16px 0; display: block;">`;
-            document.execCommand('insertHTML', false, img);
-            this.saveToHistory();
-            this.updateBlogContent({ target: editor } as any);
         }
+        const input = document.getElementById('editorImageUpload') as HTMLInputElement;
+        if (!input) return;
+        input.value = '';
+        input.click();
+    }
+
+    onEditorImageSelected(event: any) {
+        const file = event?.target?.files?.[0];
+        if (!file) return;
+        event.target.value = '';
+        this.isUploading = true;
+        this.cdr.detectChanges();
+        this.blogService.uploadBlogImage(file).subscribe({
+            next: (res) => {
+                this.isUploading = false;
+                const url = this.normalizeImageUrl(res?.fullUrl || res?.url);
+                if (!url) {
+                    this.showNotification('Upload ảnh thất bại!', 'error');
+                    return;
+                }
+                if (this.contentEditor?.nativeElement) {
+                    const editor = this.contentEditor.nativeElement;
+                    editor.focus();
+                    if (this.savedEditorRange) {
+                        const sel = window.getSelection();
+                        if (sel) {
+                            sel.removeAllRanges();
+                            sel.addRange(this.savedEditorRange);
+                        }
+                    }
+                    const img = `<img src="${url}" alt="Ảnh" style="max-width: 100%; height: auto; border-radius: 8px; margin: 16px 0; display: block;">`;
+                    document.execCommand('insertHTML', false, img);
+                    this.saveToHistory();
+                    this.updateBlogContent({ target: editor } as any);
+                }
+                this.showNotification('Đã chèn ảnh vào nội dung!', 'success');
+                this.cdr.detectChanges();
+            },
+            error: (err) => {
+                console.error('Upload editor image error', err);
+                this.isUploading = false;
+                this.showNotification('Upload ảnh thất bại (kiểm tra backend)!', 'error');
+            }
+        });
     }
 
     changeFontFamily(event: Event): void {

@@ -28,22 +28,21 @@
     <div *ngIf="!isLoading" class="blog-detail-content">
         <!-- Top Info Section -->
         <div class="top-info-section">
-            <div class="image-wrapper" (click)="triggerImageInput()" style="cursor: pointer;">
-                <input type="file" (change)="onFileSelected($event)" accept="image/*" style="display: none;">
+            <div class="image-wrapper" (click)="triggerPrimaryImageInput()" style="cursor: pointer;">
                 <img *ngIf="blogData.primaryImage?.url" [src]="blogData.primaryImage.url" class="blog-cover" alt="Cover"
                     referrerpolicy="no-referrer" onerror="this.src='https://placehold.co/600x400?text=VitaCare+Blog'">
                 <div *ngIf="!blogData.primaryImage?.url" class="image-placeholder">
                     <i class="bi bi-image" style="font-size: 40px; color: var(--color-neutral-40)"></i>
-                    <p class="text-xs text-secondary mt-2">Nhấn để tải ảnh</p>
+                    <p class="text-xs text-secondary mt-2">Nhấn để chọn ảnh</p>
                 </div>
                 <button class="btn-like" (click)="likeBlog(); $event.stopPropagation()">
                     <i class="bi bi-heart"></i>
                 </button>
-                <!-- Image Overlay for Upload -->
                 <div class="image-overlay">
                     <i class="bi bi-camera-fill"></i>
                 </div>
             </div>
+            <input type="file" id="primaryImageUpload" (change)="onPrimaryImageSelected($event)" (click)="$event.stopPropagation()" accept="image/*" style="display: none;">
 
             <div class="info-wrapper">
                 <input class="input-title" type="text" [(ngModel)]="blogData.title" (ngModelChange)="onTitleChange()" placeholder="TITLE">
@@ -53,16 +52,68 @@
                     <input type="text" [(ngModel)]="blogData.slug"
                         style="border: 1px solid var(--color-neutral-30); border-radius: 6px; padding: 8px 12px; font-size: 14px; width: 100%; outline: none; background: var(--color-bg-secondary); color: var(--color-text-primary);"
                         placeholder="ten-bai-viet.html">
-                    <small class="text-neutral-40" style="font-size: 11px;">Tự động tạo từ tiêu đề nếu để trống</small>
                 </div>
 
                 <div style="margin-bottom: 24px;">
-                    <label class="text-xs font-bold text-neutral-50 block mb-1">Chuyên mục:</label>
-                    <select class="form-select" [(ngModel)]="blogData.categoryId"
-                        style="border: 1px solid var(--color-neutral-30); border-radius: 6px; padding: 8px 12px; font-size: 14px; width: 100%; outline: none; background: var(--color-bg-secondary); color: var(--color-text-primary); cursor: pointer;">
-                        <option value="">---- Chọn chuyên mục ----</option>
-                        <option *ngFor="let cat of categories" [value]="cat.id">{{ cat.name }}</option>
-                    </select>
+                    <label class="text-xs font-bold text-neutral-50 block mb-1">Mô tả ngắn (shortDescription / excerpt):</label>
+                    <textarea [(ngModel)]="blogData.shortDescription" rows="3"
+                        style="border: 1px solid var(--color-neutral-30); border-radius: 6px; padding: 8px 12px; font-size: 14px; width: 100%; outline: none; background: var(--color-bg-secondary); color: var(--color-text-primary); resize: vertical;"
+                        placeholder="Tóm tắt ngắn hiển thị ở danh sách..."></textarea>
+                </div>
+
+                <!-- Create mode: choose blog category (from blog dataset). Edit mode: avoid duplicate section -->
+                <div style="margin-bottom: 24px;" *ngIf="!isEditMode">
+                    <label class="text-xs font-bold text-neutral-50 block mb-1">Chọn chuyên mục chính (category):</label>
+                    <div class="category-search-container" style="position: relative;" (click)="$event.stopPropagation()">
+                        <button type="button" (click)="toggleCategoryDropdown($event)"
+                            style="border: 1px solid var(--color-neutral-30); border-radius: 6px; padding: 10px 12px; font-size: 14px; width: 100%; outline: none; background: var(--color-bg-secondary); color: var(--color-text-primary); cursor: pointer; display: flex; justify-content: space-between; align-items: center; text-align: left;">
+                            <span>{{ selectedCategoryName || '---- Chọn chuyên mục ----' }}</span>
+                            <i class="bi" [ngClass]="isCategoryDropdownOpen ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+                        </button>
+                        <div *ngIf="isCategoryDropdownOpen"
+                            style="position: absolute; top: calc(100% + 6px); left: 0; right: 0; background: var(--color-bg-secondary); border: 1px solid var(--color-neutral-30); border-radius: 10px; box-shadow: 0 10px 24px rgba(0,0,0,0.08); z-index: 50; overflow: hidden;">
+                            <div style="padding: 10px; border-bottom: 1px solid var(--color-neutral-20);">
+                                <input type="text" class="form-control" [(ngModel)]="searchTerm" (input)="filterCategories()" placeholder="Tìm chuyên mục..."
+                                    style="border: 1px solid var(--color-neutral-30); border-radius: 6px; padding: 8px 12px; font-size: 14px; width: 100%; outline: none; background: var(--color-bg-secondary); color: var(--color-text-primary);">
+                            </div>
+                            <div style="max-height: 240px; overflow-y: auto;">
+                                <button type="button" (click)="blogData.categoryId=''; searchTerm=''; filterCategories(); isCategoryDropdownOpen=false"
+                                    style="width: 100%; text-align: left; padding: 10px 12px; border: none; background: transparent; font-size: 14px; cursor: pointer; color: var(--color-text-primary);">
+                                    ---- Chọn chuyên mục ----
+                                </button>
+                                <button type="button" *ngFor="let cat of filteredCategoriesList" (click)="selectCategory(cat)"
+                                    style="width: 100%; text-align: left; padding: 10px 12px; border: none; background: transparent; font-size: 14px; cursor: pointer; color: var(--color-text-primary);">
+                                    {{ cat.name }}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- NEW: parentCategory and categories info -->
+                <div *ngIf="blogData.parentCategory" style="margin-bottom: 12px;">
+                    <label class="text-xs font-bold text-neutral-50 block mb-1">Chuyên mục cha (parentCategory):</label>
+                    <div class="text-sm p-2 rounded" style="background: rgba(0,0,0,0.05); border: 1px solid var(--color-neutral-20);">
+                        {{ blogData.parentCategory.name }} ({{ blogData.parentCategory.fullPathSlug }})
+                    </div>
+                </div>
+
+                <div *ngIf="blogData.categories && blogData.categories.length > 0" style="margin-bottom: 24px;">
+                    <label class="text-xs font-bold text-neutral-50 block mb-1">Danh sách chuyên đề (categories):</label>
+                    <div class="flex flex-wrap gap-2">
+                        <span *ngFor="let c of blogData.categories" 
+                            class="badge bg-light text-dark border" 
+                            style="font-size: 11px; padding: 4px 8px; border-radius: 4px; color: var(--color-text-primary) !important;">
+                            {{ c.name }}
+                        </span>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 24px;">
+                    <label class="text-xs font-bold text-neutral-50 block mb-1">Tags (phân tách bằng dấu phẩy):</label>
+                    <input type="text" [(ngModel)]="tagsText" (ngModelChange)="onTagsTextChange()"
+                        style="border: 1px solid var(--color-neutral-30); border-radius: 6px; padding: 8px 12px; font-size: 14px; width: 100%; outline: none; background: var(--color-bg-secondary); color: var(--color-text-primary);"
+                        placeholder="ví dụ: dinh dưỡng, tim mạch, giảm cân">
                 </div>
 
                 <input class="input-author" type="text" [(ngModel)]="blogData.author.fullName" placeholder="Tác giả">
@@ -75,15 +126,31 @@
                         placeholder="Ngày đăng bài">
                 </div>
 
-                <div style="margin-top: 16px;" *ngIf="blogData.url">
-                    <label class="text-xs font-bold text-neutral-50 block mb-1">Link bài viết gốc:</label>
-                    <a [href]="blogData.url" target="_blank" rel="noopener noreferrer"
-                        style="display: flex; align-items: center; gap: 6px; color: var(--color-primary); font-size: 13px; word-break: break-all; text-decoration: none;"
-                        onmouseenter="this.style.textDecoration='underline'"
-                        onmouseleave="this.style.textDecoration='none'">
-                        <i class="bi bi-box-arrow-up-right"></i>
-                        <span>{{ blogData.url }}</span>
-                    </a>
+                <div style="margin-top: 16px;">
+                    <label class="text-xs font-bold text-neutral-50 block mb-1">Link bài viết gốc (url):</label>
+                    <input type="text" [(ngModel)]="blogData.url"
+                        style="border: 1px solid var(--color-neutral-30); border-radius: 6px; padding: 8px 12px; font-size: 14px; width: 100%; outline: none; background: var(--color-bg-secondary); color: var(--color-text-primary);"
+                        placeholder="https://...">
+                    <div *ngIf="blogData.url" style="margin-top: 6px;">
+                        <a [href]="blogData.url" target="_blank" rel="noopener noreferrer"
+                            style="display: flex; align-items: center; gap: 6px; color: var(--color-primary); font-size: 13px; word-break: break-all; text-decoration: none;"
+                            onmouseenter="this.style.textDecoration='underline'"
+                            onmouseleave="this.style.textDecoration='none'">
+                            <i class="bi bi-box-arrow-up-right"></i>
+                            <span>{{ blogData.url }}</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div style="margin-top: 16px; display: flex; gap: 16px; flex-wrap: wrap;">
+                    <label style="display:flex; align-items:center; gap:8px; font-size: 13px; color: var(--color-text-primary);">
+                        <input type="checkbox" [(ngModel)]="blogData.isActive">
+                        <span>Hiển thị (isActive)</span>
+                    </label>
+                    <label style="display:flex; align-items:center; gap:8px; font-size: 13px; color: var(--color-text-primary);">
+                        <input type="checkbox" [(ngModel)]="blogData.isApproved">
+                        <span>Duyệt (isApproved)</span>
+                    </label>
                 </div>
             </div>
         </div>
@@ -91,8 +158,7 @@
         <!-- Content Section -->
         <div class="editor-section">
             <h3 class="section-heading">Nội dung bài viết</h3>
-            <div class="editor-container">
-                <!-- Word-like Toolbar -->
+            <div class="editor-toolbar-sticky">
                 <div class="editor-toolbar">
                     <button class="tool-btn" (click)="execCommand('undo')" title="Hoàn tác"><i
                             class="bi bi-arrow-counterclockwise"></i></button>
@@ -182,9 +248,13 @@
 
                     <button class="tool-btn" (click)="insertLink()" title="Chèn liên kết"><i
                             class="bi bi-link-45deg"></i></button>
-                    <button class="tool-btn" (click)="insertImage()" title="Chèn ảnh (URL)"><i
+                    <button class="tool-btn" (click)="insertImageFromDevice()" title="Chèn ảnh từ thiết bị"><i
                             class="bi bi-image"></i></button>
                 </div>
+            </div>
+
+            <div class="editor-container">
+                <input type="file" id="editorImageUpload" (change)="onEditorImageSelected($event)" (click)="$event.stopPropagation()" accept="image/*" style="display: none;">
 
                 <div class="editor-content" #contentEditor contenteditable="true" (input)="updateBlogContent($event)"
                     (click)="updateToolbarDropdowns()" (keyup)="updateToolbarDropdowns()"
@@ -226,7 +296,14 @@
 
     <div style="height: 100px;"></div>
 
-    <!-- Notification Toast -->
+    <!-- Upload spinner overlay -->
+    <div *ngIf="isUploading" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.25); z-index: 5000; display: flex; align-items: center; justify-content: center;">
+        <div style="background: white; border-radius: 16px; padding: 32px 48px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); text-align: center;">
+            <div class="spinner-border text-primary" role="status" style="width: 40px; height: 40px;"></div>
+            <p style="margin-top: 12px; font-weight: 600; color: #333;">Đang upload ảnh...</p>
+        </div>
+    </div>
+
     <div class="notification-toast" *ngIf="notification.show" [ngClass]="notification.type">
         <i class="bi" [ngClass]="{
             'bi-check-circle-fill': notification.type === 'success',
@@ -234,5 +311,51 @@
             'bi-exclamation-triangle-fill': notification.type === 'warning'
         }"></i>
         <span>{{ notification.message }}</span>
+    </div>
+
+    <!-- Image Library Modal -->
+    <div class="modal-wrapper" *ngIf="isImageLibraryOpen" style="z-index: 3000;">
+        <div class="modal-backdrop" (click)="closeImageLibrary()"></div>
+        <div class="modal-content-wrapper" style="width: 800px; max-width: 95%; max-height: 90vh;">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-images"></i> Thư viện hình ảnh</h5>
+                <button type="button" class="close-btn" (click)="closeImageLibrary()">&times;</button>
+            </div>
+            <div class="modal-body scrollable p-4">
+                <div class="flex flex-col gap-4">
+                    <!-- Upload Section -->
+                    <div class="upload-box p-5 border-2 border-dashed border-neutral-30 rounded-xl text-center cursor-pointer hover:bg-neutral-5 transition-all"
+                        (click)="triggerImageInput(currentInsertingType)">
+                        <input type="file" id="imageLibraryUpload" (change)="onFileSelected($event)" (click)="$event.stopPropagation()" accept="image/*" style="display: none;">
+                        <i class="bi bi-cloud-arrow-up text-4xl text-primary"></i>
+                        <p class="mt-2 font-medium">Tải ảnh mới lên từ thiết bị</p>
+                        <p class="text-xs text-neutral-50 mt-1">Hỗ trợ JPG, PNG, GIF (Max 5MB)</p>
+                    </div>
+
+                    <!-- Recent Images -->
+                    <div *ngIf="imageLibrary.length > 0">
+                        <h6 class="text-sm font-bold mb-3">Ảnh đã tải lên gần đây:</h6>
+                        <div class="grid grid-cols-4 sm:grid-cols-6 gap-3">
+                            <div *ngFor="let img of imageLibrary" class="library-item cursor-pointer relative group" (click)="selectImageFromLibrary(img)">
+                                <img [src]="img" class="w-full h-24 object-cover rounded-lg border border-neutral-20 hover:border-primary transition-all">
+                                <div class="absolute inset-0 bg-primary bg-opacity-0 group-hover:bg-opacity-20 transition-all rounded-lg flex items-center justify-center">
+                                    <i class="bi bi-plus-circle text-white opacity-0 group-hover:opacity-100 text-xl"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Fallback images or docs images -->
+                    <div *ngIf="imageLibrary.length === 0" class="text-center py-10 opacity-50">
+                        <i class="bi bi-card-image text-5xl"></i>
+                        <p class="mt-2">Chưa có hình ảnh nào trong thư viện.</p>
+                        <p class="text-xs">Hãy tải ảnh lên từ thiết bị của bạn.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-cancel" (click)="closeImageLibrary()">Hủy bỏ</button>
+            </div>
+        </div>
     </div>
 </div>
