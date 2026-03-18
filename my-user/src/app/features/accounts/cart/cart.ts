@@ -17,9 +17,6 @@ import { AuthService } from '../../../core/services/auth.service';
 import { ConsultationCartService } from '../../../core/services/consultation-cart.service';
 import { ConfirmService } from '../../../core/services/confirm.service';
 import { BuyNowService } from '../../../core/services/buy-now.service';
-import { PromotionService, ApplicablePromotion } from '../../../core/services/promotion.service';
-import { HttpClient } from '@angular/common/http';
-import { CategoryService } from '../../../core/services/category.service';
 
 @Component({
   selector: 'app-cart',
@@ -37,20 +34,11 @@ export class Cart implements OnInit, OnDestroy {
   private buyNowService = inject(BuyNowService);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
-  private promotionService = inject(PromotionService);
-  private http = inject(HttpClient);
-  private categoryService = inject(CategoryService);
   private cartUpdatedSub?: Subscription;
 
   cart = signal<CartModel | null>(null);
   cartSelectedIds = signal<Set<string>>(new Set());
   isSummaryExpanded = signal(true);
-  /** Khuyến mãi / mã giảm giá */
-  showPromotionModal = signal(false);
-  promotions = signal<ApplicablePromotion[]>([]);
-  promotionLoading = signal(false);
-  selectedPromotionId = signal<string | null>(null);
-  appliedPromotion = signal<ApplicablePromotion | null>(null);
 
   toggleSummary(): void {
     this.isSummaryExpanded.update((v) => !v);
@@ -158,20 +146,7 @@ export class Cart implements OnInit, OnDestroy {
       if (updatedCart && this.cartSidebar.isOpen()) {
         this.cart.set(updatedCart as CartModel);
         const items = updatedCart.items ?? [];
-        const prevIds = this.cartSelectedIds();
-        let nextIds: Set<string>;
-        if (prevIds.size > 0) {
-          // Giữ nguyên lựa chọn hiện tại, chỉ bỏ những sản phẩm đã bị xoá
-          nextIds = new Set(
-            items
-              .map((i: any) => String(i._id ?? (i as any)._id))
-              .filter(id => prevIds.has(id)),
-          );
-        } else {
-          // Nếu trước đó chưa có lựa chọn nào (lần đầu mở hoặc từ Mua lại) → áp dụng logic preselect
-          nextIds = this.getPreselectedIds(items as any);
-        }
-        this.cartSelectedIds.set(nextIds);
+        this.cartSelectedIds.set(this.getPreselectedIds(items as any));
         this.cdr.markForCheck();
       }
     });
@@ -202,20 +177,8 @@ export class Cart implements OnInit, OnDestroy {
           });
         }
         (c as any).totalPrice = tp;
-        this.cart.set(c as CartModel);
-        const items = c.items ?? [];
-        const prevIds = this.cartSelectedIds();
-        let nextIds: Set<string>;
-        if (prevIds.size > 0) {
-          nextIds = new Set(
-            items
-              .map((i: any) => String(i._id ?? (i as any)._id))
-              .filter(id => prevIds.has(id)),
-          );
-        } else {
-          nextIds = this.getPreselectedIds(items as any);
-        }
-        this.cartSelectedIds.set(nextIds);
+        this.cart.set(c);
+        this.cartSelectedIds.set(this.getPreselectedIds(c.items ?? []));
         this.cdr.markForCheck();
       }
     });
@@ -400,129 +363,13 @@ export class Cart implements OnInit, OnDestroy {
     }
   }
 
-  // --- Khuyến mãi / mã giảm giá ---
-
-  openPromotionModal(): void {
-    if (!this.selectedCartItems().length) {
-      return;
-    }
-    this.showPromotionModal.set(true);
-    // Luôn tính lại danh sách khuyến mãi mỗi lần mở modal
-    this.promotionLoading.set(true);
-    const user = this.authService.currentUser();
-    const subtotal = this.selectedTotalPrice();
-    const items = this.selectedCartItems();
-
-    const buildList = (isFirstOrder: boolean) => {
-      this.promotionService.getPromotions().subscribe({
-        next: (list) => {
-          this.promotionService.getPromotionTargets().subscribe({
-            next: (targets) => {
-              this.categoryService.getCategories().subscribe({
-                next: (resCats) => {
-                  const cats = resCats.data || resCats || [];
-                  const applicable = this.promotionService.buildApplicablePromotions(
-                    list,
-                    targets,
-                    items as any,
-                    subtotal,
-                    user?.user_id,
-                    isFirstOrder,
-                    cats
-                  );
-                  this.promotions.set(applicable);
-                  this.promotionLoading.set(false);
-                  this.cdr.markForCheck();
-                },
-                error: () => {
-                  const applicable = this.promotionService.buildApplicablePromotions(
-                    list,
-                    targets,
-                    items as any,
-                    subtotal,
-                    user?.user_id,
-                    isFirstOrder,
-                    []
-                  );
-                  this.promotions.set(applicable);
-                  this.promotionLoading.set(false);
-                  this.cdr.markForCheck();
-                }
-              });
-            },
-            error: () => {
-              this.promotionLoading.set(false);
-              this.cdr.markForCheck();
-            },
-          });
-        },
-        error: () => {
-          this.promotionLoading.set(false);
-          this.cdr.markForCheck();
-        },
-      });
-    };
-
-    if (user?.user_id) {
-      this.http.get<{ success: boolean; items?: any[] }>(`/api/orders`, { params: { user_id: user.user_id } })
-        .subscribe({
-          next: (res) => {
-            const isFirstOrder = !(res.success && (res.items?.length ?? 0) > 0);
-            buildList(isFirstOrder);
-          },
-          error: () => {
-            buildList(false);
-          },
-        });
-    } else {
-      // Guest: luôn xem như đơn đầu tiên
-      buildList(true);
-    }
-  }
-
-  closePromotionModal(): void {
-    this.showPromotionModal.set(false);
-    this.selectedPromotionId.set(this.appliedPromotion()?._id ?? null);
-  }
-
-  selectPromotion(promo: ApplicablePromotion): void {
-    if (!promo.isApplicable) {
-      return;
-    }
-    this.selectedPromotionId.set(promo._id);
-    this.cdr.markForCheck();
-  }
-
-  applySelectedPromotion(): void {
-    const id = this.selectedPromotionId();
-    if (!id) {
-      this.appliedPromotion.set(null);
-      this.voucherDiscount.set(0);
-      this.showPromotionModal.set(false);
-      this.cdr.markForCheck();
-      return;
-    }
-    const promo = this.promotions().find((p) => p._id === id);
-    if (!promo || !promo.isApplicable) return;
-    this.appliedPromotion.set(promo);
-    this.voucherDiscount.set(promo.discountAmount);
-    this.showPromotionModal.set(false);
-    this.cdr.markForCheck();
-  }
-
   goToOrder(e: Event): void {
     e.preventDefault();
     const items = this.selectedCartItems();
     if (!items.length) {
       return;
     }
-    this.buyNowService.setItemsFromCart(items, {
-      subtotal: this.selectedSubtotal(),
-      directDiscount: this.selectedDirectDiscount(),
-      voucherDiscount: this.voucherDiscount(),
-      promotionId: this.appliedPromotion()?.promotion_id,
-      promotionName: this.appliedPromotion()?.name,
-    });
+    this.buyNowService.setItemsFromCart(items);
     this.close();
     this.router.navigate(['/order']);
   }

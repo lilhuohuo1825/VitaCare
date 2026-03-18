@@ -7,9 +7,6 @@ import { CartService, Cart, CartItem } from '../../../core/services/cart.service
 import { BuyNowService } from '../../../core/services/buy-now.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
-import { ConfirmService } from '../../../core/services/confirm.service';
-import { PromotionService, ApplicablePromotion } from '../../../core/services/promotion.service';
-import { CategoryService } from '../../../core/services/category.service';
 
 import { StoreService, StoreFilter } from '../../../core/services/store.service';
 import { Store } from '../../../core/models/store.model';
@@ -65,16 +62,10 @@ export class Order implements OnInit, OnDestroy {
   private toastService = inject(ToastService);
   private storeService = inject(StoreService);
   private location = inject(Location);
-  private promotionService = inject(PromotionService);
-  private categoryService = inject(CategoryService);
 
   cart: Cart | null = null;
   cartLoading = true;
   totalPrice = 0;
-  /** Các thông tin tổng tiền/giảm giá lấy từ giỏ hàng (cart sidebar) */
-  cartSubtotal = 0;
-  cartDirectDiscount = 0;
-  cartVoucherDiscount = 0;
   isBuyNow = false;
   deliveryTab: 'home' | 'pharmacy' = 'home';
   paymentMethod = '';
@@ -100,8 +91,6 @@ export class Order implements OnInit, OnDestroy {
   };
   addressFormPhoneError = '';
   orderNote = '';
-
-  private confirmService = inject(ConfirmService);
 
   payerName = '';
   payerPhone = '';
@@ -146,15 +135,6 @@ export class Order implements OnInit, OnDestroy {
   showQrPaymentModal = false;
   /** Payload đơn hàng tạm thời, chỉ gửi sau khi user bấm \"Đã thanh toán\" */
   private pendingOrderPayload: any | null = null;
-
-  /** Khuyến mãi / voucher đang áp dụng cho đơn hàng */
-  showPromotionModal = false;
-  promotions: ApplicablePromotion[] = [];
-  promotionLoading = false;
-  selectedPromotionId: string | null = null;
-  appliedPromotionName = '';
-  /** Thông tin khuyến mãi từ giỏ hàng (nếu có) */
-  summaryPromotionId: string | null = null;
 
   private readonly bodyClass = 'vitacare-order-page';
 
@@ -321,30 +301,10 @@ export class Order implements OnInit, OnDestroy {
         itemCount: items.length,
         totalQuantity: items.reduce((s, i) => s + (i.quantity || 1), 0),
       };
-      const summary = this.buyNowService.getSummary();
-      if (summary) {
-        this.cartSubtotal = summary.subtotal || 0;
-        this.cartDirectDiscount = summary.directDiscount || 0;
-        this.cartVoucherDiscount = summary.voucherDiscount || 0;
-        this.summaryPromotionId = (summary as any).promotionId || null;
-        this.appliedPromotionName = summary.promotionName || '';
-        this.totalPrice = Math.max(
-          0,
-          (this.cartSubtotal || 0) - (this.cartDirectDiscount || 0) - (this.cartVoucherDiscount || 0),
-        );
-      } else {
-        // Fallback: tính toán lại nếu không có summary (trường hợp vào /order trực tiếp)
-        this.cartSubtotal = items.reduce(
-          (s, i) => s + ((i.price || 0) + (i.discount || 0)) * (i.quantity || 1),
-          0,
-        );
-        this.cartDirectDiscount = items.reduce(
-          (s, i) => s + (i.discount || 0) * (i.quantity || 1),
-          0,
-        );
-        this.cartVoucherDiscount = 0;
-        this.totalPrice = this.cartSubtotal - this.cartDirectDiscount;
-      }
+      this.totalPrice = items.reduce(
+        (s, i) => s + ((i.price || 0) - (i.discount || 0)) * (i.quantity || 1),
+        0
+      );
       this.cartLoading = false;
       return;
     }
@@ -792,21 +752,16 @@ export class Order implements OnInit, OnDestroy {
   deleteAddress(addr: AddressItem, e: Event): void {
     e.preventDefault();
     e.stopPropagation();
-    this.confirmService.open('Bạn có chắc chắn muốn xóa địa chỉ này?', () => {
-      this.http.delete(`/api/addresses/${addr._id}`).subscribe({
-        next: () => {
-          this.addressList = this.addressList.filter(a => a._id !== addr._id);
-          this.toastService.showSuccess('Đã xóa địa chỉ.');
-          if (this.selectedAddressId === addr._id) {
-            this.selectedAddressId = null;
-          }
-          this.cdr.detectChanges();
-        },
-        error: () => {
-          this.toastService.showError('Không thể xóa địa chỉ.');
-          this.cdr.detectChanges();
-        },
-      });
+    if (!confirm('Bạn có chắc chắn muốn xóa địa chỉ này?')) return;
+    this.http.delete(`/api/addresses/${addr._id}`).subscribe({
+      next: () => {
+        this.addressList = this.addressList.filter(a => a._id !== addr._id);
+        this.toastService.showSuccess('Đã xóa địa chỉ.');
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.toastService.showError('Không thể xóa địa chỉ.');
+      },
     });
   }
 
@@ -821,165 +776,6 @@ export class Order implements OnInit, OnDestroy {
   /** Nhãn hiển thị phí vận chuyển: "Miễn phí" hoặc "0₫" khi miễn phí, ngược lại số tiền */
   get shippingFeeLabel(): string {
     return this.shippingFee === 0 ? 'Miễn phí' : (this.shippingFee | 0).toString();
-  }
-
-  // --- Khuyến mãi / mã giảm giá trên trang đặt hàng ---
-
-  openPromotionModal(): void {
-    // Ưu tiên dùng cart hiện tại, fallback sang BuyNowService nếu cần
-    const cartItems = this.cart?.items && this.cart.items.length > 0
-      ? this.cart.items
-      : (this.buyNowService.getItems() as any as CartItem[]);
-
-    if (!cartItems || !cartItems.length) {
-      return;
-    }
-
-    this.showPromotionModal = true;
-    this.promotionLoading = true;
-
-    const user = this.authService.currentUser();
-    const subtotal = this.cartSubtotal || cartItems.reduce(
-      (s, i) => s + ((i.price || 0) + (i.discount || 0)) * (i.quantity || 1),
-      0,
-    ) || 0;
-    const items = cartItems;
-
-    const buildList = (isFirstOrder: boolean) => {
-      this.promotionService.getPromotions().subscribe({
-        next: (list) => {
-          this.promotionService.getPromotionTargets().subscribe({
-            next: (targets) => {
-              this.categoryService.getCategories().subscribe({
-                next: (resCats) => {
-                  const cats = (resCats as any).data || resCats || [];
-                  const applicable = this.promotionService.buildApplicablePromotions(
-                    list,
-                    targets,
-                    items as any,
-                    subtotal,
-                    user?.user_id,
-                    isFirstOrder,
-                    cats
-                  );
-                  this.promotions = applicable;
-                  this.promotionLoading = false;
-                  const current = this.promotions.find(p => p.name === this.appliedPromotionName);
-                  this.selectedPromotionId = current ? current._id : null;
-                  this.cdr.detectChanges();
-                },
-                error: () => {
-                  const applicable = this.promotionService.buildApplicablePromotions(
-                    list,
-                    targets,
-                    items as any,
-                    subtotal,
-                    user?.user_id,
-                    isFirstOrder,
-                    [],
-                  );
-                  this.promotions = applicable;
-                  this.promotionLoading = false;
-                  const current = this.promotions.find(p => p.name === this.appliedPromotionName);
-                  this.selectedPromotionId = current ? current._id : null;
-                  this.cdr.detectChanges();
-                }
-              });
-            },
-            error: () => {
-              this.promotionLoading = false;
-              this.cdr.detectChanges();
-            },
-          });
-        },
-        error: () => {
-          this.promotionLoading = false;
-          this.cdr.detectChanges();
-        },
-      });
-    };
-
-    if (user?.user_id) {
-      this.http.get<{ success: boolean; items?: any[] }>(`/api/orders`, { params: { user_id: user.user_id } })
-        .subscribe({
-          next: (res) => {
-            const isFirstOrder = !(res.success && (res.items?.length ?? 0) > 0);
-            buildList(isFirstOrder);
-          },
-          error: () => {
-            buildList(false);
-          },
-        });
-    } else {
-      // Guest: luôn xem như đơn đầu tiên
-      buildList(true);
-    }
-  }
-
-  closePromotionModal(): void {
-    this.showPromotionModal = false;
-    this.cdr.detectChanges();
-  }
-
-  selectPromotion(promo: ApplicablePromotion): void {
-    if (!promo.isApplicable) return;
-    this.selectedPromotionId = promo._id;
-    this.cdr.detectChanges();
-  }
-
-  applySelectedPromotion(): void {
-    const id = this.selectedPromotionId;
-    if (!id) {
-      this.cartVoucherDiscount = 0;
-      this.appliedPromotionName = '';
-      this.totalPrice = Math.max(
-        0,
-        (this.cartSubtotal || 0) - (this.cartDirectDiscount || 0),
-      );
-      this.showPromotionModal = false;
-      this.cdr.detectChanges();
-      return;
-    }
-    const promo = this.promotions.find(p => p._id === id);
-    if (!promo || !promo.isApplicable) return;
-    this.cartVoucherDiscount = promo.discountAmount;
-    this.appliedPromotionName = promo.name;
-    this.totalPrice = Math.max(
-      0,
-      (this.cartSubtotal || 0) - (this.cartDirectDiscount || 0) - (this.cartVoucherDiscount || 0),
-    );
-    this.showPromotionModal = false;
-    this.cdr.detectChanges();
-  }
-
-  /** Chuẩn hoá dữ liệu khuyến mãi đính kèm đơn hàng gửi lên backend */
-  private buildPromotionPayload(): any[] {
-    if (!this.cartVoucherDiscount) return [];
-
-    let promoId = this.summaryPromotionId || null;
-    let promoName = this.appliedPromotionName || '';
-    let promoCode: string | undefined;
-
-    const promo = this.promotions.find(p => p._id === this.selectedPromotionId)
-      || this.promotions.find(p =>
-        ((p as any).promotion_id && (p as any).promotion_id === this.summaryPromotionId)
-        || (this.appliedPromotionName && p.name === this.appliedPromotionName)
-      );
-
-    if (promo) {
-      promoId = (promo as any).promotion_id || promoId;
-      promoName = promo.name || promoName;
-      promoCode = promo.code || promoCode;
-    }
-
-    if (!promoId && !promoName) return [];
-
-    return [{
-      promotion_id: promoId,
-      code: promoCode,
-      name: promoName,
-      discount_value: this.cartVoucherDiscount,
-    }];
   }
 
   /** Validate tất cả field bắt buộc trước khi đặt hàng */
@@ -1043,9 +839,7 @@ export class Order implements OnInit, OnDestroy {
       pharmacyAddress: this.deliveryTab === 'pharmacy' && this.selectedStore
         ? `${this.selectedStore.ten_cua_hang} - ${this.selectedStore.dia_chi?.dia_chi_day_du}, ${this.selectedStore.dia_chi?.phuong_xa}, ${this.selectedStore.dia_chi?.quan_huyen}, ${this.selectedStore.dia_chi?.tinh_thanh}`
         : '',
-      subtotal: this.cartSubtotal, // Original price of all items
-      directDiscount: this.cartDirectDiscount,
-      voucherDiscount: this.cartVoucherDiscount,
+      subtotal: this.totalPrice,
       shippingFee: this.shippingFee,
       shippingDiscount: this.shippingFee === 0 ? Order.DEFAULT_SHIPPING_FEE : 0,
       totalAmount: this.orderTotal,
@@ -1074,7 +868,6 @@ export class Order implements OnInit, OnDestroy {
         phone: this.payerPhone,
         address: '',
       },
-      promotion: this.buildPromotionPayload(),
     };
     // Nếu thanh toán COD: gửi đơn hàng luôn
     if (!this.isOnlinePayment) {

@@ -7,7 +7,6 @@ const { connectDB, mongoose } = require('./db');
 const { Schema } = mongoose;
 const multer = require('multer');
 const nodemailer = require('nodemailer');
-const bcrypt = require('bcryptjs');
 
 // Email Transporter (Gmail)
 const transporter = nodemailer.createTransport({
@@ -48,7 +47,7 @@ const OrderModel = mongoose.model('admin_orders', genericSchema, 'orders');
 const BlogModel = mongoose.model('admin_blogs', genericSchema, 'blog'); // Sửa 'blogs' thành 'blog'
 const PromotionModel = mongoose.model('promotions', genericSchema, 'promotion_promotions'); // Sửa 'promotions' thành 'promotion_promotions'
 const PromotionUsage = mongoose.model('promotion_usage', genericSchema, 'promotion_usage');
-const PromotionTarget = mongoose.model('promotion_target', genericSchema, 'promotion_promotion_target');
+const PromotionTarget = mongoose.model('promotion_target', genericSchema, 'promotion_target');
 const CustomerGroup = mongoose.model('customer_groups', genericSchema, 'customer_groups');
 const ProductGroup = mongoose.model('product_groups', genericSchema, 'product_groups');
 const Pharmacist = mongoose.model('pharmacists', genericSchema, 'pharmacists');
@@ -58,20 +57,6 @@ const ConsultationPrescriptionModel = mongoose.model('admin_consultations_prescr
 const ReviewModel = mongoose.model('admin_reviews', genericSchema, 'reviews');
 const DiseaseGroupModel = mongoose.model('disease_groups_metadata', genericSchema, 'disease_groups');
 
-// --- CUSTOMER TIERING HELPERS ---
-/**
- * Tính tiering từ tổng tiền đã chi (chỉ tính đơn đã giao thành công).
- * Ngưỡng mặc định (có thể chỉnh lại theo business):
- *  - < 3.000.000đ: Đồng
- *  - 3.000.000 – < 10.000.000đ: Bạc
- *  - >= 10.000.000đ: Vàng
- */
-function getTierFromTotalSpent(total) {
-  const t = Number(total) || 0;
-  if (t >= 10_000_000) return 'Vàng';
-  if (t >= 3_000_000) return 'Bạc';
-  return 'Đồng';
-}
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -699,8 +684,8 @@ app.get('/api/promotions', async (req, res) => {
 // GET /api/promotion-targets - danh sách đối tượng áp dụng khuyến mãi
 app.get('/api/promotion-targets', async (req, res) => {
   try {
-    // Đọc từ collection chuẩn 'promotion_promotion_target' thông qua model PromotionTarget
-    const list = await PromotionTarget.find().lean();
+    const db = mongoose.connection.db;
+    const list = await db.collection('promotion_target').find({}).toArray();
     res.json({ success: true, data: list });
   } catch (err) {
     console.error('[GET /api/promotion-targets] Error:', err);
@@ -744,8 +729,8 @@ app.post('/api/orders', async (req, res) => {
   try {
     const {
       user_id, paymentMethod, statusPayment, atPharmacy, pharmacyAddress,
-      subtotal, directDiscount, voucherDiscount, shippingFee, shippingDiscount, totalAmount,
-      note, requestInvoice, hideProductInfo, item, shippingInfo, promotion,
+      subtotal, shippingFee, shippingDiscount, totalAmount,
+      note, requestInvoice, hideProductInfo, item, shippingInfo,
     } = req.body || {};
 
     const uid = (user_id != null && user_id !== '') ? String(user_id).trim() : null;
@@ -782,9 +767,7 @@ app.post('/api/orders', async (req, res) => {
       atPharmacy: Boolean(atPharmacy),
       pharmacyAddress: pharmacyAddress || '',
       subtotal: Number(subtotal) || 0,
-      directDiscount: Number(directDiscount) || 0,
-      voucherDiscount: Number(voucherDiscount) || 0,
-      promotion: Array.isArray(promotion) ? promotion : [],
+      promotion: [],
       shippingFee: Number(shippingFee) || 0,
       shippingDiscount: Number(shippingDiscount) || 0,
       totalAmount: Number(totalAmount) || 0,
@@ -814,58 +797,6 @@ app.post('/api/orders', async (req, res) => {
     };
 
     await col.insertOne(orderDoc);
-
-    // Sau khi tạo đơn: trừ tồn kho sản phẩm và cập nhật lượt sử dụng khuyến mãi (nếu có)
-    try {
-      // Trừ stock cho từng sản phẩm trong đơn
-      if (Array.isArray(orderDoc.item) && orderDoc.item.length > 0) {
-        for (const it of orderDoc.item) {
-          const rawId = it.productId || it.product_id || it._id;
-          const qty = Number(it.quantity) || 1;
-          if (!rawId || qty <= 0) continue;
-          const idStr = String(rawId);
-          const filters = [{ _id: idStr }];
-          if (mongoose.Types.ObjectId.isValid(idStr)) {
-            filters.push({ _id: new mongoose.Types.ObjectId(idStr) });
-          }
-          filters.push({ '_id.$oid': idStr });
-          await productsCollection().updateOne(
-            { $or: filters },
-            { $inc: { stock: -qty } },
-          );
-        }
-      }
-
-      // Ghi nhận lượt sử dụng khuyến mãi
-      if (Array.isArray(orderDoc.promotion) && orderDoc.promotion.length > 0) {
-        for (const p of orderDoc.promotion) {
-          const pid = p.promotion_id || p.promotionId || null;
-          if (!pid) continue;
-          const promotionId = String(pid);
-
-          // Cập nhật bảng usage: thêm user và order vào mảng
-          await PromotionUsage.updateOne(
-            { promotion_id: promotionId },
-            {
-              $setOnInsert: { promotion_id: promotionId },
-              $addToSet: {
-                user_id: uid || null,
-                order_id: orderId,
-              },
-            },
-            { upsert: true },
-          );
-
-          // Tăng bộ đếm usage_count trong promotion_promotions
-          await PromotionModel.updateOne(
-            { promotion_id: promotionId },
-            { $inc: { usage_count: 1 } },
-          );
-        }
-      }
-    } catch (e) {
-      console.warn('[POST /api/orders] Cannot update stock or promotion usage:', e.message);
-    }
 
     // Tạo thông báo "đơn hàng mới" cho user (chỉ khi có user_id)
     if (uid) {
@@ -1999,6 +1930,38 @@ app.post('/api/quiz-results', async (req, res) => {
   }
 });
 
+// GET /api/quiz-results - lấy lịch sử kết quả trắc nghiệm
+app.get('/api/quiz-results', async (req, res) => {
+  try {
+    const quiz_id = String(req.query.quiz_id || '').trim();
+    if (!quiz_id) {
+      return res.status(400).json({ message: 'Thiếu quiz_id.' });
+    }
+    const results = await resultsCollection().find({ quiz_id }).sort({ createdAt: -1 }).toArray();
+
+    // Attach ResultConfig info
+    let resultsData = [];
+    const resultsPath = path.join(__dirname, '../data/results.json');
+    if (fs.existsSync(resultsPath)) {
+      resultsData = JSON.parse(fs.readFileSync(resultsPath, 'utf8'));
+    }
+    const quizConfig = resultsData.find(r => r.disease_id === quiz_id);
+
+    const enrichResults = results.map(r => {
+      let config = null;
+      if (quizConfig && quizConfig.results) {
+        config = quizConfig.results.find(c => c.id === r.result_id);
+      }
+      return { ...r, ResultConfig: config };
+    });
+
+    res.json(enrichResults);
+  } catch (err) {
+    console.error('[GET /api/quiz-results] Error:', err);
+    res.status(500).json({ message: 'Lỗi khi lấy lịch sử kết quả.' });
+  }
+});
+
 // GET /api/store-locations/tree - cây địa điểm đầy đủ (tỉnh -> quận -> phường) cho store-system
 app.get('/api/store-locations/tree', async (req, res) => {
   try {
@@ -2478,48 +2441,6 @@ app.post('/api/reminders/:id/complete', async (req, res) => {
   } catch (err) {
     console.error('Complete reminder error:', err);
     res.status(500).json({ success: false, message: 'Lỗi máy chủ khi đánh dấu hoàn thành.' });
-  }
-});
-
-// POST /api/reminders/:id/uncomplete - Bỏ đánh dấu hoàn thành (theo ngày + giờ)
-app.post('/api/reminders/:id/uncomplete', async (req, res) => {
-  try {
-    const id = String(req.params.id || '').trim();
-    const { date, time } = req.body || {};
-    if (!date || !time) {
-      return res.status(400).json({ success: false, message: 'Thiếu date hoặc time.' });
-    }
-    const dateNorm = String(date).slice(0, 10);
-    const timeNorm = normalizeReminderTimeStr(time);
-    const update = {
-      $pull: { completion_log: { date: dateNorm, time: timeNorm } },
-    };
-    const opts = { returnDocument: 'after' };
-    let doc = null;
-    if (id.length === 24 && /^[a-f0-9]{24}$/i.test(id)) {
-      const result = await remindersCollection().findOneAndUpdate(
-        { _id: new mongoose.Types.ObjectId(id) },
-        update,
-        opts
-      );
-      doc = result && result.value !== undefined ? result.value : result;
-    }
-    if (!doc) {
-      const result = await remindersCollection().findOneAndUpdate(
-        { _id: id },
-        update,
-        opts
-      );
-      doc = result && result.value !== undefined ? result.value : result;
-    }
-    if (!doc) {
-      return res.status(404).json({ success: false, message: 'Không tìm thấy lời nhắc.' });
-    }
-    const reminder = { ...doc, _id: getId(doc) };
-    res.json({ success: true, reminder });
-  } catch (err) {
-    console.error('Un-complete reminder error:', err);
-    res.status(500).json({ success: false, message: 'Lỗi máy chủ khi bỏ đánh dấu hoàn thành.' });
   }
 });
 
@@ -3229,13 +3150,13 @@ app.post('/api/consultations', async (req, res) => {
       try {
         await noticesCollection().insertOne({
           user_id: uid,
-          type: 'qa_submitted',
+          type: 'order_updated',
           title: 'Câu hỏi đã được gửi',
           message: `Câu hỏi của bạn về sản phẩm "${productName}" đã được gửi. Dược sĩ sẽ phản hồi sớm nhất có thể.`,
           createdAt: new Date().toISOString(),
           read: false,
-          link: `/product/${skuStr}`,
-          linkLabel: 'Xem câu hỏi',
+          link: '/account',
+          linkLabel: 'Xem thông báo',
           meta: skuStr,
         });
       } catch (e) {
@@ -3488,96 +3409,6 @@ app.delete('/api/addresses/:id', async (req, res) => {
   } catch (err) {
     console.error('Delete address error:', err);
     res.status(500).json({ success: false, message: 'Lỗi máy chủ khi xóa địa chỉ.' });
-  }
-});
-
-// ========= USER FAVORITES (Health Handbook) =========
-// GET /api/favorites?user_id=...
-app.get('/api/favorites', async (req, res) => {
-  try {
-    const user_id = String(req.query.user_id || '').trim();
-    if (!user_id) {
-      return res.status(400).json({ success: false, message: 'Thiếu user_id.' });
-    }
-
-    const user = await usersCollection().findOne({ user_id });
-    if (!user) {
-      return res.status(404).json({ success: false, message: 'Không tìm thấy người dùng.' });
-    }
-
-    const favorites = Array.isArray(user.favorites) ? user.favorites : [];
-    res.json({ success: true, favorites });
-  } catch (err) {
-    console.error('[GET /api/favorites] Error:', err);
-    res.status(500).json({ success: false, message: 'Lỗi máy chủ khi lấy danh sách yêu thích.' });
-  }
-});
-
-// POST /api/favorites - Thêm video vào danh sách yêu thích
-app.post('/api/favorites', async (req, res) => {
-  try {
-    const { user_id, video } = req.body || {};
-    const uid = String(user_id || '').trim();
-    const videoData = video || {};
-    const vid = videoData.id || videoData._id || (videoData._id && videoData._id.$oid ? videoData._id.$oid : videoData._id);
-
-    if (!uid) {
-      return res.status(400).json({ success: false, message: 'Thiếu user_id.' });
-    }
-    if (!vid) {
-      return res.status(400).json({ success: false, message: 'Thiếu thông tin video (id).' });
-    }
-
-    // Đảm bảo video object có trường id để đồng bộ
-    const videoToSave = { ...videoData, id: String(vid) };
-
-    // Sử dụng $addToSet để tránh trùng lặp nếu video.id đã tồn tại
-    // Tuy nhiên $addToSet so khớp toàn bộ object. Ta nên kiểm tra id trước hoặc dùng logic khác.
-    const user = await usersCollection().findOne({ user_id: uid });
-    if (!user) {
-      return res.status(404).json({ success: false, message: 'Không tìm thấy người dùng.' });
-    }
-
-    const favorites = Array.isArray(user.favorites) ? user.favorites : [];
-    const exists = favorites.some(v => String(v.id) === String(vid));
-
-    if (!exists) {
-      await usersCollection().updateOne(
-        { user_id: uid },
-        { $push: { favorites: videoToSave } }
-      );
-    }
-
-    const updatedUser = await usersCollection().findOne({ user_id: uid });
-    res.json({ success: true, favorites: updatedUser.favorites || [] });
-  } catch (err) {
-    console.error('[POST /api/favorites] Error:', err);
-    res.status(500).json({ success: false, message: 'Lỗi máy chủ khi thêm vào yêu thích.' });
-  }
-});
-
-// DELETE /api/favorites - Xóa video khỏi danh sách yêu thích
-app.delete('/api/favorites', async (req, res) => {
-  try {
-    const { user_id, videoId } = req.body || {};
-    const uid = String(user_id || '').trim();
-    const vid = String(videoId || '').trim();
-
-    if (!uid || !vid) {
-      return res.status(400).json({ success: false, message: 'Thiếu user_id hoặc videoId.' });
-    }
-
-    // Xóa dựa trên trường id
-    await usersCollection().updateOne(
-      { user_id: uid },
-      { $pull: { favorites: { id: vid } } }
-    );
-
-    const updatedUser = await usersCollection().findOne({ user_id: uid });
-    res.json({ success: true, favorites: updatedUser.favorites || [] });
-  } catch (err) {
-    console.error('[DELETE /api/favorites] Error:', err);
-    res.status(500).json({ success: false, message: 'Lỗi máy chủ khi xóa khỏi yêu thích.' });
   }
 });
 
@@ -3903,21 +3734,10 @@ app.post('/api/auth/login', async (req, res) => {
       $or: [{ phone: p }, { phone: phone }]
     });
 
-    if (!user || !user.password) {
+    if (!user) {
       return res.status(401).json({ success: false, message: 'Số điện thoại hoặc mật khẩu không đúng.' });
     }
-
-    // Hỗ trợ cả mật khẩu đã mã hóa (bcrypt) và mật khẩu cũ dạng plain-text để tránh lỗi với dữ liệu cũ.
-    let isMatch = false;
-    if (typeof user.password === 'string' && user.password.startsWith('$2')) {
-      // bcrypt hash
-      isMatch = await bcrypt.compare(password, user.password);
-    } else {
-      // Dữ liệu cũ chưa hash
-      isMatch = user.password === password;
-    }
-
-    if (!isMatch) {
+    if (user.password !== password) {
       return res.status(401).json({ success: false, message: 'Số điện thoại hoặc mật khẩu không đúng.' });
     }
 
@@ -3989,14 +3809,12 @@ app.post('/api/auth/register', async (req, res) => {
     }
     const user_id = 'CUS' + String(nextNum).padStart(6, '0');
 
-    const passwordHash = await bcrypt.hash(password, 10);
-
     const newUser = {
       user_id,
       avatar: null,
       full_name: '',
       email: '',
-      password: passwordHash,
+      password,
       phone: p,
       birthday: null,
       gender: 'Other',
@@ -4110,11 +3928,9 @@ app.post('/api/auth/reset-password', async (req, res) => {
       return res.status(400).json({ success: false, message: PASSWORD_RULE_MSG });
     }
 
-    const passwordHash = await bcrypt.hash(newPassword, 10);
-
     const result = await usersCollection().updateOne(
       { $or: [{ phone: p }, { phone: phone }] },
-      { $set: { password: passwordHash } }
+      { $set: { password: newPassword } }
     );
     if (result.matchedCount === 0) {
       return res.status(404).json({ success: false, message: 'Người dùng không tồn tại.' });
@@ -4666,10 +4482,6 @@ async function seedBenhIfEmpty() {
 async function ensureBlogSlugIndex() {
   try {
     const db = mongoose.connection.db;
-    if (!db) {
-      console.warn('ensureBlogSlugIndex: Database not ready yet');
-      return;
-    }
     for (const name of ['blog', 'blogs']) {
       try {
         await db.collection(name).createIndex({ slug: 1 }, { background: true });
@@ -4690,11 +4502,6 @@ const start = async () => {
     app.listen(PORT, '0.0.0.0', () => {
       console.log(`🚀 VitaCare API: http://localhost:${PORT}`);
     });
-
-    // Wait for the connection to be fully "open" to ensure .db is available
-    if (mongoose.connection.readyState !== 1) {
-      await new Promise((resolve) => mongoose.connection.once('open', resolve));
-    }
 
     // Run seeding/indexing in background
     (async () => {
@@ -4735,7 +4542,7 @@ async function seedDataAdmin() {
     { model: ConsultationProductModel, file: 'consultations_product.json' },
     { model: ConsultationPrescriptionModel, file: 'consultations_prescription.json' },
     { model: Pharmacist, file: 'pharmacists.json' },
-    { model: PromotionTarget, file: 'promotion_promotion_target.json' },
+    { model: PromotionTarget, file: 'promotion_target.json' },
     { model: PromotionUsage, file: 'promotion_usage.json' },
     { model: CustomerGroup, file: 'customer_groups.json' },
     { model: ProductGroup, file: 'product_groups.json' },
@@ -5167,183 +4974,33 @@ app.get('/api/admin/promotions', async (req, res) => {
       const code = p.code;
       const usageData = usages.filter(u => (pid && u.promotion_id === pid) || (code && u.code === code));
       const targetData = targets.filter(t => (pid && t.promotion_id === pid) || (code && t.code === code));
-      
-      const clean = { ...p };
-      delete clean.id;
-      delete clean.selected;
-      delete clean.status;
-      delete clean.statusClass;
-      delete clean.statusTitle;
-      delete clean.usages;
-      delete clean.targets;
-      delete clean.usage_count;
-
-      return { ...clean, usages: usageData, targets: targetData };
+      return { ...p, usages: usageData, targets: targetData };
     });
     const sortedData = data.sort((a, b) => new Date(b.start_date || 0) - new Date(a.start_date || 0));
     res.json({ success: true, data: sortedData });
   } catch (error) { res.status(500).json({ success: false, message: error.message }); }
 });
 
-const sanitizePromotion = (p) => {
-  const clean = { ...p };
-  delete clean.id;
-  delete clean.selected;
-  delete clean.status;
-  delete clean.statusClass;
-  delete clean.statusTitle;
-  delete clean.usages;
-  delete clean.targets;
-  delete clean.usage_count;
-  return clean;
-};
-
 app.post('/api/admin/promotions', async (req, res) => {
   try {
-    const cleanBody = sanitizePromotion(req.body);
-    const item = new PromotionModel(cleanBody);
+    const item = new PromotionModel(req.body);
     const data = await item.save();
-
-    // Lưu thêm bản ghi target vào collection promotion_promotion_target
-    const rawType = (data.type || 'customer').toString().toLowerCase();
-    let targetType = 'Customer';
-    let targetRefs = [];
-
-    if (rawType === 'category' && data.target_category_id) {
-      targetType = 'Category';
-      targetRefs = Array.isArray(data.target_category_id)
-        ? data.target_category_id
-        : [data.target_category_id];
-    } else if (rawType === 'product' && data.product_group_id) {
-      targetType = 'ProductGroup';
-      targetRefs = Array.isArray(data.product_group_id)
-        ? data.product_group_id
-        : [data.product_group_id];
-    } else if (rawType === 'customer') {
-      const mode = data.customer_target_mode || 'all';
-      if (mode === 'group' && data.customer_group_id) {
-        targetType = 'CustomerGroup';
-        targetRefs = Array.isArray(data.customer_group_id)
-          ? data.customer_group_id
-          : [data.customer_group_id];
-      } else if (mode === 'tier' && data.customer_tiers) {
-        targetType = 'CustomerTier';
-        targetRefs = Array.isArray(data.customer_tiers)
-          ? data.customer_tiers
-          : [data.customer_tiers];
-      }
-    }
-
-    // Nếu không chọn nhóm/đối tượng cụ thể nào => áp dụng cho TẤT CẢ
-    // => Không tạo bản ghi promotion_promotion_target, để phía user hiểu là không giới hạn target
-    if (targetRefs.length > 0) {
-      const targetData = {
-        promotion_oid: data._id.toString(),
-        promotion_id: data.promotion_id || '',
-        target_type: targetType,
-        target_ref: targetRefs,
-      };
-
-      await PromotionTarget.create(targetData);
-    }
     res.status(201).json({ success: true, data });
-  } catch (error) { 
-    res.status(500).json({ success: false, message: error.message }); 
-  }
+  } catch (error) { res.status(500).json({ success: false, message: error.message }); }
 });
 
 app.put('/api/admin/promotions/:id', async (req, res) => {
   try {
-    const id = req.params.id;
-    const targetId = mongoose.Types.ObjectId.isValid(id) ? new mongoose.Types.ObjectId(id) : id;
-    
-    const updateData = sanitizePromotion(req.body);
-    delete updateData._id;
-
-    const unsetFields = {
-      id: 1,
-      selected: 1,
-      status: 1,
-      statusClass: 1,
-      statusTitle: 1,
-      usages: 1,
-      targets: 1,
-      usage_count: 1
-    };
-
-    const data = await PromotionModel.findOneAndUpdate(
-      { _id: targetId }, 
-      { $set: updateData, $unset: unsetFields }, 
-      { new: true }
-    );
-    
-    if (data) {
-      const rawType = (data.type || 'customer').toString().toLowerCase();
-      let targetType = 'Customer';
-      let targetRefs = [];
-
-      if (rawType === 'category' && data.target_category_id) {
-        targetType = 'Category';
-        targetRefs = Array.isArray(data.target_category_id)
-          ? data.target_category_id
-          : [data.target_category_id];
-      } else if (rawType === 'product' && data.product_group_id) {
-        targetType = 'ProductGroup';
-        targetRefs = Array.isArray(data.product_group_id)
-          ? data.product_group_id
-          : [data.product_group_id];
-      } else if (rawType === 'customer') {
-        const mode = data.customer_target_mode || 'all';
-        if (mode === 'group' && data.customer_group_id) {
-          targetType = 'CustomerGroup';
-          targetRefs = Array.isArray(data.customer_group_id)
-            ? data.customer_group_id
-            : [data.customer_group_id];
-        } else if (mode === 'tier' && data.customer_tiers) {
-          targetType = 'CustomerTier';
-          targetRefs = Array.isArray(data.customer_tiers)
-            ? data.customer_tiers
-            : [data.customer_tiers];
-        }
-      }
-
-      if (targetRefs.length > 0) {
-        const targetUpdate = {
-          promotion_oid: data._id.toString(),
-          promotion_id: data.promotion_id || '',
-          target_type: targetType,
-          target_ref: targetRefs,
-        };
-
-        await PromotionTarget.findOneAndUpdate(
-          { promotion_oid: id },
-          { $set: targetUpdate },
-          { upsert: true }
-        );
-      } else {
-        // Không còn target cụ thể nào => xoá mọi bản ghi target, coi như áp dụng cho tất cả
-        await PromotionTarget.deleteMany({ promotion_oid: id });
-      }
-    }
-    
+    const data = await PromotionModel.findByIdAndUpdate(req.params.id, req.body, { new: true });
     res.json({ success: true, data });
-  } catch (error) { 
-    res.status(500).json({ success: false, message: error.message }); 
-  }
+  } catch (error) { res.status(500).json({ success: false, message: error.message }); }
 });
 
 app.delete('/api/admin/promotions/:id', async (req, res) => {
   try {
-    const id = req.params.id;
-    const targetId = mongoose.Types.ObjectId.isValid(id) ? new mongoose.Types.ObjectId(id) : id;
-    
-    await PromotionModel.deleteOne({ _id: targetId });
-    await PromotionTarget.deleteMany({ promotion_oid: id });
-    
+    await PromotionModel.findByIdAndDelete(req.params.id);
     res.json({ success: true });
-  } catch (error) { 
-    res.status(500).json({ success: false, message: error.message }); 
-  }
+  } catch (error) { res.status(500).json({ success: false, message: error.message }); }
 });
 
 app.get('/api/admin/reviews', async (req, res) => {
@@ -5573,12 +5230,12 @@ app.patch('/api/admin/consultations_product/reply', async (req, res) => {
       try {
         await noticesCollection().insertOne({
           user_id: String(userId),
-          type: 'qa_reply',
+          type: 'order_updated',
           title: 'Câu hỏi sản phẩm đã có phản hồi',
           message: `Câu hỏi của bạn về sản phẩm "${productName}" đã được ${answeredBy || 'dược sĩ'} giải đáp.`,
           createdAt: new Date().toISOString(),
           read: false,
-          link: `/product/${sku}`,
+          link: '/account',
           linkLabel: 'Xem phản hồi',
           meta: sku,
         });
@@ -5639,12 +5296,12 @@ app.patch('/api/admin/consultations_disease/reply', async (req, res) => {
       try {
         await noticesCollection().insertOne({
           user_id: String(userId),
-          type: 'qa_reply',
+          type: 'order_updated',
           title: 'Câu hỏi về bệnh đã có phản hồi',
           message: `Câu hỏi của bạn về bệnh "${diseaseName}" đã được ${answeredBy || 'dược sĩ'} giải đáp.`,
           createdAt: new Date().toISOString(),
           read: false,
-          link: `/benh/${sku}`,
+          link: '/account',
           linkLabel: 'Xem phản hồi',
           meta: sku,
         });
@@ -5671,60 +5328,9 @@ app.delete('/api/admin/consultations_disease/:sku/:questionId', async (req, res)
 
 app.get('/api/admin/users', async (req, res) => {
   try {
-    // 1. Lấy danh sách user
-    const users = await UserModel.find().sort({ registerdate: -1 }).lean();
-
-    // 2. Aggregate tổng chi tiêu theo user_id chỉ với đơn đã giao thành công
-    const spendingAgg = await OrderModel.aggregate([
-      { $match: { status: 'delivered' } },
-      {
-        $group: {
-          _id: '$user_id',
-          totalspent: { $sum: { $ifNull: ['$totalAmount', 0] } }
-        }
-      }
-    ]);
-
-    const spendingMap = {};
-    spendingAgg.forEach((row) => {
-      if (!row || !row._id) return;
-      spendingMap[String(row._id)] = Number(row.totalspent) || 0;
-    });
-
-    // 3. Gán lại totalspent + tiering cho từng user (và đồng bộ vào DB)
-    const bulkOps = [];
-    const data = users.map((u) => {
-      const uid = String(u.user_id || u._id || '');
-      const aggSpent = spendingMap[uid] ?? 0;
-      const totalspent = typeof u.totalspent === 'number' ? u.totalspent : aggSpent;
-      const finalTotal = Math.max(totalspent, aggSpent);
-      const tiering = getTierFromTotalSpent(finalTotal);
-
-      // Chuẩn bị bulk update để lưu lại
-      if (uid) {
-        bulkOps.push({
-          updateOne: {
-            filter: { user_id: uid },
-            update: { $set: { totalspent: finalTotal, tiering } }
-          }
-        });
-      }
-
-      return {
-        ...u,
-        totalspent: finalTotal,
-        tiering
-      };
-    });
-
-    if (bulkOps.length) {
-      await UserModel.bulkWrite(bulkOps, { ordered: false }).catch(() => { });
-    }
-
+    const data = await UserModel.find().sort({ registerdate: -1 }).lean();
     res.json({ success: true, data });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
+  } catch (error) { res.status(500).json({ success: false, message: error.message }); }
 });
 
 app.get('/api/admin/users/:id', async (req, res) => {
@@ -5959,5 +5565,6 @@ app.post('/api/admin/change-password', async (req, res) => {
     res.json({ success: true, message: 'Đổi mật khẩu thành công', admin: updated });
   } catch (error) { res.status(500).json({ success: false, message: error.message }); }
 });
+
 
 

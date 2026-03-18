@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef, NgZone, HostBinding } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -14,7 +14,6 @@ import { ProductList } from '../product-list/product-list';
 import { getLocalIcon } from '../../../shared/header/header-icons';
 import { RecentlyViewedProducts } from '../recently-viewed-products/recently-viewed-products';
 import { RecentlyViewedBlogs } from '../../blogs/recently-viewed-blogs/recently-viewed-blogs';
-import { LoadingShippingComponent } from '../../../shared/loading-shipping/loading-shipping';
 
 @Component({
     selector: 'app-product',
@@ -28,7 +27,6 @@ import { LoadingShippingComponent } from '../../../shared/loading-shipping/loadi
         ProductList,
         RecentlyViewedProducts,
         RecentlyViewedBlogs,
-        LoadingShippingComponent,
     ],
     templateUrl: './product.html',
     styleUrl: './product.css',
@@ -97,11 +95,8 @@ export class Product implements OnInit, OnDestroy {
     showPriceSortDropdown = false;
     viewMode: 'grid' | 'list' = 'grid';
     isLoading = false;
-    private isPopState = false;
     private routeSub: Subscription | undefined;
     private previousCategorySlug: string | null = null;
-
-    @HostBinding('style.min-height') minHeight = 'auto';
 
     constructor(
         private productService: ProductService,
@@ -111,12 +106,7 @@ export class Product implements OnInit, OnDestroy {
         private router: Router,
         private cdr: ChangeDetectorRef,
         private ngZone: NgZone
-    ) {
-        const nav = this.router.getCurrentNavigation();
-        if (nav && nav.trigger === 'popstate') {
-            this.isPopState = true;
-        }
-    }
+    ) { }
 
     ngOnInit(): void {
         this.loadCategories();
@@ -226,18 +216,7 @@ export class Product implements OnInit, OnDestroy {
                 this.totalProducts = res.total || 0;
                 this.isLoading = false;
                 this.cdr.detectChanges();
-
-                if (!this.isPopState) {
-                    this.scrollToProductTop(isCategoryChange);
-                    this.minHeight = 'auto';
-                } else {
-                    // Give a tall height to allow browser to restore scroll position
-                    this.minHeight = '3000px';
-                    setTimeout(() => {
-                        this.minHeight = 'auto';
-                        this.isPopState = false;
-                    }, 500);
-                }
+                this.scrollToProductTop(isCategoryChange);
                 console.log(`[Product] Fetched ${this.products.length} products`);
             },
             error: (err) => {
@@ -263,12 +242,6 @@ export class Product implements OnInit, OnDestroy {
                 this.updateDisplayedBlogs();
                 this.isLoading = false;
                 this.cdr.detectChanges();
-
-                if (!this.isPopState) {
-                    // Similar logic for blogs if needed, or if we want to stay where we were
-                }
-                this.isPopState = false;
-
                 console.log(`[Product] Fetched ${this.blogs.length} blogs`);
             },
             error: (err) => {

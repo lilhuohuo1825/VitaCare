@@ -16,8 +16,7 @@ const userSchema = new mongoose.Schema(
     tiering: { type: String, default: 'Đồng' },
     // OTP fields used by auth flows
     otpCode: { type: String },
-    otpExpiry: { type: Date },
-    favorites: { type: Array, default: [] }
+    otpExpiry: { type: Date }
   },
   {
     timestamps: true,

@@ -15,7 +15,6 @@ import { QuickViewService } from '../../../core/services/quick-view.service';
 export class ProductQuickView {
   readonly quickViewService = inject(QuickViewService);
   selectedImage: string = '';
-  isGalleryModalOpen: boolean = false;
 
   closeQuickView() {
     this.selectedImage = '';
