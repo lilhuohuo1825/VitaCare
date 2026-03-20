@@ -607,9 +607,9 @@
 
 .cart-sidebar-btn {
   flex: 1;
-  padding: 8px 12px;
+  padding: 11px 14px;
   border-radius: 8px;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   border: none;

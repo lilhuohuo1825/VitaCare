@@ -2,6 +2,7 @@ import { Component, OnInit, Inject, HostListener, ChangeDetectorRef } from '@ang
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { ProductService } from '../services/product.service';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 
 interface Product {
   _id?: string;
@@ -133,9 +134,11 @@ export class Productmanage implements OnInit {
   currentFilterParentId: string | null = null;
   expandedL1Ids: Set<string> = new Set();
   expandedL2Ids: Set<string> = new Set();
+  private pendingOpenProductId: string | null = null;
 
   constructor(
     @Inject(ProductService) private productService: ProductService,
+    private route: ActivatedRoute,
     private cdr: ChangeDetectorRef
   ) { }
 
@@ -150,7 +153,21 @@ export class Productmanage implements OnInit {
 
   ngOnInit(): void {
     this.fetchCategories();
-    this.loadProducts();
+    this.route.queryParams.subscribe((params) => {
+      this.pendingOpenProductId = params['openProductId'] || null;
+      if (typeof params['search'] === 'string') {
+        this.searchTerm = params['search'].toLowerCase();
+      }
+      if (typeof params['stockStatus'] === 'string') {
+        const statuses = params['stockStatus'].split(',').map((s: string) => s.trim());
+        this.advancedFilters.stock = {
+          out_of_stock: statuses.includes('out_of_stock'),
+          low_stock: statuses.includes('low_stock'),
+          in_stock: statuses.includes('in_stock')
+        };
+      }
+      this.loadProducts(1);
+    });
     this.fetchGroups();
   }
 
@@ -263,6 +280,11 @@ export class Productmanage implements OnInit {
           });
           this.totalItems = res.totalItems || (res.pagination ? res.pagination.total : 0);
           this.totalPages = res.totalPages || (res.pagination ? res.pagination.totalPages : 1);
+          if (this.pendingOpenProductId) {
+            const idToOpen = this.pendingOpenProductId;
+            this.pendingOpenProductId = null;
+            this.openProductDetailById(idToOpen);
+          }
           this.cdr.markForCheck();
         }
         this.isLoading = false;
@@ -621,6 +643,15 @@ export class Productmanage implements OnInit {
     this.selectedIds.add(product._id);
     this.updateSelectionCount();
     this.products.forEach(p => p.selected = (p._id === product._id));
+    this.openEditProductModal();
+  }
+
+  private openProductDetailById(id: string) {
+    if (!id) return;
+    this.selectedIds.clear();
+    this.selectedIds.add(String(id));
+    this.updateSelectionCount();
+    this.products.forEach(p => p.selected = (String(p._id) === String(id)));
     this.openEditProductModal();
   }
 

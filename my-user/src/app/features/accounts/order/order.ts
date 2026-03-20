@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, ChangeDetectorRef, HostListener } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -82,6 +82,7 @@ export class Order implements OnInit, OnDestroy {
   hideProductInfo = false;
 
   recipientNamePhone = '';
+  recipientEmail = '';
   recipientAddress = '';
   isDefaultAddress = false;
   showAddressModal = false;
@@ -95,16 +96,40 @@ export class Order implements OnInit, OnDestroy {
   provinces: LocationItem[] = [];
   districts: LocationItem[] = [];
   wards: LocationItem[] = [];
+
+  // Custom dropdown (province/district/ward)
+  showProvinceDropdown = false;
+  showDistrictDropdown = false;
+  showWardDropdown = false;
+  showPharmacyProvinceDropdown = false;
+  showPharmacyDistrictDropdown = false;
+  showPharmacyWardDropdown = false;
   addressForm = {
     name: '', phone: '', email: '', provinceCode: '', districtCode: '', wardCode: '', detail: '', isDefault: false,
   };
   addressFormPhoneError = '';
   orderNote = '';
 
+  // Kiểm tra SĐT khách vãng lai (không được trùng user đã đăng ký)
+  guestPhoneAvailable: boolean | null = null;
+  guestPhoneLoginLinkVisible = false;
+  guestPhoneCheckLoading = false;
+  private guestPhoneCheckSeq = 0;
+
   private confirmService = inject(ConfirmService);
 
   payerName = '';
   payerPhone = '';
+  payerEmail = '';
+
+  // Modal Thông tin người đặt (Nhận tại nhà thuốc) - không cần địa chỉ
+  showPharmacyPayerInfoModal = false;
+  pharmacyPayerInfoForm = { name: '', phone: '', email: '' };
+  pharmacyPayerPhoneError = '';
+  pharmacyPayerGuestPhoneAvailable: boolean | null = null;
+  pharmacyPayerPhoneLoginLinkVisible = false;
+  pharmacyPayerPhoneCheckLoading = false;
+  private pharmacyPayerPhoneCheckSeq = 0;
 
   // New Store filtering logic
   pharmacyProvince = '';
@@ -152,6 +177,102 @@ export class Order implements OnInit, OnDestroy {
   promotions: ApplicablePromotion[] = [];
   promotionLoading = false;
   selectedPromotionId: string | null = null;
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement | null;
+    // Close only when clicking outside any custom dropdown wrapper.
+    if (target && target.closest('.order-custom-dropdown')) return;
+    this.showProvinceDropdown = false;
+    this.showDistrictDropdown = false;
+    this.showWardDropdown = false;
+    this.showPharmacyProvinceDropdown = false;
+    this.showPharmacyDistrictDropdown = false;
+    this.showPharmacyWardDropdown = false;
+  }
+
+  private closeAddressDropdowns(): void {
+    this.showProvinceDropdown = false;
+    this.showDistrictDropdown = false;
+    this.showWardDropdown = false;
+  }
+
+  private closePharmacyDropdowns(): void {
+    this.showPharmacyProvinceDropdown = false;
+    this.showPharmacyDistrictDropdown = false;
+    this.showPharmacyWardDropdown = false;
+  }
+
+  getProvinceLabel(code: string): string {
+    return this.provinces.find((p) => p.code === code)?.name_with_type || '';
+  }
+
+  getDistrictLabel(code: string): string {
+    return this.districts.find((d) => d.code === code)?.name_with_type || '';
+  }
+
+  getWardLabel(code: string): string {
+    return this.wards.find((w) => w.code === code)?.name_with_type || '';
+  }
+
+  getPharmacyProvinceLabel(name: string): string {
+    return name || '';
+  }
+
+  getPharmacyDistrictLabel(name: string): string {
+    return name || '';
+  }
+
+  getPharmacyWardLabel(name: string): string {
+    return name || '';
+  }
+
+  toggleProvinceDropdown(e: MouseEvent): void {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!this.provinces?.length) return;
+    this.showProvinceDropdown = !this.showProvinceDropdown;
+    if (this.showProvinceDropdown) {
+      this.showDistrictDropdown = false;
+      this.showWardDropdown = false;
+    }
+  }
+
+  toggleDistrictDropdown(e: MouseEvent): void {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!this.addressForm.provinceCode || !this.districts?.length) return;
+    this.showDistrictDropdown = !this.showDistrictDropdown;
+    if (this.showDistrictDropdown) this.showWardDropdown = false;
+  }
+
+  toggleWardDropdown(e: MouseEvent): void {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!this.addressForm.districtCode || !this.wards?.length) return;
+    this.showWardDropdown = !this.showWardDropdown;
+  }
+
+  selectProvince(code: string, e: MouseEvent): void {
+    e.preventDefault();
+    e.stopPropagation();
+    this.onAddressFormProvinceChange(code);
+    this.closeAddressDropdowns();
+  }
+
+  selectDistrict(code: string, e: MouseEvent): void {
+    e.preventDefault();
+    e.stopPropagation();
+    this.onAddressFormDistrictChange(code);
+    this.closeAddressDropdowns();
+  }
+
+  selectWard(code: string, e: MouseEvent): void {
+    e.preventDefault();
+    e.stopPropagation();
+    this.addressForm.wardCode = code;
+    this.closeAddressDropdowns();
+  }
   appliedPromotionName = '';
   /** Thông tin khuyến mãi từ giỏ hàng (nếu có) */
   summaryPromotionId: string | null = null;
@@ -289,12 +410,15 @@ export class Order implements OnInit, OnDestroy {
       const u = user as any;
       this.payerName = u.full_name || u.name || '';
       this.payerPhone = u.phone || '';
+      this.payerEmail = u.email || '';
       this.loadDefaultAddress(user.user_id);
     } else {
       this.payerName = '';
       this.payerPhone = '';
+      this.payerEmail = '';
       this.recipientNamePhone = '';
       this.recipientAddress = '';
+      this.recipientEmail = '';
     }
 
     this.loadProvinces();
@@ -405,12 +529,15 @@ export class Order implements OnInit, OnDestroy {
         if (defaultAddr) {
           const name = defaultAddr.name || (defaultAddr as any).full_name || '';
           const phone = defaultAddr.phone || '';
+          const email = (defaultAddr as any).email || '';
           this.recipientNamePhone = name ? `${name} - ${phone}` : phone;
           this.recipientAddress = defaultAddr.fullAddress || (defaultAddr as any).full_address || '';
+          this.recipientEmail = email;
           this.isDefaultAddress = true;
         } else {
           this.recipientNamePhone = '';
           this.recipientAddress = '';
+          this.recipientEmail = '';
           this.isDefaultAddress = false;
         }
         this.cdr.detectChanges();
@@ -419,6 +546,7 @@ export class Order implements OnInit, OnDestroy {
         this.addressList = [];
         this.recipientNamePhone = '';
         this.recipientAddress = '';
+        this.recipientEmail = '';
         this.isDefaultAddress = false;
         this.cdr.detectChanges();
       },
@@ -501,6 +629,7 @@ export class Order implements OnInit, OnDestroy {
       const phone = addr.phone || '';
       this.recipientNamePhone = name ? `${name} - ${phone}` : phone;
       this.recipientAddress = addr.fullAddress || (addr as any).full_address || '';
+      this.recipientEmail = (addr as any).email || '';
       this.isDefaultAddress = !!addr.isDefault || !!(addr as any).is_default;
     }
     this.closeAddressModal();
@@ -513,6 +642,12 @@ export class Order implements OnInit, OnDestroy {
     this.addressFormMode = 'create';
     this.editingAddressId = null;
     this.resetAddressForm();
+    if (this.isGuest) {
+      this.guestPhoneAvailable = null;
+      this.guestPhoneLoginLinkVisible = false;
+      this.guestPhoneCheckLoading = false;
+      this.guestPhoneCheckSeq = 0;
+    }
     const user = this.authService.currentUser() as any;
     if (user) {
       this.addressForm.name = user.full_name || user.name || '';
@@ -583,6 +718,7 @@ export class Order implements OnInit, OnDestroy {
   closeAddressFormModal(): void {
     this.showAddressFormModal = false;
     this.resetAddressForm();
+    this.closeAddressDropdowns();
     this.cdr.detectChanges();
   }
 
@@ -590,6 +726,7 @@ export class Order implements OnInit, OnDestroy {
     this.addressForm = { name: '', phone: '', email: '', provinceCode: '', districtCode: '', wardCode: '', detail: '', isDefault: false };
     this.districts = [];
     this.wards = [];
+    this.closeAddressDropdowns();
   }
 
   private loadProvinces(): void {
@@ -629,6 +766,7 @@ export class Order implements OnInit, OnDestroy {
     this.pharmacyProvince = tinh;
     this.pharmacyDistrict = '';
     this.pharmacyWard = '';
+    this.closePharmacyDropdowns();
     this.availableDistricts = [];
     this.availableWards = [];
     this.availableStores = [];
@@ -647,6 +785,7 @@ export class Order implements OnInit, OnDestroy {
   onPharmacyDistrictChange(quan: string): void {
     this.pharmacyDistrict = quan;
     this.pharmacyWard = '';
+    this.closePharmacyDropdowns();
     this.availableWards = [];
     this.availableStores = [];
     this.selectedStore = null;
@@ -663,10 +802,55 @@ export class Order implements OnInit, OnDestroy {
 
   onPharmacyWardChange(phuong: string): void {
     this.pharmacyWard = phuong;
+    this.closePharmacyDropdowns();
     this.selectedStore = null;
     this.availableStores = [];
     this.cdr.detectChanges();
     this.loadAvailableStores();
+  }
+
+  togglePharmacyProvinceDropdown(e: MouseEvent): void {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!this.allPharmacyLocations?.length) return;
+    this.showPharmacyProvinceDropdown = !this.showPharmacyProvinceDropdown;
+    if (this.showPharmacyProvinceDropdown) {
+      this.showPharmacyDistrictDropdown = false;
+      this.showPharmacyWardDropdown = false;
+    }
+  }
+
+  togglePharmacyDistrictDropdown(e: MouseEvent): void {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!this.pharmacyProvince || !this.availableDistricts?.length) return;
+    this.showPharmacyDistrictDropdown = !this.showPharmacyDistrictDropdown;
+    if (this.showPharmacyDistrictDropdown) this.showPharmacyWardDropdown = false;
+  }
+
+  togglePharmacyWardDropdown(e: MouseEvent): void {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!this.pharmacyDistrict || !this.availableWards?.length) return;
+    this.showPharmacyWardDropdown = !this.showPharmacyWardDropdown;
+  }
+
+  selectPharmacyProvince(tinh: string, e: MouseEvent): void {
+    e.preventDefault();
+    e.stopPropagation();
+    this.onPharmacyProvinceChange(tinh);
+  }
+
+  selectPharmacyDistrict(quan: string, e: MouseEvent): void {
+    e.preventDefault();
+    e.stopPropagation();
+    this.onPharmacyDistrictChange(quan);
+  }
+
+  selectPharmacyWard(phuong: string, e: MouseEvent): void {
+    e.preventDefault();
+    e.stopPropagation();
+    this.onPharmacyWardChange(phuong);
   }
 
   loadAvailableStores(): void {
@@ -726,6 +910,228 @@ export class Order implements OnInit, OnDestroy {
     return true;
   }
 
+  onGuestPhoneChanged(): void {
+    if (!this.isGuest) return;
+    // Reset trạng thái sẵn sàng khi user đổi số
+    this.guestPhoneAvailable = null;
+    this.guestPhoneLoginLinkVisible = false;
+  }
+
+  onGuestPhoneBlur(): void {
+    // 1) Validate format (độ dài/chỉ số) trước
+    const ok = this.validateAddressFormPhone();
+    if (!ok) {
+      this.guestPhoneAvailable = null;
+      return;
+    }
+    if (!this.isGuest) return;
+
+    const raw = (this.addressForm.phone || '').trim();
+    const digitsOnly = raw.replace(/\s/g, '').replace(/\D/g, '');
+    if (!digitsOnly) {
+      this.guestPhoneAvailable = null;
+      return;
+    }
+
+    const seq = ++this.guestPhoneCheckSeq;
+    this.guestPhoneCheckLoading = true;
+
+    this.http
+      .post<{ success: boolean; exists: boolean; message?: string }>(
+        '/api/auth/check-phone-exists',
+        { phone: digitsOnly }
+      )
+      .subscribe({
+        next: (res) => {
+          if (seq !== this.guestPhoneCheckSeq) return; // chỉ lấy kết quả lần blur gần nhất
+          this.guestPhoneCheckLoading = false;
+          const exists = !!res?.exists;
+
+          if (exists) {
+            this.guestPhoneAvailable = false;
+            this.guestPhoneLoginLinkVisible = true;
+            this.addressFormPhoneError = 'Số điện thoại này đã có tài khoản. Vui lòng đăng nhập lại.';
+            this.toastService.showError(this.addressFormPhoneError);
+          } else {
+            this.guestPhoneAvailable = true;
+            this.guestPhoneLoginLinkVisible = false;
+            this.addressFormPhoneError = '';
+          }
+          this.cdr.detectChanges();
+        },
+        error: () => {
+          if (seq !== this.guestPhoneCheckSeq) return;
+          this.guestPhoneCheckLoading = false;
+          // Nếu không check được, chặn đặt hàng để tránh trường hợp trùng
+          this.guestPhoneAvailable = null;
+          this.guestPhoneLoginLinkVisible = false;
+          this.addressFormPhoneError = 'Không thể kiểm tra số điện thoại. Vui lòng thử lại.';
+          this.toastService.showError(this.addressFormPhoneError);
+          this.cdr.detectChanges();
+        },
+      });
+  }
+
+  openGuestPhoneLoginModal(e: Event): void {
+    e.preventDefault();
+    e.stopPropagation();
+    this.guestPhoneLoginLinkVisible = false;
+    this.authService.openAuthModal();
+    this.cdr.detectChanges();
+  }
+
+  /** Validate format SĐT (ít nhất 10 số, chỉ số) cho form người đặt */
+  private validateGuestPayerPhoneDigits(rawPhone: string): boolean {
+    const raw = (rawPhone || '').trim();
+    if (!raw) {
+      this.pharmacyPayerPhoneError = 'Vui lòng nhập số điện thoại.';
+      this.cdr.detectChanges();
+      return false;
+    }
+    const digitsOnly = raw.replace(/\s/g, '').replace(/\D/g, '');
+    if (!/^\d+$/.test(digitsOnly)) {
+      this.pharmacyPayerPhoneError = 'Số điện thoại chỉ được chứa chữ số.';
+      this.cdr.detectChanges();
+      return false;
+    }
+    if (digitsOnly.length < 10) {
+      this.pharmacyPayerPhoneError = 'Số điện thoại phải có ít nhất 10 chữ số.';
+      this.cdr.detectChanges();
+      return false;
+    }
+    this.pharmacyPayerPhoneError = '';
+    this.cdr.detectChanges();
+    return true;
+  }
+
+  onGuestPayerPhoneChanged(): void {
+    if (!this.isGuest) return;
+    this.pharmacyPayerGuestPhoneAvailable = null;
+    this.pharmacyPayerPhoneLoginLinkVisible = false;
+    this.pharmacyPayerPhoneError = '';
+  }
+
+  onGuestPayerPhoneBlur(): void {
+    // Chỉ check cho khách vãng lai
+    if (!this.isGuest) return;
+
+    const ok = this.validateGuestPayerPhoneDigits(this.pharmacyPayerInfoForm?.phone || this.pharmacyPayerInfoForm.phone || '');
+    if (!ok) {
+      this.pharmacyPayerGuestPhoneAvailable = null;
+      return;
+    }
+
+    const raw = (this.pharmacyPayerInfoForm.phone || '').trim();
+    const digitsOnly = raw.replace(/\s/g, '').replace(/\D/g, '');
+    if (!digitsOnly) {
+      this.pharmacyPayerGuestPhoneAvailable = null;
+      return;
+    }
+
+    const seq = ++this.pharmacyPayerPhoneCheckSeq;
+    this.pharmacyPayerPhoneCheckLoading = true;
+
+    this.http
+      .post<{ success: boolean; exists: boolean; message?: string }>(
+        '/api/auth/check-phone-exists',
+        { phone: digitsOnly }
+      )
+      .subscribe({
+        next: (res) => {
+          if (seq !== this.pharmacyPayerPhoneCheckSeq) return;
+          this.pharmacyPayerPhoneCheckLoading = false;
+          const exists = !!res?.exists;
+
+          if (exists) {
+            this.pharmacyPayerGuestPhoneAvailable = false;
+            this.pharmacyPayerPhoneLoginLinkVisible = true;
+            this.pharmacyPayerPhoneError = 'Số điện thoại này đã có tài khoản. Vui lòng đăng nhập lại.';
+            this.toastService.showError(this.pharmacyPayerPhoneError);
+          } else {
+            this.pharmacyPayerGuestPhoneAvailable = true;
+            this.pharmacyPayerPhoneLoginLinkVisible = false;
+            this.pharmacyPayerPhoneError = '';
+          }
+          this.cdr.detectChanges();
+        },
+        error: () => {
+          if (seq !== this.pharmacyPayerPhoneCheckSeq) return;
+          this.pharmacyPayerPhoneCheckLoading = false;
+          this.pharmacyPayerGuestPhoneAvailable = null;
+          this.pharmacyPayerPhoneLoginLinkVisible = false;
+          this.pharmacyPayerPhoneError = 'Không thể kiểm tra số điện thoại. Vui lòng thử lại.';
+          this.toastService.showError(this.pharmacyPayerPhoneError);
+          this.cdr.detectChanges();
+        },
+      });
+  }
+
+  openPharmacyPayerLoginModal(e: Event): void {
+    e.preventDefault();
+    e.stopPropagation();
+    this.pharmacyPayerPhoneLoginLinkVisible = false;
+    this.authService.openAuthModal();
+    this.cdr.detectChanges();
+  }
+
+  openPharmacyPayerInfoModal(): void {
+    this.pharmacyPayerPhoneError = '';
+    this.pharmacyPayerPhoneLoginLinkVisible = false;
+    this.pharmacyPayerPhoneCheckLoading = false;
+    this.pharmacyPayerPhoneCheckSeq = 0;
+    this.pharmacyPayerGuestPhoneAvailable = null;
+
+    this.pharmacyPayerInfoForm = {
+      name: this.payerName || '',
+      phone: this.payerPhone || '',
+      email: this.payerEmail || '',
+    };
+    this.showPharmacyPayerInfoModal = true;
+    this.cdr.detectChanges();
+  }
+
+  closePharmacyPayerInfoModal(): void {
+    this.showPharmacyPayerInfoModal = false;
+    this.cdr.detectChanges();
+  }
+
+  submitPharmacyPayerInfoForm(): void {
+    const name = (this.pharmacyPayerInfoForm.name || '').trim();
+    const phone = (this.pharmacyPayerInfoForm.phone || '').trim();
+    const email = (this.pharmacyPayerInfoForm.email || '').trim();
+
+    if (!name) {
+      this.toastService.showError('Vui lòng nhập họ tên người đặt.');
+      return;
+    }
+
+    const digitsOnly = phone.replace(/\s/g, '').replace(/\D/g, '');
+    const okPhone = this.validateGuestPayerPhoneDigits(phone);
+    if (!okPhone) return;
+    if (this.isGuest) {
+      if (this.pharmacyPayerGuestPhoneAvailable !== true) {
+        this.toastService.showError('Vui lòng nhập số điện thoại chưa có tài khoản.');
+        return;
+      }
+      if (!email) {
+        this.toastService.showError('Vui lòng nhập email người nhận.');
+        return;
+      }
+      const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+      if (!emailOk) {
+        this.toastService.showError('Email không đúng định dạng.');
+        return;
+      }
+    }
+
+    this.payerName = name;
+    this.payerPhone = digitsOnly || phone;
+    if (email) this.payerEmail = email;
+
+    this.closePharmacyPayerInfoModal();
+    this.cdr.detectChanges();
+  }
+
   submitAddressForm(): void {
     if (!this.validateAddressFormPhone()) return;
 
@@ -736,7 +1142,35 @@ export class Order implements OnInit, OnDestroy {
     const fullAddress = fullAddressParts.join(', ');
 
     const user = this.authService.currentUser();
-    if (!user?.user_id) return;
+    const isGuestFlow = !user?.user_id;
+    if (isGuestFlow) {
+      if (this.guestPhoneAvailable !== true) {
+        this.toastService.showError('Vui lòng nhập số điện thoại chưa có tài khoản.');
+        return;
+      }
+      const email = (this.addressForm.email || '').trim();
+      // Guest: email bắt buộc (yêu cầu từ UI)
+      if (!email) {
+        this.toastService.showError('Vui lòng nhập email người nhận.');
+        return;
+      }
+      const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+      if (!emailOk) {
+        this.toastService.showError('Email không đúng định dạng.');
+        return;
+      }
+
+      const name = (this.addressForm.name || '').trim();
+      const phone = (this.addressForm.phone || '').trim();
+      this.recipientNamePhone = name ? `${name} - ${phone}` : phone;
+      this.recipientEmail = email;
+      this.recipientAddress = fullAddress;
+      this.isDefaultAddress = this.addressForm.isDefault;
+
+      this.closeAddressFormModal();
+      this.cdr.detectChanges();
+      return;
+    }
 
     if (this.addressFormMode === 'edit' && this.editingAddressId) {
       this.http.patch<{ success: boolean; item?: AddressItem }>(`/api/addresses/${this.editingAddressId}`, {
@@ -997,12 +1431,23 @@ export class Order implements OnInit, OnDestroy {
       if (!this.recipientAddress.trim()) {
         this.validationErrors.push('Vui lòng nhập địa chỉ người nhận.');
       }
+      if (this.isGuest && !this.recipientEmail.trim()) {
+        this.validationErrors.push('Vui lòng nhập email người nhận.');
+      }
     } else {
       if (!this.payerName.trim()) {
         this.validationErrors.push('Vui lòng nhập tên người đặt.');
       }
       if (!this.payerPhone.trim()) {
         this.validationErrors.push('Vui lòng nhập SĐT người đặt.');
+      }
+      if (this.isGuest) {
+        if (!this.payerEmail.trim()) {
+          this.validationErrors.push('Vui lòng nhập email người nhận.');
+        }
+        if (this.pharmacyPayerGuestPhoneAvailable !== true) {
+          this.validationErrors.push('Vui lòng nhập số điện thoại người đặt chưa có tài khoản.');
+        }
       }
       if (!this.pharmacyProvince) {
         this.validationErrors.push('Vui lòng chọn Tỉnh/Thành phố của nhà thuốc.');
@@ -1069,10 +1514,12 @@ export class Order implements OnInit, OnDestroy {
         fullName,
         phone,
         address: this.recipientAddress,
+        email: this.recipientEmail || undefined,
       } : {
         fullName: this.payerName,
         phone: this.payerPhone,
         address: '',
+        email: this.payerEmail || undefined,
       },
       promotion: this.buildPromotionPayload(),
     };

@@ -230,11 +230,7 @@
   font-size: 22px;
   margin: 0;
   font-weight: 600;
-<<<<<<< HEAD
   color: #00589F !important;
-=======
-  color: #00589F;
->>>>>>> d65c8a8ee2c91f8cec1468f70e82f7094866773a
   display: flex;
   align-items: center;
   flex-wrap: wrap;
@@ -3721,6 +3717,69 @@
   height: 100%;
   object-fit: cover;
   display: block;
+}
+
+/* Promo popup (banner click) - dùng chung style card như popup blog */
+.vc-promo-popup__image-wrap--main {
+  /* wrapper giữ nguyên từ .vc-blog-popup__image-wrap (overflow hidden) */
+}
+
+.vc-promo-popup__image--main {
+  /* Zoom ảnh lên để chỉ hiển thị top ~50% khi wrapper crop */
+  height: 200%;
+  object-fit: cover;
+  object-position: 50% 0%;
+  transform: translateY(-2%);
+  transform-origin: 50% 0%;
+}
+
+.vc-promo-popup__image-wrap--sub {
+  /* Sub-banner: tránh hở phía trên bằng cách top-align ảnh + giảm nền crop */
+  height: min(200px, 26vh);
+  min-height: 160px;
+  background: var(--color-neutral-10);
+}
+
+.vc-promo-popup__image--sub {
+  height: 100%;
+  object-fit: contain;
+  object-position: 50% 0%;
+}
+
+/* Highlight promo values (discount/min/date) */
+.vc-promo-popup__values {
+  margin-top: 6px;
+  margin-bottom: 16px;
+}
+
+.vc-promo-popup__discount {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 18px;
+  border-radius: 999px;
+  font-size: 16px;
+  font-weight: 900;
+  color: var(--color-text-inverse);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-hover));
+  box-shadow: 0 10px 26px color-mix(in srgb, var(--color-primary) 30%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-text-inverse) 35%, transparent);
+}
+
+.vc-promo-popup__min,
+.vc-promo-popup__date {
+  margin-top: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+}
+
+.vc-promo-popup__min {
+  color: var(--color-text-secondary);
+}
+
+.vc-promo-popup__date {
+  color: var(--color-text-secondary);
 }
 
 .vc-blog-popup__image-fade {

@@ -82,6 +82,27 @@ export class Home implements OnInit, OnDestroy, AfterViewInit {
   subBanner2 = 'assets/images/banner/Banner Homepage .png';    // Right bottom (User input: sub_2 = ô bên phải nhỏ ở dưới)
   subBanner3 = 'assets/images/banner/Banner Homepage  (1).png'; // Right top    (User input: sub_3 = ô bên phải nhỏ ở trên)
 
+  private readonly backendBaseUrl = 'http://localhost:3000';
+
+  // ===== Promo popup state (banner click) =====
+  private mainBannerPromotions: any[] = [];
+  private subBannerPromotions: Record<'sub_1' | 'sub_2' | 'sub_3', any | null> = {
+    sub_1: null,
+    sub_2: null,
+    sub_3: null
+  };
+  showPromoPopup = false;
+  promoPopupLayout: 'main' | 'sub' = 'sub';
+  promoPopup: {
+    image: string;
+    label: string;
+    title: string;
+    discountText?: string;
+    minText?: string;
+    dateText?: string;
+    descriptionText?: string;
+  } | null = null;
+
   currentBannerIndex = 0;
   activeFlashSlot: 0 | 1 | 2 = 0;
 
@@ -131,8 +152,8 @@ export class Home implements OnInit, OnDestroy, AfterViewInit {
   private bannerTouchStartX = 0;
 
   /** Optional: tự chạy banner (nếu muốn) */
-  // private autoplayTimer: number | null = null;
-  // readonly autoplayMs = 5000;
+  private autoplayTimer: number | null = null;
+  readonly autoplayMs = 2000;
 
   constructor(
     private http: HttpClient,
@@ -178,6 +199,7 @@ export class Home implements OnInit, OnDestroy, AfterViewInit {
       this.showAllSeasonalDiseases = false;
     }
     this.loadDynamicBanners();
+    this.startAutoplay();
   }
 
   private loadDynamicBanners(): void {
@@ -194,7 +216,7 @@ export class Home implements OnInit, OnDestroy, AfterViewInit {
           const newBanners = bannerPromos.map(p => {
             // Lấy ảnh đầu tiên từ mảng images hoặc fallback
             if (p.images && p.images.length > 0) {
-              return p.images[0];
+              return this.normalizePromoImageUrl(p.images[0]);
             }
             return '/assets/images/banner/About_us_Hero.png';
           });
@@ -203,17 +225,22 @@ export class Home implements OnInit, OnDestroy, AfterViewInit {
           this.bgA = this.banners[0];
           this.bgB = this.banners[0];
           this.currentBannerIndex = 0;
+          this.mainBannerPromotions = bannerPromos;
           this.cdr.markForCheck();
         }
 
         // Lọc các sub-banner (sub_1, sub_2, sub_3)
-        const sub1 = promotions.find(p => p.typeBanner === 'sub_1');
-        const sub2 = promotions.find(p => p.typeBanner === 'sub_2');
-        const sub3 = promotions.find(p => p.typeBanner === 'sub_3');
+        const sub1 = promotions.find(p => p.typeBanner === 'sub_1') || null;
+        const sub2 = promotions.find(p => p.typeBanner === 'sub_2') || null;
+        const sub3 = promotions.find(p => p.typeBanner === 'sub_3') || null;
 
-        if (sub1?.images?.length) this.subBanner1 = sub1.images[0];
-        if (sub2?.images?.length) this.subBanner2 = sub2.images[0];
-        if (sub3?.images?.length) this.subBanner3 = sub3.images[0];
+        this.subBannerPromotions.sub_1 = sub1;
+        this.subBannerPromotions.sub_2 = sub2;
+        this.subBannerPromotions.sub_3 = sub3;
+
+        if (sub1?.images?.length) this.subBanner1 = this.normalizePromoImageUrl(sub1.images[0]);
+        if (sub2?.images?.length) this.subBanner2 = this.normalizePromoImageUrl(sub2.images[0]);
+        if (sub3?.images?.length) this.subBanner3 = this.normalizePromoImageUrl(sub3.images[0]);
 
         if (sub1 || sub2 || sub3) {
           this.cdr.markForCheck();
@@ -223,6 +250,94 @@ export class Home implements OnInit, OnDestroy, AfterViewInit {
         console.error('Failed to load dynamic banners', err);
       }
     });
+  }
+
+  private normalizePromoImageUrl(src?: string | null): string {
+    const value = String(src || '').trim();
+    if (!value) return '';
+    // Data URL / blob: / absolute URLs
+    if (value.startsWith('data:') || value.startsWith('blob:') || value.startsWith('http://') || value.startsWith('https://')) {
+      return value;
+    }
+    // Server path -> prefix backend
+    if (value.startsWith('/')) return `${this.backendBaseUrl}${value}`;
+    // Fallback: treat as relative segment
+    return `${this.backendBaseUrl}/${value}`;
+  }
+
+  private buildPromoExcerpt(promo: any): {
+    discountText?: string;
+    minText?: string;
+    dateText?: string;
+    descriptionText?: string;
+  } | undefined {
+    const discountType = promo?.discount_type;
+    const discountValue = Number(promo?.discount_value || 0);
+    const maxDiscount = Number(promo?.max_discount_value || 0);
+    const minOrder = Number(promo?.min_order_value || 0);
+    const start = promo?.start_date;
+    const end = promo?.end_date;
+
+    const discountLine = (() => {
+      if (discountType === 'percent') {
+        const base = `Giảm ${discountValue}%`;
+        if (maxDiscount > 0) return `${base} (tối đa ${maxDiscount.toLocaleString('vi-VN')}đ)`;
+        return base;
+      }
+      if (discountType === 'amount') {
+        if (discountValue <= 0) return undefined;
+        return `Giảm ${discountValue.toLocaleString('vi-VN')}đ`;
+      }
+      return undefined;
+    })();
+
+    const minLine = minOrder > 0 ? `Từ ${minOrder.toLocaleString('vi-VN')}đ` : undefined;
+    const dateLine = (start || end)
+      ? `Từ ${start ? String(start).slice(0, 10) : ''} đến ${end ? String(end).slice(0, 10) : ''}`.trim()
+      : undefined;
+
+    const desc = typeof promo?.description === 'string' ? promo.description.trim() : '';
+    const descShort = desc ? desc.replace(/<[^>]*>/g, '').slice(0, 150) : undefined;
+
+    const hasAny = Boolean(descShort || discountLine || minLine || dateLine);
+    if (!hasAny) return undefined;
+
+    return {
+      discountText: discountLine,
+      minText: minLine,
+      dateText: dateLine,
+      descriptionText: descShort
+    };
+  }
+
+  private openPromoPopup(promo: any, layout: 'main' | 'sub'): void {
+    if (!promo) return;
+    const image = promo?.images?.length ? this.normalizePromoImageUrl(promo.images[0]) : '';
+    if (!image) return;
+
+    const title = promo?.name || promo?.code || 'Khuyến mãi';
+    const values = this.buildPromoExcerpt(promo);
+
+    this.promoPopupLayout = layout;
+    this.promoPopup = {
+      image,
+      label: 'Có thể bạn chưa biết?',
+      title,
+      ...(values || {})
+    };
+    this.showPromoPopup = true;
+    this.cdr.markForCheck();
+  }
+
+  goToPromoProducts(): void {
+    this.closePromoPopup();
+    this.router.navigate(['/products']);
+  }
+
+  closePromoPopup(): void {
+    this.showPromoPopup = false;
+    this.promoPopup = null;
+    this.cdr.markForCheck();
   }
 
   private scrollRevealObserver: IntersectionObserver | null = null;
@@ -305,7 +420,7 @@ export class Home implements OnInit, OnDestroy, AfterViewInit {
       this.blogPopupRevealTimer = null;
     }
 
-    // this.stopAutoplay();
+    this.stopAutoplay();
   }
 
   /** API dùng trong template */
@@ -318,21 +433,39 @@ export class Home implements OnInit, OnDestroy, AfterViewInit {
   }
 
   onBigBannerClick(): void {
+    const promo = this.mainBannerPromotions?.[this.currentBannerIndex];
+    if (promo?.images?.length) {
+      this.openPromoPopup(promo, 'main');
+      return;
+    }
+    // fallback: nếu không map được khuyến mãi thì giữ hành vi cũ
     this.router.navigate(['/products']);
   }
 
   onSubBanner1Click(): void {
-    // Blue / Ensure banner -> Nutrition
+    const promo = this.subBannerPromotions.sub_1;
+    if (promo?.images?.length) {
+      this.openPromoPopup(promo, 'sub');
+      return;
+    }
     this.navigateByCategoryName('Dinh dưỡng');
   }
 
   onSubBanner3Click(): void {
-    // Top Right banner -> Personal Care
+    const promo = this.subBannerPromotions.sub_3;
+    if (promo?.images?.length) {
+      this.openPromoPopup(promo, 'sub');
+      return;
+    }
     this.navigateByCategoryName('Chăm sóc cá nhân');
   }
 
   onSubBanner2Click(): void {
-    // Bottom Right (Pink) banner -> Cosmeceuticals
+    const promo = this.subBannerPromotions.sub_2;
+    if (promo?.images?.length) {
+      this.openPromoPopup(promo, 'sub');
+      return;
+    }
     this.navigateByCategoryName('Dược mỹ phẩm');
   }
 
@@ -412,6 +545,20 @@ export class Home implements OnInit, OnDestroy, AfterViewInit {
     if (this.unlockTimer !== null) {
       window.clearTimeout(this.unlockTimer);
       this.unlockTimer = null;
+    }
+  }
+
+  private startAutoplay(): void {
+    this.stopAutoplay();
+    this.autoplayTimer = window.setInterval(() => {
+      this.nextBanner();
+    }, this.autoplayMs);
+  }
+
+  private stopAutoplay(): void {
+    if (this.autoplayTimer !== null) {
+      window.clearInterval(this.autoplayTimer);
+      this.autoplayTimer = null;
     }
   }
   private computeFlashSaleSlots(): void {

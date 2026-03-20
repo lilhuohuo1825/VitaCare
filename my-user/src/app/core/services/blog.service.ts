@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
+import { finalize, map, shareReplay, tap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -13,7 +13,9 @@ export class BlogService {
 
   /** Cache đơn giản để tránh gọi lại API nhiều lần cho cùng một bộ filters trong thời gian ngắn. */
   private readonly cache = new Map<string, { timestamp: number; data: any }>();
-  private readonly cacheTTLms = 60_000; // 60s, có thể chỉnh nếu cần
+  private readonly cacheTTLms = 3 * 60_000; // 3 phút
+  /** Gộp các request trùng đang chạy để không bắn mạng lặp. */
+  private readonly inFlight = new Map<string, Observable<any>>();
 
   /** Cache chi tiết bài viết theo slug - hiển thị nhanh khi quay lại */
   private readonly cacheBySlug = new Map<string, { timestamp: number; data: any }>();
@@ -47,6 +49,11 @@ export class BlogService {
       return of(cached.data);
     }
 
+    const pending = this.inFlight.get(key);
+    if (pending) {
+      return pending;
+    }
+
     let params = new HttpParams();
 
     if (filters.keyword) params = params.set('keyword', filters.keyword);
@@ -56,7 +63,7 @@ export class BlogService {
     if (filters.limit) params = params.set('limit', filters.limit.toString());
     if (filters.skip !== undefined) params = params.set('skip', filters.skip.toString());
 
-    return this.http.get<any>(`${this.apiUrl}/blogs`, { params }).pipe(
+    const request$ = this.http.get<any>(`${this.apiUrl}/blogs`, { params }).pipe(
       map((res) => {
         const blogs = Array.isArray(res?.blogs)
           ? res.blogs.map((b: any) => {
@@ -77,8 +84,15 @@ export class BlogService {
       }),
       tap((data) => {
         this.cache.set(key, { timestamp: Date.now(), data });
-      })
+      }),
+      finalize(() => {
+        this.inFlight.delete(key);
+      }),
+      shareReplay(1)
     );
+
+    this.inFlight.set(key, request$);
+    return request$;
   }
 
   /** Lấy chi tiết 1 bài viết theo slug - có cache để hiển thị nhanh chóng */

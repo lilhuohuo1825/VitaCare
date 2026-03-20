@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
 import { LoadingShippingComponent } from '../../../shared/loading-shipping/loading-shipping';
 import { BlogQuickViewService } from '../../../core/services/blog-quick-view.service';
+import { BlogService } from '../../../core/services/blog.service';
 
 export interface BlogItem {
   title: string;
@@ -64,7 +65,8 @@ export class Blog implements OnInit {
   constructor(
     private http: HttpClient,
     private cdr: ChangeDetectorRef,
-    private blogQuickViewService: BlogQuickViewService
+    private blogQuickViewService: BlogQuickViewService,
+    private blogService: BlogService
   ) { }
 
   ngOnInit(): void {
@@ -147,20 +149,14 @@ export class Blog implements OnInit {
   }
 
   private loadBlogs(): void {
-    const url = 'http://localhost:3000/api/blogs?limit=10';
-    this.http.get<any>(url).subscribe({
+    // Tối ưu: thay vì gọi API cho từng category card (7+ request),
+    // lấy 1 payload lớn rồi phân nhóm ngay trên client.
+    this.blogService.getBlogs({ limit: 80, page: 1 }).subscribe({
       next: (res) => {
         const data = this.extractBlogList(res);
         this.blogs = data.map((b) => this.normalizeBlog(b));
         if (this.blogs.length === 0) this.setFallbackBlogs();
-
-        this.loadCategoryBlogs('Phòng bệnh & Sống khoẻ', 'preventionCardArticles');
-        this.loadCategoryBlogs('Dinh dưỡng', 'nutritionCardArticles');
-        this.loadCategoryBlogs('Mẹ & bé', 'momBabyCardArticles');
-        this.loadCategoryBlogs('Khỏe đẹp', 'beautyCardArticles');
-        this.loadCategoryBlogs('Giới tính', 'genderCardArticles');
-        this.loadCategoryBlogs('Tin tức sức khỏe', 'healthNewsCardArticles');
-        this.loadCategoryBlogs('Người cao tuổi', 'elderlyCardArticles');
+        this.hydrateCategoryCardsFromBlogs();
 
         setTimeout(() => {
           this.loading = false;
@@ -168,8 +164,8 @@ export class Blog implements OnInit {
         });
       },
       error: () => {
-        // Fallback or leave empty arrays
         this.setFallbackBlogs();
+        this.hydrateCategoryCardsFromBlogs();
         setTimeout(() => {
           this.loading = false;
           this.cdr.detectChanges();
@@ -178,18 +174,35 @@ export class Blog implements OnInit {
     });
   }
 
-  private loadCategoryBlogs(category: string, prop: keyof this): void {
-    const catUrl = encodeURIComponent(category);
-    const url = `http://localhost:3000/api/blogs?category=${catUrl}&limit=5`;
-    this.http.get<any>(url).subscribe({
-      next: (res) => {
-        const data = this.extractBlogList(res);
-        if (Array.isArray(data)) {
-          (this as any)[prop] = data.map(b => this.normalizeBlog(b));
-          this.cdr.detectChanges();
-        }
-      }
-    });
+  private normalizeCategoryName(name: string | undefined | null): string {
+    return (name || '')
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/&/g, 'va')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  private matchesCategory(blogCat: string | undefined, expected: string): boolean {
+    const b = this.normalizeCategoryName(blogCat);
+    const e = this.normalizeCategoryName(expected);
+    if (!b || !e) return false;
+    return b.includes(e) || e.includes(b);
+  }
+
+  private pickByCategory(expected: string): BlogItem[] {
+    return this.blogs.filter((b) => this.matchesCategory(b.categoryName, expected)).slice(0, 5);
+  }
+
+  private hydrateCategoryCardsFromBlogs(): void {
+    this.preventionCardArticles = this.pickByCategory('Phòng bệnh & Sống khoẻ');
+    this.nutritionCardArticles = this.pickByCategory('Dinh dưỡng');
+    this.momBabyCardArticles = this.pickByCategory('Mẹ & bé');
+    this.beautyCardArticles = this.pickByCategory('Khỏe đẹp');
+    this.genderCardArticles = this.pickByCategory('Giới tính');
+    this.healthNewsCardArticles = this.pickByCategory('Tin tức sức khỏe');
+    this.elderlyCardArticles = this.pickByCategory('Người cao tuổi');
   }
 
   /** Chuẩn hóa slug: bỏ prefix bai-viet/ hoặc /bai-viet/ để tránh URL trùng (bai-viet/bai-viet/...) */

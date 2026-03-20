@@ -38,6 +38,7 @@
               <button type="button" class="order-btn-addr-list" *ngIf="!isGuest" (click)="openAddressList()">Danh sách
                 địa
                 chỉ</button>
+              <button type="button" class="order-btn-add-info" *ngIf="isGuest" (click)="openAddressFormCreate()">Thêm thông tin</button>
             </div>
             <div class="order-address-card">
               <div class="order-address-card-inner">
@@ -58,7 +59,10 @@
                       <span class="order-address-placeholder">Chưa có thông tin người nhận</span>
                     </div>
                     <div class="order-address-line2">
-                      <span class="order-address-placeholder">Vui lòng thêm tại mục "Danh sách địa chỉ"</span>
+                      <span class="order-address-placeholder">
+                        Vui lòng thêm tại mục
+                        "{{ isGuest ? 'Thêm thông tin' : 'Danh sách địa chỉ' }}"
+                      </span>
                     </div>
                   </div>
                 </ng-template>
@@ -69,20 +73,39 @@
           <!-- Nhận tại nhà thuốc: Thông tin người đặt + Chọn nhà thuốc (dùng style từ root) -->
           <div class="order-pharmacy-block" *ngIf="deliveryTab === 'pharmacy'">
             <div class="order-payer-block">
-              <div class="order-pharmacy-label">
-                <i class="bi bi-person-fill"></i>
-                <span>Thông tin người đặt <span class="order-label-required">*</span></span>
+              <div class="order-payer-header">
+                <div class="order-pharmacy-label">
+                  <i class="bi bi-person-fill"></i>
+                  <span>Thông tin người đặt <span class="order-label-required">*</span></span>
+                </div>
+                <button type="button" class="order-btn-add-info" *ngIf="isGuest" (click)="openPharmacyPayerInfoModal()">Thêm
+                  thông tin</button>
+                <button type="button" class="order-btn-add-info" *ngIf="!isGuest" (click)="openPharmacyPayerInfoModal()">Cập
+                  nhập thông tin</button>
               </div>
+
               <div class="order-address-card" style="margin-top: 8px;">
                 <div class="order-address-card-inner">
-                  <div class="order-address-line1">
-                    <input type="text" class="order-address-input" placeholder="Họ tên người đặt"
-                      [(ngModel)]="payerName" name="payer_name" />
-                  </div>
-                  <div class="order-address-line2">
-                    <input type="text" class="order-address-input" placeholder="Số điện thoại người đặt"
-                      [(ngModel)]="payerPhone" name="payer_phone" />
-                  </div>
+                  <ng-container *ngIf="payerName && payerPhone; else emptyPayer">
+                    <div class="order-address-line1">
+                      <span class="order-address-text">{{ payerName }} - {{ payerPhone }}</span>
+                    </div>
+                    <div class="order-address-line2">
+                      <span class="order-address-text">{{ payerEmail || '' }}</span>
+                    </div>
+                  </ng-container>
+                  <ng-template #emptyPayer>
+                    <div class="order-address-empty">
+                      <div class="order-address-line1">
+                        <span class="order-address-placeholder">Chưa có thông tin người đặt</span>
+                      </div>
+                      <div class="order-address-line2">
+                        <span class="order-address-placeholder">
+                          Vui lòng bấm "{{ isGuest ? 'Thêm thông tin' : 'Cập nhập thông tin' }}"
+                        </span>
+                      </div>
+                    </div>
+                  </ng-template>
                 </div>
               </div>
             </div>
@@ -100,27 +123,77 @@
                 </a>
               </div>
               <div class="order-pharmacy-selects" style="grid-template-columns: 1fr 1fr 1fr;">
-                <select class="order-pharmacy-select" [(ngModel)]="pharmacyProvince" name="pharmacy_province"
-                  (ngModelChange)="onPharmacyProvinceChange($event)">
-                  <option value="">Chọn Tỉnh/Thành phố</option>
-                  @for (p of allPharmacyLocations; track p.tinh) {
-                  <option [value]="p.tinh">{{ p.tinh }}</option>
+                <div class="order-custom-dropdown" [class.disabled]="!allPharmacyLocations?.length"
+                  (click)="togglePharmacyProvinceDropdown($event)">
+                  <input type="hidden" [(ngModel)]="pharmacyProvince" name="pharmacy_province" />
+                  <div class="order-custom-dropdown-selected" [class.placeholder]="!pharmacyProvince">
+                    <span>
+                      {{ pharmacyProvince ? getPharmacyProvinceLabel(pharmacyProvince) : 'Chọn Tỉnh/Thành phố' }}
+                    </span>
+                    <svg class="order-custom-dropdown-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"
+                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M6 9L1 4h10z" />
+                    </svg>
+                  </div>
+                  @if (showPharmacyProvinceDropdown) {
+                  <ul class="order-custom-dropdown-list" (click)="$event.stopPropagation()">
+                    @for (p of allPharmacyLocations; track p.tinh) {
+                    <li class="order-custom-dropdown-item" [class.selected]="pharmacyProvince === p.tinh"
+                      (click)="selectPharmacyProvince(p.tinh, $event)">
+                      {{ p.tinh }}
+                    </li>
+                    }
+                  </ul>
                   }
-                </select>
-                <select class="order-pharmacy-select" [(ngModel)]="pharmacyDistrict" name="pharmacy_district"
-                  (ngModelChange)="onPharmacyDistrictChange($event)" [disabled]="!pharmacyProvince">
-                  <option value="">Chọn Quận/Huyện</option>
-                  @for (d of availableDistricts; track d.ten) {
-                  <option [value]="d.ten">{{ d.ten }}</option>
+                </div>
+
+                <div class="order-custom-dropdown" [class.disabled]="!pharmacyProvince"
+                  (click)="togglePharmacyDistrictDropdown($event)">
+                  <input type="hidden" [(ngModel)]="pharmacyDistrict" name="pharmacy_district" />
+                  <div class="order-custom-dropdown-selected" [class.placeholder]="!pharmacyDistrict">
+                    <span>
+                      {{ pharmacyDistrict ? getPharmacyDistrictLabel(pharmacyDistrict) : 'Chọn Quận/Huyện' }}
+                    </span>
+                    <svg class="order-custom-dropdown-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"
+                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M6 9L1 4h10z" />
+                    </svg>
+                  </div>
+                  @if (showPharmacyDistrictDropdown) {
+                  <ul class="order-custom-dropdown-list" (click)="$event.stopPropagation()">
+                    @for (d of availableDistricts; track d.ten) {
+                    <li class="order-custom-dropdown-item" [class.selected]="pharmacyDistrict === d.ten"
+                      (click)="selectPharmacyDistrict(d.ten, $event)">
+                      {{ d.ten }}
+                    </li>
+                    }
+                  </ul>
                   }
-                </select>
-                <select class="order-pharmacy-select" [(ngModel)]="pharmacyWard" name="pharmacy_ward"
-                  (ngModelChange)="onPharmacyWardChange($event)" [disabled]="!pharmacyDistrict">
-                  <option value="">Chọn Phường/Xã</option>
-                  @for (w of availableWards; track w) {
-                  <option [value]="w">{{ w }}</option>
+                </div>
+
+                <div class="order-custom-dropdown" [class.disabled]="!pharmacyDistrict"
+                  (click)="togglePharmacyWardDropdown($event)">
+                  <input type="hidden" [(ngModel)]="pharmacyWard" name="pharmacy_ward" />
+                  <div class="order-custom-dropdown-selected" [class.placeholder]="!pharmacyWard">
+                    <span>
+                      {{ pharmacyWard ? getPharmacyWardLabel(pharmacyWard) : 'Chọn Phường/Xã' }}
+                    </span>
+                    <svg class="order-custom-dropdown-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"
+                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M6 9L1 4h10z" />
+                    </svg>
+                  </div>
+                  @if (showPharmacyWardDropdown) {
+                  <ul class="order-custom-dropdown-list" (click)="$event.stopPropagation()">
+                    @for (w of availableWards; track w) {
+                    <li class="order-custom-dropdown-item" [class.selected]="pharmacyWard === w"
+                      (click)="selectPharmacyWard(w, $event)">
+                      {{ w }}
+                    </li>
+                    }
+                  </ul>
                   }
-                </select>
+                </div>
               </div>
 
               <!-- Stores List (Only display when Ward is selected) -->
@@ -462,18 +535,25 @@
               <div class="order-addr-form-group">
                 <label class="order-addr-form-label">Số điện thoại <span class="order-addr-required">*</span></label>
                 <input type="tel" class="order-addr-form-input" [(ngModel)]="addressForm.phone" name="addr_phone"
-                  required placeholder="Số điện thoại (ít nhất 10 chữ số)" (blur)="validateAddressFormPhone()"
-                  (ngModelChange)="addressFormPhoneError && validateAddressFormPhone()"
+                    required placeholder="Số điện thoại (ít nhất 10 chữ số)" (blur)="onGuestPhoneBlur()"
+                    (ngModelChange)="onGuestPhoneChanged()"
                   [class.order-addr-form-input-error]="addressFormPhoneError" />
                 @if (addressFormPhoneError) {
                 <span class="order-addr-field-error">{{ addressFormPhoneError }}</span>
                 }
+                @if (addressFormPhoneError && isGuest && guestPhoneLoginLinkVisible) {
+                <a href="#" class="order-guest-phone-login-link" (click)="openGuestPhoneLoginModal($event)">
+                  Đăng nhập tại đây
+                </a>
+                }
               </div>
             </div>
             <div class="order-addr-form-group">
-              <label class="order-addr-form-label">Email (Không bắt buộc)</label>
-              <input type="email" class="order-addr-form-input" [(ngModel)]="addressForm.email" name="addr_email"
-                placeholder="Email (Không bắt buộc)" />
+                <label class="order-addr-form-label">
+                  @if (isGuest) { Email <span class="order-addr-required">*</span> } @else { Email (Không bắt buộc) }
+                </label>
+                <input type="email" class="order-addr-form-input" [(ngModel)]="addressForm.email" name="addr_email"
+                  placeholder="{{ isGuest ? 'Email *' : 'Email (Không bắt buộc)' }}" [attr.required]="isGuest ? '' : null" />
             </div>
           </div>
 
@@ -485,34 +565,97 @@
             <div class="order-addr-form-grid order-addr-form-grid-2">
               <div class="order-addr-form-group">
                 <label class="order-addr-form-label">Tỉnh/Thành phố <span class="order-addr-required">*</span></label>
-                <select class="order-addr-form-input" [(ngModel)]="addressForm.provinceCode" name="addr_province"
-                  required (ngModelChange)="onAddressFormProvinceChange($event)">
-                  <option value="" disabled selected>Chọn Tỉnh/Thành phố *</option>
-                  @for (p of provinces; track p.code) {
-                  <option [value]="p.code">{{ p.name_with_type }}</option>
+                <div
+                  class="order-custom-dropdown"
+                  [class.disabled]="!provinces?.length"
+                  (click)="toggleProvinceDropdown($event)">
+                  <input type="hidden" [(ngModel)]="addressForm.provinceCode" name="addr_province" />
+                  <div
+                    class="order-custom-dropdown-selected"
+                    [class.placeholder]="!addressForm.provinceCode">
+                    <span>
+                      {{ addressForm.provinceCode ? getProvinceLabel(addressForm.provinceCode) : 'Chọn Tỉnh/Thành phố *' }}
+                    </span>
+                    <svg class="order-custom-dropdown-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"
+                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M6 9L1 4h10z" />
+                    </svg>
+                  </div>
+                  @if (showProvinceDropdown) {
+                  <ul class="order-custom-dropdown-list" (click)="$event.stopPropagation()">
+                    @for (p of provinces; track p.code) {
+                    <li class="order-custom-dropdown-item"
+                      [class.selected]="addressForm.provinceCode === p.code"
+                      (click)="selectProvince(p.code, $event)">
+                      {{ p.name_with_type }}
+                    </li>
+                    }
+                  </ul>
                   }
-                </select>
+                </div>
               </div>
               <div class="order-addr-form-group">
                 <label class="order-addr-form-label">Quận/Huyện <span class="order-addr-required">*</span></label>
-                <select class="order-addr-form-input" [(ngModel)]="addressForm.districtCode" name="addr_district"
-                  required (ngModelChange)="onAddressFormDistrictChange($event)" [disabled]="!addressForm.provinceCode">
-                  <option value="" disabled selected>Chọn Quận/Huyện *</option>
-                  @for (d of districts; track d.code) {
-                  <option [value]="d.code">{{ d.name_with_type }}</option>
+                <div
+                  class="order-custom-dropdown"
+                  [class.disabled]="!addressForm.provinceCode"
+                  (click)="toggleDistrictDropdown($event)">
+                  <input type="hidden" [(ngModel)]="addressForm.districtCode" name="addr_district" />
+                  <div
+                    class="order-custom-dropdown-selected"
+                    [class.placeholder]="!addressForm.districtCode">
+                    <span>
+                      {{ addressForm.districtCode ? getDistrictLabel(addressForm.districtCode) : 'Chọn Quận/Huyện *' }}
+                    </span>
+                    <svg class="order-custom-dropdown-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"
+                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M6 9L1 4h10z" />
+                    </svg>
+                  </div>
+                  @if (showDistrictDropdown) {
+                  <ul class="order-custom-dropdown-list" (click)="$event.stopPropagation()">
+                    @for (d of districts; track d.code) {
+                    <li class="order-custom-dropdown-item"
+                      [class.selected]="addressForm.districtCode === d.code"
+                      (click)="selectDistrict(d.code, $event)">
+                      {{ d.name_with_type }}
+                    </li>
+                    }
+                  </ul>
                   }
-                </select>
+                </div>
               </div>
             </div>
             <div class="order-addr-form-group">
               <label class="order-addr-form-label">Phường/Xã <span class="order-addr-required">*</span></label>
-              <select class="order-addr-form-input" [(ngModel)]="addressForm.wardCode" name="addr_ward" required
-                [disabled]="!addressForm.districtCode">
-                <option value="" disabled selected>Chọn Phường/Xã *</option>
-                @for (w of wards; track w.code) {
-                <option [value]="w.code">{{ w.name_with_type }}</option>
+              <div
+                class="order-custom-dropdown"
+                [class.disabled]="!addressForm.districtCode"
+                (click)="toggleWardDropdown($event)">
+                <input type="hidden" [(ngModel)]="addressForm.wardCode" name="addr_ward" />
+                <div
+                  class="order-custom-dropdown-selected"
+                  [class.placeholder]="!addressForm.wardCode">
+                  <span>
+                    {{ addressForm.wardCode ? getWardLabel(addressForm.wardCode) : 'Chọn Phường/Xã *' }}
+                  </span>
+                  <svg class="order-custom-dropdown-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 9L1 4h10z" />
+                  </svg>
+                </div>
+                @if (showWardDropdown) {
+                <ul class="order-custom-dropdown-list" (click)="$event.stopPropagation()">
+                  @for (w of wards; track w.code) {
+                  <li class="order-custom-dropdown-item"
+                    [class.selected]="addressForm.wardCode === w.code"
+                    (click)="selectWard(w.code, $event)">
+                    {{ w.name_with_type }}
+                  </li>
+                  }
+                </ul>
                 }
-              </select>
+              </div>
             </div>
             <div class="order-addr-form-group">
               <label class="order-addr-form-label">Địa chỉ cụ thể <span class="order-addr-required">*</span></label>
@@ -528,6 +671,70 @@
           <div class="order-addr-form-actions">
             <button type="button" class="order-addr-form-btn order-addr-form-btn-secondary"
               (click)="closeAddressFormModal()">Hủy</button>
+            <button type="submit" class="order-addr-form-btn order-addr-form-btn-primary">Hoàn thành</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    }
+
+    <!-- Popup Thông tin người đặt (Nhận tại nhà thuốc) -->
+    @if (showPharmacyPayerInfoModal) {
+    <div class="order-addr-form-overlay" (click)="closePharmacyPayerInfoModal()" role="dialog" aria-label="Thông tin người đặt">
+      <div class="order-addr-form-modal" (click)="$event.stopPropagation()">
+        <button type="button" class="order-addr-form-close" aria-label="Đóng" (click)="closePharmacyPayerInfoModal()">
+          <i class="bi bi-x-lg"></i>
+        </button>
+
+        <h3 id="order-pharmacy-payer-info-title" class="order-addr-form-title">
+          {{ isGuest ? 'THÊM THÔNG TIN' : 'CẬP NHẬP THÔNG TIN' }}
+        </h3>
+
+        <form class="order-addr-form" (ngSubmit)="submitPharmacyPayerInfoForm()">
+          <div class="order-addr-form-section">
+            <div class="order-addr-form-section-header">
+              <i class="bi bi-person-circle"></i>
+              <span>Thông tin người đặt</span>
+            </div>
+
+            <div class="order-addr-form-grid order-addr-form-grid-2">
+              <div class="order-addr-form-group">
+                <label class="order-addr-form-label">Họ và tên <span class="order-addr-required">*</span></label>
+                <input type="text" class="order-addr-form-input" [(ngModel)]="pharmacyPayerInfoForm.name" name="payer_name"
+                  required placeholder="Họ và tên *" />
+              </div>
+
+              <div class="order-addr-form-group">
+                <label class="order-addr-form-label">Số điện thoại <span class="order-addr-required">*</span></label>
+                <input type="tel" class="order-addr-form-input" [(ngModel)]="pharmacyPayerInfoForm.phone" name="payer_phone"
+                  required placeholder="Số điện thoại (ít nhất 10 chữ số)"
+                  (blur)="onGuestPayerPhoneBlur()" (ngModelChange)="onGuestPayerPhoneChanged()"
+                  [class.order-addr-form-input-error]="pharmacyPayerPhoneError" />
+
+                @if (pharmacyPayerPhoneError) {
+                <span class="order-addr-field-error">{{ pharmacyPayerPhoneError }}</span>
+                }
+
+                @if (pharmacyPayerPhoneError && isGuest && pharmacyPayerPhoneLoginLinkVisible) {
+                <a href="#" class="order-guest-phone-login-link" (click)="openPharmacyPayerLoginModal($event)">
+                  Đăng nhập tại đây
+                </a>
+                }
+              </div>
+            </div>
+
+            <div class="order-addr-form-group">
+              <label class="order-addr-form-label">
+                @if (isGuest) { Email <span class="order-addr-required">*</span> } @else { Email (Không bắt buộc) }
+              </label>
+              <input type="email" class="order-addr-form-input" [(ngModel)]="pharmacyPayerInfoForm.email" name="payer_email"
+                placeholder="{{ isGuest ? 'Email *' : 'Email (Không bắt buộc)' }}" [attr.required]="isGuest ? '' : null" />
+            </div>
+          </div>
+
+          <div class="order-addr-form-actions">
+            <button type="button" class="order-addr-form-btn order-addr-form-btn-secondary"
+              (click)="closePharmacyPayerInfoModal()">Hủy</button>
             <button type="submit" class="order-addr-form-btn order-addr-form-btn-primary">Hoàn thành</button>
           </div>
         </form>
