@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { finalize } from 'rxjs/operators';
 import { AuthService } from '../../../core/services/auth.service';
 import { ReminderService } from '../../../core/services/reminder.service';
@@ -43,6 +43,7 @@ export type NoticeTabId = 'all' | 'orders' | 'prescriptions' | 'reminders' | 'qa
 })
 export class Notice implements OnInit, OnDestroy {
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private authService = inject(AuthService);
   private reminderService = inject(ReminderService);
   private noticeService = inject(NoticeService);
@@ -54,6 +55,21 @@ export class Notice implements OnInit, OnDestroy {
   loadError: string | null = null;
   showDeleteConfirm = false;
   deleteConfirmItem: NoticeItem | null = null;
+
+  private highlightId: string | null = null;
+
+  private scrollToNoticeById(id: string): void {
+    const domId = `notice-item-${id}`;
+    const el = document.getElementById(domId);
+    if (!el) return;
+    try {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    } catch (_) {
+      el.scrollIntoView();
+    }
+    // chỉ scroll một lần cho highlight hiện tại
+    this.highlightId = null;
+  }
 
   private pollHandle: ReturnType<typeof setInterval> | null = null;
 
@@ -114,6 +130,18 @@ export class Notice implements OnInit, OnDestroy {
   };
 
   ngOnInit(): void {
+    // highlightId từ bell dropdown
+    this.route.queryParamMap.subscribe((params) => {
+      const id = params.get('highlightId');
+      if (id) {
+        this.highlightId = id;
+        this.activeTab = 'all';
+        // đảm bảo phần tử nằm trong slice DOM
+        this.visibleCount = 999;
+        this.cdr.markForCheck();
+      }
+    });
+
     this.loadNotifications(false);
     this.startPolling();
   }
@@ -133,6 +161,83 @@ export class Notice implements OnInit, OnDestroy {
 
   getConfig(type: NoticeType) {
     return this.typeConfig[type] ?? this.typeConfig.order_created;
+  }
+
+  /**
+   * Icon/ màu cho từng item (đặc biệt: order_updated cần phân loại theo trạng thái).
+   * Tránh việc dùng chung 1 icon cho mọi order_updated.
+   */
+  getItemConfig(item: NoticeItem) {
+    const titleLc = String(item.title || '').toLowerCase();
+    const msgLc = String(item.message || '').toLowerCase();
+
+    if (item.type === 'order_created') {
+      return {
+        icon: 'bi-box-seam-fill',
+        iconClass: 'notice-icon-order-created',
+        label: 'Đơn hàng',
+      };
+    }
+
+    if (item.type === 'order_updated') {
+      // 1) Đang giao (shipping)
+      if (
+        titleLc.includes('đang được giao') ||
+        msgLc.includes('đang trên đường')
+      ) {
+        return {
+          icon: 'bi-truck',
+          iconClass: 'notice-icon-order-delivering',
+          label: 'Đơn hàng đang giao',
+        };
+      }
+
+      // 2) Đã giao thành công (admin xác nhận giao thành công)
+      if (
+        titleLc.includes('đã được giao') ||
+        msgLc.includes('đã được giao thành công') ||
+        msgLc.includes('vui lòng xác nhận nhận hàng')
+      ) {
+        return {
+          icon: 'bi-check-circle-fill',
+          iconClass: 'notice-icon-order-delivered',
+          label: 'Đã giao thành công',
+        };
+      }
+
+      // 3) Người dùng đã bấm "Đã nhận hàng"
+      if (titleLc.includes('bạn đã nhận hàng') || msgLc.includes('xác nhận giao thành công')) {
+        return {
+          icon: 'bi-person-check-fill',
+          iconClass: 'notice-icon-order-received',
+          label: 'Đã nhận hàng',
+        };
+      }
+
+      // 4) Q&A (backward): title chứa "Câu hỏi" nhưng type = order_updated
+      if (titleLc.includes('câu hỏi') || msgLc.includes('câu hỏi')) {
+        return {
+          icon: 'bi-question-circle-fill',
+          iconClass: 'notice-icon-qa',
+          label: 'Hỏi đáp',
+        };
+      }
+
+      // 5) Đánh giá (được tạo từ /api/reviews nhưng type = order_updated) => dùng icon thùng hàng
+      if (titleLc.includes('đánh giá') || msgLc.includes('đánh giá')) {
+        return {
+          icon: 'bi-chat-left-text-fill',
+          iconClass: 'notice-icon-evaluation',
+          label: 'Đánh giá',
+        };
+      }
+
+      // Fallback: đơn hàng cập nhật chung
+      return this.typeConfig.order_updated;
+    }
+
+    // Các loại còn lại dùng mapping theo type
+    return this.getConfig(item.type);
   }
 
   requestDeleteNotice(item: NoticeItem): void {
@@ -232,6 +337,13 @@ export class Notice implements OnInit, OnDestroy {
                 };
               })
               .sort((a: NoticeItem, b: NoticeItem) => (b.timeMs || 0) - (a.timeMs || 0));
+
+            // Scroll tới item vừa bấm trong bell dropdown
+            if (this.highlightId) {
+              const targetId = this.highlightId;
+              // đợi template render
+              setTimeout(() => this.scrollToNoticeById(targetId), 80);
+            }
           } else {
             this.list = [];
           }

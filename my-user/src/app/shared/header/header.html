@@ -340,6 +340,8 @@
               <div class="vc_notify_item" *ngFor="let n of notificationsPreview"
                 [class.vc_notify_item--remind]="n.type === 'medication_reminder'"
                 [class.vc_notify_item--order]="n.type === 'order_created' || n.type === 'order_updated'"
+                [class.vc_notify_item--unread]="!n.read"
+                (click)="openNoticeFromBell(n)"
                 [class.vc_notify_item--order-delivering]="
                   n.type === 'order_updated' &&
                   (n.title?.includes('đang được giao') || n.message?.includes('đang trên đường'))
@@ -348,8 +350,20 @@
                   n.type === 'order_updated' &&
                   (n.title?.includes('đã được giao') || n.message?.includes('đã giao thành công') || n.message?.includes('xác nhận nhận hàng'))
                 "
+                [class.vc_notify_item--order-received]="
+                  n.type === 'order_updated' &&
+                  (n.title?.includes('Bạn đã nhận hàng') || n.message?.includes('xác nhận giao thành công') || n.message?.includes('chờ bạn đánh giá'))
+                "
+                [class.vc_notify_item--evaluation]="
+                  n.type === 'order_updated' &&
+                  (n.title?.includes('Đánh giá') || n.linkLabel === 'Xem đánh giá')
+                "
                 [class.vc_notify_item--prescription]="n.type === 'prescription_created' || n.type === 'prescription_updated'"
-                [class.vc_notify_item--qa]="n.type === 'qa_reply' || n.type === 'qa_submitted'">
+                [class.vc_notify_item--qa]="
+                  n.type === 'qa_reply' ||
+                  n.type === 'qa_submitted' ||
+                  (n.type === 'order_updated' && (n.title?.includes('Câu hỏi') || n.linkLabel === 'Xem phản hồi'))
+                ">
                 <div class="vc_notify_item_top">
                   <div class="vc_notify_item_title">{{ n.title }}</div>
                   <div class="vc_notify_item_time">{{ formatBellRelativeTime(n) }}</div>
@@ -358,6 +372,14 @@
               </div>
             </div>
             <div class="vc_notify_footer">
+              <button
+                type="button"
+                class="vc_notify_more_btn"
+                *ngIf="canLoadMoreNotifications()"
+                (click)="loadMoreNotifications()"
+              >
+                Xem thêm
+              </button>
               <button type="button" class="vc_notify_all_btn" (click)="onNotify($event)">Xem tất cả</button>
             </div>
           </div>

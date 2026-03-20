@@ -363,6 +363,16 @@
   color: var(--color-success);
 }
 
+/* ===== Chưa đọc: nền xanh nhạt để phân biệt ===== */
+.notice-item-unread .notice-card {
+  background: rgba(37, 99, 235, 0.04) !important;
+}
+
+.notice-item-unread .notice-status-unread {
+  background: rgba(37, 99, 235, 0.08) !important;
+  color: #2563eb !important;
+}
+
 /* Nội dung thông báo (phần dưới status bar) - giống order-card */
 .notice-card {
   display: flex;
@@ -392,6 +402,42 @@
 }
 
 .notice-card-icon {
+  /* Chỉ hiển thị icon (không còn khung tròn) */
+  width: auto;
+  height: auto;
+  border-radius: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 1.6rem;
+  border: none;
+  background: transparent;
+}
+
+.notice-card-icon i,
+.notice-card-icon .bi {
+  font-size: 1.6rem;
+  line-height: 1;
+}
+
+.notice-icon-order {
+  color: var(--color-primary);
+  background: transparent;
+}
+
+.notice-icon-order-created {
+  color: var(--color-primary);
+  background: transparent;
+}
+
+.notice-icon-order-delivering {
+  color: #2563eb;
+  background: transparent;
+}
+
+.notice-icon-order-delivered {
+  /* Giữ khung tròn xanh cho trạng thái "hoàn thành đơn hàng" */
   width: 48px;
   height: 48px;
   border-radius: 999px;
@@ -399,39 +445,39 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  font-size: 1.35rem;
-  border: 1px solid rgba(148, 163, 184, 0.35);
+  border: 1px solid rgba(34, 197, 94, 0.35);
+  background: rgba(34, 197, 94, 0.12);
+  color: #16a34a;
 }
 
-.notice-card-icon i,
-.notice-card-icon .bi {
-  font-size: 1.35rem;
-  line-height: 1;
-}
-
-.notice-icon-order {
-  background: var(--color-primary-bg);
-  color: var(--color-primary);
+.notice-icon-order-received {
+  color: #0d9488;
+  background: transparent;
 }
 
 .notice-icon-prescription {
-  background: var(--color-secondary-bg);
   color: var(--color-secondary-hover);
+  background: transparent;
 }
 
 .notice-icon-health {
-  background: var(--color-success-bg);
   color: var(--color-success);
+  background: transparent;
 }
 
 .notice-icon-reminder {
-  background: var(--color-primary-bg);
   color: var(--color-primary);
+  background: transparent;
 }
 
 .notice-icon-qa {
-  background: #e8e0f0;
-  color: #6a4c93;
+  color: #00589F;
+  background: transparent;
+}
+
+.notice-icon-evaluation {
+  color: #00589F;
+  background: transparent;
 }
 
 .notice-card-body {
@@ -448,8 +494,23 @@
   font-size: 14px;
   font-weight: var(--font-weight-semibold);
   color: var(--color-text-primary);
-  margin: 0 0 12px;
+  margin: 0;
   line-height: var(--line-height-tight);
+}
+
+.notice-card-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.notice-card-top-time {
+  font-size: var(--font-size-xs);
+  color: rgba(0, 0, 0, 0.45);
+  font-weight: 600;
+  white-space: nowrap;
 }
 
 .notice-card-message {

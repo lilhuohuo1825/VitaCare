@@ -55,6 +55,11 @@ export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
   isNotifyHoverVisible = false;
   unreadNotifyCount = 0;
   notificationsPreview: NoticeItem[] = [];
+  /** Danh sách thông báo đầy đủ để "Xem thêm" (tối ưu: chỉ slice ra UI). */
+  private notificationsAll: NoticeItem[] = [];
+  /** Số lượng đang hiển thị trong dropdown bell. */
+  private notificationsLimit = 5;
+  private readonly notificationsStep = 5;
   notificationsLoading = false;
   notificationsError: string | null = null;
   /** Nhắc uống thuốc quá hạn (từ API) — popup thanh ngắn bên phải */
@@ -471,6 +476,8 @@ export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
     this.isNotifyHoverVisible = false;
     this.unreadNotifyCount = 0;
     this.notificationsPreview = [];
+    this.notificationsAll = [];
+    this.notificationsLimit = 5;
     this.notificationsLoading = false;
     this.notificationsError = null;
     this.showReminderPopup = false;
@@ -903,6 +910,8 @@ export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
           this.notificationsError = 'Không tải được thông báo.';
           this.notificationsLoading = false;
           this.notificationsPreview = [];
+          this.notificationsAll = [];
+          this.notificationsLimit = 5;
           this.unreadNotifyCount = 0;
           this.medicationDueList = [];
           this.reminderBadgeService.setReminderDueCount(0);
@@ -936,35 +945,27 @@ export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
           const sorted = [...items].sort((a, b) => {
             const ta = this.getNoticeTimeMs(a);
             const tb = this.getNoticeTimeMs(b);
-            if (tb !== ta) return tb - ta; // mới nhất lên trước
-            // cùng thời gian: chưa đọc lên trước
-            const ar = a.read ? 1 : 0;
-            const br = b.read ? 1 : 0;
-            return ar - br;
+            // Luôn chỉ sắp xếp theo thời gian (mới nhất lên trước).
+            return tb - ta;
           });
-          const pick: NoticeItem[] = [];
+
+          // Giữ đúng thứ tự theo thời gian, loại trùng id, KHÔNG ưu tiên read/unread.
+          const uniqueSorted: NoticeItem[] = [];
           const seen = new Set<string>();
           for (const n of sorted) {
-            if (pick.length >= 5) break;
             if (seen.has(n.id)) continue;
-            if (!n.read || dueMed.some((d) => d.id === n.id)) {
-              pick.push(n);
-              seen.add(n.id);
-            }
+            seen.add(n.id);
+            uniqueSorted.push(n);
           }
-          if (pick.length < 5) {
-            for (const n of sorted) {
-              if (pick.length >= 5) break;
-              if (!seen.has(n.id)) {
-                pick.push(n);
-                seen.add(n.id);
-              }
-            }
-          }
-          this.notificationsPreview = pick.slice(0, 5);
+
+          this.notificationsAll = uniqueSorted;
+          this.notificationsLimit = 5;
+          this.notificationsPreview = this.notificationsAll.slice(0, this.notificationsLimit);
           this.tryScheduleNotificationPopups(mayShowReminderPopup);
         } else {
           this.notificationsPreview = [];
+          this.notificationsAll = [];
+          this.notificationsLimit = 5;
           this.unreadNotifyCount = 0;
           this.medicationDueList = [];
           this.reminderBadgeService.setReminderDueCount(0);
@@ -973,6 +974,17 @@ export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
         }
         this.cdr.markForCheck();
       });
+  }
+
+  canLoadMoreNotifications(): boolean {
+    return this.notificationsAll.length > this.notificationsLimit;
+  }
+
+  loadMoreNotifications(): void {
+    const next = this.notificationsLimit + this.notificationsStep;
+    this.notificationsLimit = next;
+    this.notificationsPreview = this.notificationsAll.slice(0, this.notificationsLimit);
+    this.cdr.markForCheck();
   }
 
   fetchHotDeals(): void {
@@ -1392,6 +1404,67 @@ export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     this.isNotifyHoverVisible = false;
     this.router.navigate(['/account'], { queryParams: { menu: 'notifications' } });
+  }
+
+  /**
+   * Nhấn vào 1 thông báo trong bell:
+   * - Nếu !read: mark read ở backend
+   * - Điều hướng sang account/notifications và scroll đúng item bằng `highlightId`
+   */
+  openNoticeFromBell(n: NoticeItem): void {
+    const user = this.authService.currentUser() as { user_id?: string } | null;
+    const userId = user?.user_id;
+    if (!userId) {
+      this.authService.openAuthModal();
+      return;
+    }
+
+    const id = String(n.id || '');
+    if (!id) return;
+
+    // Đóng dropdown để tránh che UI
+    this.isNotifyHoverVisible = false;
+    this.cdr.markForCheck();
+
+    const navigate = () => {
+      this.router.navigate(['/account'], {
+        queryParams: { menu: 'notifications', highlightId: id },
+      });
+    };
+
+    // reminder-due-* là notice "ảo" sinh động từ reminder => không chắc có endpoint markAsRead chuẩn
+    if (id.startsWith('reminder-due-')) {
+      // Để background chuyển màu trắng ngay lập tức
+      n.read = true;
+
+      const parsed = this.parseReminderDueId(id);
+      if (parsed) {
+        // Mark complete ở backend reminder (để reminder biến mất khỏi list)
+        this.reminderService.markComplete(parsed.reminderId, parsed.date, parsed.time).subscribe({
+          next: () => navigate(),
+          error: () => navigate(),
+        });
+        return;
+      }
+      navigate();
+      return;
+    }
+
+    if (n.read) {
+      navigate();
+      return;
+    }
+
+    this.noticeService.markAsRead(id, userId).subscribe({
+      next: () => {
+        n.read = true;
+        navigate();
+      },
+      error: () => {
+        // Nếu API lỗi thì vẫn điều hướng để user xem nội dung
+        navigate();
+      },
+    });
   }
 
   goHome(e: Event): void { e.preventDefault(); this.router.navigate(['/']); }
