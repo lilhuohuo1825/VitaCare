@@ -361,15 +361,15 @@
 }
 
 .dropdown-item:hover {
-    background: #f3e5f5;
+    background: #daecff;
     color: var(--color-primary);
 }
 
 .dropdown-submenu {
     position: absolute;
     top: 0;
-    left: 100%;
-    margin-left: 2px;
+    right: 100%;
+    margin-right: 2px;
     background: white;
     border-radius: 12px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
@@ -377,7 +377,7 @@
     padding: 8px 0;
     opacity: 0;
     visibility: hidden;
-    transform: translateX(10px);
+    transform: translateX(-10px);
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 1001;
     display: block;
@@ -395,7 +395,7 @@
     content: '';
     position: absolute;
     top: 0;
-    left: -15px;
+    right: -15px;
     /* Bridge the gap */
     width: 15px;
     height: 100%;
@@ -413,7 +413,7 @@
 }
 
 .dropdown-option:hover {
-    background: #f3e5f5;
+    background: #daecff;
 }
 
 .price-range-inputs {
@@ -450,7 +450,7 @@
 }
 
 .dropdown-option:hover {
-    background: #f3e5f5;
+    background: #daecff;
 }
 
 .dropdown-option input[type="checkbox"],
@@ -482,7 +482,7 @@
 }
 
 .sort-option-btn:hover {
-    background-color: #f3e5f5;
+    background-color: #daecff;
     color: var(--color-primary);
 }
 

@@ -22,6 +22,7 @@ export class Layout implements OnInit, OnDestroy {
   isPersonalInfoModalOpen = false;
   isSettingsModalOpen = false;
   isEditingProfile = false;
+  isBlogMenuOpen = false;
 
   // Profile data state
   profileData: any = {};
@@ -164,6 +165,10 @@ export class Layout implements OnInit, OnDestroy {
   toggleOrderMenu(event: Event) {
     event.preventDefault();
     this.isOrderMenuOpen = !this.isOrderMenuOpen;
+  }
+
+  toggleBlogMenu() {
+    this.isBlogMenuOpen = !this.isBlogMenuOpen;
   }
 
   isDarkMode = false;

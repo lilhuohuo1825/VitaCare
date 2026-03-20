@@ -222,12 +222,33 @@ body.dark-mode .breadcrumb {
     margin-bottom: 16px;
 }
 
-.editor-container {
+.editor-section {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 120px);
+    min-height: 500px;
+}
+
+.editor-toolbar-sticky {
+    flex-shrink: 0;
+    z-index: 30;
+    background-color: var(--color-bg-secondary);
     border: 1px solid var(--color-neutral-30);
-    border-radius: 8px;
+    border-bottom: none;
+    border-radius: 8px 8px 0 0;
     overflow: hidden;
+    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+}
+
+.editor-container {
+    flex: 1;
+    overflow-y: auto;
+    border: 1px solid var(--color-neutral-30);
+    border-top: none;
+    border-radius: 0 0 8px 8px;
     background-color: var(--color-bg-secondary);
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) inset;
+    position: relative;
 }
 
 .editor-toolbar {
@@ -238,6 +259,13 @@ body.dark-mode .breadcrumb {
     border-bottom: 1px solid var(--color-neutral-30);
     gap: 4px;
     flex-wrap: wrap;
+    position: relative;
+    top: auto;
+    z-index: auto;
+    border-radius: 0;
+    width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
 }
 
 .tool-btn {
@@ -298,7 +326,7 @@ body.dark-mode .breadcrumb {
 
 .editor-content {
     width: 100%;
-    min-height: 400px;
+    min-height: 100%;
     border: none;
     outline: none;
     padding: 24px;
@@ -306,11 +334,14 @@ body.dark-mode .breadcrumb {
     line-height: 1.8;
     color: var(--color-text-primary);
     background-color: var(--color-bg-secondary);
-    overflow-y: auto;
     text-align: left !important;
-    direction: ltr !important;
-    unicode-bidi: bidi-override !important;
+    direction: ltr;
+    unicode-bidi: plaintext;
     font-family: 'Lexend', sans-serif;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    position: relative;
+    z-index: 1;
 }
 
 .editor-content:empty:before {

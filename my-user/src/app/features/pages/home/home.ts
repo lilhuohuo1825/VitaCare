@@ -768,21 +768,21 @@ export class Home implements OnInit, OnDestroy, AfterViewInit {
         image: 'assets/images/homepage/blogs/ngu_ngon.jpg',
         excerpt: 'Tổng hợp 5 thói quen dễ thực hiện giúp cải thiện giấc ngủ...',
         slug: 'ngu-nguon',
-        link: '/bai-viet/ngu-nguon',
+        link: '/blog/ngu-nguon',
       },
       {
         title: 'Ăn gì để tăng sức đề kháng?',
         image: 'assets/images/homepage/blogs/an_gi.jpg',
         excerpt: 'Các thực phẩm giàu vitamin và khoáng chất cho hệ miễn dịch...',
         slug: 'tang-suc-de-khang',
-        link: '/bai-viet/tang-suc-de-khang',
+        link: '/blog/tang-suc-de-khang',
       },
       {
         title: 'Cách xử trí khi bị cảm lạnh',
         image: 'assets/images/homepage/blogs/cam_cum.webp',
         excerpt: 'Mẹo chăm sóc tại nhà và khi nên gặp bác sĩ...',
         slug: 'xu-tri-cam-lanh',
-        link: '/bai-viet/xu-tri-cam-lanh',
+        link: '/blog/xu-tri-cam-lanh',
       },
     ];
   }
@@ -1154,7 +1154,7 @@ export class Home implements OnInit, OnDestroy, AfterViewInit {
               image: 'assets/images/homepage/blogs/ngu_ngon.jpg',
               excerpt: 'Tổng hợp 5 thói quen dễ thực hiện giúp cải thiện giấc ngủ...',
               slug: 'ngu-nguon',
-              link: '/bai-viet/ngu-nguon',
+              link: '/blog/ngu-nguon',
               categoryName: 'Dinh dưỡng',
             },
             {
@@ -1162,7 +1162,7 @@ export class Home implements OnInit, OnDestroy, AfterViewInit {
               image: 'assets/images/homepage/blogs/an_gi.jpg',
               excerpt: 'Các thực phẩm giàu vitamin và khoáng chất cho hệ miễn dịch...',
               slug: 'tang-suc-de-khang',
-              link: '/bai-viet/tang-suc-de-khang',
+              link: '/blog/tang-suc-de-khang',
               categoryName: 'Dinh dưỡng',
             },
             {
@@ -1170,7 +1170,7 @@ export class Home implements OnInit, OnDestroy, AfterViewInit {
               image: 'assets/images/homepage/blogs/cam_cum.webp',
               excerpt: 'Mẹo chăm sóc tại nhà và khi nên gặp bác sĩ...',
               slug: 'xu-tri-cam-lanh',
-              link: '/bai-viet/xu-tri-cam-lanh',
+              link: '/blog/xu-tri-cam-lanh',
               categoryName: 'Sức khỏe',
             },
           ];
@@ -1200,7 +1200,7 @@ export class Home implements OnInit, OnDestroy, AfterViewInit {
           const rawSlug = (b.slug || (b as any).slug || (b as any)._id || '').toString().trim();
           const normalizedSlug = rawSlug
             .replace(/^\/+/, '')
-            .replace(/^bai-viet\//i, '')
+            .replace(/^(blog|bai-viet)\//i, '')
             .replace(/\.html?$/i, '');
           return {
             title: b.title || b.name || 'Bài viết sức khỏe',
@@ -1210,7 +1210,7 @@ export class Home implements OnInit, OnDestroy, AfterViewInit {
               b.excerpt ||
               (typeof b.description === 'string' ? b.description.replace(/<[^>]*>/g, '').slice(0, 160) : undefined),
             slug: normalizedSlug || undefined,
-            link: normalizedSlug ? `/bai-viet/${normalizedSlug}` : undefined,
+            link: normalizedSlug ? `/blog/${normalizedSlug}` : undefined,
             categoryName: categoryName || 'Bài viết',
           };
         });
@@ -1224,7 +1224,7 @@ export class Home implements OnInit, OnDestroy, AfterViewInit {
               image: 'assets/images/homepage/blogs/ngu_ngon.jpg',
               excerpt: 'Tổng hợp 5 thói quen dễ thực hiện giúp cải thiện giấc ngủ...',
               slug: 'ngu-nguon',
-              link: '/bai-viet/ngu-nguon',
+              link: '/blog/ngu-nguon',
               categoryName: 'Dinh dưỡng',
             },
             {
@@ -1232,7 +1232,7 @@ export class Home implements OnInit, OnDestroy, AfterViewInit {
               image: 'assets/images/homepage/blogs/an_gi.jpg',
               excerpt: 'Các thực phẩm giàu vitamin và khoáng chất cho hệ miễn dịch...',
               slug: 'tang-suc-de-khang',
-              link: '/bai-viet/tang-suc-de-khang',
+              link: '/blog/tang-suc-de-khang',
               categoryName: 'Dinh dưỡng',
             },
             {
@@ -1240,7 +1240,7 @@ export class Home implements OnInit, OnDestroy, AfterViewInit {
               image: 'assets/images/homepage/blogs/cam_cum.webp',
               excerpt: 'Mẹo chăm sóc tại nhà và khi nên gặp bác sĩ...',
               slug: 'xu-tri-cam-lanh',
-              link: '/bai-viet/xu-tri-cam-lanh',
+              link: '/blog/xu-tri-cam-lanh',
               categoryName: 'Sức khỏe',
             },
           ];
@@ -1262,7 +1262,7 @@ export class Home implements OnInit, OnDestroy, AfterViewInit {
             image: 'assets/images/homepage/blogs/ngu_ngon.jpg',
             excerpt: 'Tổng hợp 5 thói quen dễ thực hiện giúp cải thiện giấc ngủ...',
             slug: 'ngu-nguon',
-            link: '/bai-viet/ngu-nguon',
+            link: '/blog/ngu-nguon',
             categoryName: 'Dinh dưỡng',
           },
           {
@@ -1270,7 +1270,7 @@ export class Home implements OnInit, OnDestroy, AfterViewInit {
             image: 'assets/images/homepage/blogs/an_gi.jpg',
             excerpt: 'Các thực phẩm giàu vitamin và khoáng chất cho hệ miễn dịch...',
             slug: 'tang-suc-de-khang',
-            link: '/bai-viet/tang-suc-de-khang',
+            link: '/blog/tang-suc-de-khang',
             categoryName: 'Dinh dưỡng',
           },
           {
@@ -1278,7 +1278,7 @@ export class Home implements OnInit, OnDestroy, AfterViewInit {
             image: 'assets/images/homepage/blogs/cam_cum.webp',
             excerpt: 'Mẹo chăm sóc tại nhà và khi nên gặp bác sĩ...',
             slug: 'xu-tri-cam-lanh',
-            link: '/bai-viet/xu-tri-cam-lanh',
+            link: '/blog/xu-tri-cam-lanh',
             categoryName: 'Sức khỏe',
           },
         ];
@@ -1492,7 +1492,7 @@ export class Home implements OnInit, OnDestroy, AfterViewInit {
         : pool[0]
           ? {
             ...pool[0],
-            link: pool[0].link || (pool[0].slug ? `/bai-viet/${pool[0].slug}` : ''),
+            link: pool[0].link || (pool[0].slug ? `/blog/${pool[0].slug}` : ''),
             image: pool[0].image || 'assets/images/homepage/blogs/ngu_ngon.jpg',
           }
           : null;
@@ -1501,7 +1501,7 @@ export class Home implements OnInit, OnDestroy, AfterViewInit {
       title: picked.title,
       image: picked.image || 'assets/images/homepage/blogs/ngu_ngon.jpg',
       excerpt: picked.excerpt || '',
-      link: (picked.link || (picked.slug ? `/bai-viet/${picked.slug}` : '')) as string,
+      link: (picked.link || (picked.slug ? `/blog/${picked.slug}` : '')) as string,
     };
     this.cdr.detectChanges();
   }

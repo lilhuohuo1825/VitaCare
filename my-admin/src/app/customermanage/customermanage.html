@@ -169,7 +169,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr *ngFor="let c of filteredCustomers" [class.selected]="c.selected">
+                <tr *ngFor="let c of filteredCustomers" [class.selected]="c.selected" (click)="viewDetail(c)" style="cursor: pointer;">
                     <td (click)="$event.stopPropagation()">
                         <input type="checkbox" [(ngModel)]="c.selected" (change)="onSelectChange()">
                     </td>

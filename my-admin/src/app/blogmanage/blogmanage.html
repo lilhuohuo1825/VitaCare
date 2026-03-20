@@ -36,11 +36,10 @@
             </button>
             <div class="dropdown-container">
                 <button class="btn btn-sm action-btn icon-text"
-                    [class.active]="isFilterOpen || selectedCategoryId || selectedStatus"
+                    [class.active]="isFilterOpen || selectedCategoryIds.length > 0 || selectedStatus"
                     (click)="toggleFilter($event)">
                     <i class="bi bi-sliders"></i> Lọc
-                    <span class="selected-badge" *ngIf="selectedCategoryId || selectedStatus">{{ (selectedCategoryId ? 1
-                        : 0) + (selectedStatus ? 1 : 0) }}</span>
+                    <span class="selected-badge" *ngIf="selectedCategoryIds.length > 0 || selectedStatus">{{ (selectedCategoryIds.length > 0 ? 1 : 0) + (selectedStatus ? 1 : 0) }}</span>
                 </button>
                 <!-- Filter Dropdown Panel -->
                 <div class="dropdown-menu-multilevel" *ngIf="isFilterOpen" (click)="$event.stopPropagation()">
@@ -51,8 +50,8 @@
                         </div>
                         <div class="dropdown-submenu">
                             <label class="dropdown-option" *ngFor="let cat of categories">
-                                <input type="radio" name="category" [checked]="selectedCategoryId === cat.id"
-                                    (change)="onCategorySelect(cat.id)">
+                                <input type="checkbox" name="category" [checked]="selectedCategoryIds.includes(cat.id)"
+                                    (change)="toggleCategory(cat.id)">
                                 <span>{{ cat.name }}</span>
                             </label>
                         </div>
@@ -79,9 +78,13 @@
 
                     <div class="dropdown-divider"></div>
                     <div class="dropdown-actions">
-                        <button class="btn-clear-filter" (click)="clearAllFilters()">
+                        <button class="btn btn-sm btn-clear-filter" (click)="clearAllFilters()">
                             <i class="bi bi-trash"></i>
-                            <span>Xóa tất cả bộ lọc</span>
+                            <span>Xóa lọc</span>
+                        </button>
+                        <button class="btn btn-sm btn-close-filter" (click)="isFilterOpen = false">
+                            <i class="bi bi-x"></i>
+                            <span>Đóng</span>
                         </button>
                     </div>
                 </div>
@@ -148,7 +151,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr *ngFor="let b of filteredBlogs" [class.selected]="b.selected" (click)="viewDetail(b._id)">
+                <tr *ngFor="let b of filteredBlogs" [class.selected]="b.selected" (click)="viewDetail(b._id || b.id)">
                     <td (click)="$event.stopPropagation()">
                         <input type="checkbox" [(ngModel)]="b.selected" (change)="onSelectChange()">
                     </td>
@@ -164,8 +167,18 @@
                     <td class="font-bold" style="max-width: 300px; white-space: normal;">
                         <span class="blog-title">{{ b.title }}</span>
                     </td>
-                    <td>{{ b.category?.name || 'Không có' }}</td>
-                    <td>{{ b.author?.fullName || 'Ẩn danh' }}</td>
+                    <td>
+                        <div class="category-pill-container" *ngIf="b.category">
+                            <span class="cat-pill cat-parent" *ngIf="b.parentCategory">{{ b.parentCategory.name }}</span>
+                            <span class="cat-sep" *ngIf="b.parentCategory"><i class="bi bi-chevron-right"></i></span>
+                            <span class="cat-pill" [class.cat-child]="b.parentCategory" [class.cat-parent]="!b.parentCategory">{{ b.category.name }}</span>
+                            <span class="cat-pill cat-child" *ngIf="b.categories && b.categories.length > 1">
+                                +{{ b.categories.length - 1 }}
+                            </span>
+                        </div>
+                        <span class="text-neutral-40" *ngIf="!b.category">Không có</span>
+                    </td>
+                    <td>{{ b.authorName }}</td>
                     <td>{{ b.publishedAt | date:'dd/MM/yyyy HH:mm' }}</td>
                     <td class="text-center">
                         <div class="status-badge" [ngClass]="b.isApproved ? 'status-active' : 'status-inactive'">

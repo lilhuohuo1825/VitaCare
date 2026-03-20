@@ -324,6 +324,106 @@ body.dark-mode .page-header {
     }
 }
 
+/* ===================== DROPDOWN & FILTER ===================== */
+.dropdown-container {
+    position: relative;
+}
+
+.dropdown-menu-multilevel {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 10px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    min-width: 240px;
+    padding: 8px 0;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dropdown-menu-multilevel.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.dropdown-item,
+.dropdown-option {
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all 0.2s;
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--color-text-primary);
+}
+
+.dropdown-item:hover,
+.dropdown-item.active-item,
+.dropdown-option:hover,
+.dropdown-option.active-item {
+    background: #daecff;
+    color: var(--color-primary);
+}
+
+.dropdown-divider {
+    height: 1px;
+    background: #f0f0f0;
+    margin: 8px 0;
+}
+
+.dropdown-actions {
+    display: flex;
+    gap: 8px;
+    padding: 8px 16px;
+}
+
+.btn-clear-filter,
+.btn-close-filter {
+    flex: 1;
+    padding: 10px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s;
+    box-shadow: none !important;
+    transform: none !important;
+}
+
+.btn-clear-filter {
+    background: #fff5f5 !important;
+    border: 1px solid #ffe3e3 !important;
+    color: #d32f2f !important;
+}
+
+.btn-clear-filter:hover {
+    background: #ffe3e3 !important;
+    transform: none !important;
+}
+
+.btn-close-filter {
+    background: #f1f5f9 !important;
+    border: 1px solid #e2e8f0 !important;
+    color: #475569 !important;
+}
+
+.btn-close-filter:hover {
+    background: #e2e8f0 !important;
+    transform: none !important;
+}
+
 .dropdown-header {
     margin-bottom: var(--spacing-3);
     border-bottom: 1px solid var(--color-neutral-30);
@@ -345,6 +445,7 @@ body.dark-mode .page-header {
     display: flex;
     justify-content: flex-end;
 }
+
 
 /* Matching product manage CSS specifically */
 .actions-group .btn {

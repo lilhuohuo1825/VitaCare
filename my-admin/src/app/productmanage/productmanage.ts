@@ -99,7 +99,8 @@ export class Productmanage implements OnInit {
     expiryDate: '',
     activeIngredient: '',
     herbal: '',
-    images: [],
+    image: '',
+    gallery: [],
     costPrice: 0,
     price: 0,
     promoPrice: 0
@@ -128,8 +129,10 @@ export class Productmanage implements OnInit {
   modalL3Id: string = '';
 
   // Filter UI State
-  filterStep: number = 0; // 0: Main Menu, 1: L1, 2: L2, 3: L3
+  filterStep: number = 0;
   currentFilterParentId: string | null = null;
+  expandedL1Ids: Set<string> = new Set();
+  expandedL2Ids: Set<string> = new Set();
 
   constructor(
     @Inject(ProductService) private productService: ProductService,
@@ -170,14 +173,26 @@ export class Productmanage implements OnInit {
   }
 
   buildCategoryTree() {
+    const normalizeId = (value: any): string => {
+      if (!value) return '';
+      if (typeof value === 'string') return value;
+      return String(value.$oid || value._id || value.id || value);
+    };
+
     this.categoryMap = {};
     this.allCategories.forEach(cat => {
-      this.categoryMap[cat._id] = cat;
+      const normalizedId = normalizeId(cat._id);
+      const normalizedParentId = normalizeId(cat.parentId);
+      cat._id = normalizedId;
+      cat.parentId = normalizedParentId || null;
+      this.categoryMap[normalizedId] = cat;
     });
 
     this.categoriesL1 = this.allCategories.filter(c => !c.parentId);
-    this.categoriesL2 = this.allCategories.filter(c => c.parentId && this.categoriesL1.find(p => p._id === c.parentId));
-    this.categoriesL3 = this.allCategories.filter(c => c.parentId && this.categoriesL2.find(p => p._id === c.parentId));
+    const l1Ids = new Set(this.categoriesL1.map(c => c._id));
+    this.categoriesL2 = this.allCategories.filter(c => c.parentId && l1Ids.has(c.parentId));
+    const l2Ids = new Set(this.categoriesL2.map(c => c._id));
+    this.categoriesL3 = this.allCategories.filter(c => c.parentId && l2Ids.has(c.parentId));
   }
 
   getCategoryPathSteps(catId: string): string[] {
@@ -200,9 +215,10 @@ export class Productmanage implements OnInit {
     this.currentPage = page;
 
     // Convert frontend filters to backend params
+    const selectedCatIds = this.getSelectedCategoryId();
     const filterParams: any = {
       search: this.searchTerm,
-      categoryId: this.getSelectedCategoryId(),
+      categoryIds: selectedCatIds,
       minPrice: this.advancedFilters.price_range.min,
       maxPrice: this.advancedFilters.price_range.max,
       units: Object.keys(this.advancedFilters.unit).filter(k => this.advancedFilters.unit[k]),
@@ -260,13 +276,33 @@ export class Productmanage implements OnInit {
   }
 
   getSelectedCategoryId(): string {
-    // Return most specific category selected in advanced filter
-    const l3 = Object.keys(this.advancedFilters.categoryL3).find(k => this.advancedFilters.categoryL3[k]);
-    if (l3) return l3;
-    const l2 = Object.keys(this.advancedFilters.categoryL2).find(k => this.advancedFilters.categoryL2[k]);
-    if (l2) return l2;
-    const l1 = Object.keys(this.advancedFilters.categoryL1).find(k => this.advancedFilters.categoryL1[k]);
-    return l1 || '';
+    // Keep hierarchy by only sending the deepest selected category in each branch.
+    const selectedL1 = Object.keys(this.advancedFilters.categoryL1).filter(k => this.advancedFilters.categoryL1[k]);
+    const selectedL2 = Object.keys(this.advancedFilters.categoryL2).filter(k => this.advancedFilters.categoryL2[k]);
+    const selectedL3 = Object.keys(this.advancedFilters.categoryL3).filter(k => this.advancedFilters.categoryL3[k]);
+
+    const excluded = new Set<string>();
+
+    selectedL3.forEach((l3Id) => {
+      const l3 = this.categoryMap[l3Id];
+      if (l3?.parentId) {
+        excluded.add(String(l3.parentId));
+        const l2 = this.categoryMap[String(l3.parentId)];
+        if (l2?.parentId) excluded.add(String(l2.parentId));
+      }
+    });
+
+    selectedL2.forEach((l2Id) => {
+      if (excluded.has(l2Id)) return;
+      const l2 = this.categoryMap[l2Id];
+      if (l2?.parentId) excluded.add(String(l2.parentId));
+    });
+
+    const effectiveL1 = selectedL1.filter(id => !excluded.has(id));
+    const effectiveL2 = selectedL2.filter(id => !excluded.has(id));
+    const effectiveL3 = selectedL3.filter(id => !excluded.has(id));
+
+    return [...effectiveL3, ...effectiveL2, ...effectiveL1].join(',');
   }
 
   // Keep fetchProducts for backward compatibility
@@ -321,23 +357,18 @@ export class Productmanage implements OnInit {
 
 
 
+  toggleExpandL1(id: string) {
+    if (this.expandedL1Ids.has(id)) this.expandedL1Ids.delete(id);
+    else this.expandedL1Ids.add(id);
+  }
+
+  toggleExpandL2(id: string) {
+    if (this.expandedL2Ids.has(id)) this.expandedL2Ids.delete(id);
+    else this.expandedL2Ids.add(id);
+  }
+
   toggleAdvancedFilter(type: string, value: string) {
-    if (type.startsWith('category')) {
-      // Radio-like behavior for categories: clear others if selecting a new one
-      const isCurrentlySelected = this.advancedFilters[type][value];
-
-      // Clear all category filters first
-      this.advancedFilters.categoryL1 = {};
-      this.advancedFilters.categoryL2 = {};
-      this.advancedFilters.categoryL3 = {};
-
-      // If was not selected, select it now. If was selected, it's now cleared
-      if (!isCurrentlySelected) {
-        this.advancedFilters[type][value] = true;
-      }
-    } else {
-      this.advancedFilters[type][value] = !this.advancedFilters[type][value];
-    }
+    this.advancedFilters[type][value] = !this.advancedFilters[type][value];
     this.applyFilters();
   }
 
@@ -533,9 +564,11 @@ export class Productmanage implements OnInit {
       next: (res: any) => {
         this.isLoading = false;
         if (res.success) {
+          const gallery = Array.isArray(res.data.gallery) ? res.data.gallery : (res.data.image ? [res.data.image] : []);
           this.newProduct = {
             ...res.data,
-            image: res.data.image || (res.data.gallery && res.data.gallery.length > 0 ? res.data.gallery[0] : '')
+            gallery: gallery,
+            image: res.data.image || (gallery.length > 0 ? gallery[0] : '')
           };
           const catId = res.data.categoryId || '';
           this.newProduct.categoryId = catId;
@@ -651,6 +684,7 @@ export class Productmanage implements OnInit {
       activeIngredient: '',
       herbal: '',
       image: '',
+      gallery: [],
       costPrice: 0,
       price: 0,
       promoPrice: 0
@@ -688,10 +722,23 @@ export class Productmanage implements OnInit {
     if (file) {
       const reader = new FileReader();
       reader.onload = (e: any) => {
-        this.newProduct.image = e.target.result;
+        const url = e.target.result;
+        if (!this.newProduct.gallery) this.newProduct.gallery = [];
+        // Find the empty slot index from triggerGallerySlot or add to end
+        const slotIndex = (event.target as any)._slotIndex;
+        if (typeof slotIndex === 'number' && slotIndex < this.newProduct.gallery.length) {
+          this.newProduct.gallery[slotIndex] = url;
+        } else {
+          this.newProduct.gallery.push(url);
+        }
+        // Keep primary image in sync with gallery[0]
+        this.newProduct.image = this.newProduct.gallery[0] || '';
+        this.cdr.markForCheck();
       };
       reader.readAsDataURL(file);
     }
+    // Reset input
+    event.target.value = '';
   }
 
   triggerFileInput() {
@@ -699,5 +746,38 @@ export class Productmanage implements OnInit {
     if (fileInput) {
       fileInput.click();
     }
+  }
+
+  triggerGallerySlot(index: number) {
+    const fileInput = document.getElementById('imageUploadInput') as HTMLInputElement;
+    if (fileInput) {
+      (fileInput as any)._slotIndex = index;
+      fileInput.value = '';
+      fileInput.click();
+    }
+  }
+
+  triggerGalleryAdd() {
+    const fileInput = document.getElementById('imageUploadInput') as HTMLInputElement;
+    if (fileInput) {
+      (fileInput as any)._slotIndex = undefined;
+      fileInput.value = '';
+      fileInput.click();
+    }
+  }
+
+  removeGalleryImage(index: number) {
+    if (!this.newProduct.gallery) return;
+    this.newProduct.gallery.splice(index, 1);
+    this.newProduct.image = this.newProduct.gallery[0] || '';
+    this.cdr.markForCheck();
+  }
+
+  get gallerySlots(): (string | null)[] {
+    const gallery = this.newProduct.gallery || [];
+    // Always show 4 slots, fill with nulls
+    const slots: (string | null)[] = [...gallery.slice(0, 4)];
+    while (slots.length < 4) slots.push(null);
+    return slots;
   }
 }

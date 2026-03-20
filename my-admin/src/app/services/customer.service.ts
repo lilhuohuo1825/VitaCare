@@ -18,8 +18,16 @@ export class CustomerService {
         return this.http.get<any>(`${this.apiUrl}/${id}`);
     }
 
+    getCustomerProfile(id: string): Observable<any> {
+        return this.http.get<any>(`${this.apiUrl}/${id}/profile`);
+    }
+
     getCustomerOrders(id: string): Observable<any> {
         return this.http.get<any>(`${this.apiUrl}/${id}/orders`);
+    }
+
+    getCustomerAddresses(userId: string): Observable<any> {
+        return this.http.get<any>(`http://localhost:3000/api/addresses?user_id=${encodeURIComponent(userId)}`);
     }
 
     updateCustomer(id: string, customer: any): Observable<any> {

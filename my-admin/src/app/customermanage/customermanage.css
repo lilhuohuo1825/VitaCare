@@ -1,4 +1,4 @@
-﻿/* Product Manage Styles - Based on Order Manage for Consistency */
+/* Product Manage Styles - Based on Order Manage for Consistency */
 .product-manage-container {
     display: flex;
     flex-direction: column;
@@ -607,32 +607,32 @@ input[type="checkbox"] {
     white-space: nowrap;
 }
 
-/* Đồng - Bronze */
-.tier-đồng {
+/* �?ng - Bronze */
+.tier-d?ng {
     background: linear-gradient(135deg, #b87333, #d28a52, #e1a869, #b87333);
     color: white;
     border: none;
     box-shadow: 0 2px 8px rgba(184, 115, 51, 0.3);
 }
 
-/* Bạc - Silver */
-.tier-bạc {
+/* B?c - Silver */
+.tier-b?c {
     background: linear-gradient(135deg, #c0c0c0, #e0e0e0, #f8f8f8, #b0b0b0);
     color: #1a5a04;
     border: none;
     box-shadow: 0 2px 8px rgba(192, 192, 192, 0.3);
 }
 
-/* Vàng - Gold */
-.tier-vàng {
+/* V�ng - Gold */
+.tier-v�ng {
     background: linear-gradient(135deg, #ffd700, #ffec8b, #f5d142, #ffd700);
     color: #1a5a04;
     border: none;
     box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3);
 }
 
-/* Kim cương - Diamond */
-.tier-kim\.cương,
+/* Kim cuong - Diamond */
+.tier-kim\.cuong,
 [class*="tier-kim"] {
     background: linear-gradient(135deg, #a8edea, #c2e9fb, #a8edea, #74ebd5);
     color: #1a3a5c;
@@ -640,9 +640,9 @@ input[type="checkbox"] {
     box-shadow: 0 2px 8px rgba(116, 235, 213, 0.3);
 }
 
-/* Thành viên - Member */
-.tier-thành\.viên,
-[class*="tier-thành"] {
+/* Th�nh vi�n - Member */
+.tier-th�nh\.vi�n,
+[class*="tier-th�nh"] {
     background: var(--color-bg-light);
     color: var(--color-text-secondary);
     border: 1px solid var(--color-neutral-30);
@@ -699,15 +699,15 @@ input[type="checkbox"] {
 }
 
 .dropdown-menu-multilevel .dropdown-item:hover {
-    background: #f3e5f5 !important;
+    background: #daecff !important;
     color: var(--color-primary) !important;
 }
 
 .dropdown-submenu {
     position: absolute;
     top: 0;
-    left: 100%;
-    margin-left: 4px;
+    right: 100%;
+    margin-right: 4px;
     background: #fff !important;
     color: #1e293b !important;
     border-radius: 12px;
@@ -717,7 +717,7 @@ input[type="checkbox"] {
     padding: 8px 0;
     opacity: 0;
     visibility: hidden;
-    transform: translateX(10px);
+    transform: translateX(-10px);
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 1200;
     display: block;
@@ -727,6 +727,15 @@ input[type="checkbox"] {
     opacity: 1;
     visibility: visible;
     transform: translateX(0);
+}
+
+.dropdown-submenu::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: -15px;
+    width: 15px;
+    height: 100%;
 }
 
 .dropdown-option {
@@ -741,7 +750,7 @@ input[type="checkbox"] {
 }
 
 .dropdown-option:hover {
-    background: #f3e5f5;
+    background: #daecff;
 }
 
 .dropdown-option input[type="checkbox"],
@@ -878,12 +887,12 @@ input[type="checkbox"] {
 }
 
 .sort-option-btn:hover {
-    background-color: #f3e5f5;
+    background-color: #daecff;
     color: var(--color-primary);
 }
 
 .sort-option-btn.active {
-    background-color: var(--color-primary-bg, #f3e5f5);
+    background-color: var(--color-primary-bg, #daecff);
     color: var(--color-primary);
     font-weight: 600;
 }

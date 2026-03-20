@@ -538,6 +538,10 @@ export class Home implements OnInit {
     this.router.navigate(['/admin/products']);
   }
 
+  viewAllCustomers() {
+    this.router.navigate(['/admin/customers']);
+  }
+
   goToImport(product: any) {
     // Navigate to products page with search term to show only this product for easy import
     this.router.navigate(['/admin/products'], { queryParams: { search: product.sku || product.name } });

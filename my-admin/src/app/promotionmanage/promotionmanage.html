@@ -66,21 +66,39 @@
                 <button class="btn btn-sm action-btn icon-text" (click)="toggleFilterDropdown()">
                     <i class="bi bi-sliders"></i> Lọc
                 </button>
-                <div class="dropdown-popup" *ngIf="isFilterDropdownOpen">
-                    <div class="dropdown-header">
-                        <span class="dropdown-title">Lọc Trạng Thái</span>
+                <div class="dropdown-menu-multilevel" *ngIf="isFilterDropdownOpen" [class.show]="isFilterDropdownOpen">
+                    <div class="dropdown-option" (click)="filterByStatus('all')"
+                        [class.active-item]="filterStatus === 'all'">
+                        <span>Tất cả</span>
+                        <i class="bi bi-check2" *ngIf="filterStatus === 'all'"></i>
                     </div>
-                    <div class="dropdown-body">
-                        <select class="form-control" [(ngModel)]="filterStatus">
-                            <option value="all">Tất cả</option>
-                            <option value="upcoming">Sắp diễn ra</option>
-                            <option value="ongoing">Đang diễn ra</option>
-                            <option value="ended">Đã kết thúc</option>
-                        </select>
+                    <div class="dropdown-option" (click)="filterByStatus('upcoming')"
+                        [class.active-item]="filterStatus === 'upcoming'">
+                        <span>Sắp diễn ra</span>
+                        <i class="bi bi-check2" *ngIf="filterStatus === 'upcoming'"></i>
                     </div>
-                    <div class="dropdown-footer">
-                        <button class="btn btn-primary btn-sm" style="width: 100%;" (click)="applyFilter()">Áp
-                            dụng</button>
+                    <div class="dropdown-option" (click)="filterByStatus('ongoing')"
+                        [class.active-item]="filterStatus === 'ongoing'">
+                        <span>Đang diễn ra</span>
+                        <i class="bi bi-check2" *ngIf="filterStatus === 'ongoing'"></i>
+                    </div>
+                    <div class="dropdown-option" (click)="filterByStatus('ended')"
+                        [class.active-item]="filterStatus === 'ended'">
+                        <span>Đã kết thúc</span>
+                        <i class="bi bi-check2" *ngIf="filterStatus === 'ended'"></i>
+                    </div>
+
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-actions">
+                        <button class="btn btn-sm btn-clear-filter"
+                            (click)="filterByStatus('all'); isFilterDropdownOpen = false">
+                            <i class="bi bi-trash"></i>
+                            <span>Xóa lọc</span>
+                        </button>
+                        <button class="btn btn-sm btn-close-filter" (click)="isFilterDropdownOpen = false">
+                            <i class="bi bi-x"></i>
+                            <span>Đóng</span>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -134,9 +152,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr *ngFor="let p of filteredPromotions"
-                    [class.selected]="p.selected"
-                    (click)="onRowClick(p, $event)">
+                <tr *ngFor="let p of filteredPromotions" [class.selected]="p.selected" (click)="onRowClick(p, $event)">
                     <td>
                         <input type="checkbox" [(ngModel)]="p.selected" (change)="onSelectChange()">
                     </td>
@@ -239,33 +255,29 @@
 
                         <!-- chọn mode -->
                         <div class="customer-target-modes">
-                            <button type="button" class="chip-btn"
-                                    [class.active]="customerTargetMode === 'all'"
-                                    (click)="customerTargetMode = 'all'">
+                            <button type="button" class="chip-btn" [class.active]="customerTargetMode === 'all'"
+                                (click)="customerTargetMode = 'all'">
                                 Tất cả
                             </button>
-                            <button type="button" class="chip-btn"
-                                    [class.active]="customerTargetMode === 'group'"
-                                    (click)="customerTargetMode = 'group'">
+                            <button type="button" class="chip-btn" [class.active]="customerTargetMode === 'group'"
+                                (click)="customerTargetMode = 'group'">
                                 Nhóm khách hàng
                             </button>
-                            <button type="button" class="chip-btn"
-                                    [class.active]="customerTargetMode === 'tier'"
-                                    (click)="customerTargetMode = 'tier'">
+                            <button type="button" class="chip-btn" [class.active]="customerTargetMode === 'tier'"
+                                (click)="customerTargetMode = 'tier'">
                                 Hạng khách hàng (Tier)
                             </button>
                         </div>
 
                         <div class="customer-target-select">
-                            <button type="button"
-                                    class="target-toggle form-control"
-                                    (click)="toggleTargetDropdown('customer')">
+                            <button type="button" class="target-toggle form-control"
+                                (click)="toggleTargetDropdown('customer')">
                                 <span class="target-selected-text">
                                     {{ customerTargetMode === 'all'
-                                        ? 'Áp dụng cho TẤT CẢ khách hàng'
-                                        : customerTargetMode === 'group'
-                                          ? getSelectedTargetSummary('customer')
-                                          : (currentPromotion.customer_tiers?.join(', ') || 'Chọn hạng khách hàng') }}
+                                    ? 'Áp dụng cho TẤT CẢ khách hàng'
+                                    : customerTargetMode === 'group'
+                                    ? getSelectedTargetSummary('customer')
+                                    : (currentPromotion.customer_tiers?.join(', ') || 'Chọn hạng khách hàng') }}
                                 </span>
                                 <i class="bi" [ngClass]="{
                                     'bi-chevron-up': showCustomerTargetDropdown,
@@ -273,9 +285,8 @@
                                 }"></i>
                             </button>
 
-                            <div class="customer-target-popup"
-                                 *ngIf="showCustomerTargetDropdown"
-                                 (click)="$event.stopPropagation()">
+                            <div class="customer-target-popup" *ngIf="showCustomerTargetDropdown"
+                                (click)="$event.stopPropagation()">
 
                                 <!-- Mode: all -->
                                 <div class="popup-hint" *ngIf="customerTargetMode === 'all'">
@@ -287,16 +298,14 @@
                                     <div class="popup-title">Chọn nhóm khách hàng</div>
                                     <div class="popup-actions">
                                         <button type="button" class="chip-btn"
-                                                (click)="selectAllTargets('customer', true)">Chọn tất cả</button>
+                                            (click)="selectAllTargets('customer', true)">Chọn tất cả</button>
                                         <button type="button" class="chip-btn secondary"
-                                                (click)="selectAllTargets('customer', false)">Bỏ chọn</button>
+                                            (click)="selectAllTargets('customer', false)">Bỏ chọn</button>
                                     </div>
                                     <div class="popup-list two-columns">
-                                        <label class="multi-select-item"
-                                               *ngFor="let g of customerGroups">
-                                            <input type="checkbox"
-                                                   [checked]="isTargetChecked('customer', g._id)"
-                                                   (change)="toggleTargetSelection('customer', g._id, $event.target.checked)">
+                                        <label class="multi-select-item" *ngFor="let g of customerGroups">
+                                            <input type="checkbox" [checked]="isTargetChecked('customer', g._id)"
+                                                (change)="toggleTargetSelection('customer', g._id, $event.target.checked)">
                                             <span>{{ g.name }}</span>
                                         </label>
                                     </div>
@@ -306,11 +315,9 @@
                                 <ng-container *ngIf="customerTargetMode === 'tier'">
                                     <div class="popup-title">Chọn hạng khách hàng</div>
                                     <div class="popup-list">
-                                        <label class="multi-select-item"
-                                               *ngFor="let tier of customerTierOptions">
-                                            <input type="checkbox"
-                                                   [checked]="isTierSelected(tier)"
-                                                   (change)="toggleTierSelection(tier, $event.target.checked)">
+                                        <label class="multi-select-item" *ngFor="let tier of customerTierOptions">
+                                            <input type="checkbox" [checked]="isTierSelected(tier)"
+                                                (change)="toggleTierSelection(tier, $event.target.checked)">
                                             <span>{{ tier }}</span>
                                         </label>
                                     </div>
@@ -325,28 +332,24 @@
 
                         <!-- 3 chip: Cấp 1 / 2 / 3 – cho phép bật nhiều -->
                         <div class="customer-target-modes">
-                            <button type="button" class="chip-btn"
-                                    [class.active]="categoryLevels.level1"
-                                    (click)="setActiveCategoryLevel(1)">
+                            <button type="button" class="chip-btn" [class.active]="categoryLevels.level1"
+                                (click)="setActiveCategoryLevel(1)">
                                 Cấp 1
                             </button>
-                            <button type="button" class="chip-btn"
-                                    [class.active]="categoryLevels.level2"
-                                    (click)="setActiveCategoryLevel(2)">
+                            <button type="button" class="chip-btn" [class.active]="categoryLevels.level2"
+                                (click)="setActiveCategoryLevel(2)">
                                 Cấp 2
                             </button>
-                            <button type="button" class="chip-btn"
-                                    [class.active]="categoryLevels.level3"
-                                    (click)="setActiveCategoryLevel(3)">
+                            <button type="button" class="chip-btn" [class.active]="categoryLevels.level3"
+                                (click)="setActiveCategoryLevel(3)">
                                 Cấp 3
                             </button>
                         </div>
 
                         <!-- Ô tóm tắt chính -->
                         <div class="customer-target-select" style="margin-bottom: 8px;">
-                            <button type="button"
-                                    class="target-toggle form-control"
-                                    (click)="toggleTargetDropdown('category')">
+                            <button type="button" class="target-toggle form-control"
+                                (click)="toggleTargetDropdown('category')">
                                 <span class="target-selected-text">
                                     {{ getSelectedCategorySummaryForPopup() }}
                                 </span>
@@ -357,19 +360,16 @@
                             </button>
 
                             <!-- Popup chọn danh mục theo level -->
-                            <div class="customer-target-popup"
-                                 *ngIf="showCategoryTargetDropdown"
-                                 (click)="$event.stopPropagation()">
+                            <div class="customer-target-popup" *ngIf="showCategoryTargetDropdown"
+                                (click)="$event.stopPropagation()">
 
                                 <!-- Level 1 -->
                                 <ng-container *ngIf="categoryLevels.level1">
                                     <div class="popup-title">Danh mục cấp 1</div>
                                     <div class="popup-list two-columns">
-                                        <label class="multi-select-item"
-                                               *ngFor="let c of promoCategoriesL1">
-                                            <input type="checkbox"
-                                                   [checked]="selectedCatLevel1.includes(c._id)"
-                                                   (change)="onToggleCatLevel(1, c._id, $event.target.checked)">
+                                        <label class="multi-select-item" *ngFor="let c of promoCategoriesL1">
+                                            <input type="checkbox" [checked]="selectedCatLevel1.includes(c._id)"
+                                                (change)="onToggleCatLevel(1, c._id, $event.target.checked)">
                                             <span>{{ c.name }}</span>
                                         </label>
                                     </div>
@@ -381,10 +381,9 @@
                                     <div class="popup-title" style="margin-top:8px;">Danh mục cấp 2</div>
                                     <div class="popup-list two-columns">
                                         <label class="multi-select-item"
-                                               *ngFor="let c of getLevel2CategoriesForPopup()">
-                                            <input type="checkbox"
-                                                   [checked]="selectedCatLevel2.includes(c._id)"
-                                                   (change)="onToggleCatLevel(2, c._id, $event.target.checked)">
+                                            *ngFor="let c of getLevel2CategoriesForPopup()">
+                                            <input type="checkbox" [checked]="selectedCatLevel2.includes(c._id)"
+                                                (change)="onToggleCatLevel(2, c._id, $event.target.checked)">
                                             <span>{{ c.name }}</span>
                                         </label>
                                     </div>
@@ -396,10 +395,9 @@
                                     <div class="popup-title" style="margin-top:8px;">Danh mục cấp 3</div>
                                     <div class="popup-list two-columns">
                                         <label class="multi-select-item"
-                                               *ngFor="let c of getLevel3CategoriesForPopup()">
-                                            <input type="checkbox"
-                                                   [checked]="selectedCatLevel3.includes(c._id)"
-                                                   (change)="onToggleCatLevel(3, c._id, $event.target.checked)">
+                                            *ngFor="let c of getLevel3CategoriesForPopup()">
+                                            <input type="checkbox" [checked]="selectedCatLevel3.includes(c._id)"
+                                                (change)="onToggleCatLevel(3, c._id, $event.target.checked)">
                                             <span>{{ c.name }}</span>
                                         </label>
                                     </div>
@@ -414,7 +412,7 @@
                             <label class="form-label">Áp dụng cho Nhóm sản phẩm</label>
                             <div class="target-dropdown">
                                 <button type="button" class="target-toggle form-control"
-                                        (click)="toggleTargetDropdown('product')">
+                                    (click)="toggleTargetDropdown('product')">
                                     <span class="target-selected-text">
                                         {{ getSelectedTargetSummary('product') }}
                                     </span>
@@ -427,20 +425,18 @@
                                 <div class="target-panel" *ngIf="showProductTargetDropdown">
                                     <div class="target-panel-header">
                                         <button type="button" class="chip-btn"
-                                                (click)="selectAllTargets('product', true)">
+                                            (click)="selectAllTargets('product', true)">
                                             Chọn tất cả
                                         </button>
                                         <button type="button" class="chip-btn secondary"
-                                                (click)="selectAllTargets('product', false)">
+                                            (click)="selectAllTargets('product', false)">
                                             Bỏ chọn
                                         </button>
                                     </div>
                                     <div class="target-panel-body">
-                                        <label class="multi-select-item"
-                                               *ngFor="let g of productGroups">
-                                            <input type="checkbox"
-                                                   [checked]="isTargetChecked('product', g._id)"
-                                                   (change)="toggleTargetSelection('product', g._id, $event.target.checked)">
+                                        <label class="multi-select-item" *ngFor="let g of productGroups">
+                                            <input type="checkbox" [checked]="isTargetChecked('product', g._id)"
+                                                (change)="toggleTargetSelection('product', g._id, $event.target.checked)">
                                             <span>{{ g.name }}</span>
                                         </label>
                                     </div>
@@ -467,13 +463,12 @@
 
                     <div class="form-group">
                         <label class="form-label">
-                            {{ currentPromotion.discount_type === 'percent' ? 'Phần trăm giảm (%)' : 'Giá trị giảm (đ)' }}
+                            {{ currentPromotion.discount_type === 'percent' ? 'Phần trăm giảm (%)' : 'Giá trị giảm (đ)'
+                            }}
                             <span class="required-mark">*</span>
                         </label>
-                        <input type="number"
-                               class="form-control"
-                               [(ngModel)]="currentPromotion.discount_value"
-                               [placeholder]="currentPromotion.discount_type === 'percent' ? 'Nhập % giảm giá, ví dụ 10' : 'Nhập số tiền giảm, ví dụ 30000'">
+                        <input type="number" class="form-control" [(ngModel)]="currentPromotion.discount_value"
+                            [placeholder]="currentPromotion.discount_type === 'percent' ? 'Nhập % giảm giá, ví dụ 10' : 'Nhập số tiền giảm, ví dụ 30000'">
                     </div>
 
                     <div class="form-group">
@@ -484,30 +479,35 @@
 
                     <div class="form-group" *ngIf="currentPromotion.discount_type === 'percent'">
                         <label class="form-label">Giá trị giảm tối đa (đ)</label>
-                        <input type="number"
-                               class="form-control"
-                               [(ngModel)]="currentPromotion.max_discount_value"
-                               placeholder="0">
+                        <input type="number" class="form-control" [(ngModel)]="currentPromotion.max_discount_value"
+                            placeholder="0">
                     </div>
 
-                    <div class="form-group full-width" style="border-top: 1px solid #eef2f7; padding-top: 15px; margin-top: 15px;">
-                        <h6 style="color: var(--color-primary); font-weight: 700; margin-bottom: 20px; font-size: 16px;">Thư viện hình ảnh & Cấu hình hiển thị</h6>
+                    <div class="form-group full-width"
+                        style="border-top: 1px solid #eef2f7; padding-top: 15px; margin-top: 15px;">
+                        <h6
+                            style="color: var(--color-primary); font-weight: 700; margin-bottom: 20px; font-size: 16px;">
+                            Thư viện hình ảnh & Cấu hình hiển thị</h6>
                     </div>
 
                     <div class="form-group full-width mb-4">
-                        <label class="form-label" style="font-weight: 600; color: #475569;">Hình ảnh khuyến mãi (Dán link hoặc Tải lên)</label>
+                        <label class="form-label" style="font-weight: 600; color: #475569;">Hình ảnh khuyến mãi (Dán
+                            link hoặc Tải lên)</label>
                         <div class="image-upload-wrapper">
-                            <input type="text" class="form-control" [(ngModel)]="imageInput" placeholder="data:image/jpeg;base64,... hoặc URL" name="promoImageInput">
+                            <input type="text" class="form-control" [(ngModel)]="imageInput"
+                                placeholder="data:image/jpeg;base64,... hoặc URL" name="promoImageInput">
                             <label class="upload-icon-btn" title="Tải hình lên từ thiết bị">
                                 <i class="bi bi-cloud-arrow-up"></i>
                                 <input type="file" (change)="onFileUpload($event)" hidden accept="image/*">
                             </label>
-                            <button type="button" class="add-image-btn" (click)="addImage()" [disabled]="!imageInput" title="Thêm vào danh sách">
+                            <button type="button" class="add-image-btn" (click)="addImage()" [disabled]="!imageInput"
+                                title="Thêm vào danh sách">
                                 <i class="bi bi-plus-lg"></i>
                             </button>
                         </div>
-                        
-                        <div class="image-gallery-grid" *ngIf="currentPromotion.images && currentPromotion.images.length > 0">
+
+                        <div class="image-gallery-grid"
+                            *ngIf="currentPromotion.images && currentPromotion.images.length > 0">
                             <div class="gallery-item" *ngFor="let img of currentPromotion.images; let i = index">
                                 <img [src]="img" alt="Gallery image">
                                 <span class="delete-img-btn" (click)="removeImage(i)" title="Xoá hình này">
@@ -518,15 +518,20 @@
                     </div>
 
                     <div class="form-group full-width">
-                        <label class="form-label" style="font-weight: 600; color: #475569;">Cấu hình vị trí Banner (typeBanner)</label>
+                        <label class="form-label" style="font-weight: 600; color: #475569;">Cấu hình vị trí Banner
+                            (typeBanner)</label>
                         <div class="display-options-card">
-                            <div class="form-check-group" style="grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));">
-                                <div class="form-check" *ngFor="let slot of bannerSlots" 
-                                     (click)="selectBannerSlot(slot.id)"
-                                     [style.border-color]="isBannerSlotSelected(slot.id) ? 'var(--color-primary)' : '#e2e8f0'"
-                                     [style.background]="isBannerSlotSelected(slot.id) ? 'var(--color-primary-bg)' : 'white'">
-                                    <input type="radio" name="bannerSlot" [checked]="isBannerSlotSelected(slot.id)" (click)="$event.stopPropagation()">
-                                    <label class="form-check-label" [style.color]="isBannerSlotSelected(slot.id) ? 'var(--color-primary)' : 'inherit'">{{ slot.name }}</label>
+                            <div class="form-check-group"
+                                style="grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));">
+                                <div class="form-check" *ngFor="let slot of bannerSlots"
+                                    (click)="selectBannerSlot(slot.id)"
+                                    [style.border-color]="isBannerSlotSelected(slot.id) ? 'var(--color-primary)' : '#e2e8f0'"
+                                    [style.background]="isBannerSlotSelected(slot.id) ? 'var(--color-primary-bg)' : 'white'">
+                                    <input type="radio" name="bannerSlot" [checked]="isBannerSlotSelected(slot.id)"
+                                        (click)="$event.stopPropagation()">
+                                    <label class="form-check-label"
+                                        [style.color]="isBannerSlotSelected(slot.id) ? 'var(--color-primary)' : 'inherit'">{{
+                                        slot.name }}</label>
                                 </div>
                             </div>
                         </div>

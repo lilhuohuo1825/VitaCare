@@ -526,11 +526,15 @@ input[type="checkbox"] {
     border: 1px dashed var(--color-neutral-40);
     border-radius: var(--radius-md);
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     color: var(--color-neutral-50);
     cursor: pointer;
     transition: all 0.2s;
+    font-size: 10px;
+    text-align: center;
+    gap: 2px;
 }
 
 .image-box:hover {
@@ -681,7 +685,7 @@ input[type="checkbox"] {
 }
 
 .dropdown-item:hover {
-    background: #f3e5f5;
+    background: #daecff;
     color: var(--color-primary);
 }
 
@@ -689,7 +693,6 @@ input[type="checkbox"] {
     position: absolute;
     top: 0;
     right: 100%;
-    /* Change to open on the left */
     margin-right: 2px;
     background: white;
     border-radius: 12px;
@@ -699,10 +702,10 @@ input[type="checkbox"] {
     opacity: 0;
     visibility: hidden;
     transform: translateX(-10px);
-    /* Adjust animation */
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 1001;
     display: block;
+    overflow: visible;
 }
 
 .dropdown-item-parent:hover>.dropdown-submenu {
@@ -729,7 +732,20 @@ input[type="checkbox"] {
 }
 
 .dropdown-option:hover {
-    background: #f3e5f5;
+    background: #daecff;
+}
+
+.dropdown-submenu::-webkit-scrollbar {
+    width: 8px;
+}
+
+.dropdown-submenu::-webkit-scrollbar-thumb {
+    background: rgba(123, 58, 150, 0.25);
+    border-radius: 999px;
+}
+
+.dropdown-submenu::-webkit-scrollbar-track {
+    background: transparent;
 }
 
 .dropdown-option input[type="checkbox"],
@@ -871,12 +887,12 @@ input[type="checkbox"] {
 }
 
 .sort-option-btn:hover {
-    background-color: #f3e5f5;
+    background-color: #daecff;
     color: var(--color-primary);
 }
 
 .sort-option-btn.active {
-    background-color: var(--color-primary-bg, #f3e5f5);
+    background-color: var(--color-primary-bg, #daecff);
     color: var(--color-primary);
     font-weight: 600;
 }
@@ -1065,6 +1081,43 @@ input[type="checkbox"] {
 :host-context(body.dark-mode) .premium-select {
     background-color: var(--color-bg-secondary);
     border-color: var(--color-neutral-40);
+}
+
+/* ===================== CATEGORY HOVER SUBMENU ENHANCEMENTS ===================== */
+.submenu-arrow {
+    font-size: 10px;
+    color: #ccc;
+    flex-shrink: 0;
+    margin-left: 8px;
+}
+
+.submenu-level-label {
+    padding: 8px 16px 4px;
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--color-primary);
+    border-bottom: 1px solid #f0f0f0;
+    margin-bottom: 4px;
+    position: sticky;
+    top: 0;
+    background: white;
+    z-index: 1;
+}
+
+.cat-submenu-l1 {
+    max-height: 80vh;
+}
+
+.cat-submenu-l2 {
+    max-height: 70vh;
+}
+
+.cat-submenu-l3 {
+    max-height: 205px;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 @keyframes slideDown {
