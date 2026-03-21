@@ -463,3 +463,37 @@
         </div>
     </div>
 </div>
+
+<!-- Promo popup: khi click banner khuyến mãi -->
+<div class="vc-blog-popup-overlay" *ngIf="showPromoPopup && promoPopup" (click)="closePromoPopup()">
+    <div class="vc-blog-popup vc-promo-popup" (click)="$event.stopPropagation()">
+        <button type="button" class="vc-blog-popup__close" (click)="closePromoPopup()" aria-label="Đóng">
+            <i class="bi bi-x-lg"></i>
+        </button>
+
+        <div class="vc-blog-popup__image-wrap"
+            [ngClass]="promoPopupLayout === 'main' ? 'vc-promo-popup__image-wrap--main' : 'vc-promo-popup__image-wrap--sub'">
+            <img
+                [src]="promoPopup.image"
+                [alt]="promoPopup.title"
+                class="vc-blog-popup__image"
+                [ngClass]="promoPopupLayout === 'main' ? 'vc-promo-popup__image--main' : 'vc-promo-popup__image--sub'"
+                (error)="$any($event.target).src='assets/images/homepage/blogs/ngu_ngon.jpg'" />
+            <div class="vc-blog-popup__image-fade"></div>
+        </div>
+
+        <div class="vc-blog-popup__body">
+            <h3 class="vc-blog-popup__title">{{ promoPopup.title }}</h3>
+            <div class="vc-promo-popup__values">
+                <div class="vc-promo-popup__discount" *ngIf="promoPopup.discountText">{{ promoPopup.discountText }}</div>
+                <div class="vc-promo-popup__min" *ngIf="promoPopup.minText">{{ promoPopup.minText }}</div>
+                <div class="vc-promo-popup__date" *ngIf="promoPopup.dateText">{{ promoPopup.dateText }}</div>
+                <p class="vc-blog-popup__excerpt" *ngIf="promoPopup.descriptionText">{{ promoPopup.descriptionText }}</p>
+            </div>
+
+            <button type="button" class="vc-blog-popup__cta" (click)="goToPromoProducts()">
+                Mua sắm ngay <i class="bi bi-arrow-right"></i>
+            </button>
+        </div>
+    </div>
+</div>

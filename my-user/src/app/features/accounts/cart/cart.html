@@ -127,12 +127,16 @@
               <span *ngIf="vitaXuDiscount() > 0">-</span>{{ vitaXuDiscount() | number:'1.0-0' }}₫
             </strong>
           </div>
+          <div class="cart-sidebar-summary-row border-0">
+            <span>Phí vận chuyển</span>
+            <strong>{{ shippingFee() === 0 ? 'Miễn phí' : (shippingFee() | number:'1.0-0') + '₫' }}</strong>
+          </div>
         </div>
       </div>
 
       <div class="cart-sidebar-summary-row cart-sidebar-summary-final">
         <span>Thành tiền</span>
-        <strong class="cart-sidebar-final-amount">{{ finalAmount() | number:'1.0-0' }}₫</strong>
+        <strong class="cart-sidebar-final-amount">{{ finalAmountWithShipping() | number:'1.0-0' }}₫</strong>
       </div>
       <div class="cart-sidebar-buttons">
         <button type="button" class="cart-sidebar-btn cart-sidebar-btn-secondary" (click)="goToConsultation($event)">

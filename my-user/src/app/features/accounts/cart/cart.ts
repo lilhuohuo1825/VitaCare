@@ -30,6 +30,9 @@ import { CoinService } from '../../../core/services/coin.service';
   styleUrl: './cart.css',
 })
 export class Cart implements OnInit, OnDestroy {
+  private static readonly FREE_SHIPPING_THRESHOLD = 300_000;
+  private static readonly DEFAULT_SHIPPING_FEE = 30_000;
+
   private cartService = inject(CartService);
   readonly cartSidebar = inject(CartSidebarService);
   private authService = inject(AuthService);
@@ -121,6 +124,14 @@ export class Cart implements OnInit, OnDestroy {
 
   finalAmount = computed(() => {
     return Math.max(0, this.selectedTotalPrice() - this.voucherDiscount() - this.vitaXuDiscount());
+  });
+
+  shippingFee = computed(() => {
+    return this.finalAmount() > Cart.FREE_SHIPPING_THRESHOLD ? 0 : Cart.DEFAULT_SHIPPING_FEE;
+  });
+
+  finalAmountWithShipping = computed(() => {
+    return this.finalAmount() + this.shippingFee();
   });
 
   /** Tránh gọi API giỏ hàng lặp lại khi sidebar đã mở và user không đổi. */

@@ -285,6 +285,8 @@
 
 .vc_action_cart {
   background: #00589F;
+  padding-top: 6px;
+  padding-bottom: 6px;
 }
 
 .vc_action_cart .vc_action_text {
@@ -338,6 +340,12 @@
   position: relative;
   display: inline-flex;
   align-items: center;
+}
+
+/* Tăng nhẹ chiều cao 2 nút "Đăng nhập" và "Giỏ thuốc" */
+.vc_login_wrapper .vc_action {
+  padding-top: 6px;
+  padding-bottom: 6px;
 }
 
 /* Chiều rộng nút đăng nhập khớp dropdown tài khoản (nhưng gọn lại) */

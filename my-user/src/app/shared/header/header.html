@@ -344,25 +344,25 @@
                 (click)="openNoticeFromBell(n)"
                 [class.vc_notify_item--order-delivering]="
                   n.type === 'order_updated' &&
-                  (n.title?.includes('đang được giao') || n.message?.includes('đang trên đường'))
+                  (n.title.includes('đang được giao') || n.message.includes('đang trên đường'))
                 "
                 [class.vc_notify_item--order-delivered]="
                   n.type === 'order_updated' &&
-                  (n.title?.includes('đã được giao') || n.message?.includes('đã giao thành công') || n.message?.includes('xác nhận nhận hàng'))
+                  (n.title.includes('đã được giao') || n.message.includes('đã giao thành công') || n.message.includes('xác nhận nhận hàng'))
                 "
                 [class.vc_notify_item--order-received]="
                   n.type === 'order_updated' &&
-                  (n.title?.includes('Bạn đã nhận hàng') || n.message?.includes('xác nhận giao thành công') || n.message?.includes('chờ bạn đánh giá'))
+                  (n.title.includes('Bạn đã nhận hàng') || n.message.includes('xác nhận giao thành công') || n.message.includes('chờ bạn đánh giá'))
                 "
                 [class.vc_notify_item--evaluation]="
                   n.type === 'order_updated' &&
-                  (n.title?.includes('Đánh giá') || n.linkLabel === 'Xem đánh giá')
+                  (n.title.includes('Đánh giá') || n.linkLabel === 'Xem đánh giá')
                 "
                 [class.vc_notify_item--prescription]="n.type === 'prescription_created' || n.type === 'prescription_updated'"
                 [class.vc_notify_item--qa]="
                   n.type === 'qa_reply' ||
                   n.type === 'qa_submitted' ||
-                  (n.type === 'order_updated' && (n.title?.includes('Câu hỏi') || n.linkLabel === 'Xem phản hồi'))
+                  (n.type === 'order_updated' && (n.title.includes('Câu hỏi') || n.linkLabel === 'Xem phản hồi'))
                 ">
                 <div class="vc_notify_item_icon" [ngClass]="getBellNoticeIconClass(n)">
                   <i class="bi" [ngClass]="getBellNoticeIcon(n)"></i>

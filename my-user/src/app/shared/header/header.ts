@@ -99,9 +99,10 @@ export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
   private rafId: number | null = null;
   private resizeTimer: ReturnType<typeof setTimeout> | null = null;
   private lastScrollY = 0;
-  // Ngưỡng scroll để chuyển trạng thái header (giảm jitter, mượt hơn)
-  private readonly COMPACT_SCROLL_Y = 40;  // dưới ~40px: luôn full-size
-  private readonly EXPAND_SCROLL_Y = 90;   // chỉ khi kéo xuống sâu hơn mới thu gọn
+  // Ngưỡng scroll để chuyển trạng thái header theo hướng cuộn (giảm jitter)
+  private readonly TOP_EXPAND_Y = 40; // gần đầu trang: luôn header nguyên bản
+  private readonly COMPACT_TRIGGER_Y = 90; // cuộn xuống sâu hơn mức này thì thu gọn
+  private readonly SCROLL_DIRECTION_DEADZONE = 6; // bỏ qua dao động nhỏ để tránh nhấp nháy
 
   activePill: string | null = null;
 
@@ -184,9 +185,16 @@ export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
         this.resetNotificationsState();
         this.fetchNotificationsPreview(uid, true);
       } else {
-        this.cart = null;
-        this.cart_count = 0;
-        this.cartService.setCartCount(0);
+        // Khách vãng lai: hiển thị cart từ session, không bắt login
+        const guestItems = this.cartService.getGuestCartItems();
+        this.cart = {
+          user_id: 'guest',
+          items: guestItems,
+          itemCount: guestItems.length,
+          totalQuantity: guestItems.reduce((s, i) => s + (i.quantity || 1), 0),
+        } as Cart;
+        this.cart_count = guestItems.length;
+        this.cartService.setCartCount(guestItems.length);
         this.resetNotificationsState();
       }
     });
@@ -310,20 +318,21 @@ export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private applyCompactState(scrollY: number): void {
     const deltaY = scrollY - this.lastScrollY;
-    const scrollingUp = deltaY < 0;
+    const scrollingDown = deltaY > this.SCROLL_DIRECTION_DEADZONE;
+    const scrollingUp = deltaY < -this.SCROLL_DIRECTION_DEADZONE;
     this.lastScrollY = scrollY;
 
-    let nextCompact: boolean;
-    if (scrollY <= this.COMPACT_SCROLL_Y) {
+    let nextCompact = this.isHeaderCompact;
+    if (scrollY <= this.TOP_EXPAND_Y) {
       nextCompact = false;
     } else if ((window as any).isFilteringJump) {
       nextCompact = true;
-    } else if (this.isHeaderCompact) {
-      // If already compact, stay compact unless we scroll back near the top
-      nextCompact = scrollY > this.COMPACT_SCROLL_Y;
-    } else {
-      // If expanded, only go compact if we scroll down past threshold
-      nextCompact = scrollY > this.EXPAND_SCROLL_Y;
+    } else if (scrollingUp) {
+      // Chỉ cần cuộn lên là mở lại header nguyên bản, không cần về đầu trang.
+      nextCompact = false;
+    } else if (scrollingDown && scrollY > this.COMPACT_TRIGGER_Y) {
+      // Cuộn xuống thì chuyển sang header thu gọn.
+      nextCompact = true;
     }
 
     if (nextCompact === this.isHeaderCompact) return;
@@ -804,6 +813,11 @@ export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
     return 0;
   }
 
+  /** Nhóm notice nhắc uống thuốc (bao gồm id reminder-due-* sinh động). */
+  private isReminderNotice(n: NoticeItem): boolean {
+    return n.type === 'medication_reminder' || String(n.id || '').startsWith('reminder-due-');
+  }
+
   /**
    * Thời gian hiển thị ở bell dropdown: dạng "Vừa xong" / "10 phút" / "1 giờ" ...
    * Yêu cầu: màu xám + nằm cùng hàng với title.
@@ -875,12 +889,23 @@ export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
     const WINDOW_MIN = 60;
     return list.filter((n) => {
       const timeStr = this.getReminderScheduledTime(n);
-      if (!timeStr) return true;
+      if (!timeStr) {
+        const ms = this.getNoticeTimeMs(n);
+        if (!ms) return false;
+        const diffMin = Math.abs(now.getTime() - ms) / 60000;
+        return diffMin <= WINDOW_MIN;
+      }
       const [h, m] = timeStr.split(':').map((x) => parseInt(x, 10) || 0);
       const slotMin = h * 60 + m;
       const low = Math.max(0, slotMin - WINDOW_MIN);
       const high = Math.min(23 * 60 + 59, slotMin + WINDOW_MIN);
-      return curMin >= low && curMin <= high;
+      if (curMin >= low && curMin <= high) return true;
+
+      // Fallback theo timestamp notice (nếu parse HH:mm không khớp/không có).
+      const ms = this.getNoticeTimeMs(n);
+      if (!ms) return false;
+      const diffMin = Math.abs(now.getTime() - ms) / 60000;
+      return diffMin <= WINDOW_MIN;
     });
   }
 
@@ -960,24 +985,26 @@ export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
         this.notificationsLoading = false;
         if (res.success && Array.isArray(res.items)) {
           const items = res.items as NoticeItem[];
-          const dueMed = items.filter((n) => n.type === 'medication_reminder');
+          const dueMed = items.filter((n) => this.isReminderNotice(n));
           const dueMedUnread = dueMed.filter((n) => !n.read);
           const dueMedWithinWindow = this.filterReminderWithin60Minutes(dueMedUnread);
           this.medicationDueList = dueMedWithinWindow;
           this.reminderBadgeService.setReminderDueCount(dueMedWithinWindow.length);
-          const prescriptionItems = items.filter(
+          const bellItems = items.filter((n) => !this.isReminderNotice(n));
+          const prescriptionItems = bellItems.filter(
             (n) => n.type === 'prescription_created' || n.type === 'prescription_updated'
           );
           const prescriptionUnread = prescriptionItems.filter((n) => !n.read);
-          const orderItems = items.filter(
+          const orderItems = bellItems.filter(
             (n) => n.type === 'order_created' || n.type === 'order_updated'
           );
           const orderUnread = orderItems.filter((n) => !n.read);
           this.prescriptionNoticeList = prescriptionUnread;
           this.orderNoticeList = orderUnread;
-          const unread = items.filter((n) => !n.read);
+          // Bell chỉ tính/hiển thị thông báo không phải reminder.
+          const unread = bellItems.filter((n) => !n.read);
           this.unreadNotifyCount = Math.min(unread.length, 99);
-          const sorted = [...items].sort((a, b) => {
+          const sorted = [...bellItems].sort((a, b) => {
             const ta = this.getNoticeTimeMs(a);
             const tb = this.getNoticeTimeMs(b);
             // Luôn chỉ sắp xếp theo thời gian (mới nhất lên trước).
@@ -1399,13 +1426,9 @@ export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
 
   onCart(e: Event): void {
     e.preventDefault();
-    if (this.authService.currentUser()) {
-      this.isCartHoverVisible = false;
-      this.cartSidebarService.openSidebar();
-      this.cdr.markForCheck();
-    } else {
-      this.authService.openAuthModal();
-    }
+    this.isCartHoverVisible = false;
+    this.cartSidebarService.openSidebar();
+    this.cdr.markForCheck();
   }
 
   onCartItemActivate(e: Event, item: CartItem): void {
@@ -1413,13 +1436,9 @@ export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
     e.stopPropagation();
     const id = String((item as any)?._id ?? (item as any)?.id ?? '').trim();
     if (!id) return;
-    if (this.authService.currentUser()) {
-      this.isCartHoverVisible = false;
-      this.cartSidebarService.openSidebarWithFocus(id);
-      this.cdr.markForCheck();
-    } else {
-      this.authService.openAuthModal();
-    }
+    this.isCartHoverVisible = false;
+    this.cartSidebarService.openSidebarWithFocus(id);
+    this.cdr.markForCheck();
   }
 
   onRemoveFromCart(e: Event, item: any): void {

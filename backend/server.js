@@ -1,5 +1,15 @@
 require('dotenv').config();
 const path = require('path');
+// Allow backend to reuse its own `node_modules` when importing Mongoose models
+// from `my-user/src/...` (those model files do `require('mongoose')`).
+const Module = require('module');
+const backendNodeModulesPath = path.join(__dirname, 'node_modules');
+if (!process.env.NODE_PATH) {
+  process.env.NODE_PATH = backendNodeModulesPath;
+} else if (!process.env.NODE_PATH.split(path.delimiter).includes(backendNodeModulesPath)) {
+  process.env.NODE_PATH = `${backendNodeModulesPath}${path.delimiter}${process.env.NODE_PATH}`;
+}
+Module.Module._initPaths();
 const fs = require('fs');
 const express = require('express');
 const cors = require('cors');
@@ -8,6 +18,8 @@ const { Schema } = mongoose;
 const multer = require('multer');
 const nodemailer = require('nodemailer');
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
+const { GridFSBucket } = require('mongodb');
 
 // Email Transporter (Gmail)
 const transporter = nodemailer.createTransport({
@@ -90,6 +102,40 @@ if (!fs.existsSync(reminderUploads)) {
 }
 app.use('/uploads', express.static(uploadsRoot));
 
+// =========================
+// GridFS "media" - fallback cho ảnh cũ
+// =========================
+// Các promo cũ đang lưu URL dạng `/api/media/file/<gridfsFileId>`
+// (bucketName: "media" với collections: "media.files" & "media.chunks").
+app.get('/api/media/file/:id', async (req, res) => {
+  try {
+    const idRaw = String(req.params.id || '').trim();
+    if (!idRaw) return res.status(400).json({ success: false, message: 'Missing file id' });
+
+    const db = mongoose.connection.db;
+    if (!db) return res.status(500).json({ success: false, message: 'Mongo not ready' });
+
+    const bucket = new GridFSBucket(db, { bucketName: 'media' });
+
+    // GridFS file _id thường là ObjectId hex string
+    const fileId = mongoose.Types.ObjectId.isValid(idRaw) ? new mongoose.Types.ObjectId(idRaw) : idRaw;
+
+    const stream = bucket.openDownloadStream(fileId);
+    stream.on('file', (file) => {
+      res.setHeader('Content-Type', file?.contentType || 'application/octet-stream');
+      res.setHeader('Cache-Control', 'public, max-age=86400');
+    });
+    stream.on('error', (err) => {
+      console.error('[GET /api/media/file/:id] Error:', err?.message || err);
+      if (!res.headersSent) res.status(404).end();
+    });
+    stream.pipe(res);
+  } catch (err) {
+    console.error('[GET /api/media/file/:id] Error:', err?.message || err);
+    res.status(500).json({ success: false, message: 'Lỗi server' });
+  }
+});
+
 // Static uploads cho blog images
 const blogUploads = path.join(uploadsRoot, 'blogs');
 if (!fs.existsSync(blogUploads)) {
@@ -129,6 +175,15 @@ const uploadBlogImage = multer({
   storage: blogImageStorage,
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
 }).single('file');
+
+// --- Promotion banner images (lưu ảnh trực tiếp vào MongoDB) ---
+const promoImageStorage = multer.memoryStorage();
+const uploadPromoBannerImage = multer({
+  storage: promoImageStorage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+}).single('file');
+
+const promoBannerImagesCollection = () => mongoose.connection.db.collection('promotion_banner_images');
 
 // Collections chính trong MongoDB (giữ lại cho seed & một số thao tác đặc biệt)
 const usersCollection = () => mongoose.connection.db.collection('users');
@@ -785,37 +840,36 @@ app.get('/api/products/related/:id', async (req, res) => {
 // GET /api/store-locations/tree - Lấy cây địa điểm (Tỉnh -> Quận -> Phường)
 app.get('/api/store-locations/tree', async (req, res) => {
   try {
-    const doc = await locationsCollection().findOne();
-    if (!doc) return res.json([]);
+    // Lấy cây địa điểm trực tiếp từ collection store để chỉ trả khu vực có cửa hàng.
+    const col = storeSystemCollection();
+    const provincesRes = await col.aggregate([
+      { $group: { _id: { ma_tinh: '$dia_chi.ma_tinh', tinh_thanh: '$dia_chi.tinh_thanh' } } },
+      { $sort: { '_id.tinh_thanh': 1 } }
+    ]).toArray();
 
     const tree = [];
-    // Loại bỏ các field meta của MongoDB như _id
-    const codes = Object.keys(doc).filter(key => !key.startsWith('_'));
+    for (const p of provincesRes) {
+      if (!p._id?.ma_tinh || !p._id?.tinh_thanh) continue;
 
-    for (const code of codes) {
-      const tinh = doc[code];
-      const provinceItem = {
-        tinh: tinh.name,
-        quans: []
-      };
+      const wardsRes = await col.aggregate([
+        { $match: { 'dia_chi.ma_tinh': p._id.ma_tinh } },
+        { $group: { _id: { quan: '$dia_chi.quan_huyen', phuong: '$dia_chi.phuong_xa' } } },
+        { $sort: { '_id.quan': 1, '_id.phuong': 1 } }
+      ]).toArray();
 
-      if (tinh.quan_huyen) {
-        for (const qCode in tinh.quan_huyen) {
-          const quan = tinh.quan_huyen[qCode];
-          const quanItem = {
-            ten: quan.name,
-            phuongs: []
-          };
+      const byQuan = {};
+      wardsRes.forEach((w) => {
+        const q = String(w._id?.quan || '');
+        const ph = String(w._id?.phuong || '');
+        if (!q) return;
+        if (!byQuan[q]) byQuan[q] = [];
+        if (ph && !byQuan[q].includes(ph)) byQuan[q].push(ph);
+      });
 
-          if (quan.phuong_xa) {
-            for (const pCode in quan.phuong_xa) {
-              quanItem.phuongs.push(quan.phuong_xa[pCode].name);
-            }
-          }
-          provinceItem.quans.push(quanItem);
-        }
-      }
-      tree.push(provinceItem);
+      const quans = Object.keys(byQuan)
+        .sort()
+        .map((ten) => ({ ten, phuongs: byQuan[ten].sort() }));
+      tree.push({ tinh: String(p._id.tinh_thanh), quans });
     }
 
     res.json(tree);
@@ -834,20 +888,25 @@ app.get('/api/stores', async (req, res) => {
     const query = {};
 
     if (keyword) {
+      const esc = escapeRegExp(String(keyword));
       query.$or = [
-        { ten_cua_hang: { $regex: keyword, $options: 'i' } },
-        { dia_chi: { $regex: keyword, $options: 'i' } }
+        { ten_cua_hang: { $regex: esc, $options: 'i' } },
+        { 'dia_chi.dia_chi_day_du': { $regex: esc, $options: 'i' } },
+        { 'thong_tin_lien_he.so_dien_thoai': { $regex: esc, $options: 'i' } }
       ];
     }
 
     if (tinh_thanh && tinh_thanh !== 'Tất cả') {
-      query['dia_chi'] = { $regex: tinh_thanh, $options: 'i' };
+      const esc = escapeRegExp(String(tinh_thanh));
+      query['dia_chi.tinh_thanh'] = { $regex: `^${esc}$`, $options: 'i' };
     }
     if (quan_huyen && quan_huyen !== 'Tất cả') {
-      query['dia_chi'] = { $regex: quan_huyen, $options: 'i' };
+      const esc = escapeRegExp(String(quan_huyen));
+      query['dia_chi.quan_huyen'] = { $regex: `^${esc}$`, $options: 'i' };
     }
     if (phuong_xa && phuong_xa !== 'Tất cả') {
-      query['dia_chi'] = { $regex: phuong_xa, $options: 'i' };
+      const esc = escapeRegExp(String(phuong_xa));
+      query['dia_chi.phuong_xa'] = { $regex: `^${esc}$`, $options: 'i' };
     }
 
     const col = storeSystemCollection();
@@ -953,6 +1012,38 @@ app.get('/api/promotion-targets', async (req, res) => {
     res.json({ success: true, data: list });
   } catch (err) {
     console.error('[GET /api/promotion-targets] Error:', err);
+    res.status(500).json({ success: false, message: 'Lỗi server' });
+  }
+});
+
+// GET /api/promo-images/:token - lấy ảnh banner khuyến mãi theo token ngắn
+app.get('/api/promo-images/:token', async (req, res) => {
+  try {
+    const token = String(req.params.token || '').trim();
+    if (!token) return res.status(400).json({ success: false, message: 'Missing token' });
+
+    const doc = await promoBannerImagesCollection().findOne({ token });
+    if (!doc || !doc.data) return res.status(404).json({ success: false, message: 'Image not found' });
+
+    let buffer = doc.data;
+    if (doc.data && Buffer.isBuffer(doc.data)) {
+      buffer = doc.data;
+    } else if (doc.data && doc.data.buffer) {
+      // Some Mongo drivers may wrap BinData into an object containing ArrayBuffer.
+      const byteOffset = Number(doc.data.byteOffset || 0) || 0;
+      const byteLength = Number(doc.data.byteLength || doc.data.length || 0) || 0;
+      buffer = byteLength > 0
+        ? Buffer.from(doc.data.buffer, byteOffset, byteLength)
+        : Buffer.from(doc.data.buffer);
+    }
+
+    if (!Buffer.isBuffer(buffer)) return res.status(500).json({ success: false, message: 'Invalid image buffer' });
+
+    res.setHeader('Content-Type', doc.mimeType || 'image/jpeg');
+    res.setHeader('Cache-Control', 'public, max-age=86400');
+    res.end(buffer);
+  } catch (err) {
+    console.error('[GET /api/promo-images/:token] Error:', err);
     res.status(500).json({ success: false, message: 'Lỗi server' });
   }
 });
@@ -1164,6 +1255,107 @@ app.post('/api/orders', async (req, res) => {
         });
       } catch (e) {
         console.warn('[POST /api/orders] Cannot create notice:', e.message);
+      }
+    }
+
+    // Gửi email xác nhận cho khách vãng lai
+    if (!uid) {
+      try {
+        const customerEmail = (ship.email || '').trim();
+        if (customerEmail) {
+          const customerName = ship.fullName || ship.full_name || ship.name || '';
+          const orderItems = Array.isArray(orderDoc.item) ? orderDoc.item : [];
+          const itemsRows = orderItems.map((i) => {
+            const qty = Number(i.quantity) || 1;
+            const price = Number(i.price) || 0;
+            const lineTotal = qty * price;
+            return `
+              <tr>
+                <td style="padding:14px 12px; border-bottom:1px solid #e6e9ef; vertical-align:top;">
+                  <div style="font-size:14px; font-weight:500; color:#1f2937; line-height:1.4;">${(i.productName || i.product_name || i.sku || '').toString().slice(0, 120)}</div>
+                </td>
+                <td style="padding:14px 12px; border-bottom:1px solid #e6e9ef; text-align:center; white-space:nowrap; font-size:14px; color:#1f2937;">${qty}</td>
+                <td style="padding:14px 12px; border-bottom:1px solid #e6e9ef; text-align:right; white-space:nowrap; font-size:14px; color:#1f2937;">${price.toLocaleString('vi-VN')}đ</td>
+                <td style="padding:14px 12px; border-bottom:1px solid #e6e9ef; text-align:right; white-space:nowrap; font-size:14px; color:#1f2937; font-weight:600;">${lineTotal.toLocaleString('vi-VN')}đ</td>
+              </tr>
+            `;
+          }).join('');
+
+          const estimatedLabel = String(orderDoc.estimatedDelivery || '').trim() || 'Không có';
+          const isPickupAtPharmacy = !!orderDoc.atPharmacy;
+          const deliveryAddress = isPickupAtPharmacy
+            ? String(orderDoc.pharmacyAddress || '').trim()
+            : String(ship.address || '').trim();
+          const deliveryAddressLabel = deliveryAddress || 'Không có';
+          const addressTitle = isPickupAtPharmacy ? 'Nhà thuốc nhận hàng' : 'Địa chỉ nhận hàng';
+          const totalPay = Number(orderDoc.totalAmount) || 0;
+
+          const html = `
+            <div style="background:#f3f6fb; padding:28px 12px; font-family: Arial, sans-serif;">
+              <div style="max-width:760px; margin:0 auto; background:#ffffff; border-radius:16px; overflow:hidden; border:1px solid #e7eaf0;">
+                <div style="background:#00589F; padding:22px 28px;">
+                  <div style="font-size:42px; font-weight:800; color:#fff; line-height:1.2;">VitaCare</div>
+                  <div style="font-size:14px; color:#eaf4ff; margin-top:8px; line-height:1.3;">Xác nhận đặt hàng thành công</div>
+                </div>
+
+                <div style="padding:28px;">
+                  <div style="font-size:14px; color:#1f2937; line-height:1.5;">
+                    Xin chào <strong>${customerName ? customerName : 'khách hàng'}</strong>,
+                  </div>
+
+                  <div style="margin-top:18px; font-size:14px; color:#1f2937; line-height:1.5;">
+                    Đơn hàng <strong>${orderId}</strong> của bạn đã được đặt thành công và đang được xử lý.
+                  </div>
+
+                  <div style="margin-top:18px; background:#f7f8fb; border:1px solid #dfe4ec; border-radius:14px; padding:18px 20px;">
+                    <div style="font-size:14px; color:#1f2937; line-height:1.4; margin-bottom:8px;">
+                      <strong>Thời gian nhận hàng dự kiến:</strong> ${estimatedLabel}
+                    </div>
+                    <div style="font-size:14px; color:#1f2937; line-height:1.55; margin-bottom:8px;">
+                      <strong>${addressTitle}:</strong> ${deliveryAddressLabel}
+                    </div>
+                    <div style="font-size:14px; color:#1f2937; line-height:1.4;">
+                      <strong>Tổng thanh toán:</strong> ${totalPay.toLocaleString('vi-VN')}đ
+                    </div>
+                  </div>
+
+                  <div style="margin-top:20px; font-size:32px; font-weight:800; color:#1f2937;">Sản phẩm</div>
+
+                  <div style="margin-top:10px; border-top:1px solid #e6e9ef;">
+                    <table style="width:100%; border-collapse:collapse;">
+                      <thead>
+                        <tr>
+                          <th style="text-align:left; font-size:15px; color:#374151; font-weight:700; padding:12px; border-bottom:1px solid #e6e9ef;">Sản phẩm</th>
+                          <th style="text-align:center; font-size:15px; color:#374151; font-weight:700; padding:12px; border-bottom:1px solid #e6e9ef;">SL</th>
+                          <th style="text-align:right; font-size:15px; color:#374151; font-weight:700; padding:12px; border-bottom:1px solid #e6e9ef;">Đơn giá</th>
+                          <th style="text-align:right; font-size:15px; color:#374151; font-weight:700; padding:12px; border-bottom:1px solid #e6e9ef;">Thành tiền</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        ${itemsRows || `<tr><td colspan="4" style="padding:16px 12px; color:#6b7280; font-size:14px;">Không có sản phẩm</td></tr>`}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <div style="margin-top:20px; font-size:14px; color:#6b7280; line-height:1.55;">
+                    Cảm ơn bạn đã mua sắm tại VitaCare. Nếu cần hỗ trợ, vui lòng phản hồi email này hoặc liên hệ hotline.
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+
+          const mailOptions = {
+            from: 'vitacarehotro@gmail.com',
+            to: customerEmail,
+            subject: `[VitaCare] Xác nhận đặt hàng thành công - ${orderId}`,
+            html,
+          };
+
+          transporter.sendMail(mailOptions).catch(() => { });
+        }
+      } catch (mailErr) {
+        console.warn('[POST /api/orders] Send guest order confirmation mail error:', mailErr?.message || mailErr);
       }
     }
 
@@ -2375,13 +2567,25 @@ app.get('/api/stores', async (req, res) => {
     const limit = Math.min(100, Math.max(1, parseInt(req.query.limit, 10) || 8));
     const filter = {};
     if (tinh_thanh && tinh_thanh !== 'Tất cả') {
-      filter['dia_chi.tinh_thanh'] = tinh_thanh;
+      // Dùng regex để tránh lỗi mismatch do khác biệt unicode/whitespace
+      const esc = escapeRegExp(tinh_thanh);
+      filter['dia_chi.tinh_thanh'] = { $regex: `^${esc}$`, $options: 'i' };
     }
     if (quan_huyen && quan_huyen !== 'Tất cả') {
-      filter['dia_chi.quan_huyen'] = quan_huyen;
+      const esc = escapeRegExp(quan_huyen);
+      filter['dia_chi.quan_huyen'] = { $regex: `^${esc}$`, $options: 'i' };
     }
     if (phuong_xa && phuong_xa !== 'Tất cả') {
-      filter['dia_chi.phuong_xa'] = phuong_xa;
+      const esc = escapeRegExp(phuong_xa);
+      filter['dia_chi.phuong_xa'] = { $regex: `^${esc}$`, $options: 'i' };
+    }
+
+    if (String(req.query.debug || '') === '1') {
+      return res.json({
+        success: true,
+        received: { tinh_thanh, quan_huyen, phuong_xa },
+        filter,
+      });
     }
     if (keyword) {
       const esc = escapeRegExp(keyword);
@@ -5705,6 +5909,23 @@ app.post('/api/auth/register-otp', async (req, res) => {
   }
 });
 
+// POST /api/auth/check-phone-exists - Kiểm tra SĐT đã tồn tại trong database user chưa
+app.post('/api/auth/check-phone-exists', async (req, res) => {
+  try {
+    const { phone } = req.body || {};
+    const p = normalizePhone(phone);
+    if (!p || p.length < 9 || p.length > 11) {
+      return res.status(400).json({ success: false, message: 'Số điện thoại không hợp lệ.' });
+    }
+
+    const existing = await usersCollection().findOne({ phone: p });
+    return res.json({ success: true, exists: !!existing });
+  } catch (err) {
+    console.error('Check phone exists error:', err);
+    return res.status(500).json({ success: false, message: 'Lỗi máy chủ.' });
+  }
+});
+
 // POST /api/auth/register - Đăng ký tài khoản mới
 app.post('/api/auth/register', async (req, res) => {
   try {
@@ -6915,6 +7136,32 @@ app.delete('/api/admin/orders/:id', async (req, res) => {
   } catch (error) { res.status(500).json({ success: false, message: error.message }); }
 });
 
+// POST /api/admin/promotions/upload-banner-image - upload ảnh banner khuyến mãi vào MongoDB
+app.post('/api/admin/promotions/upload-banner-image', uploadPromoBannerImage, async (req, res) => {
+  try {
+    const file = req.file;
+    if (!file) return res.status(400).json({ success: false, message: 'Missing file' });
+
+    // Token base64url ~8-10 chars, dùng làm "link ngắn"
+    const token = crypto.randomBytes(6).toString('base64url');
+
+    await promoBannerImagesCollection().insertOne({
+      token,
+      mimeType: file.mimetype || 'image/jpeg',
+      data: file.buffer,
+      size: file.size,
+      originalName: file.originalname || '',
+      createdAt: new Date().toISOString()
+    });
+
+    const imageUrl = `/api/promo-images/${token}`;
+    res.status(201).json({ success: true, token, imageUrl });
+  } catch (err) {
+    console.error('[POST /api/admin/promotions/upload-banner-image] Error:', err);
+    res.status(500).json({ success: false, message: 'Lỗi server' });
+  }
+});
+
 app.get('/api/admin/promotions', async (req, res) => {
   try {
     const promotions = await PromotionModel.find().lean();
@@ -6957,9 +7204,59 @@ const sanitizePromotion = (p) => {
   return clean;
 };
 
+// Nếu admin dán data URL base64 => chuyển sang lưu ảnh trong Mongo và trả về link ngắn
+const normalizePromotionImagesToShortLinks = async (images) => {
+  if (!Array.isArray(images)) return images;
+
+  const out = [];
+  for (const raw of images) {
+    const value = String(raw || '').trim();
+    if (!value) continue;
+
+    // Giữ nguyên các URL đã ngắn hoặc đường dẫn bình thường
+    if (
+      value.startsWith('/api/promo-images/') ||
+      value.startsWith('http://') ||
+      value.startsWith('https://') ||
+      value.startsWith('/uploads/')
+    ) {
+      out.push(value);
+      continue;
+    }
+
+    // data:image/jpeg;base64,...
+    const m = value.match(/^data:(.+?);base64,(.+)$/);
+    if (m) {
+      const mimeType = m[1] || 'image/jpeg';
+      const b64 = m[2] || '';
+      const buffer = Buffer.from(b64, 'base64');
+      const token = crypto.randomBytes(6).toString('base64url');
+
+      await promoBannerImagesCollection().insertOne({
+        token,
+        mimeType,
+        data: buffer,
+        size: buffer.length,
+        originalName: '',
+        createdAt: new Date().toISOString()
+      });
+
+      out.push(`/api/promo-images/${token}`);
+      continue;
+    }
+
+    // Fallback: lưu nguyên giá trị
+    out.push(value);
+  }
+  return out;
+};
+
 app.post('/api/admin/promotions', async (req, res) => {
   try {
     const cleanBody = sanitizePromotion(req.body);
+    if (Array.isArray(cleanBody.images)) {
+      cleanBody.images = await normalizePromotionImagesToShortLinks(cleanBody.images);
+    }
     const item = new PromotionModel(cleanBody);
     const data = await item.save();
 
@@ -6993,6 +7290,9 @@ app.put('/api/admin/promotions/:id', async (req, res) => {
 
     const updateData = sanitizePromotion(req.body);
     delete updateData._id;
+    if (Array.isArray(updateData.images)) {
+      updateData.images = await normalizePromotionImagesToShortLinks(updateData.images);
+    }
 
     const unsetFields = {
       id: 1,

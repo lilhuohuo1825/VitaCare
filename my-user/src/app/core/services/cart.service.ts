@@ -58,6 +58,36 @@ export class CartService {
 
     private apiBase = 'http://localhost:3000';
 
+    /**
+     * Cart khách vãng lai lưu theo phiên.
+     * - Dùng `sessionStorage`.
+     * - Nếu còn dữ liệu cũ ở `localStorage`, migrate vào sessionStorage 1 lần khi đọc.
+     */
+    private readGuestCartRaw(): string | null {
+        try {
+            const sessionRaw = sessionStorage.getItem(GUEST_CART_KEY);
+            if (sessionRaw !== null) return sessionRaw;
+
+            const legacyLocalRaw = localStorage.getItem(GUEST_CART_KEY);
+            if (legacyLocalRaw) {
+                sessionStorage.setItem(GUEST_CART_KEY, legacyLocalRaw);
+                localStorage.removeItem(GUEST_CART_KEY);
+                return legacyLocalRaw;
+            }
+        } catch {
+            // ignore
+        }
+        return null;
+    }
+
+    private writeGuestCartRaw(raw: string): void {
+        try {
+            sessionStorage.setItem(GUEST_CART_KEY, raw);
+        } catch {
+            // ignore
+        }
+    }
+
     constructor(private http: HttpClient) { }
 
     private normalizeMediaUrl(src?: string | null): string {
@@ -238,12 +268,12 @@ export class CartService {
     }
 
     /**
-     * Lấy danh sách sản phẩm trong giỏ của khách (localStorage).
+     * Lấy danh sách sản phẩm trong giỏ của khách (sessionStorage).
      * Dùng khi khách chưa đăng nhập cần xem giỏ / đặt hàng.
      */
     getGuestCartItems(): CartItem[] {
         try {
-            const raw = localStorage.getItem(GUEST_CART_KEY);
+            const raw = this.readGuestCartRaw();
             const items = raw ? JSON.parse(raw) : [];
             if (!Array.isArray(items)) return [];
             return items.map((p: any) => ({
@@ -289,7 +319,7 @@ export class CartService {
     }
 
     /**
-     * Cập nhật giỏ hàng cho khách (localStorage).
+     * Cập nhật giỏ hàng cho khách (sessionStorage).
      */
     updateGuestCart(items: CartItem[]): void {
         try {
@@ -306,7 +336,7 @@ export class CartService {
                 slug: (i as any).slug,
                 stock: i.stock ?? 0,
             }));
-            localStorage.setItem(GUEST_CART_KEY, JSON.stringify(toStore));
+            this.writeGuestCartRaw(JSON.stringify(toStore));
             const totalQty = items.length;
             this._cartCount$.next(totalQty);
             this._cartUpdated$.next({ user_id: 'guest', items, itemCount: items.length, totalQuantity: totalQty });
@@ -315,9 +345,9 @@ export class CartService {
         }
     }
 
-    /** Fallback: lưu localStorage cho guest */
+    /** Fallback: lưu sessionStorage cho guest */
     private addItemToLocal(item: any, quantity: number): void {
-        const raw = localStorage.getItem(GUEST_CART_KEY);
+        const raw = this.readGuestCartRaw();
         let items: any[] = [];
         try {
             items = raw ? JSON.parse(raw) : [];
@@ -343,15 +373,24 @@ export class CartService {
             });
         }
 
-        localStorage.setItem(GUEST_CART_KEY, JSON.stringify(items));
+        this.writeGuestCartRaw(JSON.stringify(items));
 
         const totalQty = items.length;
         this._cartCount$.next(totalQty);
+
+        // Để Header dropdown cập nhật ngay cho guest
+        const guestItems = this.getGuestCartItems();
+        this._cartUpdated$.next({
+            user_id: 'guest',
+            items: guestItems,
+            itemCount: guestItems.length,
+            totalQuantity: guestItems.length,
+        });
     }
 
     /**
      * Nếu user đã login → trả 0, count sẽ được set đúng khi fetchCart() từ MongoDB.
-     * Nếu guest → đọc từ localStorage.
+     * Nếu guest → đọc từ sessionStorage.
      */
     private getInitialCartCount(): number {
         try {
@@ -363,7 +402,7 @@ export class CartService {
         } catch { /* ignore */ }
 
         try {
-            const raw = localStorage.getItem(GUEST_CART_KEY);
+            const raw = this.readGuestCartRaw();
             const items = raw ? JSON.parse(raw) : [];
             if (!Array.isArray(items)) return 0;
             return items.length;
