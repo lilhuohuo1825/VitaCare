@@ -63,41 +63,42 @@
             </button>
 
             <div class="dropdown-container">
-                <button class="btn btn-sm action-btn icon-text" (click)="toggleFilterDropdown()">
+                <button class="btn btn-sm action-btn icon-text"
+                    [class.active]="isFilterDropdownOpen || filterStatus !== 'all'" (click)="toggleFilterDropdown()">
                     <i class="bi bi-sliders"></i> Lọc
+                    <span class="selected-badge" *ngIf="filterStatus !== 'all'">1</span>
                 </button>
-                <div class="dropdown-menu-multilevel" *ngIf="isFilterDropdownOpen" [class.show]="isFilterDropdownOpen">
-                    <div class="dropdown-option" (click)="filterByStatus('all')"
-                        [class.active-item]="filterStatus === 'all'">
+                <div class="dropdown-menu-multilevel" *ngIf="isFilterDropdownOpen" [class.show]="isFilterDropdownOpen"
+                    (click)="$event.stopPropagation()">
+                    <label class="dropdown-option">
+                        <input type="radio" name="promo_status" [checked]="filterStatus === 'all'"
+                            (change)="filterByStatus('all')">
                         <span>Tất cả</span>
-                        <i class="bi bi-check2" *ngIf="filterStatus === 'all'"></i>
-                    </div>
-                    <div class="dropdown-option" (click)="filterByStatus('upcoming')"
-                        [class.active-item]="filterStatus === 'upcoming'">
+                    </label>
+                    <label class="dropdown-option">
+                        <input type="radio" name="promo_status" [checked]="filterStatus === 'upcoming'"
+                            (change)="filterByStatus('upcoming')">
                         <span>Sắp diễn ra</span>
-                        <i class="bi bi-check2" *ngIf="filterStatus === 'upcoming'"></i>
-                    </div>
-                    <div class="dropdown-option" (click)="filterByStatus('ongoing')"
-                        [class.active-item]="filterStatus === 'ongoing'">
+                    </label>
+                    <label class="dropdown-option">
+                        <input type="radio" name="promo_status" [checked]="filterStatus === 'ongoing'"
+                            (change)="filterByStatus('ongoing')">
                         <span>Đang diễn ra</span>
-                        <i class="bi bi-check2" *ngIf="filterStatus === 'ongoing'"></i>
-                    </div>
-                    <div class="dropdown-option" (click)="filterByStatus('ended')"
-                        [class.active-item]="filterStatus === 'ended'">
+                    </label>
+                    <label class="dropdown-option">
+                        <input type="radio" name="promo_status" [checked]="filterStatus === 'ended'"
+                            (change)="filterByStatus('ended')">
                         <span>Đã kết thúc</span>
-                        <i class="bi bi-check2" *ngIf="filterStatus === 'ended'"></i>
-                    </div>
+                    </label>
 
                     <div class="dropdown-divider"></div>
                     <div class="dropdown-actions">
                         <button class="btn btn-sm btn-clear-filter"
                             (click)="filterByStatus('all'); isFilterDropdownOpen = false">
-                            <i class="bi bi-trash"></i>
-                            <span>Xóa lọc</span>
+                            <i class="bi bi-trash"></i> Xóa lọc
                         </button>
                         <button class="btn btn-sm btn-close-filter" (click)="isFilterDropdownOpen = false">
-                            <i class="bi bi-x"></i>
-                            <span>Đóng</span>
+                            <i class="bi bi-x-lg"></i> Đóng
                         </button>
                     </div>
                 </div>
@@ -108,27 +109,32 @@
                 <i class="bi bi-trash"></i> Xóa
             </button>
 
-            <div class="dropdown-container">
+            <div class="dropdown-container" style="position: relative;">
                 <button class="btn btn-sm action-btn icon-text" (click)="toggleSortDropdown()">
                     <i class="bi bi-arrow-down-up"></i> Sắp xếp
                 </button>
-                <div class="dropdown-popup" *ngIf="isSortDropdownOpen">
-                    <div class="dropdown-header">
-                        <span class="dropdown-title">Sắp Xếp</span>
-                    </div>
-                    <div class="dropdown-body">
-                        <select class="form-control mb-2" [(ngModel)]="sortCriteria">
-                            <option value="date">Ngày bắt đầu</option>
-                            <option value="usage">Lượt sử dụng</option>
-                        </select>
-                        <select class="form-control" [(ngModel)]="sortDirection">
-                            <option value="desc">Giảm dần</option>
-                            <option value="asc">Tăng dần</option>
-                        </select>
-                    </div>
-                    <div class="dropdown-footer">
-                        <button class="btn btn-primary btn-sm" style="width: 100%;" (click)="applySort()">Áp
-                            dụng</button>
+                <div class="dropdown-popup sort-dropdown-menu" *ngIf="isSortDropdownOpen"
+                    (click)="$event.stopPropagation()">
+                    <div class="sort-options-list">
+                        <button (click)="sortCriteria = 'date'; sortDirection = 'desc'; applySort()"
+                            class="sort-option-btn"
+                            [class.active]="sortCriteria === 'date' && sortDirection === 'desc'">
+                            <i class="bi bi-calendar-event"></i> Ngày bắt đầu: Mới nhất
+                        </button>
+                        <button (click)="sortCriteria = 'date'; sortDirection = 'asc'; applySort()"
+                            class="sort-option-btn" [class.active]="sortCriteria === 'date' && sortDirection === 'asc'">
+                            <i class="bi bi-calendar"></i> Ngày bắt đầu: Cũ nhất
+                        </button>
+                        <button (click)="sortCriteria = 'usage'; sortDirection = 'desc'; applySort()"
+                            class="sort-option-btn"
+                            [class.active]="sortCriteria === 'usage' && sortDirection === 'desc'">
+                            <i class="bi bi-sort-numeric-down-alt"></i> Lượt sử dụng: Cao nhất
+                        </button>
+                        <button (click)="sortCriteria = 'usage'; sortDirection = 'asc'; applySort()"
+                            class="sort-option-btn"
+                            [class.active]="sortCriteria === 'usage' && sortDirection === 'asc'">
+                            <i class="bi bi-sort-numeric-down"></i> Lượt sử dụng: Thấp nhất
+                        </button>
                     </div>
                 </div>
             </div>

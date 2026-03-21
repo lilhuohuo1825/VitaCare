@@ -556,6 +556,12 @@
 /* ═══════════════════════════════════════════
    REGISTRATION (Borrowing Store System CSS)
 ═══════════════════════════════════════════ */
+.ht-register-container .form-control::placeholder {
+    color: var(--vc-main);
+    opacity: 1;
+    /* Override default browser opacity for placeholder */
+}
+
 .ht-reg-container {
     max-width: 600px;
     margin: 0 auto;

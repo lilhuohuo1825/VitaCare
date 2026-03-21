@@ -699,18 +699,18 @@ input[type="checkbox"] {
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
     min-width: 220px;
     padding: 8px 0;
-    opacity: 0;
-    visibility: hidden;
+    display: none;
+    /* Changed to display: none to prevent scroll height inflation */
     transform: translateX(-10px);
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 1001;
-    display: block;
     overflow: visible;
 }
 
 .dropdown-item-parent:hover>.dropdown-submenu {
-    opacity: 1;
-    visibility: visible;
+    display: block;
+    /* Added to show popup */
+    /* Remove opacity/visibility to rely purely on display */
     transform: translateX(0);
 }
 
@@ -740,7 +740,7 @@ input[type="checkbox"] {
 }
 
 .dropdown-submenu::-webkit-scrollbar-thumb {
-    background: rgba(123, 58, 150, 0.25);
+    background: #daecff;
     border-radius: 999px;
 }
 
@@ -1111,7 +1111,9 @@ input[type="checkbox"] {
 }
 
 .cat-submenu-l2 {
-    max-height: 70vh;
+    max-height: 205px;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .cat-submenu-l3 {

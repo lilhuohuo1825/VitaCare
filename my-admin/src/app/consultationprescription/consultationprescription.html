@@ -47,29 +47,30 @@
         </div>
     </div>
 
-    <div class="filter-bar">
-        <div class="search-box">
-            <i class="bi bi-search"></i>
-            <input type="text" placeholder="Tìm kiếm đơn thuốc, khách hàng, số điện thoại..." [(ngModel)]="searchText"
-                (input)="onSearchChange()">
+    <div class="filter-bar flex items-center justify-between py-4">
+        <div class="flex items-center gap-4">
+            <div class="search-wrapper">
+                <input type="text" class="search-input" placeholder="Tìm kiếm đơn thuốc, khách hàng, số điện thoại..."
+                    [(ngModel)]="searchText" (input)="onSearchChange()">
+                <i class="bi bi-search search-icon"></i>
+            </div>
         </div>
 
-        <div class="filter-actions">
+        <div class="actions-group">
             <!-- Filter Dropdown -->
             <div class="dropdown-container">
-                <button class="btn-action" [class.active]="showFilterDropdown || activeFilterCount > 0"
-                    (click)="toggleFilterDropdown($event)">
-                    <i class="bi bi-funnel"></i>
-                    <span>Lọc</span>
+                <button class="btn btn-sm action-btn icon-text"
+                    [class.active]="showFilterDropdown || activeFilterCount > 0" (click)="toggleFilterDropdown($event)">
+                    <i class="bi bi-sliders"></i> Lọc
                     <span class="selected-badge" *ngIf="activeFilterCount > 0">{{ activeFilterCount }}</span>
-                    <i class="bi bi-chevron-down ms-1" style="font-size: 10px;"></i>
                 </button>
 
-                <div class="dropdown-menu-multilevel" *ngIf="showFilterDropdown" (click)="$event.stopPropagation()">
+                <div class="dropdown-menu-multilevel" *ngIf="showFilterDropdown" [class.show]="showFilterDropdown"
+                    (click)="$event.stopPropagation()">
                     <div class="dropdown-item-parent">
                         <div class="dropdown-item">
                             <span>Trạng thái đơn thuốc</span>
-                            <span class="arrow-right">›</span>
+                            <span style="font-size: 16px; color: #ccc; line-height: 1;">‹</span>
                         </div>
                         <div class="dropdown-submenu">
                             <label class="dropdown-option">
@@ -103,7 +104,7 @@
                     <div class="dropdown-item-parent">
                         <div class="dropdown-item">
                             <span>Có sản phẩm đi kèm</span>
-                            <span class="arrow-right">›</span>
+                            <span style="font-size: 16px; color: #ccc; line-height: 1;">‹</span>
                         </div>
                         <div class="dropdown-submenu">
                             <label class="dropdown-option">
@@ -122,7 +123,7 @@
                     <div class="dropdown-item-parent">
                         <div class="dropdown-item">
                             <span>Hình ảnh đi kèm</span>
-                            <span class="arrow-right">›</span>
+                            <span style="font-size: 16px; color: #ccc; line-height: 1;">‹</span>
                         </div>
                         <div class="dropdown-submenu">
                             <label class="dropdown-option">
@@ -140,31 +141,33 @@
 
                     <div class="dropdown-divider"></div>
                     <div class="dropdown-actions">
-                        <button class="btn-clear-filter" (click)="clearAllFilters()">
-                            <i class="bi bi-trash"></i>
-                            <span>Xóa tất cả bộ lọc</span>
+                        <button class="btn btn-sm btn-clear-filter" (click)="clearAllFilters()">
+                            <i class="bi bi-trash"></i> Xóa lọc
+                        </button>
+                        <button class="btn btn-sm btn-close-filter" (click)="showFilterDropdown = false">
+                            <i class="bi bi-x-lg"></i> Đóng
                         </button>
                     </div>
                 </div>
             </div>
 
             <!-- Sort Dropdown -->
-            <div class="dropdown-container">
-                <button class="btn-action" [class.active]="showSortDropdown" (click)="toggleSortDropdown($event)">
-                    <i class="bi bi-sort-down"></i>
-                    <span>Sắp xếp</span>
-                    <i class="bi bi-chevron-down ms-1" style="font-size: 10px;"></i>
+            <div class="dropdown-container" style="position: relative;">
+                <button class="btn btn-sm action-btn icon-text" (click)="toggleSortDropdown($event)">
+                    <i class="bi bi-arrow-down-up"></i> Sắp xếp
                 </button>
 
-                <div class="dropdown-menu-multilevel dropdown-menu-sort" *ngIf="showSortDropdown"
+                <div class="dropdown-popup sort-dropdown-menu" *ngIf="showSortDropdown"
                     (click)="$event.stopPropagation()">
-                    <div class="sort-option" [class.active]="currentSort === 'newest'" (click)="applySort('newest')">
-                        <span class="sort-option-label">Ngày gửi (Mới nhất)</span>
-                        <span class="sort-option-desc">Đơn thuốc mới nhất sẽ hiện lên đầu</span>
-                    </div>
-                    <div class="sort-option" [class.active]="currentSort === 'oldest'" (click)="applySort('oldest')">
-                        <span class="sort-option-label">Ngày gửi (Cũ nhất)</span>
-                        <span class="sort-option-desc">Đơn thuốc cũ nhất sẽ hiện lên đầu</span>
+                    <div class="sort-options-list">
+                        <button (click)="applySort('newest')" class="sort-option-btn"
+                            [class.active]="currentSort === 'newest'">
+                            <i class="bi bi-calendar-event"></i> Ngày gửi: Mới nhất
+                        </button>
+                        <button (click)="applySort('oldest')" class="sort-option-btn"
+                            [class.active]="currentSort === 'oldest'">
+                            <i class="bi bi-calendar"></i> Ngày gửi: Cũ nhất
+                        </button>
                     </div>
                 </div>
             </div>
@@ -209,134 +212,139 @@
             </tbody>
         </table>
     </div>
-<!-- Modal -->
-<div class="modal-wrapper" *ngIf="isModalOpen">
-    <div class="modal-backdrop" (click)="closeModal()"></div>
-    <div class="modal-content">
-        <div class="modal-header">
-            <div class="header-titles">
-                <h5 class="modal-title">MÃ ĐƠN THUỐC <i class="bi bi-pencil"
-                        style="font-size: 14px; color: var(--color-text-secondary); cursor: pointer;"></i></h5>
-                <span class="modal-subtitle">{{ formatDate(selectedPrescription?.createdAt) }}</span>
+    <!-- Modal -->
+    <div class="modal-wrapper" *ngIf="isModalOpen">
+        <div class="modal-backdrop" (click)="closeModal()"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="header-titles">
+                    <h5 class="modal-title">MÃ ĐƠN THUỐC <i class="bi bi-pencil"
+                            style="font-size: 14px; color: var(--color-text-secondary); cursor: pointer;"></i></h5>
+                    <span class="modal-subtitle">{{ formatDate(selectedPrescription?.createdAt) }}</span>
+                </div>
+                <button type="button" class="close-btn" (click)="closeModal()">&times;</button>
             </div>
-            <button type="button" class="close-btn" (click)="closeModal()">&times;</button>
-        </div>
-        <div class="modal-body scrollable">
-            <div class="info-section">
-                <h6 style="color: var(--color-text-primary); font-weight: 600; margin-bottom: 5px;">Thông tin liên hệ
-                </h6>
-                <p style="margin: 0; color: var(--color-text-secondary);">{{ selectedPrescription?.full_name || 'Khách
-                    vãng lai' }}</p>
-                <p style="margin: 0; color: var(--color-text-secondary);">{{ selectedPrescription?.phone || '-' }}</p>
-            </div>
-
-            <div class="form-group mt-3" style="margin-top: 15px;">
-                <label
-                    style="color: var(--color-text-primary); font-weight: 600; display: block; margin-bottom: 8px;">Ghi
-                    chú:</label>
-                <textarea class="form-control" rows="3" disabled
-                    style="width: 100%; border-radius: 6px; border: 1px solid var(--color-neutral-40); padding: 10px; resize: none; background-color: var(--color-bg-secondary); color: var(--color-text-primary);">{{ selectedPrescription?.note }}</textarea>
-            </div>
-
-            <div class="list-section mt-3" style="margin-top: 20px;">
-                <label
-                    style="color: var(--color-text-primary); font-weight: 600; display: block; margin-bottom: 8px;">Danh
-                    sách cần tư
-                    vấn</label>
-
-                <div class="item-card" *ngIf="selectedPrescription?.images?.length > 0"
-                    style="display: flex; align-items: center; border-bottom: 1px solid var(--color-neutral-30); padding: 10px 0;">
-                    <div class="img-placeholder"
-                        style="width: 40px; height: 40px; border-radius: 4px; overflow: hidden; display: flex; justify-content: center; align-items: center; margin-right: 15px; background: #e0e0e0;">
-                        <img *ngIf="selectedPrescription?.images?.[0]" [src]="selectedPrescription?.images?.[0]"
-                            alt="Đơn thuốc" style="width: 100%; height: 100%; object-fit: cover;">
-                        <i *ngIf="!selectedPrescription?.images?.[0]" class="bi bi-image"
-                            style="color: var(--color-text-tertiary);"></i>
-                    </div>
-                    <div class="item-info" style="flex: 1; display: flex; flex-direction: column;">
-                        <span class="item-name"
-                            style="color: var(--color-text-primary); font-weight: 500; margin-bottom: 2px;">Hình ảnh đơn
-                            thuốc</span>
-                        <span style="font-size: 12px; color: var(--color-text-tertiary);">
-                            {{ selectedPrescription?.images?.length }} hình ảnh được đính kèm
-                        </span>
-                    </div>
+            <div class="modal-body scrollable">
+                <div class="info-section">
+                    <h6 style="color: var(--color-text-primary); font-weight: 600; margin-bottom: 5px;">Thông tin liên
+                        hệ
+                    </h6>
+                    <p style="margin: 0; color: var(--color-text-secondary);">{{ selectedPrescription?.full_name ||
+                        'Khách
+                        vãng lai' }}</p>
+                    <p style="margin: 0; color: var(--color-text-secondary);">{{ selectedPrescription?.phone || '-' }}
+                    </p>
                 </div>
 
-                <div class="item-card" *ngFor="let med of selectedPrescription?.medicines_requested; let i = index"
-                    style="display: flex; align-items: center; border-bottom: 1px solid var(--color-neutral-30); padding: 10px 0;">
-                    <div class="img-placeholder"
-                        style="width: 40px; height: 40px; border-radius: 4px; overflow: hidden; display: flex; justify-content: center; align-items: center; margin-right: 15px; background: #e0e0e0;">
-                        <img *ngIf="med?.image" [src]="med.image" [alt]="med.name"
-                            style="width: 100%; height: 100%; object-fit: cover;">
-                        <i *ngIf="!med?.image" class="bi bi-box" style="color: var(--color-text-tertiary);"></i>
-                    </div>
-                    <div class="item-info"
-                        style="flex: 1; display: flex; justify-content: space-between; align-items: center;">
-                        <div style="display: flex; flex-direction: column;">
+                <div class="form-group mt-3" style="margin-top: 15px;">
+                    <label
+                        style="color: var(--color-text-primary); font-weight: 600; display: block; margin-bottom: 8px;">Ghi
+                        chú:</label>
+                    <textarea class="form-control" rows="3" disabled
+                        style="width: 100%; border-radius: 6px; border: 1px solid var(--color-neutral-40); padding: 10px; resize: none; background-color: var(--color-bg-secondary); color: var(--color-text-primary);">{{ selectedPrescription?.note }}</textarea>
+                </div>
+
+                <div class="list-section mt-3" style="margin-top: 20px;">
+                    <label
+                        style="color: var(--color-text-primary); font-weight: 600; display: block; margin-bottom: 8px;">Danh
+                        sách cần tư
+                        vấn</label>
+
+                    <div class="item-card" *ngIf="selectedPrescription?.images?.length > 0"
+                        style="display: flex; align-items: center; border-bottom: 1px solid var(--color-neutral-30); padding: 10px 0;">
+                        <div class="img-placeholder"
+                            style="width: 40px; height: 40px; border-radius: 4px; overflow: hidden; display: flex; justify-content: center; align-items: center; margin-right: 15px; background: #e0e0e0;">
+                            <img *ngIf="selectedPrescription?.images?.[0]" [src]="selectedPrescription?.images?.[0]"
+                                alt="Đơn thuốc" style="width: 100%; height: 100%; object-fit: cover;">
+                            <i *ngIf="!selectedPrescription?.images?.[0]" class="bi bi-image"
+                                style="color: var(--color-text-tertiary);"></i>
+                        </div>
+                        <div class="item-info" style="flex: 1; display: flex; flex-direction: column;">
                             <span class="item-name"
-                                style="color: var(--color-text-primary); font-weight: 500; margin-bottom: 2px;">
-                                {{ med?.name || ('Tên sản phẩm ' + (i + 1)) }}
+                                style="color: var(--color-text-primary); font-weight: 500; margin-bottom: 2px;">Hình ảnh
+                                đơn
+                                thuốc</span>
+                            <span style="font-size: 12px; color: var(--color-text-tertiary);">
+                                {{ selectedPrescription?.images?.length }} hình ảnh được đính kèm
                             </span>
-                            <span *ngIf="med?.sku"
-                                style="font-size: 12px; color: var(--color-text-tertiary);">SKU: {{ med.sku }}</span>
+                        </div>
+                    </div>
+
+                    <div class="item-card" *ngFor="let med of selectedPrescription?.medicines_requested; let i = index"
+                        style="display: flex; align-items: center; border-bottom: 1px solid var(--color-neutral-30); padding: 10px 0;">
+                        <div class="img-placeholder"
+                            style="width: 40px; height: 40px; border-radius: 4px; overflow: hidden; display: flex; justify-content: center; align-items: center; margin-right: 15px; background: #e0e0e0;">
+                            <img *ngIf="med?.image" [src]="med.image" [alt]="med.name"
+                                style="width: 100%; height: 100%; object-fit: cover;">
+                            <i *ngIf="!med?.image" class="bi bi-box" style="color: var(--color-text-tertiary);"></i>
+                        </div>
+                        <div class="item-info"
+                            style="flex: 1; display: flex; justify-content: space-between; align-items: center;">
+                            <div style="display: flex; flex-direction: column;">
+                                <span class="item-name"
+                                    style="color: var(--color-text-primary); font-weight: 500; margin-bottom: 2px;">
+                                    {{ med?.name || ('Tên sản phẩm ' + (i + 1)) }}
+                                </span>
+                                <span *ngIf="med?.sku" style="font-size: 12px; color: var(--color-text-tertiary);">SKU:
+                                    {{ med.sku }}</span>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="form-group mt-3" style="margin-top: 20px; border-top: 1px solid #f0f0f0; padding-top: 15px;">
-                <label
-                    style="color: var(--color-text-primary); font-weight: 600; display: block; margin-bottom: 8px;">Phân
-                    dược sĩ</label>
-                <select class="form-control" [(ngModel)]="editedPharmacistId"
-                    style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--color-neutral-40); outline: none;">
-                    <option value="">Chọn dược sĩ</option>
-                    <option *ngFor="let p of pharmacists" [value]="p._id">Dược sĩ {{ p.pharmacistName }}</option>
-                </select>
+                <div class="form-group mt-3"
+                    style="margin-top: 20px; border-top: 1px solid #f0f0f0; padding-top: 15px;">
+                    <label
+                        style="color: var(--color-text-primary); font-weight: 600; display: block; margin-bottom: 8px;">Phân
+                        dược sĩ</label>
+                    <select class="form-control" [(ngModel)]="editedPharmacistId"
+                        style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--color-neutral-40); outline: none;">
+                        <option value="">Chọn dược sĩ</option>
+                        <option *ngFor="let p of pharmacists" [value]="p._id">Dược sĩ {{ p.pharmacistName }}</option>
+                    </select>
+                </div>
             </div>
-        </div>
-        <div class="modal-footer"
-            style="display: flex; justify-content: flex-end; gap: 10px; padding: 15px 20px; background-color: var(--color-bg-secondary); border-top: none; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px;">
-            <button type="button" class="btn btn-cancel" (click)="closeModal()"
-                style="padding: 8px 16px; border: 1px solid var(--color-neutral-40); background-color: var(--color-bg-secondary); color: var(--color-text-primary); border-radius: 6px; cursor: pointer;">Hủy</button>
-            <button type="button" id="btn-submit-prescription" class="btn btn-primary" (click)="onPrimaryButtonClick()"
-                [disabled]="isSaving"
-                style="padding: 10px 24px; border: none; background: #6a1b9a; color: white; border-radius: 8px; cursor: pointer; font-weight: 600; box-shadow: 0 4px 10px rgba(106, 27, 154, 0.2); transition: all 0.2s; min-width: 140px;"
-                [style.opacity]="isSaving ? '0.7' : '1'" [style.cursor]="isSaving ? 'not-allowed' : 'pointer'">
-                <span *ngIf="!isSaving">{{ primaryButtonLabel }}</span>
-                <span *ngIf="isSaving"><i class="bi bi-arrow-repeat spin"></i> Đang gửi...</span>
-            </button>
+            <div class="modal-footer"
+                style="display: flex; justify-content: flex-end; gap: 10px; padding: 15px 20px; background-color: var(--color-bg-secondary); border-top: none; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px;">
+                <button type="button" class="btn btn-cancel" (click)="closeModal()"
+                    style="padding: 8px 16px; border: 1px solid var(--color-neutral-40); background-color: var(--color-bg-secondary); color: var(--color-text-primary); border-radius: 6px; cursor: pointer;">Hủy</button>
+                <button type="button" id="btn-submit-prescription" class="btn btn-primary"
+                    (click)="onPrimaryButtonClick()" [disabled]="isSaving"
+                    style="padding: 10px 24px; border: none; background: #6a1b9a; color: white; border-radius: 8px; cursor: pointer; font-weight: 600; box-shadow: 0 4px 10px rgba(106, 27, 154, 0.2); transition: all 0.2s; min-width: 140px;"
+                    [style.opacity]="isSaving ? '0.7' : '1'" [style.cursor]="isSaving ? 'not-allowed' : 'pointer'">
+                    <span *ngIf="!isSaving">{{ primaryButtonLabel }}</span>
+                    <span *ngIf="isSaving"><i class="bi bi-arrow-repeat spin"></i> Đang gửi...</span>
+                </button>
+            </div>
         </div>
     </div>
-</div>
 
-<!-- Notification Toast (luôn hiển thị ở góc phải, không phụ thuộc modal) -->
-<div class="notification-toast" *ngIf="notification.show" [ngClass]="notification.type">
-    <i class="bi" [ngClass]="{
+    <!-- Notification Toast (luôn hiển thị ở góc phải, không phụ thuộc modal) -->
+    <div class="notification-toast" *ngIf="notification.show" [ngClass]="notification.type">
+        <i class="bi" [ngClass]="{
         'bi-check-circle-fill': notification.type === 'success',
         'bi-x-circle-fill': notification.type === 'error',
         'bi-exclamation-triangle-fill': notification.type === 'warning'
     }"></i>
-    <span>{{ notification.message }}</span>
-</div>
-
-<!-- Dialog chọn trạng thái khi đang tư vấn -->
-<div class="status-dialog-backdrop" *ngIf="statusDialog.show">
-    <div class="status-dialog-card">
-        <h4 class="status-dialog-title">Cập nhật trạng thái đơn thuốc</h4>
-        <p class="status-dialog-message">
-            Vui lòng chọn kết quả sau khi liên hệ với khách hàng cho đơn
-            <strong>{{ selectedPrescription?.prescriptionId }}</strong>.
-        </p>
-        <div class="status-dialog-actions">
-            <button type="button" class="btn btn-secondary" (click)="markAsUnreachable()">
-                Chưa thể liên hệ
-            </button>
-            <button type="button" class="btn btn-primary" (click)="markAsContacted()">
-                Đã liên hệ
-            </button>
-        </div>
-        <button type="button" class="status-dialog-close" (click)="closeStatusDialog()">&times;</button>
+        <span>{{ notification.message }}</span>
     </div>
-</div>
+
+    <!-- Dialog chọn trạng thái khi đang tư vấn -->
+    <div class="status-dialog-backdrop" *ngIf="statusDialog.show">
+        <div class="status-dialog-card">
+            <h4 class="status-dialog-title">Cập nhật trạng thái đơn thuốc</h4>
+            <p class="status-dialog-message">
+                Vui lòng chọn kết quả sau khi liên hệ với khách hàng cho đơn
+                <strong>{{ selectedPrescription?.prescriptionId }}</strong>.
+            </p>
+            <div class="status-dialog-actions">
+                <button type="button" class="btn btn-secondary" (click)="markAsUnreachable()">
+                    Chưa thể liên hệ
+                </button>
+                <button type="button" class="btn btn-primary" (click)="markAsContacted()">
+                    Đã liên hệ
+                </button>
+            </div>
+            <button type="button" class="status-dialog-close" (click)="closeStatusDialog()">&times;</button>
+        </div>
+    </div>
