@@ -3,6 +3,7 @@ import {
   ElementRef,
   ViewChild,
   inject,
+  ChangeDetectorRef,
   Output,
   EventEmitter,
   Input,
@@ -14,6 +15,7 @@ import { OrderService } from '../../../core/services/order.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { CartService, CartItem } from '../../../core/services/cart.service';
 import { CartSidebarService } from '../../../core/services/cart-sidebar.service';
+import { CoinService } from '../../../core/services/coin.service';
 
 interface OrderProduct {
   id: string;
@@ -90,6 +92,8 @@ export class OrderDetailAcc {
   private toast = inject(ToastService);
   private cartService = inject(CartService);
   private cartSidebar = inject(CartSidebarService);
+  private coinService = inject(CoinService);
+  private cdr = inject(ChangeDetectorRef);
 
   @ViewChild('searchInput') searchInput?: ElementRef;
   @Output() close = new EventEmitter<void>();
@@ -106,6 +110,39 @@ export class OrderDetailAcc {
   // Nested Modals
   showCancelOrderModal = false;
   showConfirmReceivedModal = false;
+
+  // Popup nhận xu từ đơn hàng (y chang luồng remind)
+  @ViewChild('orderDetailClaimBurstBtn') orderDetailClaimBurstBtn?: ElementRef<HTMLButtonElement>;
+  showOrderCoinClaimPopup = false;
+  orderCoinClaimAmount = 0;
+  orderCoinClaimOrderCode = '';
+  orderCoinClaimInProgress = false;
+
+  showOrderFlyingCoin = false;
+  flyStartX = 0;
+  flyStartY = 0;
+  flyOffsetPath = "path('M 0 0 Q 0 0 0 0')";
+  private pendingCoinRewardOrder: Order | null = null;
+
+  private orderCoinClaimKey(order: Order): string {
+    return `vc_order_received_claimed_${order.orderNumber}`;
+  }
+
+  isOrderCoinsClaimed(order: Order): boolean {
+    try {
+      return localStorage.getItem(this.orderCoinClaimKey(order)) === '1';
+    } catch {
+      return false;
+    }
+  }
+
+  private setOrderCoinsClaimed(order: Order): void {
+    try {
+      localStorage.setItem(this.orderCoinClaimKey(order), '1');
+    } catch {
+      // ignore
+    }
+  }
 
   // Open modal with orders data
   openModal(orders: Order[], selectedOrderId?: string): void {
@@ -347,8 +384,20 @@ export class OrderDetailAcc {
       // Sử dụng orderNumber (order_id trên MongoDB) thay vì _id
       await this.orderService.confirmReceived(this.selectedOrder.orderNumber).toPromise();
       this.toast.showSuccess('Đã xác nhận nhận hàng thành công');
+      const rewardXU = this.getReceivedRewardXU(this.selectedOrder);
 
-      // Update order status
+      // UI: hiện popup nhận xu trước khi chuyển trạng thái
+      if (rewardXU > 0 && !this.isOrderCoinsClaimed(this.selectedOrder)) {
+        this.pendingCoinRewardOrder = this.selectedOrder;
+        this.orderCoinClaimAmount = rewardXU;
+        this.orderCoinClaimOrderCode = this.selectedOrder.orderNumber;
+        this.showOrderCoinClaimPopup = true;
+
+        this.closeConfirmReceivedModal();
+        return;
+      }
+
+      // Không thưởng hoặc đã claim: chuyển trạng thái ngay
       this.selectedOrder.status = 'unreview';
       const orderIndex = this.allOrders.findIndex(o => o.id === this.selectedOrder!.id);
       if (orderIndex !== -1) {
@@ -356,13 +405,116 @@ export class OrderDetailAcc {
       }
 
       this.closeConfirmReceivedModal();
-      // Reload lại trang để cập nhật trạng thái đơn hàng, sau đó user có thể tự vào mục đánh giá nếu muốn
       this.closeDetailModal();
-      window.location.reload();
     } catch (error) {
       console.error('Error confirming received:', error);
       this.toast.showError('Có lỗi xảy ra khi xác nhận nhận hàng');
     }
+  }
+
+  // +1% giá trị đơn hàng khi user xác nhận đã nhận hàng
+  getReceivedRewardXU(order: Order | null | undefined): number {
+    const total = Number(order?.totalAmount ?? 0);
+    if (!Number.isFinite(total) || total <= 0) return 0;
+    return Math.floor(total * 0.01);
+  }
+
+  closeOrderCoinClaimPopup(): void {
+    this.showOrderCoinClaimPopup = false;
+  }
+
+  async claimOrderCoins(): Promise<void> {
+    if (!this.pendingCoinRewardOrder) return;
+    if (this.orderCoinClaimInProgress) return;
+
+    const order = this.pendingCoinRewardOrder;
+    const rewardXU = this.getReceivedRewardXU(order);
+    if (rewardXU <= 0) {
+      this.pendingCoinRewardOrder = null;
+      this.closeOrderCoinClaimPopup();
+      return;
+    }
+
+    if (this.isOrderCoinsClaimed(order)) {
+      order.status = 'unreview';
+      const orderIndex = this.allOrders.findIndex(o => o.id === order.id);
+      if (orderIndex !== -1) this.allOrders[orderIndex].status = 'unreview';
+      this.pendingCoinRewardOrder = null;
+      this.closeOrderCoinClaimPopup();
+      return;
+    }
+
+    this.orderCoinClaimInProgress = true;
+
+    const uid = String(this.orderService.getCustomerID() || '').trim();
+    if (!uid || uid === 'guest') {
+      this.orderCoinClaimInProgress = false;
+      this.toast.showError('Không xác định được tài khoản để cộng xu.');
+      return;
+    }
+
+    try {
+      await this.coinService.applyOrderReward(order.orderNumber, rewardXU, uid);
+    } catch (e) {
+      this.orderCoinClaimInProgress = false;
+      this.toast.showError('Cộng xu thất bại, vui lòng thử lại.');
+      return;
+    }
+
+    this.setOrderCoinsClaimed(order);
+
+    this.prepareFlyingCoinTargetFromClaimBtn();
+    // Sau khi có toạ độ, mới tắt popup để không mất vị trí nút claim
+    this.closeOrderCoinClaimPopup();
+    this.showOrderFlyingCoin = true;
+    this.cdr.detectChanges();
+
+    setTimeout(() => {
+      this.showOrderFlyingCoin = false;
+      this.orderCoinClaimInProgress = false;
+
+      if (this.pendingCoinRewardOrder) {
+        this.pendingCoinRewardOrder.status = 'unreview';
+        const orderIndex = this.allOrders.findIndex(o => o.id === this.pendingCoinRewardOrder?.id);
+        if (orderIndex !== -1) this.allOrders[orderIndex].status = 'unreview';
+      }
+      this.pendingCoinRewardOrder = null;
+    }, 2000);
+  }
+
+  private prepareFlyingCoinTargetFromClaimBtn(): void {
+    const btn = this.orderDetailClaimBurstBtn?.nativeElement;
+    if (!btn || typeof window === 'undefined') return;
+
+    const COIN_SIZE = 80;
+    const HALF = COIN_SIZE / 2;
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+
+    const claimRect = btn.getBoundingClientRect();
+
+    const coinContainer = document.querySelector('.coin-bag-container') as HTMLElement | null;
+    // Lấy theo toàn bộ container cho chuẩn "rơi vào giỏ"
+    const coinRect = coinContainer?.getBoundingClientRect?.();
+
+    const startX = claimRect.left + claimRect.width / 2 - HALF;
+    const startY = claimRect.top + claimRect.height / 2 - HALF;
+
+    const endX = coinRect ? coinRect.left + coinRect.width / 2 - HALF : w - 17 - HALF;
+    const endY = coinRect ? coinRect.top + coinRect.height / 2 - HALF : h - 260;
+
+    const dx = endX - startX;
+    const dy = endY - startY;
+    const peakY = Math.min(startY, endY) - 160;
+    const ctrlX = startX + dx / 2;
+    const ctrlY = peakY;
+
+    const ctrlRelX = ctrlX - startX;
+    const ctrlRelY = ctrlY - startY;
+
+    this.flyStartX = startX;
+    this.flyStartY = startY;
+    this.flyOffsetPath = `path('M 0 0 Q ${ctrlRelX} ${ctrlRelY} ${dx} ${dy}')`;
   }
 
   onRate(): void {

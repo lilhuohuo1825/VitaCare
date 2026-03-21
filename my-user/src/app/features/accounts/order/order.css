@@ -141,6 +141,17 @@
   margin: 0;
   max-height: 360px;
   overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+.order-product-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.order-product-list::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 999px;
 }
 
 .order-product-row {
@@ -826,15 +837,109 @@
   flex-shrink: 0;
 }
 
+.order-vitaxu-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fff8db;
+  border: 1px solid #f3d26a;
+  border-radius: 10px;
+  padding: 7px 10px;
+}
+
+.order-vitaxu-row-inline {
+  margin-bottom: 6px;
+}
+
+.order-vitaxu-left {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 8px;
+  color: #a86a00;
+  font-weight: 600;
+}
+
+.order-vitaxu-left .bi-coin {
+  color: #d18a00;
+  margin-top: 2px;
+}
+
+.order-vitaxu-meta {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.order-vitaxu-meta small {
+  font-size: 11px;
+  color: #9ca3af;
+  font-weight: 500;
+}
+
+.order-vitaxu-right {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.order-vitaxu-amount {
+  font-size: 13px;
+  color: var(--color-warning, #F2994A);
+  font-weight: 700;
+}
+
+.order-vitaxu-switch {
+  position: relative;
+  display: inline-block;
+  width: 38px;
+  height: 22px;
+}
+
+.order-vitaxu-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.order-vitaxu-switch .slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background-color: #d1d5db;
+  transition: 0.2s;
+  border-radius: 999px;
+}
+
+.order-vitaxu-switch .slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 3px;
+  top: 3px;
+  background-color: #fff;
+  transition: 0.2s;
+  border-radius: 50%;
+}
+
+.order-vitaxu-switch input:checked + .slider {
+  background-color: var(--color-primary);
+}
+
+.order-vitaxu-switch input:checked + .slider:before {
+  transform: translateX(16px);
+}
+
 /* Section chung: Chi tiết thanh toán + checkbox + Mua hàng + điều khoản */
 .order-checkout-section {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-4);
-  background: var(--color-bg-secondary);
+  background: #ffffff;
+  border: 1px solid rgba(0, 88, 159, 0.12);
   border-radius: var(--radius-lg);
   padding: var(--spacing-3);
-  box-shadow: var(--shadow-base);
+  box-shadow: 0 2px 8px rgba(0, 88, 159, 0.06);
 }
 
 .order-checkout-section .order-summary {
@@ -859,15 +964,17 @@
   align-items: center;
   padding: 6px 0;
   font-size: inherit;
-  color: var(--color-text-secondary);
+  color: var(--color-primary);
 }
 
 .order-summary-row span {
-  color: var(--color-text-secondary);
+  color: var(--color-primary);
+  font-weight: 600;
 }
 
 .order-summary-row strong {
   font-weight: 700;
+  color: var(--color-primary);
 }
 
 .order-summary-row-total .order-summary-value-total {
@@ -881,7 +988,7 @@
 .order-summary-row-last {
   margin-bottom: var(--spacing-2);
   padding-bottom: var(--spacing-3);
-  border-bottom: 1px solid var(--color-neutral-30);
+  border-bottom: 1px solid rgba(0, 88, 159, 0.12);
 }
 
 .order-summary-total {
@@ -890,11 +997,11 @@
   padding-top: var(--spacing-3);
   font-size: var(--order-label-size);
   font-weight: 700;
-  color: var(--order-label-color);
+  color: var(--color-primary);
 }
 
 .order-summary-total span {
-  color: var(--order-label-color);
+  color: var(--color-primary);
   font-weight: 700;
 }
 
@@ -904,12 +1011,32 @@
   font-weight: 700;
 }
 
+.order-summary-xu-earn {
+  margin-top: 8px;
+  border: 1px solid #f3d26a;
+  background: #fff8db;
+  border-radius: 8px;
+  padding: 7px 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #a86a00;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.order-summary-xu-earn .bi-coin {
+  color: #c27c00;
+  font-size: 14px;
+}
+
 .order-hide-products {
   display: flex;
   align-items: center;
   gap: 8px;
   font-size: var(--order-content-size);
-  color: var(--order-content-color);
+  color: var(--color-primary);
+  font-weight: 600;
   cursor: pointer;
 }
 
@@ -919,7 +1046,7 @@
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  border: 2px solid var(--color-neutral-40);
+  border: 2px solid #c7d9eb;
   background: var(--color-bg-secondary);
   cursor: pointer;
   flex-shrink: 0;
@@ -955,7 +1082,7 @@
 }
 
 .order-terms {
-  font-size: var(--font-size-xs);
+  font-size: 13px;
   color: var(--color-text-tertiary);
   text-align: center;
   margin: 0;
@@ -1757,6 +1884,14 @@
   margin: 0 0 24px;
 }
 
+.vc-order-success-desc strong {
+  color: var(--color-primary, #00589F);
+}
+
+.vc-order-success-brand {
+  color: var(--color-primary, #00589F) !important;
+}
+
 .vc-order-success-code {
   display: flex;
   align-items: center;
@@ -2124,20 +2259,24 @@
 
 .vc-qr-modal {
   background: #fff;
-  border-radius: 20px;
+  border-radius: 16px;
   width: 94vw;
-  max-width: 420px;
+  max-width: 980px;
+  max-height: 88vh;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .vc-qr-header {
+  position: relative;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 20px 24px 16px;
+  justify-content: center;
+  padding: 14px 52px 10px;
   border-bottom: 1px solid #eee;
+  background: linear-gradient(180deg, #eaf4ff 0%, #ffffff 100%);
 }
 
 .vc-qr-header h3 {
@@ -2146,9 +2285,24 @@
   font-weight: 700;
   color: #1A1A1A;
   letter-spacing: -0.01em;
+  text-align: center;
+}
+
+.vc-qr-warning {
+  background: #fff8db;
+  border: 1px solid #f2e4a4;
+  color: #8a6d1a;
+  border-radius: 8px;
+  font-size: 11px;
+  line-height: 1.4;
+  padding: 6px 8px;
+  margin: 0 0 8px;
 }
 
 .vc-qr-close {
+  position: absolute;
+  right: 10px;
+  top: 8px;
   background: none;
   border: none;
   font-size: 1.25rem;
@@ -2166,7 +2320,31 @@
 }
 
 .vc-qr-body {
-  padding: 20px 24px 16px;
+  padding: 10px 14px 8px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+.vc-qr-body::-webkit-scrollbar {
+  width: 4px;
+}
+
+.vc-qr-body::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 999px;
+}
+
+.vc-qr-content {
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr;
+  gap: 10px;
+  align-items: start;
+}
+
+.vc-qr-left,
+.vc-qr-right {
+  min-width: 0;
 }
 
 .vc-qr-method {
@@ -2178,7 +2356,7 @@
 }
 
 .vc-qr-amount {
-  margin: 0 0 20px;
+  margin: 0 0 10px;
   font-size: 0.9375rem;
   color: #444;
   line-height: 1.4;
@@ -2191,11 +2369,13 @@
 }
 
 .vc-qr-cta {
-  margin: 0 0 16px;
+  margin: 8px 0 10px;
   font-size: 0.9375rem;
-  font-weight: 600;
-  color: #1A1A1A;
+  font-weight: 800;
+  color: var(--color-primary, #00589F);
   text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
   line-height: 1.4;
 }
 
@@ -2203,39 +2383,303 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 14px;
+  gap: 2px;
 }
 
-/* Mã QR đơn giản: một ô vuông đen */
-.vc-qr-code-placeholder {
-  width: 200px;
-  height: 200px;
-  border-radius: 12px;
-  background: #1A1A1A;
+.vc-qr-panel {
+  border: 1px dashed #9fc0dd;
+  background: #f7fbff;
+  border-radius: 10px;
+  position: relative;
+  padding: 0 10px 4px;
+  overflow: hidden;
+}
+
+.vc-qr-panel-top {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  margin: 0;
+  z-index: 2;
+}
+
+.vc-qr-download-btn {
+  border: none;
+  background: transparent;
+  color: #2f739f;
+  border-radius: 0;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.vc-qr-download-btn:hover {
+  background: transparent;
+}
+
+/* Mã QR giả lập để giống mockup */
+.vc-qr-code-wrap {
+  width: 170px;
+  height: 170px;
+  border-radius: 10px;
+  border: 6px solid #fff;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
   flex-shrink: 0;
 }
 
+.vc-qr-code-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
 .vc-qr-note {
-  margin: 0;
-  font-size: 0.8125rem;
+  margin: 2px 0 0;
+  font-size: 0.8rem;
   color: #666;
   text-align: center;
+  line-height: 1.45;
+  max-width: 420px;
+  font-weight: 600;
+}
+
+.vc-qr-countdown {
+  color: #dc2626;
+  font-weight: 800;
+}
+
+.vc-qr-guide {
+  margin-top: 0;
+  border: 1px solid #f2d675;
+  border-radius: 8px;
+  background: #fff8db;
+  padding: 8px 10px;
+}
+
+.vc-qr-guide-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+.vc-qr-guide ol {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.vc-qr-guide li {
+  font-size: 12px;
+  color: #555;
   line-height: 1.5;
-  max-width: 320px;
+  margin-bottom: 2px;
+}
+
+.vc-qr-order-card {
+  margin-top: 8px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #fff;
+  padding: 10px;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+}
+
+.vc-qr-order-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 6px;
+}
+
+.vc-qr-order-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 12px;
+  color: #4b5563;
+  padding: 3px 0;
+}
+
+.vc-qr-order-row strong {
+  color: #111827;
+  text-align: right;
+  font-weight: 600;
+}
+
+.vc-qr-order-row .vc-qr-order-total {
+  color: var(--color-primary, #00589F);
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.vc-qr-order-products {
+  padding: 4px 0;
+}
+
+.vc-qr-order-products-label {
+  font-size: 12px;
+  color: #4b5563;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.vc-qr-order-products-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 132px;
+  overflow-y: auto;
+  padding-right: 2px;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+.vc-qr-order-products-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.vc-qr-order-products-list::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 999px;
+}
+
+.vc-qr-order-product-item {
+  display: grid;
+  grid-template-columns: 30px 1fr auto;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #f8fafc;
+  padding: 5px 6px;
+}
+
+.vc-qr-order-product-img {
+  width: 30px;
+  height: 30px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+}
+
+.vc-qr-order-product-name {
+  font-size: 12px;
+  color: #1f2937;
+  line-height: 1.35;
+  font-weight: 600;
+}
+
+.vc-qr-order-product-qty {
+  font-size: 12px;
+  color: var(--color-primary, #00589F);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.vc-qr-order-xu {
+  margin-top: 6px;
+  border: 1px solid #f3d26a;
+  background: #fff8db;
+  border-radius: 8px;
+  padding: 6px 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #a86a00;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.vc-qr-order-xu .bi-coin {
+  font-size: 14px;
+  color: #c27c00;
+}
+
+.vc-qr-bank-info {
+  margin-top: 8px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #ffffff;
+  padding: 10px 12px;
+}
+
+.vc-qr-bank-title {
+  font-size: 13px;
+  font-weight: 800;
+  color: #111827;
+  margin-bottom: 6px;
+}
+
+.vc-qr-bank-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 12px;
+  padding: 7px 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.vc-qr-bank-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.vc-qr-bank-row span {
+  color: #6b7280;
+  font-weight: 600;
+}
+
+.vc-qr-bank-row strong {
+  color: var(--color-primary, #00589F);
+  text-align: right;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+
+.vc-qr-bank-amount strong {
+  color: #059669;
+  font-size: 26px;
+  line-height: 1;
+  font-weight: 900;
+}
+
+.vc-qr-bank-transfer-code {
+  background: #eef2ff;
+  border: 1px solid #c7d2fe;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-family: inherit;
+  font-size: 12px;
+  color: var(--color-primary, #00589F) !important;
 }
 
 .vc-qr-footer {
-  padding: 16px 24px 20px;
+  padding: 10px 14px 12px;
   display: flex;
   gap: 12px;
 }
 
 .vc-qr-btn {
   flex: 1;
-  padding: 12px 16px;
+  padding: 10px 14px;
   border-radius: 999px;
   border: 1px solid transparent;
-  font-size: 0.9375rem;
+  font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
   transition: background 0.2s, color 0.2s, border-color 0.2s, transform 0.15s;
@@ -2280,5 +2724,11 @@
   .vc-qr-code-placeholder {
     width: 180px;
     height: 180px;
+  }
+}
+
+@media (max-width: 860px) {
+  .vc-qr-content {
+    grid-template-columns: 1fr;
   }
 }

@@ -14,6 +14,7 @@ export class Coin {
   isImgError = signal(false);
 
   balance = computed(() => this.coinService.coinData().balance);
+  isLoading = computed(() => this.coinService.coinBagLoading());
 
   // Chỉ dịch chuyển dọc (giữ nguyên cột phải)
   dx = signal(0);

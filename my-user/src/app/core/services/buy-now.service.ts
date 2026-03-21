@@ -20,6 +20,7 @@ export interface BuyNowSummary {
     subtotal: number;
     directDiscount: number;
     voucherDiscount: number;
+    vitaXuDiscount?: number;
     /** Thông tin khuyến mãi đang áp dụng (nếu có) */
     promotionId?: string;
     promotionName?: string;
@@ -63,6 +64,7 @@ export class BuyNowService {
             subtotal,
             directDiscount,
             voucherDiscount,
+            vitaXuDiscount: 0,
             promotionId: undefined,
             promotionName: undefined,
         };
@@ -110,6 +112,7 @@ export class BuyNowService {
                 subtotal,
                 directDiscount,
                 voucherDiscount: 0,
+                vitaXuDiscount: 0,
                 promotionId: undefined,
                 promotionName: undefined,
             };

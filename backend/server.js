@@ -350,6 +350,17 @@ app.get('/api/doctors', async (req, res) => {
 // GET /api/products - danh sách sản phẩm (từ MongoDB, có tìm kiếm + lọc)
 app.get('/api/products', async (req, res) => {
   try {
+    const parseSoldValue = (raw) => {
+      if (typeof raw === 'number' && Number.isFinite(raw)) return raw;
+      if (typeof raw === 'string') {
+        const cleaned = raw.replace(/[^\d.-]/g, '');
+        const parsed = Number(cleaned);
+        return Number.isFinite(parsed) ? parsed : 0;
+      }
+      const parsed = Number(raw);
+      return Number.isFinite(parsed) ? parsed : 0;
+    };
+
     const keyword = String(req.query.keyword || '').trim();
     const categorySlug = String(req.query.categorySlug || '').trim();
     const brand = String(req.query.brand || '').trim();
@@ -554,6 +565,10 @@ app.get('/api/products', async (req, res) => {
       filter.price = 0;
       sortOption = { _id: -1 };
     }
+    if (sort === 'best_seller') {
+      // Sản phẩm bán chạy: sold cao xuống thấp
+      sortOption = { sold: -1, _id: -1 };
+    }
     if (sort === 'newest') sortOption = { _id: -1 };
     if (sort === 'discount') {
       // Bỏ $expr để không ghi đè filter.hasDiscount đã xử lý ở trên
@@ -604,6 +619,7 @@ app.get('/api/products', async (req, res) => {
         origin: p.origin || '',
         sku: p.sku || '',
         stock: p.stock !== undefined ? p.stock : 99,
+        sold: parseSoldValue(p.sold),
         rating: p.rating || null,
         gallery: p.gallery || [],
       };
@@ -619,6 +635,17 @@ app.get('/api/products', async (req, res) => {
 // GET /api/product/:slug - chi tiết sản phẩm theo slug (hoặc _id)
 app.get('/api/product/:slug', async (req, res) => {
   try {
+    const parseSoldValue = (raw) => {
+      if (typeof raw === 'number' && Number.isFinite(raw)) return raw;
+      if (typeof raw === 'string') {
+        const cleaned = raw.replace(/[^\d.-]/g, '');
+        const parsed = Number(cleaned);
+        return Number.isFinite(parsed) ? parsed : 0;
+      }
+      const parsed = Number(raw);
+      return Number.isFinite(parsed) ? parsed : 0;
+    };
+
     let slug = String(req.params.slug || '').trim();
     if (!slug || slug === 'undefined' || slug === 'null') {
       return res.status(400).json({ success: false, message: 'Thiếu slug sản phẩm.' });
@@ -666,6 +693,8 @@ app.get('/api/product/:slug', async (req, res) => {
         product.categorySlug = cat.slug;
       }
     }
+
+    product.sold = parseSoldValue(product.sold);
 
     res.json(product);
   } catch (err) {
@@ -964,7 +993,7 @@ app.post('/api/orders', async (req, res) => {
   try {
     const {
       user_id, paymentMethod, statusPayment, atPharmacy, pharmacyAddress,
-      subtotal, directDiscount, voucherDiscount, shippingFee, shippingDiscount, totalAmount,
+      subtotal, directDiscount, voucherDiscount, vitaXuDiscount, shippingFee, shippingDiscount, totalAmount,
       note, requestInvoice, hideProductInfo, item, shippingInfo, promotion,
     } = req.body || {};
 
@@ -1004,6 +1033,7 @@ app.post('/api/orders', async (req, res) => {
       subtotal: Number(subtotal) || 0,
       directDiscount: Number(directDiscount) || 0,
       voucherDiscount: Number(voucherDiscount) || 0,
+      vitaXuDiscount: Number(vitaXuDiscount) || 0,
       promotion: Array.isArray(promotion) ? promotion : [],
       shippingFee: Number(shippingFee) || 0,
       shippingDiscount: Number(shippingDiscount) || 0,
@@ -1032,6 +1062,36 @@ app.post('/api/orders', async (req, res) => {
       createdAt: now,
       updatedAt: now,
     };
+
+    // Nếu user dùng Vita Xu ở trang đặt hàng thì reset/xoá dữ liệu xu cũ trong users_memory.coins
+    if (uid) {
+      const xuToUse = Math.max(0, Math.floor(Number(vitaXuDiscount) || 0));
+      if (xuToUse > 0) {
+        const memoryUser = await usersMemoryCollection().findOne({ user_id: uid });
+        const coins = memoryUser?.coins || { balance: 0, lastCompletedDate: null, currentStreak: 0, history: [] };
+        const currentBalance = Number(coins.balance) || 0;
+        if (currentBalance < xuToUse) {
+          return res.status(400).json({
+            success: false,
+            message: `Số dư Vita Xu không đủ. Hiện có ${currentBalance}, cần ${xuToUse}.`
+          });
+        }
+
+        // Theo yêu cầu hiện tại: đã dùng Vita Xu thì xoá dữ liệu xu cũ để bắt đầu chu kỳ tích xu mới.
+        const newCoins = {
+          balance: 0,
+          lastCompletedDate: null,
+          currentStreak: 0,
+          history: []
+        };
+
+        await usersMemoryCollection().updateOne(
+          { user_id: uid },
+          { $set: { user_id: uid, coins: newCoins, updatedAt: new Date() } },
+          { upsert: true }
+        );
+      }
+    }
 
     await col.insertOne(orderDoc);
 
@@ -5086,6 +5146,111 @@ app.post('/api/users-memory/coins/reward', async (req, res) => {
   } catch (err) {
     console.error('[POST /api/users-memory/coins/reward] Error:', err);
     res.status(500).json({ success: false, message: 'Lỗi máy chủ khi xử lý xu.' });
+  }
+});
+
+// POST /api/users-memory/coins/order-reward
+// Body: { user_id, orderCode, amount }
+// Thưởng xu cho đơn hàng đã nhận, KHÔNG đụng vào streak/lastCompletedDate.
+app.post('/api/users-memory/coins/order-reward', async (req, res) => {
+  try {
+    const { user_id, orderCode, amount } = req.body || {};
+    const uid = String(user_id || '').trim();
+    const code = String(orderCode || '').trim();
+    const amt = Math.max(0, Math.floor(Number(amount) || 0));
+
+    if (!uid) return res.status(400).json({ success: false, message: 'Thiếu user_id.' });
+    if (!code) return res.status(400).json({ success: false, message: 'Thiếu orderCode.' });
+    if (amt <= 0) return res.status(400).json({ success: false, message: 'amount phải lớn hơn 0.' });
+
+    const dateKey = `order-received-${code}`;
+    const memoryUser = await usersMemoryCollection().findOne({ user_id: uid });
+    const coins = memoryUser?.coins || { balance: 0, lastCompletedDate: null, currentStreak: 0, history: [] };
+    const history = Array.isArray(coins.history) ? coins.history : [];
+
+    // Idempotency: mỗi mã đơn chỉ thưởng 1 lần.
+    const existed = history.some((h) => String(h?.dateKey || '') === dateKey);
+    if (existed) {
+      return res.json({ success: true, alreadyApplied: true, coins });
+    }
+
+    const newEntry = {
+      amount: amt,
+      reason: `Nhận hàng đơn ${code}`,
+      date: new Date().toISOString(),
+      dateKey,
+      transactionId: new mongoose.Types.ObjectId().toString()
+    };
+    const newCoins = {
+      ...coins,
+      balance: (Number(coins.balance) || 0) + amt,
+      history: [newEntry, ...history].slice(0, 100)
+    };
+
+    await usersMemoryCollection().updateOne(
+      { user_id: uid },
+      { $set: { user_id: uid, coins: newCoins, updatedAt: new Date() } },
+      { upsert: true }
+    );
+
+    res.json({ success: true, alreadyApplied: false, coins: newCoins });
+  } catch (err) {
+    console.error('[POST /api/users-memory/coins/order-reward] Error:', err);
+    res.status(500).json({ success: false, message: 'Lỗi máy chủ khi thưởng xu đơn hàng.' });
+  }
+});
+
+// POST /api/users-memory/coins/review-reward
+// Body: { user_id, orderCode, amount }
+// Thưởng xu cho hành động đánh giá đơn hàng.
+// Idempotency: mỗi orderCode chỉ thưởng 1 lần.
+app.post('/api/users-memory/coins/review-reward', async (req, res) => {
+  try {
+    const { user_id, orderCode, amount } = req.body || {};
+    const uid = String(user_id || '').trim();
+    const code = String(orderCode || '').trim();
+    const amt = Math.max(0, Math.floor(Number(amount) || 0));
+
+    if (!uid) return res.status(400).json({ success: false, message: 'Thiếu user_id.' });
+    if (!code) return res.status(400).json({ success: false, message: 'Thiếu orderCode.' });
+    if (amt <= 0) return res.status(400).json({ success: false, message: 'amount phải lớn hơn 0.' });
+
+    const dateKey = `review-reward-${code}`;
+    const memoryUser = await usersMemoryCollection().findOne({ user_id: uid });
+    let coins = memoryUser?.coins || { balance: 0, lastCompletedDate: null, currentStreak: 0, history: [] };
+    const history = Array.isArray(coins.history) ? coins.history : [];
+
+    // Idempotency: mỗi orderCode chỉ thưởng 1 lần.
+    const existed = history.some((h) => String(h?.dateKey || '') === dateKey);
+    if (existed) {
+      return res.json({ success: true, alreadyApplied: true, coins });
+    }
+
+    const newEntry = {
+      amount: amt,
+      reason: `Đánh giá đơn hàng ${code}`,
+      date: new Date().toISOString(),
+      dateKey,
+      transactionId: new mongoose.Types.ObjectId().toString()
+    };
+
+    const newCoins = {
+      ...coins,
+      // Chỉ cộng balance + history, không đụng streak
+      balance: (Number(coins.balance) || 0) + amt,
+      history: [newEntry, ...(coins.history || [])].slice(0, 100)
+    };
+
+    await usersMemoryCollection().updateOne(
+      { user_id: uid },
+      { $set: { user_id: uid, coins: newCoins, updatedAt: new Date() } },
+      { upsert: true }
+    );
+
+    res.json({ success: true, alreadyApplied: false, coins: newCoins });
+  } catch (err) {
+    console.error('[POST /api/users-memory/coins/review-reward] Error:', err);
+    res.status(500).json({ success: false, message: 'Lỗi máy chủ khi thưởng xu đánh giá.' });
   }
 });
 

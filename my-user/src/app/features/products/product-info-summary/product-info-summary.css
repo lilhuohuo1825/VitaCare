@@ -81,6 +81,21 @@
     text-decoration: underline;
 }
 
+.vc_meta_sold_value {
+    color: #f4b400;
+}
+
+.vc_origin_filter_link {
+    color: #00589f;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.vc_origin_filter_link:hover {
+    color: #004a86;
+    text-decoration: underline;
+}
+
 /* Price Section */
 .vc_pd_price_section {
     margin-bottom: 6px;

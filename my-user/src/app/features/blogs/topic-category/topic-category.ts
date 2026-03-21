@@ -26,6 +26,7 @@ export interface BlogItem {
 export class TopicCategory implements OnInit {
     blogs: BlogItem[] = [];
     featuredTopicCategories: { name: string; count: number; slug: string }[] = [];
+    featuredSidebarLimit = 8;
     doctors: { avatar: string; degree: string; name: string; specialize: string }[] = [];
 
     loading = true;
@@ -68,9 +69,25 @@ export class TopicCategory implements OnInit {
         'tieu-duong': 'Tiểu đường',
         'huyet-ap-cao': 'Huyết áp cao',
         'huyet-ap': 'Huyết áp',
+        'suc-khoe': 'Sức khỏe',
+        'cham-soc-da': 'Chăm sóc da',
+        'mang-thai': 'Mang thai',
+        'thong-tin-suc-khoe': 'Thông tin sức khỏe',
+        'cham-soc-rang-mieng': 'Chăm sóc răng miệng',
+        'an-uong-lanh-manh': 'Ăn uống lành mạnh',
+        'tre-so-sinh': 'Trẻ sơ sinh',
+        'cham-soc-suc-khoe': 'Chăm sóc sức khỏe',
+        'che-do-an-uong': 'Chế độ ăn uống',
+        'giam-can': 'Giảm cân',
+        'benh-ve-than-kinh': 'Bệnh về thần kinh',
         'xuong-khop': 'Xương khớp',
         'benh-da-day': 'Bệnh dạ dày',
         'da-day': 'Dạ dày'
+    };
+
+    // Alias between disease-group slugs and blog-topic slugs (data sources are not fully unified)
+    private readonly topicAliasMap: Record<string, string> = {
+        'than-kinh-tinh-than': 'benh-ve-than-kinh',
     };
 
     constructor(
@@ -85,10 +102,11 @@ export class TopicCategory implements OnInit {
         this.route.paramMap.subscribe(params => {
             const rawSlug = params.get('specialtySlug') || '';
             this.tagSlug = this.normalizeTopicSlug(rawSlug);
+            this.tagSlug = this.topicAliasMap[this.tagSlug] || this.tagSlug;
 
-            // Priority: tagMap (accented) -> formatted normalizeTopicSlug
-            this.tagName = this.tagMap[this.tagSlug] || this.formatSlug(this.tagSlug);
-            this.titleService.setTitle(`Bài viết ${this.tagName} - VitaCare`);
+            // Priority: accented mapping immediately to avoid "title flicker".
+            this.tagName = this.tagMap[this.tagSlug] || '';
+            this.titleService.setTitle(`Bài viết ${this.tagName || 'Chuyên đề'} - VitaCare`);
 
             this.skip = 0;
             this.blogs = [];
@@ -99,15 +117,45 @@ export class TopicCategory implements OnInit {
     }
 
     private loadTopicCounts(): void {
-        const url = 'http://localhost:3000/api/blogs/topic-counts?limit=10';
+        // Fetch a broad list so current topic slug can always map to accented Vietnamese name.
+        const url = 'http://localhost:3000/api/blogs/topic-counts?limit=500';
         this.http.get<any>(url).subscribe({
             next: (res) => {
                 if (res?.success && Array.isArray(res?.counts)) {
+                    const counts = res.counts;
                     this.featuredTopicCategories = res.counts.map((item: any) => ({
                         name: item.name,
                         count: item.count,
                         slug: this.normalizeTopicSlug(item.slug || this.slugify(item.name))
                     }));
+
+                    // Normalize current route slug to canonical API slug if possible.
+                    // Some routes use alternative slugs (e.g. non-accented variants) that
+                    // do not match backend tagSlug exactly and cause empty result lists.
+                    const matchedBySlug = counts.find((item: any) =>
+                        this.normalizeTopicSlug(item.slug || this.slugify(item.name)) === this.tagSlug
+                    );
+                    const matchedByNameSlug = counts.find((item: any) =>
+                        this.slugify(item.name || '') === this.tagSlug
+                    );
+                    const matched = matchedBySlug || matchedByNameSlug;
+
+                    // Prefer exact accented name from API for current topic title.
+                    if (matched?.name) {
+                        this.tagName = matched.name;
+                        this.titleService.setTitle(`Bài viết ${this.tagName} - VitaCare`);
+                    }
+
+                    // If route slug is an alias, switch to canonical slug and reload posts.
+                    if (matched) {
+                        const canonicalSlug = this.normalizeTopicSlug(matched.slug || this.slugify(matched.name || ''));
+                        if (canonicalSlug && canonicalSlug !== this.tagSlug) {
+                            this.tagSlug = canonicalSlug;
+                            this.skip = 0;
+                            this.blogs = [];
+                            this.loadBlogs();
+                        }
+                    }
                     this.cdr.detectChanges();
                 }
             }

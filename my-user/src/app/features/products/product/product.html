@@ -153,8 +153,8 @@
                                     *ngFor="let item of searchHistory.slice(0, 7)">
                                     <i class="bi bi-clock-fill text-primary mt-1" style="font-size: 0.9rem;"></i>
                                     <div class="flex-grow-1">
-                                        <a [routerLink]="['/products']"
-                                            [queryParams]="{ keyword: item.keyword, mode: 'article' }"
+                                        <a [routerLink]="['/tim-kiem']"
+                                            [queryParams]="{ s: item.keyword, type: 'article' }"
                                             class="text-decoration-none text-dark history-link">
                                             <strong class="d-block">{{ item.keyword }}</strong>
                                         </a>
@@ -175,14 +175,14 @@
                             <div class="mt-3 pt-2 border-top">
                                 <h6 class="fw-bold mb-2">Từ khóa phổ biến</h6>
                                 <div class="d-flex flex-wrap gap-2">
-                                    <a [routerLink]="['/products']"
-                                        [queryParams]="{ keyword: 'vitamin', mode: 'article' }"
+                                    <a [routerLink]="['/tim-kiem']"
+                                        [queryParams]="{ s: 'vitamin', type: 'article' }"
                                         class="badge bg-light text-primary border border-primary px-3 py-2 text-decoration-none">Vitamin</a>
-                                    <a [routerLink]="['/products']"
-                                        [queryParams]="{ keyword: 'canxi', mode: 'article' }"
+                                    <a [routerLink]="['/tim-kiem']"
+                                        [queryParams]="{ s: 'canxi', type: 'article' }"
                                         class="badge bg-light text-primary border border-primary px-3 py-2 text-decoration-none">Canxi</a>
-                                    <a [routerLink]="['/products']"
-                                        [queryParams]="{ keyword: 'tăng chiều cao', mode: 'article' }"
+                                    <a [routerLink]="['/tim-kiem']"
+                                        [queryParams]="{ s: 'tăng chiều cao', type: 'article' }"
                                         class="badge bg-light text-primary border border-primary px-3 py-2 text-decoration-none">Tăng
                                         chiều cao</a>
                                 </div>

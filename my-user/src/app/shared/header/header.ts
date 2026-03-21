@@ -833,6 +833,41 @@ export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
+  getBellNoticeIcon(n: NoticeItem): string {
+    const title = n.title || '';
+    const message = n.message || '';
+
+    if (n.type === 'medication_reminder') return 'bi-alarm-fill';
+    if (n.type === 'prescription_created') return 'bi-capsule-pill';
+    if (n.type === 'prescription_updated') return 'bi-file-earmark-medical';
+    if (n.type === 'qa_reply') return 'bi-chat-left-quote-fill';
+    if (n.type === 'qa_submitted' || n.linkLabel === 'Xem phản hồi') return 'bi-chat-left-text-fill';
+    if (n.type === 'order_updated' && (title.includes('Câu hỏi') || message.includes('câu hỏi'))) return 'bi-question-circle-fill';
+    if (n.type === 'order_updated' && (title.includes('Đánh giá') || n.linkLabel === 'Xem đánh giá')) return 'bi-chat-dots';
+    if (n.type === 'order_updated' && (title.includes('đang được giao') || message.includes('đang trên đường'))) return 'bi-truck';
+    if (n.type === 'order_updated' && (title.includes('đã được giao') || message.includes('đã được giao thành công') || message.includes('vui lòng xác nhận nhận hàng'))) return 'bi-check-circle-fill';
+    if (n.type === 'order_updated' && (title.includes('Bạn đã nhận hàng') || message.includes('xác nhận giao thành công') || message.includes('chờ bạn đánh giá'))) return 'bi-person-check-fill';
+    if (n.type === 'order_created') return 'bi-box-seam-fill';
+    if (n.type === 'order_updated') return 'bi-truck';
+    return 'bi-bell';
+  }
+
+  getBellNoticeIconClass(n: NoticeItem): string {
+    const title = n.title || '';
+    const message = n.message || '';
+
+    if (n.type === 'medication_reminder') return 'vc_notify_icon--remind';
+    if (n.type === 'prescription_created' || n.type === 'prescription_updated') return 'vc_notify_icon--prescription';
+    if (n.type === 'qa_reply' || n.type === 'qa_submitted' || n.linkLabel === 'Xem phản hồi') return 'vc_notify_icon--qa';
+    if (n.type === 'order_updated' && (title.includes('Câu hỏi') || message.includes('câu hỏi'))) return 'vc_notify_icon--qa';
+    if (n.type === 'order_updated' && (title.includes('Đánh giá') || n.linkLabel === 'Xem đánh giá')) return 'vc_notify_icon--evaluation';
+    if (n.type === 'order_updated' && (title.includes('đang được giao') || message.includes('đang trên đường'))) return 'vc_notify_icon--order-delivering';
+    if (n.type === 'order_updated' && (title.includes('đã được giao') || message.includes('đã giao thành công') || message.includes('xác nhận nhận hàng'))) return 'vc_notify_icon--order-delivered';
+    if (n.type === 'order_updated' && (title.includes('Bạn đã nhận hàng') || message.includes('xác nhận giao thành công') || message.includes('chờ bạn đánh giá'))) return 'vc_notify_icon--order-received';
+    if (n.type === 'order_created' || n.type === 'order_updated') return 'vc_notify_icon--order';
+    return 'vc_notify_icon--default';
+  }
+
   /** Chỉ giữ các lời nhắc trong cửa sổ ±60 phút: ví dụ lịch 15h chỉ hiện khi thời gian thực từ 14h đến 16h (chưa tick). */
   private filterReminderWithin60Minutes(list: NoticeItem[]): NoticeItem[] {
     const now = new Date();
@@ -1141,7 +1176,7 @@ export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
     this.productService.getProducts({
       categoryId: id,
       limit: 5,
-      sort: 'newest'
+      sort: 'best_seller'
     }).pipe(
       timeout(4000),
       catchError(err => {
@@ -1308,12 +1343,12 @@ export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
     this.saveRecentSearch(keyword);
     this.isSearchFocused = false; // Close dropdown
 
-    if (this.search_mode === 'article') {
-      // Redirect to Health Corner with keyword
-      this.router.navigate(['/category/goc-suc-khoe'], { queryParams: { keyword, mode: 'article' } });
-    } else {
-      this.router.navigate(['/products'], { queryParams: { keyword, mode: 'product' } });
-    }
+    this.router.navigate(['/tim-kiem'], {
+      queryParams: {
+        s: keyword,
+        type: this.search_mode
+      }
+    });
   }
 
   onSearchFocus(): void {

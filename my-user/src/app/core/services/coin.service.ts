@@ -26,12 +26,20 @@ export class CoinService {
     private static STORAGE_KEY = 'vc_coin_data';
     private apiUrl = '/api/users-memory/coins';
 
+    /**
+     * Dùng để chặn trường hợp loadFromBackend (chạy async lúc init) trả về SAU khi
+     * user vừa nhận xu và coinData đã được set mới -> response cũ không được ghi đè.
+     */
+    private lastCoinSetAt = 0;
+    private bagLoadingTimer: ReturnType<typeof setTimeout> | null = null;
+
     coinData = signal<CoinData>({
         balance: 0,
         lastCompletedDate: null,
         currentStreak: 0,
         history: []
     });
+    coinBagLoading = signal(false);
 
     constructor() {
         this.initialize();
@@ -48,10 +56,15 @@ export class CoinService {
     }
 
     private async loadFromBackend(userId: string) {
+        const requestStartAt = Date.now();
         try {
             const res = await firstValueFrom(this.http.get<any>(`${this.apiUrl}?user_id=${userId}`));
             if (res.success) {
+                // Nếu coinData đã được cập nhật bởi luồng khác (nhận xu) sau thời điểm request này bắt đầu,
+                // thì bỏ response để UI không bị "tụt" lại cho tới khi reload.
+                if (this.lastCoinSetAt > requestStartAt) return;
                 this.coinData.set(res.coins);
+                this.lastCoinSetAt = Date.now();
                 this.saveToStorage();
             }
         } catch (e) {
@@ -65,6 +78,7 @@ export class CoinService {
         if (raw) {
             try {
                 this.coinData.set(JSON.parse(raw));
+                this.lastCoinSetAt = Date.now();
             } catch (e) {
                 console.error('Failed to parse coin data', e);
             }
@@ -203,6 +217,7 @@ export class CoinService {
         };
 
         this.coinData.set(updatedData);
+        this.lastCoinSetAt = Date.now();
         this.saveToStorage();
 
         // Đồng bộ lên backend nếu đã đăng nhập
@@ -230,6 +245,7 @@ export class CoinService {
 
         // Xóa ngay lập tức ở local để UI phản ánh ngay
         this.coinData.set(emptyCoins);
+        this.lastCoinSetAt = Date.now();
         localStorage.removeItem(CoinService.STORAGE_KEY);
 
         const user = this.auth.currentUser();
@@ -242,6 +258,137 @@ export class CoinService {
                 console.error('Failed to reset streak', e);
             }
         }
+    }
+
+    /**
+     * Thưởng xu đơn hàng (ví dụ sau khi user bấm "Nhận xu" ở đơn đã giao).
+     * Đồng bộ backend + cập nhật ngay signal coinData để UI (túi xu) tăng realtime.
+     */
+    async applyOrderReward(orderCode: string, amount: number, explicitUserId?: string): Promise<{ success: boolean; alreadyApplied?: boolean; coins?: CoinData }> {
+        const uid = String(explicitUserId || this.auth.currentUser()?.user_id || '').trim();
+        const code = String(orderCode || '').trim();
+        const amt = Math.max(0, Math.floor(Number(amount) || 0));
+
+        if (!uid || uid === 'guest') {
+            throw new Error('Thiếu user_id hợp lệ.');
+        }
+        if (!code) {
+            throw new Error('Thiếu mã đơn hàng.');
+        }
+        if (amt <= 0) {
+            throw new Error('Số xu thưởng không hợp lệ.');
+        }
+
+        const res = await firstValueFrom(this.http.post<any>(`${this.apiUrl}/order-reward`, {
+            user_id: uid,
+            orderCode: code,
+            amount: amt
+        }));
+
+        if (!res?.success) {
+            throw new Error(res?.message || 'Không thể cộng xu đơn hàng.');
+        }
+
+        if (res?.coins) {
+            this.coinData.set(res.coins);
+            this.lastCoinSetAt = Date.now();
+            this.saveToStorage();
+        } else {
+            // Fallback: nếu backend không trả coins thì reload lại từ backend.
+            await this.loadFromBackend(uid);
+        }
+
+        return { success: true, alreadyApplied: !!res?.alreadyApplied, coins: res?.coins };
+    }
+
+    /**
+     * Thưởng xu cho hành động "Đánh giá".
+     * Idempotency dựa trên orderCode thông qua coins.history.dateKey ở backend.
+     * Không đụng vào streak/lastCompletedDate.
+     */
+    async applyReviewReward(orderCode: string, amount: number, explicitUserId?: string): Promise<{ success: boolean; alreadyApplied?: boolean; coins?: CoinData }> {
+        const uid = String(explicitUserId || this.auth.currentUser()?.user_id || '').trim();
+        const code = String(orderCode || '').trim();
+        const amt = Math.max(0, Math.floor(Number(amount) || 0));
+
+        if (!uid || uid === 'guest') {
+            throw new Error('Thiếu user_id hợp lệ.');
+        }
+        if (!code) {
+            throw new Error('Thiếu orderCode.');
+        }
+        if (amt <= 0) {
+            throw new Error('Số xu thưởng không hợp lệ.');
+        }
+
+        const res = await firstValueFrom(this.http.post<any>(`${this.apiUrl}/review-reward`, {
+            user_id: uid,
+            orderCode: code,
+            amount: amt
+        }));
+
+        if (!res?.success) {
+            throw new Error(res?.message || 'Không thể cộng xu đánh giá.');
+        }
+
+        if (res?.coins) {
+            this.coinData.set(res.coins);
+            this.lastCoinSetAt = Date.now();
+            this.saveToStorage();
+        } else {
+            await this.loadFromBackend(uid);
+        }
+
+        return { success: true, alreadyApplied: !!res?.alreadyApplied, coins: res?.coins };
+    }
+
+    /**
+     * Hiệu ứng realtime cho túi xu sau khi đặt hàng dùng Vita Xu:
+     * hiện loading ngắn rồi đồng bộ badge về 0 ngay lập tức.
+     */
+    applyCheckoutVitaXuReset(orderCode?: string): void {
+        if (this.bagLoadingTimer) {
+            clearTimeout(this.bagLoadingTimer);
+            this.bagLoadingTimer = null;
+        }
+        this.coinBagLoading.set(true);
+
+        this.bagLoadingTimer = setTimeout(() => {
+            const prev = this.coinData();
+            const currentBalance = Math.max(0, Number(prev?.balance || 0));
+            const history = Array.isArray(prev?.history) ? prev.history : [];
+            const dateKey = `vita-xu-used-${String(orderCode || Date.now())}`;
+            const existed = history.some((h) => String(h?.dateKey || '') === dateKey);
+
+            const entry = currentBalance > 0 && !existed
+                ? [{
+                    amount: -currentBalance,
+                    reason: `Sử dụng toàn bộ Vita Xu cho đơn hàng ${String(orderCode || '')}`.trim(),
+                    date: new Date(),
+                    dateKey,
+                } as CoinHistory]
+                : [];
+
+            this.coinData.set({
+                ...prev,
+                balance: 0,
+                history: [...entry, ...history].slice(0, 100),
+            });
+            this.lastCoinSetAt = Date.now();
+            this.saveToStorage();
+            this.coinBagLoading.set(false);
+            this.bagLoadingTimer = null;
+        }, 850);
+    }
+
+    /**
+     * Đồng bộ lại coinData từ backend (khi đã đăng nhập).
+     * Dùng sau các nghiệp vụ tiêu xu/cộng xu để tránh hiển thị số dư cũ do cache local.
+     */
+    async refreshFromBackend(): Promise<void> {
+        const userId = String(this.auth.currentUser()?.user_id || '').trim();
+        if (!userId) return;
+        await this.loadFromBackend(userId);
     }
 
     private getRewardForStreak(streak: number): number {

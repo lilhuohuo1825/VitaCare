@@ -20,6 +20,7 @@ import { BuyNowService } from '../../../core/services/buy-now.service';
 import { PromotionService, ApplicablePromotion } from '../../../core/services/promotion.service';
 import { HttpClient } from '@angular/common/http';
 import { CategoryService } from '../../../core/services/category.service';
+import { CoinService } from '../../../core/services/coin.service';
 
 @Component({
   selector: 'app-cart',
@@ -40,6 +41,7 @@ export class Cart implements OnInit, OnDestroy {
   private promotionService = inject(PromotionService);
   private http = inject(HttpClient);
   private categoryService = inject(CategoryService);
+  private coinService = inject(CoinService);
   private cartUpdatedSub?: Subscription;
   private lastFocusNonce: number | null = null;
 
@@ -106,9 +108,19 @@ export class Cart implements OnInit, OnDestroy {
   });
 
   voucherDiscount = signal(0);
+  useVitaXu = signal(false);
+
+  vitaXuBalance = computed(() => {
+    return Math.max(0, Number(this.coinService.coinData()?.balance || 0));
+  });
+
+  vitaXuDiscount = computed(() => {
+    if (!this.useVitaXu()) return 0;
+    return Math.min(this.vitaXuBalance(), this.selectedTotalPrice());
+  });
 
   finalAmount = computed(() => {
-    return Math.max(0, this.selectedTotalPrice() - this.voucherDiscount());
+    return Math.max(0, this.selectedTotalPrice() - this.voucherDiscount() - this.vitaXuDiscount());
   });
 
   /** Tránh gọi API giỏ hàng lặp lại khi sidebar đã mở và user không đổi. */
@@ -530,6 +542,11 @@ export class Cart implements OnInit, OnDestroy {
     this.selectedPromotionId.set(this.appliedPromotion()?._id ?? null);
   }
 
+  toggleUseVitaXu(checked: boolean): void {
+    this.useVitaXu.set(checked);
+    this.cdr.markForCheck();
+  }
+
   selectPromotion(promo: ApplicablePromotion): void {
     if (!promo.isApplicable) {
       return;
@@ -561,14 +578,32 @@ export class Cart implements OnInit, OnDestroy {
     if (!items.length) {
       return;
     }
-    this.buyNowService.setItemsFromCart(items, {
-      subtotal: this.selectedSubtotal(),
-      directDiscount: this.selectedDirectDiscount(),
-      voucherDiscount: this.voucherDiscount(),
-      promotionId: this.appliedPromotion()?.promotion_id,
-      promotionName: this.appliedPromotion()?.name,
-    });
-    this.close();
+    const applyCartToOrder = () => {
+      this.buyNowService.setItemsFromCart(items, {
+        subtotal: this.selectedSubtotal(),
+        directDiscount: this.selectedDirectDiscount(),
+        voucherDiscount: this.voucherDiscount(),
+        vitaXuDiscount: this.vitaXuDiscount(),
+        promotionId: this.appliedPromotion()?.promotion_id,
+        promotionName: this.appliedPromotion()?.name,
+      });
+      this.close();
+    };
+
+    const isOnOrderPage = this.router.url.startsWith('/order');
+    if (isOnOrderPage) {
+      this.confirmService.open(
+        'Bạn có chắc chắn muốn thoát trang mua hàng hiện tại không?',
+        () => {
+          applyCartToOrder();
+          // Đang ở /order rồi thì reload để nạp lại dữ liệu đơn mới từ session.
+          window.location.href = '/order';
+        },
+      );
+      return;
+    }
+
+    applyCartToOrder();
     this.router.navigate(['/order']);
   }
 

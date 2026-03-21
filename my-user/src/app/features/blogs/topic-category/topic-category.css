@@ -1,20 +1,20 @@
 .tc-page {
     background: #f8f9fa;
-    padding: 20px 0 60px;
+    padding: 0 0 60px;
     min-height: 90vh;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
 .tc-container {
-    width: min(1200px, calc(100% - 40px));
+    width: 100%;
     margin: 0 auto;
 }
 
 .tc-content-wrapper {
     display: grid;
-    grid-template-columns: 1fr 340px;
-    gap: 30px;
-    align-items: start;
+    grid-template-columns: minmax(0, 1fr) 285px;
+    gap: 20px;
+    align-items: stretch;
 }
 
 .tc-main {
@@ -27,6 +27,7 @@
     gap: 24px;
     position: sticky;
     top: 20px;
+    align-self: start;
 }
 
 /* Chuyên đề nổi bật */
@@ -34,6 +35,9 @@
     background: #e3f2fd;
     border-radius: 10px;
     padding: 16px;
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
 }
 
 .bv-ft-title {
@@ -47,6 +51,7 @@
     display: flex;
     flex-direction: column;
     gap: 12px;
+    margin-bottom: 12px;
 }
 
 .bv-ft-item {
@@ -169,15 +174,14 @@
 
 .tc-main {
     background: #fff;
-    padding: 30px;
+    padding: 18px 30px 30px;
     border-radius: 12px;
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
 }
 
 .tc-header {
-    margin-bottom: 30px;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 20px;
+    margin-bottom: 8px;
+    padding-bottom: 4px;
 }
 
 .tc-title {
@@ -185,6 +189,14 @@
     font-weight: 700;
     color: #00589F;
     margin: 0 0 8px 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.tc-title-icon {
+    font-size: 24px;
+    color: #00589F;
 }
 
 .tc-stats {
@@ -196,7 +208,7 @@
 .tc-list {
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: 12px;
 }
 
 .tc-card {
@@ -324,27 +336,47 @@
 }
 
 .tc-load-more-btn {
-    padding: 12px 32px;
-    border-radius: 25px;
-    border: 1px solid #dadce0;
-    background: #fff;
-    color: #202124;
+    padding: 8px 12px;
+    border-radius: 0;
+    border: none;
+    background: transparent;
+    color: #00589F;
     font-weight: 600;
     font-size: 15px;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: color 0.2s;
     outline: none;
 }
 
 .tc-load-more-btn:hover:not(:disabled) {
-    background: #f8f9fa;
-    border-color: #bdc1c6;
-    box-shadow: 0 1px 3px rgba(60, 64, 67, 0.3);
+    color: #004a86;
 }
 
 .tc-load-more-btn:disabled {
     opacity: 0.6;
     cursor: not-allowed;
+}
+
+.tc-load-more-text {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.tc-load-more-text i {
+    display: inline-block;
+    animation: tc-chevron-bounce 1.2s ease-in-out infinite;
+}
+
+@keyframes tc-chevron-bounce {
+    0%, 100% {
+        transform: translateY(0);
+        opacity: 0.9;
+    }
+    50% {
+        transform: translateY(4px);
+        opacity: 1;
+    }
 }
 
 /* Responsive */

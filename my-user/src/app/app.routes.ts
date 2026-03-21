@@ -27,6 +27,10 @@ export const routes: Routes = [
     loadComponent: () => import('./features/products/product/product').then(m => m.Product)
   },
   {
+    path: 'tim-kiem',
+    loadComponent: () => import('./features/products/product/product').then(m => m.Product)
+  },
+  {
     path: 'product/:slug',
     loadComponent: () => import('./features/products/product-detail/product-detail').then(m => m.ProductDetail)
   },
@@ -173,6 +177,11 @@ export const routes: Routes = [
   {
     // Chi tiết bệnh: nhận cả id hoặc slug (backend hỗ trợ cả hai)
     path: 'disease/:id',
+    loadComponent: () => import('./features/healthcare/disease-details/disease-details').then(m => m.DiseaseDetails),
+  },
+  {
+    // Alias cũ để tương thích các link /benh/...
+    path: 'benh/:id',
     loadComponent: () => import('./features/healthcare/disease-details/disease-details').then(m => m.DiseaseDetails),
   },
   { path: '**', redirectTo: '' },

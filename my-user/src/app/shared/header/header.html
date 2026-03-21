@@ -364,6 +364,9 @@
                   n.type === 'qa_submitted' ||
                   (n.type === 'order_updated' && (n.title?.includes('Câu hỏi') || n.linkLabel === 'Xem phản hồi'))
                 ">
+                <div class="vc_notify_item_icon" [ngClass]="getBellNoticeIconClass(n)">
+                  <i class="bi" [ngClass]="getBellNoticeIcon(n)"></i>
+                </div>
                 <div class="vc_notify_item_top">
                   <div class="vc_notify_item_title">{{ n.title }}</div>
                   <div class="vc_notify_item_time">{{ formatBellRelativeTime(n) }}</div>

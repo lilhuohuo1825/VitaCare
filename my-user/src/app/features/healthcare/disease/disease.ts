@@ -564,25 +564,28 @@ export class Disease implements OnInit, OnDestroy, AfterViewInit {
     return pages;
   }
 
-  goToDetail(id: any): void {
+  goToDetail(disease: any): void {
+    if (!disease) return;
+    const id = this.normalizeDiseaseId(disease);
     if (!id) return;
-    this.router.navigate(['/benh', id]);
+    this.router.navigate(['/disease', id], { state: { disease } });
   }
 
   viewDetail(disease: any): void {
     if (!disease) return;
-    let raw = disease.slug ?? disease.id ?? disease._id;
-    if (raw === undefined || raw === null) return;
-    let id = String(raw).trim();
+    const id = this.normalizeDiseaseId(disease);
     if (!id) return;
-    // Chuẩn hoá slug giống logic trong DiseaseDetails.goToDiseaseBySlug
-    if (id.startsWith('benh/')) {
-      id = id.replace(/^benh\//, '');
-    }
-    if (id.endsWith('.html')) {
-      id = id.replace(/\.html$/, '');
-    }
-    this.router.navigate(['/benh', id], { state: { disease } });
+    this.router.navigate(['/disease', id], { state: { disease } });
+  }
+
+  private normalizeDiseaseId(disease: any): string {
+    const raw = disease?.slug ?? disease?.id ?? disease?._id?.$oid ?? disease?._id;
+    if (raw === undefined || raw === null) return '';
+    let id = String(raw).trim();
+    if (!id) return '';
+    if (id.startsWith('benh/')) id = id.replace(/^benh\//, '');
+    if (id.endsWith('.html')) id = id.replace(/\.html$/, '');
+    return id;
   }
 
   goHome(e: Event): void {

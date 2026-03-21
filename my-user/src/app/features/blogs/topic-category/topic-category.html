@@ -1,17 +1,22 @@
 <main class="tc-page">
-    <div class="tc-container">
+    <div class="vc_container pt-2 pb-4 tc-container">
+        <!-- Breadcrumb (outside content card, aligned with global layout) -->
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb-vc">
+                <li class="breadcrumb-item"><a routerLink="/">Trang chủ</a></li>
+                <li class="breadcrumb-item"><a routerLink="/topic">Chuyên đề</a></li>
+                <li class="breadcrumb-item active">{{ tagName }}</li>
+            </ol>
+        </nav>
+
         <div class="tc-content-wrapper">
             <!-- Main Content -->
             <div class="tc-main">
-                <!-- Breadcrumb -->
-                <nav class="breadcrumb-vc">
-                    <div class="breadcrumb-item"><a routerLink="/">Trang chủ</a></div>
-                    <div class="breadcrumb-item"><a routerLink="/topic">Chuyên đề</a></div>
-                    <div class="breadcrumb-item active">{{ tagName }}</div>
-                </nav>
-
                 <header class="tc-header">
-                    <h1 class="tc-title">Bài viết {{ tagName }}</h1>
+                    <h1 class="tc-title">
+                        <i class="bi bi-book-fill tc-title-icon"></i>
+                        Bài viết {{ tagName }}
+                    </h1>
                     <div class="tc-stats" *ngIf="total > 0">
                         <span>{{ total }} bài viết</span>
                     </div>
@@ -47,7 +52,10 @@
                 <!-- Load More -->
                 <div class="tc-load-more" *ngIf="remainingCount > 0">
                     <button (click)="loadMore()" class="tc-load-more-btn" [disabled]="loading">
-                        <span *ngIf="!loading">Xem thêm {{ remainingCount }} bài viết</span>
+                        <span *ngIf="!loading" class="tc-load-more-text">
+                            <i class="bi bi-chevron-double-down"></i>
+                            Xem thêm {{ remainingCount }} bài viết
+                        </span>
                         <span *ngIf="loading">Đang tải...</span>
                     </button>
                 </div>
@@ -59,7 +67,7 @@
                 <div class="bv-featured-topics-box">
                     <h3 class="bv-ft-title">Chuyên đề nổi bật</h3>
                     <div class="bv-ft-list">
-                        <ng-container *ngFor="let item of featuredTopicCategories">
+                        <ng-container *ngFor="let item of featuredTopicCategories | slice:0:featuredSidebarLimit">
                             <a *ngIf="item.name.toLowerCase().indexOf('khuyến mãi') === -1 && item.name.toLowerCase().indexOf('phân loại') === -1 && item.name.toLowerCase().indexOf('truyền thông') === -1"
                                 [routerLink]="['/topic', item.slug]" class="bv-ft-item"
                                 [attr.data-category]="item.name">

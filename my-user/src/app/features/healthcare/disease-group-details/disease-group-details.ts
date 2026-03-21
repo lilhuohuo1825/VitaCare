@@ -138,7 +138,7 @@ export class DiseaseGroupDetails implements OnInit, OnDestroy {
 
   viewDetail(disease: any): void {
     if (!disease) return;
-    let raw = disease.slug ?? disease.id ?? disease._id;
+    let raw = disease.slug ?? disease.id ?? disease._id?.$oid ?? disease._id;
     if (raw === undefined || raw === null) return;
     let id = String(raw).trim();
     if (!id) return;
@@ -148,7 +148,7 @@ export class DiseaseGroupDetails implements OnInit, OnDestroy {
     if (id.endsWith('.html')) {
       id = id.replace(/\.html$/, '');
     }
-    this.router.navigate(['/benh', id], { state: { disease } });
+    this.router.navigate(['/disease', id], { state: { disease } });
   }
 
   /** Tên hiển thị cho nhóm bệnh thường gặp / theo mùa khi API không trả về name */

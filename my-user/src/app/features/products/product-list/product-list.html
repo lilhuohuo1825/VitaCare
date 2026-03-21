@@ -115,7 +115,7 @@
                             <span *ngIf="!product.unit || isNumber(product.unit)">/ Hộp</span>
                         </div>
                         <div class="low-stock-remind"
-                            *ngIf="product.stock !== undefined && product.stock !== null && product.stock > 0 && product.stock < 5">
+                            *ngIf="product.stock !== undefined && product.stock !== null && product.stock > 0 && product.stock <= 20">
                             <i class="bi bi-fire"></i> Chỉ còn: {{ product.stock }}
                         </div>
                     </div>

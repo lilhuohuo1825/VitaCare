@@ -1,12 +1,12 @@
 .cd-page {
     background: #f0f7ff;
-    padding: 32px 0 64px;
+    padding: 0 0 64px;
     min-height: 80vh;
     font-family: Inter, system-ui, -apple-system, sans-serif;
 }
 
 .cd-container {
-    width: min(1200px, calc(100% - 40px));
+    width: 100%;
     margin: 0 auto;
 }
 
@@ -95,8 +95,8 @@
 }
 
 .cd-card:hover {
-    border-color: #1a73e8;
-    box-shadow: 0 4px 12px rgba(26, 115, 232, 0.12);
+    border-color: #00589F;
+    box-shadow: 0 4px 12px rgba(0, 88, 159, 0.12);
 }
 
 .cd-card-name {
@@ -115,12 +115,12 @@
 
 .cd-card-link {
     font-size: 14px;
-    color: #1a73e8;
+    color: #00589F;
     font-weight: 500;
 }
 
 .cd-card-footer i {
-    color: #1a73e8;
+    color: #00589F;
     font-size: 14px;
     transition: transform 0.2s;
 }
@@ -151,7 +151,7 @@
 }
 
 .cd-load-more-btn:hover {
-    color: #3182ce;
+    color: #004a86;
 }
 
 .cd-load-more-btn i {

@@ -1,9 +1,9 @@
 <main class="bd-page">
   <div class="vc_container pt-2 pb-5">
     <!-- Breadcrumb -->
-    <nav class="vc_breadcrumb mb-3" aria-label="breadcrumb">
-      <ol class="vc_breadcrumb_list">
-        <li class="vc_breadcrumb_item" *ngFor="let bc of breadcrumbs; let last = last">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb-vc">
+        <li class="breadcrumb-item" *ngFor="let bc of breadcrumbs; let last = last" [class.active]="last">
           <a *ngIf="!last" [routerLink]="bc.link">{{ bc.name }}</a>
           <span *ngIf="last">{{ bc.name }}</span>
         </li>

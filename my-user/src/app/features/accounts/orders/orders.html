@@ -138,7 +138,15 @@
                                 Trả hàng
                             </button>
                             <button class="action-btn received-btn" (click)="confirmReceivedOrder(order)">
-                                Đã nhận hàng
+                                <span class="received-btn-title">Đã nhận hàng</span>
+                                <span
+                                    class="received-btn-xu"
+                                    [class.received-btn-xu--claimed]="isOrderCoinsClaimed(order)"
+                                    *ngIf="getReceivedRewardXU(order) > 0"
+                                >
+                                    <i class="bi bi-coin"></i>
+                                    <span>+{{ getReceivedRewardXU(order) }} xu</span>
+                                </span>
                             </button>
                         </div>
                     </div>
@@ -150,6 +158,30 @@
                             <button class="action-btn repurchase-btn" (click)="onRepurchaseOrder(order)">
                                 Mua lại
                             </button>
+
+                            <ng-container *ngIf="!hasOrderBeenReviewed(order)">
+                                <div class="unreview-eval-block">
+                                    <button class="action-btn rate-btn" (click)="onRate(order)">
+                                        Đánh giá ngay
+                                        <span class="rate-btn-xu">
+                                            <i class="bi bi-coin"></i> +200 xu
+                                        </span>
+                                    </button>
+                                </div>
+                            </ng-container>
+                            <ng-container *ngIf="hasOrderBeenReviewed(order)">
+                                <button class="action-btn rate-btn" (click)="onViewReviewed(order)">
+                                    Xem lại đánh giá
+                                </button>
+                            </ng-container>
+
+                            <!-- Chip xu (màu xám khi đã claim) -->
+                            <ng-container *ngIf="isOrderCoinsClaimed(order) && getReceivedRewardXU(order) > 0">
+                                <div class="received-xu-chip" [class.received-xu-chip--claimed]="true">
+                                    <i class="bi bi-coin"></i>
+                                    <span>+{{ getReceivedRewardXU(order) }} xu</span>
+                                </div>
+                            </ng-container>
                         </div>
                     </div>
 
@@ -171,6 +203,18 @@
                             <div *ngIf="!hasOrderBeenReviewed(order)">
                                 <button class="action-btn rate-btn" (click)="onRate(order)">Đánh giá</button>
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- Reviewed Order Buttons -->
+                    <div class="order-summary" *ngIf="order.status === 'reviewed'" (click)="$event.stopPropagation()">
+                        <div class="summary-right">
+                            <button class="action-btn repurchase-btn" (click)="onRepurchaseOrder(order)">
+                                Mua lại
+                            </button>
+                            <button class="action-btn view-reviewed-btn" (click)="onViewReviewed(order)">
+                                Xem lại đánh giá
+                            </button>
                         </div>
                     </div>
 
@@ -448,6 +492,10 @@
         <!-- Confirmation Message -->
         <div class="cancel-message">
             <h3 class="cancel-title">Xác nhận đã nhận hàng</h3>
+            <p class="received-reward-xu" *ngIf="selectedOrder">
+                <span class="received-reward-plus">+{{ getReceivedRewardXU(selectedOrder) }}</span>
+                xu <span class="received-reward-note">(1% giá trị đơn hàng)</span>
+            </p>
             <!-- <p class="cancel-text">
         Bạn có chắc chắn đã nhận được hàng? Sau khi xác nhận, đơn hàng sẽ chuyển sang trạng thái "Đã
         giao hàng" và bạn có thể đánh giá sản phẩm.
@@ -468,3 +516,57 @@
 
 <!-- Order Detail Modal -->
 <app-order-detail-acc></app-order-detail-acc>
+
+<!-- Review Popup (Đánh giá ngay) -->
+<app-review-form
+  *ngIf="showReviewModal"
+  [products]="reviewProducts"
+  (close)="closeReviewModal()"
+  (submit)="submitReview($event)"
+></app-review-form>
+
+<!-- Popup chúc mừng nhận xu từ đơn hàng -->
+<div class="remind-claim-burst-overlay" *ngIf="showOrderCoinClaimPopup">
+    <div class="remind-claim-burst" role="dialog" aria-modal="true">
+        <img src="assets/images/homepage/bump/congrate.png" alt="Chúc mừng" class="remind-claim-burst-image">
+        <p class="remind-claim-burst-title">
+            Bạn nhận được <strong>{{ orderCoinClaimAmount }} xu</strong>
+        </p>
+        <p class="order-coin-reward-hint">
+            từ đơn hàng <strong>{{ orderCoinClaimOrderCode }}</strong>
+        </p>
+        <button type="button" class="remind-claim-burst-amount"
+            (click)="$event.preventDefault(); $event.stopPropagation(); claimOrderCoins()"
+            [disabled]="orderCoinClaimInProgress" aria-label="Nhận {{ orderCoinClaimAmount }} xu" #orderClaimBurstBtn>
+            <img src="assets/images/homepage/bump/tui_xu.png" alt="Coin bag">
+            <span>+{{ orderCoinClaimAmount }} xu</span>
+        </button>
+    </div>
+</div>
+
+<!-- Popup chúc mừng nhận xu từ đánh giá -->
+<div class="remind-claim-burst-overlay" *ngIf="showReviewCoinClaimPopup">
+    <div class="remind-claim-burst" role="dialog" aria-modal="true">
+        <img src="assets/images/homepage/bump/congrate.png" alt="Chúc mừng" class="remind-claim-burst-image">
+        <p class="remind-claim-burst-title">
+            Bạn nhận được <strong>{{ reviewCoinClaimAmount }} xu</strong>
+        </p>
+        <p class="order-coin-reward-hint">
+            từ đánh giá đơn <strong>{{ reviewCoinClaimOrderCode }}</strong>
+        </p>
+        <button type="button" class="remind-claim-burst-amount"
+            (click)="$event.preventDefault(); $event.stopPropagation(); claimReviewCoins()"
+            [disabled]="reviewCoinClaimInProgress" aria-label="Nhận {{ reviewCoinClaimAmount }} xu" #reviewClaimBurstBtn>
+            <img src="assets/images/homepage/bump/tui_xu.png" alt="Coin bag">
+            <span>+{{ reviewCoinClaimAmount }} xu</span>
+        </button>
+    </div>
+</div>
+
+<!-- Hiệu ứng bay xu -->
+<div class="flying-coin-overlay" *ngIf="showOrderFlyingCoin">
+    <div class="flying-coin" [style.left.px]="flyStartX" [style.top.px]="flyStartY"
+        [style.offsetPath]="flyOffsetPath">
+        <img src="assets/images/homepage/bump/tui_xu.png" alt="Flying Bag" class="flying-bag-img">
+    </div>
+</div>

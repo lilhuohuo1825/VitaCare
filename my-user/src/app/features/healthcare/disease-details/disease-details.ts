@@ -72,6 +72,10 @@ export class DiseaseDetails implements OnInit, OnDestroy {
   };
 
   private prefilledDisease: any = null;
+  // Alias between disease-group and blog-topic slugs
+  private readonly relatedTopicAliasMap: Record<string, string> = {
+    'than-kinh-tinh-than': 'benh-ve-than-kinh',
+  };
 
   constructor(
     private route: ActivatedRoute,
@@ -304,6 +308,54 @@ export class DiseaseDetails implements OnInit, OnDestroy {
     slug = slug.replace(/\.html$/i, '');
 
     return `/${type}/${slug}`;
+  }
+
+  private normalizeTopicSlug(raw: string): string {
+    if (!raw) return '';
+    return String(raw)
+      .trim()
+      .replace(/^https?:\/\/[^/]+/i, '')
+      .replace(/^\/?(topic|chuyen-de)\//i, '')
+      .replace(/^\/+/, '')
+      .replace(/\.html?$/i, '')
+      .replace(/[?#].*$/, '');
+  }
+
+  private slugify(text: string): string {
+    if (!text) return '';
+    return String(text)
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[đĐ]/g, 'd')
+      .replace(/[^a-z0-9\s-]/g, '')
+      .trim()
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-');
+  }
+
+  getRelatedTopicRoute(): any[] {
+    // Priority 1: current disease group (what user is currently reading)
+    // e.g. "Bệnh về não" -> /topic/benh-ve-nao
+    const groupSlugFromName = this.slugify(this.breadcrumbGroup?.name || '');
+    if (groupSlugFromName) return ['/topic', groupSlugFromName];
+
+    const groupSlugFromValue = this.normalizeTopicSlug(this.breadcrumbGroup?.slug || '');
+    if (groupSlugFromValue) {
+      return ['/topic', this.relatedTopicAliasMap[groupSlugFromValue] || groupSlugFromValue];
+    }
+
+    // Priority 2: topic/category of the first related article
+    const firstRelated = this.disease?.related_articles?.[0];
+    const categorySlug = this.normalizeTopicSlug(firstRelated?.category?.slug || '');
+    if (categorySlug) return ['/topic', categorySlug];
+
+    // Priority 3: topic from disease tags
+    const firstTag = this.disease?.tags?.[0];
+    const tagSlug = this.normalizeTopicSlug(firstTag?.slug || this.slugify(firstTag?.title || ''));
+    if (tagSlug) return ['/topic', tagSlug];
+
+    return ['/topic'];
   }
 
   @HostListener('click', ['$event'])

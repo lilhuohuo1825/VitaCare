@@ -7,7 +7,7 @@
 
 .bd-page {
   background: #E5EEF8;
-  padding: 20px 0 60px;
+  padding: 0 0 60px;
   min-height: 80vh;
 }
 
@@ -181,13 +181,18 @@
 
 /* Premium Summary Quote - Matched with Disease Details */
 .bd-intro {
-  margin-bottom: 35px;
-  background: #F8FAFF;
-  border-left: 6px solid #00589F;
-  border-radius: 4px 16px 16px 4px;
-  padding: 28px 35px;
+  background: #EAF3FF;
+  border-radius: 16px;
+  padding: 35px 25px 24px 25px;
+  text-align: justify;
+  margin: 5px 0 45px;
+  font-size: 15.5px;
+  color: #0F2742;
+  line-height: 1.45;
+  font-weight: 500;
   position: relative;
-  box-shadow: 0 4px 15px rgba(0, 88, 159, 0.05);
+  border: none;
+  box-shadow: 6px 6px 0px rgba(0, 88, 159, 0.45);
 }
 
 .bd-intro-inner {
@@ -196,22 +201,33 @@
 }
 
 .bd-intro-icon {
+  position: absolute;
+  top: -95px;
+  left: -8px;
   display: block;
-  font-size: 32px;
+  font-size: 150px;
   color: #00589F;
-  opacity: 0.2;
+  opacity: 1;
   line-height: 1;
-  margin-bottom: 8px;
+  margin: 0;
+  pointer-events: none;
+}
+
+/* Force quote glyph style: rounded + sharp serif mark */
+.bd-intro-icon::before {
+  content: "“" !important;
+  font-family: Georgia, "Times New Roman", serif !important;
+  font-weight: 700;
 }
 
 .bd-intro-text {
   margin: 0;
-  font-size: 17px;
-  line-height: 1.6;
-  color: #1A3A5C;
-  font-weight: 600;
+  font-size: 15.5px;
+  line-height: 1.45;
+  color: #0F2742;
+  font-weight: 500;
   font-style: normal;
-  text-align: left;
+  text-align: justify;
 }
 
 /* Kích thước chữ lớn hơn (khi bấm "Lớn hơn") */
@@ -316,12 +332,13 @@
 
 .bd-body ::ng-deep a {
   color: #00589F;
-  text-decoration: underline;
+  text-decoration: none;
+  font-weight: 700;
 }
 
 .bd-body ::ng-deep a:hover {
   color: #004080;
-  text-decoration: underline;
+  text-decoration: none;
 }
 
 .bd-body ::ng-deep img {
@@ -977,7 +994,7 @@
 
 @media (max-width: 640px) {
   .bd-page {
-    padding: 12px 0 32px;
+    padding: 0 0 32px;
     background: #5a5a5a;
   }
 

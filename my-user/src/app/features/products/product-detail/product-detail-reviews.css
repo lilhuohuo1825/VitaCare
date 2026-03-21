@@ -136,6 +136,26 @@
     padding-bottom: 0 !important;
 }
 
+/* Review image grid */
+.review-images {
+    margin-top: 8px;
+}
+
+.review-images-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.review-image {
+    width: 110px;
+    height: 110px;
+    object-fit: cover;
+    border-radius: 10px;
+    border: 1px solid var(--color-neutral-20);
+    background: #fff;
+}
+
 /* ================= CONSULTATION SECTION STYLES ================= */
 .consultation-section .btn-primary {
     border-radius: 50px !important;

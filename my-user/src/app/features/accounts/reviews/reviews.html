@@ -126,7 +126,12 @@
                             <button class="action-btn repurchase-btn" (click)="onRepurchaseFromUnreviewed(item)">
                                 Mua lại
                             </button>
-                            <button class="action-btn rate-btn" (click)="onAddReview(item)">Đánh giá</button>
+                            <button class="action-btn rate-btn" (click)="onAddReview(item)">
+                                <span class="rate-btn-title">Đánh giá</span>
+                                <span class="rate-btn-xu">
+                                    <i class="bi bi-coin"></i> +200 xu
+                                </span>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -201,7 +206,7 @@
                         <div class="summary-right">
                             <button class="action-btn edit-review-btn-new" (click)="onEditReview(item)">
                                 <i class="bi bi-pencil"></i>
-                                <span>Chỉnh sửa đánh giá</span>
+                                <span>Xem lại đánh giá</span>
                             </button>
                         </div>
                     </div>
@@ -228,3 +233,38 @@
 
 <!-- Order Detail Modal Component -->
 <app-order-detail-acc></app-order-detail-acc>
+
+<!-- Review coin reward popup -->
+<div class="review-coin-reward-overlay" *ngIf="showReviewCoinClaimPopup">
+    <div class="review-coin-reward-modal" role="dialog" aria-modal="true">
+        <div class="review-coin-reward-top">
+            <img src="assets/images/homepage/bump/congrate.png" alt="Congratulation" class="review-coin-reward-img"
+                onerror="this.src='assets/icon/no-order.png'" />
+        </div>
+
+        <div class="review-coin-reward-body">
+            <div class="review-coin-reward-amount">
+                <i class="bi bi-coin"></i>
+                <span>+{{ reviewCoinClaimAmount }} xu</span>
+            </div>
+        <div class="review-coin-reward-title">Bạn nhận được {{ reviewCoinClaimAmount }} xu</div>
+        </div>
+
+        <button class="review-coin-reward-btn" type="button" (click)="claimReviewReward()"
+            #reviewClaimBurstBtn
+            [disabled]="reviewCoinClaimInProgress">
+            <img src="assets/images/homepage/bump/tui_xu.png" alt="Coin bag" class="review-coin-reward-bag"
+                onerror="this.src='assets/icon/no-order.png'" />
+            <span>{{ reviewCoinClaimInProgress ? 'Đang xử lý...' : 'Nhận xu' }}</span>
+        </button>
+    </div>
+</div>
+
+<!-- Flying bag effect -->
+<div class="flying-review-coin-overlay" *ngIf="showReviewFlyingCoin">
+    <div class="flying-review-coin" [style.left.px]="flyStartX" [style.top.px]="flyStartY"
+        [style.offsetPath]="flyOffsetPath">
+        <img src="assets/images/homepage/bump/tui_xu.png" alt="Flying Coin" class="flying-review-coin-img"
+            onerror="this.src='assets/icon/no-order.png'" />
+    </div>
+</div>

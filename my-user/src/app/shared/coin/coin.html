@@ -11,8 +11,12 @@
         </div>
         }
         <div class="coin-balance-badge">
+            @if (!isLoading()) {
             <i class="bi bi-coin"></i>
             <span>{{ balance() }}</span>
+            } @else {
+            <i class="bi bi-arrow-repeat coin-badge-loading"></i>
+            }
         </div>
     </div>
 </div>

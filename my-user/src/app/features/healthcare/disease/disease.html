@@ -91,7 +91,7 @@
 
                             <ng-container *ngIf="!bodyLoading">
                                 <div *ngFor="let disease of bodyDiseases" class="vc_aside_item"
-                                    (click)="goToDetail(disease._id)">
+                                    (click)="goToDetail(disease)">
                                     <span class="vc_item_name">{{ disease.name }}</span>
                                 </div>
 
