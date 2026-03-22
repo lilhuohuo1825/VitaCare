@@ -172,26 +172,9 @@ export class Info implements OnInit {
     if (!user?.user_id) return;
     fetch(this.capturedImageUrl)
       .then((res) => res.blob())
-      .then((blob) => this.blobToDataUrl(blob))
-      .then((dataUrl) => {
-        this.infoApi.updateProfile({ user_id: user.user_id, avatar: dataUrl }).subscribe({
-          next: (res) => {
-            if (res.success && res.user) {
-              this.authService.setUser(res.user as import('../../../core/services/auth.service').LoggedUser);
-              this.avatarError = false;
-              if (this.capturedImageUrl) URL.revokeObjectURL(this.capturedImageUrl);
-              this.capturedImageUrl = null;
-              this.stopCamera();
-              this.showAvatarModal = false;
-              this.toastService.showSuccess('Đã lưu ảnh đại diện.');
-            }
-            this.cdr.detectChanges();
-          },
-          error: () => {
-            this.toastService.showError('Không thể lưu ảnh. Thử lại sau.');
-            this.cdr.detectChanges();
-          },
-        });
+      .then((blob) => {
+        const file = new File([blob], 'avatar.jpg', { type: blob.type || 'image/jpeg' });
+        this.uploadAvatarFile(file);
       })
       .catch(() => {
         this.toastService.showError('Không thể xử lý ảnh.');
@@ -199,12 +182,26 @@ export class Info implements OnInit {
       });
   }
 
-  private blobToDataUrl(blob: Blob): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = reject;
-      reader.readAsDataURL(blob);
+  private uploadAvatarFile(file: File): void {
+    const user = this.authService.currentUser();
+    if (!user?.user_id) return;
+    this.infoApi.uploadAvatar(user.user_id, file).subscribe({
+      next: (res) => {
+        if (res.success && res.user) {
+          this.authService.setUser(res.user as import('../../../core/services/auth.service').LoggedUser);
+          this.avatarError = false;
+          if (this.capturedImageUrl) URL.revokeObjectURL(this.capturedImageUrl);
+          this.capturedImageUrl = null;
+          this.stopCamera();
+          this.showAvatarModal = false;
+          this.toastService.showSuccess('Đã lưu ảnh đại diện.');
+        }
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.toastService.showError('Không thể lưu ảnh. Thử lại sau.');
+        this.cdr.detectChanges();
+      },
     });
   }
 
@@ -288,28 +285,9 @@ export class Info implements OnInit {
     const input = event.target as HTMLInputElement;
     const file = input?.files?.[0];
     if (!file || !file.type.startsWith('image/')) return;
-    const user = this.authService.currentUser();
-    if (!user?.user_id) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      const dataUrl = reader.result as string;
-      this.infoApi.updateProfile({ user_id: user.user_id, avatar: dataUrl }).subscribe({
-        next: (res) => {
-          if (res.success && res.user) {
-            this.authService.setUser(res.user as import('../../../core/services/auth.service').LoggedUser);
-            this.avatarError = false;
-            this.showAvatarModal = false;
-            this.toastService.showSuccess('Đã lưu ảnh đại diện.');
-          }
-          this.cdr.detectChanges();
-        },
-        error: () => {
-          this.toastService.showError('Không thể lưu ảnh. Thử lại sau.');
-          this.cdr.detectChanges();
-        },
-      });
-    };
-    reader.readAsDataURL(file);
+    if (input) input.value = '';
+    this.stopCamera();
+    this.uploadAvatarFile(file);
   }
 
   /** Mở popup đổi mật khẩu: bước 1 nhập SĐT (prefill current), gửi OTP */

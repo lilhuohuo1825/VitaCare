@@ -359,7 +359,6 @@
           </span>
           <i class="bi bi-chevron-right"></i>
         </button>
-
         <section class="order-checkout-section">
           <div class="order-summary">
             <div class="order-sidebar-title">Chi tiết thanh toán</div>
@@ -367,13 +366,33 @@
               <span>Tổng tiền</span>
               <strong class="order-summary-value-total">{{ cartSubtotal || totalPrice | number:'1.0-0' }}₫</strong>
             </div>
+            <div class="order-vitaxu-row order-vitaxu-row-inline">
+              <div class="order-vitaxu-left">
+                <i class="bi bi-coin"></i>
+                <div class="order-vitaxu-meta">
+                  <span>Dùng Vita Xu</span>
+                  <small>Số dư: {{ vitaXuBalance | number:'1.0-0' }} xu</small>
+                </div>
+              </div>
+              <div class="order-vitaxu-right">
+                <span class="order-vitaxu-amount" *ngIf="useVitaXu">-{{ cartVitaXuDiscount | number:'1.0-0' }}₫</span>
+                <label class="order-vitaxu-switch">
+                  <input type="checkbox" [checked]="useVitaXu" (change)="toggleUseVitaXu($any($event.target).checked)" />
+                  <span class="slider"></span>
+                </label>
+              </div>
+            </div>
             <div class="order-summary-row">
               <span>Giảm giá trực tiếp</span>
-              <strong class="order-summary-value-discount">{{ cartDirectDiscount | number:'1.0-0' }}₫</strong>
+              <strong class="order-summary-value-discount"><span *ngIf="cartDirectDiscount > 0">-</span>{{ cartDirectDiscount | number:'1.0-0' }}₫</strong>
             </div>
             <div class="order-summary-row order-summary-row-last">
               <span>Giảm giá voucher</span>
-              <strong class="order-summary-value-discount">{{ cartVoucherDiscount | number:'1.0-0' }}₫</strong>
+              <strong class="order-summary-value-discount"><span *ngIf="cartVoucherDiscount > 0">-</span>{{ cartVoucherDiscount | number:'1.0-0' }}₫</strong>
+            </div>
+            <div class="order-summary-row order-summary-row-last">
+              <span>Giảm Vita Xu</span>
+              <strong class="order-summary-value-discount"><span *ngIf="cartVitaXuDiscount > 0">-</span>{{ cartVitaXuDiscount | number:'1.0-0' }}₫</strong>
             </div>
             <div class="order-summary-row">
               <span>Phí vận chuyển</span>
@@ -382,6 +401,10 @@
             <div class="order-summary-row order-summary-total">
               <span>Thành tiền</span>
               <strong class="order-total-amount">{{ orderTotal | number:'1.0-0' }}₫</strong>
+            </div>
+            <div class="order-summary-xu-earn">
+              <i class="bi bi-coin"></i>
+              <span>Kiếm được {{ qrEarnXu | number:'1.0-0' }} Vita Xu</span>
             </div>
           </div>
 
@@ -757,7 +780,7 @@
         <h3 class="vc-order-success-title">Đặt hàng thành công!</h3>
 
         <p class="vc-order-success-desc">
-          Cảm ơn bạn đã đặt hàng tại <strong>VitaCare</strong>.<br>
+          Cảm ơn bạn đã đặt hàng tại <strong class="vc-order-success-brand">VitaCare</strong>.<br>
           Đơn hàng của bạn đang được xử lý.
         </p>
 
@@ -838,26 +861,73 @@
         </div>
 
         <div class="vc-qr-body">
-          <p class="vc-qr-method">{{ paymentMethodLabel }}</p>
-          <p class="vc-qr-amount">Số tiền: <strong>{{ orderTotal | number:'1.0-0' }}₫</strong></p>
-
-          <p class="vc-qr-cta">Hãy quét mã để thanh toán</p>
-          <div class="vc-qr-box">
-            <div class="vc-qr-code-placeholder" aria-hidden="true"></div>
-            <p class="vc-qr-note">
-              Mở ứng dụng ngân hàng hoặc ví điện tử, quét mã QR và hoàn tất thanh toán.
-            </p>
+          <div class="vc-qr-content">
+            <div class="vc-qr-left">
+              <div class="vc-qr-warning">
+                Vui lòng hoàn tất thanh toán trước thời gian quy định.<br>
+                Nếu không, giao dịch sẽ tự động hoàn trả trong 10 ngày làm việc.
+              </div>
+              <div class="vc-qr-panel">
+                <div class="vc-qr-panel-top">
+                  <button type="button" class="vc-qr-download-btn" aria-label="Tải về mã QR" (click)="downloadQrImage()">
+                    <i class="bi bi-download"></i>
+                  </button>
+                </div>
+                <p class="vc-qr-cta">NHA THUOC VITACARE</p>
+                <div class="vc-qr-box">
+                  <div class="vc-qr-code-wrap">
+                    <img src="assets/images/order/QR.png" alt="Mã QR thanh toán" class="vc-qr-code-img">
+                  </div>
+                  <p class="vc-qr-note">
+                    Thời gian hoàn tất thanh toán: <span class="vc-qr-countdown">{{ qrCountdownLabel() }}</span>
+                  </p>
+                </div>
+              </div>
+              <div class="vc-qr-bank-info">
+                <div class="vc-qr-bank-title">Thông tin chuyển khoản</div>
+                <div class="vc-qr-bank-row"><span>Ngân hàng:</span><strong>MBBANK</strong></div>
+                <div class="vc-qr-bank-row"><span>Số tài khoản:</span><strong>UEL252BIE503101</strong></div>
+                <div class="vc-qr-bank-row"><span>Chủ tài khoản:</span><strong>NHA THUOC VITACARE</strong></div>
+                <div class="vc-qr-bank-row">
+                  <span>Nội dung CK:</span>
+                  <strong class="vc-qr-bank-transfer-code">{{ transferContentCode }}</strong>
+                </div>
+              </div>
+            </div>
+            <aside class="vc-qr-right">
+              <div class="vc-qr-guide">
+                <div class="vc-qr-guide-title">Hướng dẫn thanh toán QR</div>
+                <ol>
+                  <li>Mở ví điện tử hoặc ứng dụng ngân hàng có hỗ trợ VietQR, sau đó quét mã QR bên trên.</li>
+                  <li>Đảm bảo số tiền và nội dung thanh toán khớp với đơn hàng, sau đó hoàn tất giao dịch.</li>
+                  <li>Đơn đặt hàng sẽ được xác nhận tự động sau khi thanh toán thành công.</li>
+                </ol>
+              </div>
+              <div class="vc-qr-order-card">
+                <div class="vc-qr-order-title">Thông tin đơn hàng</div>
+                <div class="vc-qr-order-row"><span>Khách hàng:</span><strong>{{ qrCustomerName }}</strong></div>
+                <div class="vc-qr-order-row"><span>Số điện thoại:</span><strong>{{ qrCustomerPhone || '---' }}</strong></div>
+                <div class="vc-qr-order-products">
+                  <div class="vc-qr-order-products-label">Sản phẩm:</div>
+                  <div class="vc-qr-order-products-list">
+                    <div class="vc-qr-order-product-item" *ngFor="let item of cart?.items">
+                      <img class="vc-qr-order-product-img" [src]="item.image" [alt]="item.productName || 'Sản phẩm'" />
+                      <div class="vc-qr-order-product-name">{{ item.productName || 'Sản phẩm' }}</div>
+                      <div class="vc-qr-order-product-qty">x{{ item.quantity || 1 }}</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="vc-qr-order-row"><span>Thanh toán:</span><strong>{{ paymentMethodLabel }}</strong></div>
+                <div class="vc-qr-order-row"><span>Tổng cộng:</span><strong class="vc-qr-order-total">{{ orderTotal | number:'1.0-0' }}₫</strong></div>
+                <div class="vc-qr-order-xu">
+                  <i class="bi bi-coin" aria-hidden="true"></i>
+                  <span>Kiếm {{ qrEarnXu | number:'1.0-0' }} Vita Xu</span>
+                </div>
+              </div>
+            </aside>
           </div>
         </div>
 
-        <div class="vc-qr-footer">
-          <button type="button" class="vc-qr-btn vc-qr-btn-cancel" (click)="cancelQrPayment()">
-            Huỷ
-          </button>
-          <button type="button" class="vc-qr-btn vc-qr-btn-confirm" (click)="confirmQrPayment()">
-            Đã thanh toán
-          </button>
-        </div>
       </div>
     </div>
     }

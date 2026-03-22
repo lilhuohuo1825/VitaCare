@@ -21,6 +21,10 @@ import { OrderDetailAcc } from '../order-detail-acc/order-detail-acc';
 import { CartService, CartItem } from '../../../core/services/cart.service';
 import { CartSidebarService } from '../../../core/services/cart-sidebar.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { CoinService } from '../../../core/services/coin.service';
+import { ProductService } from '../../../core/services/product.service';
+import { ReviewFormComponent, ReviewProduct } from '../../../components/review-form/review-form';
+import { firstValueFrom } from 'rxjs';
 
 interface OrderProduct {
   id: string;
@@ -79,7 +83,7 @@ interface ReturnReason {
 @Component({
   selector: 'app-orders',
   standalone: true,
-  imports: [CommonModule, FormsModule, OrderDetailAcc],
+  imports: [CommonModule, FormsModule, OrderDetailAcc, ReviewFormComponent],
   templateUrl: './orders.html',
   styleUrl: './orders.css',
 })
@@ -91,6 +95,8 @@ export class Orders implements OnInit, OnChanges {
   private cartService = inject(CartService);
   private cartSidebar = inject(CartSidebarService);
   private toast = inject(ToastService);
+  private coinService = inject(CoinService);
+  private productService = inject(ProductService);
 
   @Input() userId: string | undefined;
 
@@ -100,6 +106,79 @@ export class Orders implements OnInit, OnChanges {
 
   // Order Detail Modal
   @ViewChild(OrderDetailAcc) orderDetailModal!: OrderDetailAcc;
+
+  // Popup nhận xu từ đơn hàng (y chang luồng remind)
+  @ViewChild('orderClaimBurstBtn') orderClaimBurstBtn!: ElementRef<HTMLButtonElement>;
+  @ViewChild('reviewClaimBurstBtn') reviewClaimBurstBtn!: ElementRef<HTMLButtonElement>;
+
+  showOrderCoinClaimPopup = false;
+  orderCoinClaimAmount = 0;
+  orderCoinClaimOrderCode = '';
+  orderCoinClaimInProgress = false;
+
+  // Popup nhận xu sau khi gửi đánh giá
+  showReviewCoinClaimPopup = false;
+  reviewCoinClaimAmount = 200;
+  reviewCoinClaimOrderCode = '';
+  reviewCoinClaimInProgress = false;
+
+  showOrderFlyingCoin = false;
+  flyStartX = 0;
+  flyStartY = 0;
+  flyOffsetPath = "path('M 0 0 Q 0 0 0 0')";
+
+  private pendingCoinRewardOrder: Order | null = null;
+  private pendingReviewRewardOrder: Order | null = null;
+
+  private orderCoinClaimKey(order: Order): string {
+    return `vc_order_received_claimed_${order.orderNumber}`;
+  }
+
+  private reviewCoinClaimKey(order: Order): string {
+    return `vc_review_reward_claimed_${order.orderNumber}`;
+  }
+
+  private resolveRewardUserId(): string {
+    const fromAuth = String(this.authService.currentUser()?.user_id || '').trim();
+    if (fromAuth && fromAuth !== 'guest') return fromAuth;
+    const fromInput = String(this.userId || '').trim();
+    if (fromInput && fromInput !== 'guest') return fromInput;
+    const fromOrderService = String(this.orderService.getCustomerID() || '').trim();
+    if (fromOrderService && fromOrderService !== 'guest') return fromOrderService;
+    return '';
+  }
+
+  isOrderCoinsClaimed(order: Order): boolean {
+    try {
+      return localStorage.getItem(this.orderCoinClaimKey(order)) === '1';
+    } catch {
+      return false;
+    }
+  }
+
+  private setOrderCoinsClaimed(order: Order): void {
+    try {
+      localStorage.setItem(this.orderCoinClaimKey(order), '1');
+    } catch {
+      // ignore
+    }
+  }
+
+  private isReviewCoinsClaimed(order: Order): boolean {
+    try {
+      return localStorage.getItem(this.reviewCoinClaimKey(order)) === '1';
+    } catch {
+      return false;
+    }
+  }
+
+  private setReviewCoinsClaimed(order: Order): void {
+    try {
+      localStorage.setItem(this.reviewCoinClaimKey(order), '1');
+    } catch {
+      // ignore
+    }
+  }
 
   // Tabs
   activeTab: string = 'all';
@@ -147,6 +226,9 @@ export class Orders implements OnInit, OnChanges {
 
   cancelReason: string = '';
   reviewProducts: any[] = [];
+
+  // Keep current order for building review payloads
+  private orderForReview: Order | null = null;
 
   // Cancel Order Reason Selection
   selectedCancelReason: string = '';
@@ -291,7 +373,7 @@ export class Orders implements OnInit, OnChanges {
       voucherDiscount,
       shippingFee,
       products: products,
-      isReviewed: false, // Default
+      isReviewed: status === 'reviewed', // Đồng bộ với trạng thái backend
       isReturned: false, // Default
     };
   }
@@ -645,12 +727,25 @@ export class Orders implements OnInit, OnChanges {
     // Gửi orderNumber (trùng với order_id trên MongoDB) cho backend
     this.orderService.confirmReceived(order.orderNumber).subscribe({
       next: () => {
+        const rewardXU = this.getReceivedRewardXU(order);
+
+        // Luồng UI: hiện popup chúc mừng 1 lần trước khi chuyển trạng thái đơn.
+        if (rewardXU > 0 && !this.isOrderCoinsClaimed(order)) {
+          this.pendingCoinRewardOrder = order;
+          this.orderCoinClaimAmount = rewardXU;
+          this.orderCoinClaimOrderCode = order.orderNumber;
+          this.showOrderCoinClaimPopup = true;
+
+          this.closeConfirmReceivedModal();
+          this.cdr.detectChanges();
+          return;
+        }
+
+        // Không thưởng hoặc đã claim rồi: cập nhật ngay
         order.status = 'unreview';
         this.updateTabCounts();
         this.closeConfirmReceivedModal();
         this.cdr.detectChanges();
-        // Reload lại trang để đảm bảo trạng thái đơn hàng được cập nhật đầy đủ
-        window.location.reload();
       },
       error: (err) => {
         console.error('Confirm received API error:', err);
@@ -662,6 +757,172 @@ export class Orders implements OnInit, OnChanges {
         this.cdr.detectChanges();
       },
     });
+  }
+
+  // +1% giá trị đơn hàng khi user xác nhận đã nhận hàng
+  getReceivedRewardXU(order: Order | null): number {
+    const total = Number(order?.totalAmount ?? 0);
+    if (!Number.isFinite(total) || total <= 0) return 0;
+    return Math.floor(total * 0.01);
+  }
+
+  private closeOrderCoinClaimPopup(): void {
+    this.showOrderCoinClaimPopup = false;
+  }
+
+  private closeReviewCoinClaimPopup(): void {
+    this.showReviewCoinClaimPopup = false;
+  }
+
+  async claimOrderCoins(): Promise<void> {
+    if (!this.pendingCoinRewardOrder) return;
+    if (this.orderCoinClaimInProgress) return;
+
+    const order = this.pendingCoinRewardOrder;
+    const rewardXU = this.getReceivedRewardXU(order);
+    if (rewardXU <= 0) {
+      this.closeOrderCoinClaimPopup();
+      this.pendingCoinRewardOrder = null;
+      return;
+    }
+
+    if (this.isOrderCoinsClaimed(order)) {
+      // Nếu đã claim trước đó (local), chỉ chuyển trạng thái đơn
+      order.status = 'unreview';
+      this.updateTabCounts();
+      this.pendingCoinRewardOrder = null;
+      this.closeOrderCoinClaimPopup();
+      return;
+    }
+
+    this.orderCoinClaimInProgress = true;
+
+    const uid = this.resolveRewardUserId();
+    if (!uid || uid === 'guest') {
+      this.orderCoinClaimInProgress = false;
+      this.toast.showError('Không xác định được tài khoản để cộng xu.');
+      return;
+    }
+
+    try {
+      await this.coinService.applyOrderReward(order.orderNumber, rewardXU, uid);
+    } catch (e) {
+      this.orderCoinClaimInProgress = false;
+      this.toast.showError('Cộng xu thất bại, vui lòng thử lại.');
+      return;
+    }
+
+    this.setOrderCoinsClaimed(order);
+
+    // Chuẩn bị đường bay dựa vào nút vừa bấm
+    this.prepareFlyingCoinTargetFromClaimBtn();
+    // Sau khi có toạ độ, mới tắt popup để không mất vị trí nút claim
+    this.closeOrderCoinClaimPopup();
+    this.showOrderFlyingCoin = true;
+    // Đảm bảo overlay bay được render ngay lập tức (không phải chờ đến setTimeout)
+    this.cdr.detectChanges();
+
+    setTimeout(() => {
+      this.showOrderFlyingCoin = false;
+      this.orderCoinClaimInProgress = false;
+
+      // Sau khi animation xong mới chuyển trạng thái để chip có thời gian đổi xám
+      if (this.pendingCoinRewardOrder) {
+        this.pendingCoinRewardOrder.status = 'unreview';
+        this.updateTabCounts();
+      }
+      this.pendingCoinRewardOrder = null;
+      this.cdr.detectChanges();
+    }, 2000);
+  }
+
+  private prepareFlyingCoinTargetFromClaimBtn(btnEl?: HTMLElement | null): void {
+    // Bay theo offset-path giống remind.ts
+    const btn = btnEl || this.orderClaimBurstBtn?.nativeElement;
+    if (!btn || typeof window === 'undefined') return;
+
+    const COIN_SIZE = 80;
+    const HALF = COIN_SIZE / 2;
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+
+    const claimRect = btn.getBoundingClientRect();
+
+    const coinContainer = document.querySelector('.coin-bag-container') as HTMLElement | null;
+    // Lấy theo toàn bộ container cho chuẩn "rơi vào giỏ" (icon + badge nằm trong đó)
+    const coinRect = coinContainer?.getBoundingClientRect?.();
+
+    const startX = claimRect.left + claimRect.width / 2 - HALF;
+    const startY = claimRect.top + claimRect.height / 2 - HALF;
+
+    const endX = coinRect ? coinRect.left + coinRect.width / 2 - HALF : w - 17 - HALF;
+    const endY = coinRect ? coinRect.top + coinRect.height / 2 - HALF : h - 260;
+
+    const dx = endX - startX;
+    const dy = endY - startY;
+    const peakY = Math.min(startY, endY) - 160;
+    const ctrlX = startX + dx / 2;
+    const ctrlY = peakY;
+
+    const ctrlRelX = ctrlX - startX;
+    const ctrlRelY = ctrlY - startY;
+
+    this.flyStartX = startX;
+    this.flyStartY = startY;
+    this.flyOffsetPath = `path('M 0 0 Q ${ctrlRelX} ${ctrlRelY} ${dx} ${dy}')`;
+  }
+
+  async claimReviewCoins(): Promise<void> {
+    if (!this.pendingReviewRewardOrder) return;
+    if (this.reviewCoinClaimInProgress) return;
+
+    const order = this.pendingReviewRewardOrder;
+    const rewardXU = this.reviewCoinClaimAmount;
+    if (rewardXU <= 0) {
+      this.closeReviewCoinClaimPopup();
+      this.pendingReviewRewardOrder = null;
+      return;
+    }
+
+    if (this.isReviewCoinsClaimed(order)) {
+      this.pendingReviewRewardOrder = null;
+      this.closeReviewCoinClaimPopup();
+      return;
+    }
+
+    this.reviewCoinClaimInProgress = true;
+    const uid = this.resolveRewardUserId();
+    if (!uid || uid === 'guest') {
+      this.reviewCoinClaimInProgress = false;
+      this.toast.showError('Không xác định được tài khoản để cộng xu.');
+      return;
+    }
+
+    try {
+      await this.coinService.applyReviewReward(order.orderNumber, rewardXU, uid);
+    } catch (e: any) {
+      this.reviewCoinClaimInProgress = false;
+      const status = Number(e?.status || e?.error?.status || 0);
+      if (status === 404) {
+        this.toast.showError('Backend chưa cập nhật API thưởng xu đánh giá. Vui lòng khởi động lại server backend.');
+      } else {
+        this.toast.showError(e?.error?.message || e?.message || 'Cộng xu thất bại, vui lòng thử lại.');
+      }
+      return;
+    }
+
+    this.setReviewCoinsClaimed(order);
+    this.prepareFlyingCoinTargetFromClaimBtn(this.reviewClaimBurstBtn?.nativeElement || null);
+    this.closeReviewCoinClaimPopup();
+    this.showOrderFlyingCoin = true;
+    this.cdr.detectChanges();
+
+    setTimeout(() => {
+      this.showOrderFlyingCoin = false;
+      this.reviewCoinClaimInProgress = false;
+      this.pendingReviewRewardOrder = null;
+      this.cdr.detectChanges();
+    }, 2000);
   }
 
   // --- Other Actions ---
@@ -710,9 +971,43 @@ export class Orders implements OnInit, OnChanges {
   }
 
   onRate(order: Order): void {
-    console.log('Rate order', order.id);
+    // Mở popup đánh giá ngay tại trang Đơn hàng của tôi (không chuyển trang)
+    this.orderForReview = order;
+    const purchasedProducts = order.products.filter((p) => !p.gifted);
+    this.reviewProducts = purchasedProducts.map((p) => {
+      const productSku = p.sku || p.id;
+      return {
+        id: `${order.orderNumber}_${p.id || productSku}`,
+        productName: p.name,
+        productImage: p.image,
+        category: p.category || '',
+        sku: productSku,
+        rating: 0,
+        reviewText: '',
+        images: [],
+      } as ReviewProduct;
+    });
     this.showReviewModal = true;
-    this.reviewProducts = order.products.filter((p) => !p.gifted);
+    this.cdr.detectChanges();
+  }
+
+  onViewReviewed(order: Order): void {
+    // Mở trang chi tiết sản phẩm vừa đánh giá và tự trượt xuống phần Đánh giá.
+    const purchased = (order.products || []).filter((p) => !p.gifted);
+    const target = purchased[0];
+    const targetSkuOrId = String(target?.sku || target?.id || '').trim();
+
+    if (!targetSkuOrId) {
+      this.toast.showError('Không tìm thấy sản phẩm để mở lại đánh giá.');
+      return;
+    }
+
+    this.router.navigate(['/product', targetSkuOrId], {
+      queryParams: {
+        scrollTo: 'reviews',
+        orderId: order.orderNumber,
+      },
+    });
   }
 
   hasOrderBeenReviewed(order: Order): boolean {
@@ -767,12 +1062,120 @@ export class Orders implements OnInit, OnChanges {
 
   closeReviewModal() {
     this.showReviewModal = false;
+    this.reviewProducts = [];
   }
 
-  submitReview(event: any) {
-    if (this.selectedOrder) {
-      this.selectedOrder.isReviewed = true;
+  async submitReview(reviewedProducts: ReviewProduct[]): Promise<void> {
+    const order = this.orderForReview || this.selectedOrder;
+    if (!order) return;
+
+    const customerID = String(this.userId || this.orderService.getCustomerID() || '').trim();
+    if (!customerID || customerID === 'guest') {
+      this.toast.showError('Không xác định được tài khoản để gửi đánh giá.');
+      return;
     }
-    this.closeReviewModal();
+
+    const user = this.authService.currentUser() as any;
+    const fullname = user?.full_name || user?.phone || 'Khách';
+    const avatar = user?.avatar || '';
+
+    try {
+      const submittedSkus: string[] = [];
+      const payloads = (reviewedProducts || []).map((rp) => {
+        const sku = String(rp.sku || rp.id.split('_')[1] || rp.id);
+        submittedSkus.push(sku);
+        return this.productService.submitReview({
+          sku,
+          rating: rp.rating,
+          content: rp.reviewText || '',
+          fullname,
+          customer_id: customerID,
+          order_id: order.orderNumber,
+          images: (rp.images || []).filter((img) => !!img),
+          avatar,
+        });
+      });
+
+      await Promise.all(payloads.map((obs: any) => firstValueFrom(obs)));
+
+      // Update local UI state
+      order.isReviewed = true;
+      order.status = 'reviewed';
+      this.updateTabCounts();
+      this.toast.showSuccess('Đánh giá đã được gửi thành công!');
+
+      // Hiện popup nhận 200 xu sau khi đánh giá (nếu chưa nhận)
+      if (!this.isReviewCoinsClaimed(order)) {
+        this.pendingReviewRewardOrder = order;
+        this.reviewCoinClaimAmount = 200;
+        this.reviewCoinClaimOrderCode = order.orderNumber;
+        this.showReviewCoinClaimPopup = true;
+      }
+
+      // Notify product detail page to refresh reviews (for other tabs / already open page)
+      const ts = String(Date.now());
+      submittedSkus.forEach((sku) => {
+        try {
+          localStorage.setItem(`vc_review_submitted_${sku}`, ts);
+        } catch {}
+      });
+
+      // Đồng bộ trạng thái qua trang "Quản lý đánh giá" ngay lập tức
+      try {
+        const reviewedRaw = localStorage.getItem('reviewedItems');
+        const reviewedItems = reviewedRaw ? JSON.parse(reviewedRaw) : [];
+
+        const now = new Date();
+        const reviewDateStr =
+          now.toLocaleDateString('vi-VN') +
+          ' ' +
+          now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+
+        (reviewedProducts || []).forEach((rp: any) => {
+          const productId = String(rp.id || '').split('_')[1] || String(rp.sku || '');
+          const reviewItemId = `${order.id}_${productId}`;
+          const existingIndex = reviewedItems.findIndex((it: any) => String(it?.id || '') === reviewItemId);
+
+          const sourceProduct =
+            order.products.find((p) => String(p.id || '') === String(productId)) ||
+            order.products.find((p) => String(p.sku || '') === String(rp.sku || ''));
+
+          const nextItem = {
+            id: reviewItemId,
+            productName: rp.productName || sourceProduct?.name || '',
+            productImage: rp.productImage || sourceProduct?.image || '',
+            category: rp.category || sourceProduct?.category || '',
+            reviewerName: fullname,
+            rating: Number(rp.rating) || 0,
+            reviewText: String(rp.reviewText || ''),
+            reviewDate: reviewDateStr,
+            orderId: order.id,
+            orderNumber: order.orderNumber,
+            images: (rp.images || []).filter((img: any) => !!img),
+            sku: rp.sku || sourceProduct?.sku,
+            productId: sourceProduct?.id || productId,
+            products: order.products,
+            OrderID: order.orderNumber,
+            CustomerID: customerID,
+            shippingInfo: { fullName: fullname },
+          };
+
+          if (existingIndex >= 0) reviewedItems[existingIndex] = nextItem;
+          else reviewedItems.push(nextItem);
+        });
+
+        localStorage.setItem('reviewedItems', JSON.stringify(reviewedItems));
+        localStorage.setItem('ordersDataChanged', String(Date.now()));
+      } catch (syncErr) {
+        console.warn('[Orders] sync reviewedItems localStorage failed:', syncErr);
+      }
+    } catch (e) {
+      console.error('[Orders] submitReview error:', e);
+      this.toast.showError('Gửi đánh giá thất bại, vui lòng thử lại.');
+    } finally {
+      this.orderForReview = null;
+      this.closeReviewModal();
+      this.cdr.detectChanges();
+    }
   }
 }

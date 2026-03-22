@@ -42,6 +42,50 @@ export class AuthService {
         }
     }
 
+    /**
+     * Thông tin dược sĩ đang đăng nhập để gắn vào blog (author / approver).
+     * Cấu trúc tương thích document blog (không gửi password).
+     */
+    getPharmacistBlogPerson(forApprover: boolean = false): Record<string, unknown> | null {
+        if (!this.isPharmacistAccount()) return null;
+        try {
+            const raw = localStorage.getItem('admin');
+            if (!raw) return null;
+            const a = JSON.parse(raw) as Record<string, unknown>;
+            const id = a['_id'] ?? a['pharmacist_id'];
+            const fullName = String(a['pharmacistName'] || a['adminname'] || '').trim();
+            const email = String(a['pharmacistEmail'] || a['email'] || a['adminemail'] || '').trim();
+            if (!fullName && !email) return null;
+
+            const avatarVal = a['avatar'];
+            const avatar =
+                avatarVal && typeof avatarVal === 'string'
+                    ? { url: avatarVal }
+                    : avatarVal && typeof avatarVal === 'object'
+                        ? avatarVal
+                        : null;
+
+            const base: Record<string, unknown> = {
+                id: id != null ? (typeof id === 'number' ? id : String(id)) : undefined,
+                fullName,
+                email,
+                degree: 'Dược sĩ',
+                bio: '',
+                slug: '',
+                nickName: null,
+                avatar,
+                partner: null,
+                position: ''
+            };
+            if (forApprover) {
+                base['isApproved'] = true;
+            }
+            return base;
+        } catch {
+            return null;
+        }
+    }
+
     private async sha256(message: string): Promise<string> {
         const msgBuffer = new TextEncoder().encode(message);
         const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);

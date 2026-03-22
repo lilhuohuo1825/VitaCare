@@ -27,6 +27,56 @@
 .header-right {
     display: flex;
     gap: 12px;
+    align-items: center;
+}
+
+.export-dropdown {
+    position: relative;
+}
+
+.export-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.export-menu {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 8px);
+    min-width: 220px;
+    background: var(--color-bg-secondary);
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.12);
+    padding: 6px;
+    z-index: 200;
+}
+
+.export-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    text-align: left;
+    padding: 10px 12px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.export-menu-item:hover {
+    background: #f1f5f9;
+}
+
+.export-menu-item i {
+    color: #4f46e5;
+    font-size: 1.1rem;
 }
 
 .action-btn {
@@ -195,7 +245,7 @@
 /* Insights Grid (The 3 new charts) */
 .insights-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: 1fr 2fr;
     gap: 24px;
     margin-bottom: 24px;
 }
@@ -335,10 +385,57 @@
     max-width: 100% !important;
 }
 
+.activity-summary-card {
+    min-height: 300px;
+    padding-left: 12px;
+    padding-right: 12px;
+}
+
+.activity-summary-card .canvas-holder-lg {
+    height: 248px;
+    justify-content: stretch;
+}
+
+.activity-summary-card .canvas-holder-lg canvas {
+    width: 100% !important;
+    max-width: none !important;
+}
+
+/* Tổng quan nội dung — cột hẹp cạnh Xu hướng */
+.insights-grid .content-summary-card {
+    min-height: 300px;
+}
+
+.insights-grid .content-summary-card .content-summary-list {
+    flex: 1;
+    justify-content: center;
+    margin-top: 0;
+}
+
+/* Phân hạng Thành viên — cột hẹp cạnh Sản phẩm bán chạy */
+.bottom-grid .member-tier-card {
+    min-height: 300px;
+    display: flex;
+    flex-direction: column;
+}
+
+.bottom-grid .member-tier-card h4 {
+    margin: 0 0 12px 0;
+}
+
+.bottom-grid .member-tier-card .canvas-holder {
+    flex: 1;
+    min-height: 200px;
+    height: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 /* Tables Section */
 .bottom-grid {
     display: grid;
-    grid-template-columns: 1.35fr 1.25fr;
+    grid-template-columns: 2fr 1fr;
     gap: 24px;
     margin-bottom: 24px;
     align-items: stretch;
@@ -351,9 +448,52 @@
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
 }
 
-.registration-card,
-.recent-orders-card {
-    min-height: 420px;
+.top-products-main-card {
+    min-height: 300px;
+}
+
+.top-products-main-chart-container {
+    height: 220px;
+    width: 100%;
+}
+
+.top-products-main-chart-container canvas {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.content-summary-card {
+    min-height: 300px;
+}
+
+.content-summary-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 8px;
+}
+
+.content-summary-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 16px;
+    border-radius: 12px;
+    background: #f8faff;
+    border: 1px solid #e9edff;
+}
+
+.content-summary-label {
+    font-size: 13px;
+    color: #475569;
+    font-weight: 600;
+}
+
+.content-summary-value {
+    font-size: 22px;
+    color: #4f46e5;
+    font-weight: 800;
+    line-height: 1;
 }
 
 .dashboard-table {
@@ -402,31 +542,42 @@
 }
 
 .status-badge {
-    padding: 6px 12px;
-    border-radius: 8px;
+    padding: 0;
+    border-radius: 0;
     font-size: 12px;
     font-weight: 700;
+    background: transparent !important;
 }
 
 .status-badge[data-status="delivered"] {
-    background: #dcfce7;
     color: #15803d;
 }
 
 .status-badge[data-status="pending"] {
-    background: #fef3c7;
     color: #b45309;
 }
 
 .status-badge[data-status="shipping"] {
-    background: #dbeafe;
     color: #1d4ed8;
+}
+
+/* Match status text colors with Order Management (no pill background) */
+.status-badge.status-yellow {
+    color: #b45309;
+}
+
+.status-badge.status-green {
+    color: #15803d;
+}
+
+.status-badge.status-red {
+    color: #b91c1c;
 }
 
 /* Lists Row */
 .bottom-lists-grid {
     display: grid;
-    grid-template-columns: 1.35fr 1.25fr;
+    grid-template-columns: 1fr 1fr;
     gap: 24px;
     align-items: stretch;
 }
@@ -464,6 +615,33 @@
 .top-products-chart-container canvas {
     width: 100% !important;
     height: 100% !important;
+}
+
+.recent-orders-list-body .dashboard-table {
+    margin-top: 0;
+}
+
+.recent-orders-list-body .dashboard-table th,
+.recent-orders-list-body .dashboard-table td {
+    padding: 8px 8px;
+    font-size: 12px;
+}
+
+.recent-orders-list-body .td-user {
+    gap: 8px;
+}
+
+.recent-orders-list-body .avatar-mini {
+    width: 28px;
+    height: 28px;
+    font-size: 14px;
+}
+
+.recent-orders-list-body .td-user span {
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .stock-list-body {

@@ -90,8 +90,8 @@ export class Layout implements OnInit, OnDestroy {
         const mainAdmin = JSON.parse(adminStr);
         const accountRole = mainAdmin.accountRole === 'pharmacist' ? 'Dược sĩ' : 'Quản trị viên';
         this.profileData = {
-          name: mainAdmin.adminname || mainAdmin.pharmacistName || 'Admin VitaCare',
-          role: mainAdmin.role || accountRole,
+          name: mainAdmin.adminname || mainAdmin.adminName || mainAdmin.fullname || mainAdmin.name || mainAdmin.pharmacistName || 'Admin VitaCare',
+          role: this.getRoleLabel(mainAdmin.role || mainAdmin.accountRole) || accountRole,
           email: mainAdmin.adminemail || mainAdmin.pharmacistEmail || mainAdmin.email || 'admin@vitacare.vn',
           phone: mainAdmin.phone || mainAdmin.pharmacistPhone || 'Chưa cập nhật',
           region: mainAdmin.region || 'Chưa cập nhật',
@@ -112,7 +112,7 @@ export class Layout implements OnInit, OnDestroy {
         if (admins && admins.length > 0) {
           const mainAdmin = admins[0];
           this.profileData = {
-            name: mainAdmin.adminname || 'Admin VitaCare',
+            name: mainAdmin.adminname || mainAdmin.adminName || mainAdmin.fullname || mainAdmin.name || 'Admin VitaCare',
             role: mainAdmin.role || 'Quản trị viên',
             email: mainAdmin.adminemail || 'admin@vitacare.vn',
             phone: mainAdmin.phone || 'Chưa cập nhật',
@@ -386,5 +386,12 @@ export class Layout implements OnInit, OnDestroy {
     } catch (_) {
       return 'admin';
     }
+  }
+
+  private getRoleLabel(role: string | null | undefined): string {
+    const normalized = String(role || '').trim().toLowerCase();
+    if (normalized === 'pharmacist' || normalized === 'dược sĩ') return 'Dược sĩ';
+    if (normalized === 'admin' || normalized === 'quản trị viên') return 'Quản trị viên';
+    return String(role || '').trim();
   }
 }

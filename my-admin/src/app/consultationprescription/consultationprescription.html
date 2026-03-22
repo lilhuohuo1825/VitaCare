@@ -47,22 +47,29 @@
         </div>
     </div>
 
-    <div class="filter-bar">
-        <div class="search-box">
-            <i class="bi bi-search"></i>
-            <input type="text" placeholder="Tìm kiếm đơn thuốc, khách hàng, số điện thoại..." [(ngModel)]="searchText"
-                (input)="onSearchChange()">
+    <div class="filter-bar py-4">
+        <div class="flex items-center gap-4">
+            <div class="search-wrapper">
+                <input type="text" class="search-input"
+                    placeholder="Tìm kiếm đơn thuốc, khách hàng, số điện thoại..." [(ngModel)]="searchText"
+                    (input)="onSearchChange()">
+                <i class="bi bi-search search-icon"></i>
+            </div>
+            <span class="selection-info">{{ selectedCount }} đã chọn</span>
         </div>
 
-        <div class="filter-actions">
+        <div class="actions-group">
+            <button class="btn btn-sm action-btn icon-text" (click)="onEditClick()" [disabled]="selectedCount !== 1"
+                [class.disabled]="selectedCount !== 1">
+                <i class="bi bi-pencil"></i> Chỉnh
+            </button>
             <!-- Filter Dropdown -->
             <div class="dropdown-container">
-                <button class="btn-action" [class.active]="showFilterDropdown || activeFilterCount > 0"
+                <button class="btn btn-sm action-btn icon-text"
+                    [class.active]="showFilterDropdown || activeFilterCount > 0"
                     (click)="toggleFilterDropdown($event)">
-                    <i class="bi bi-funnel"></i>
-                    <span>Lọc</span>
+                    <i class="bi bi-sliders"></i> Lọc
                     <span class="selected-badge" *ngIf="activeFilterCount > 0">{{ activeFilterCount }}</span>
-                    <i class="bi bi-chevron-down ms-1" style="font-size: 10px;"></i>
                 </button>
 
                 <div class="dropdown-menu-multilevel" *ngIf="showFilterDropdown" (click)="$event.stopPropagation()">
@@ -148,12 +155,16 @@
                 </div>
             </div>
 
+            <button class="btn btn-sm action-btn icon-text" (click)="onDeleteClick()" [disabled]="selectedCount === 0"
+                [class.disabled]="selectedCount === 0">
+                <i class="bi bi-trash"></i> Xoá
+            </button>
+
             <!-- Sort Dropdown -->
             <div class="dropdown-container">
-                <button class="btn-action" [class.active]="showSortDropdown" (click)="toggleSortDropdown($event)">
-                    <i class="bi bi-sort-down"></i>
-                    <span>Sắp xếp</span>
-                    <i class="bi bi-chevron-down ms-1" style="font-size: 10px;"></i>
+                <button class="btn btn-sm action-btn icon-text" [class.active]="showSortDropdown"
+                    (click)="toggleSortDropdown($event)">
+                    <i class="bi bi-arrow-down-up"></i> Sắp xếp
                 </button>
 
                 <div class="dropdown-menu-multilevel dropdown-menu-sort" *ngIf="showSortDropdown"
@@ -289,11 +300,18 @@
                 <label
                     style="color: var(--color-text-primary); font-weight: 600; display: block; margin-bottom: 8px;">Phân
                     dược sĩ</label>
-                <select class="form-control" [(ngModel)]="editedPharmacistId"
+                <select class="form-control" [(ngModel)]="editedPharmacistId" [disabled]="isPharmacist"
                     style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--color-neutral-40); outline: none;">
                     <option value="">Chọn dược sĩ</option>
                     <option *ngFor="let p of pharmacists" [value]="p._id">Dược sĩ {{ p.pharmacistName }}</option>
                 </select>
+                <small *ngIf="isAdmin" style="display: block; margin-top: 8px; color: var(--color-text-secondary);">
+                    Admin chỉ thực hiện phân công đơn thuốc cho dược sĩ.
+                </small>
+                <small *ngIf="isPharmacist"
+                    style="display: block; margin-top: 8px; color: var(--color-text-secondary);">
+                    Dược sĩ không thay đổi người phân công, chỉ cập nhật trạng thái xử lý đơn.
+                </small>
             </div>
         </div>
         <div class="modal-footer"
@@ -301,8 +319,8 @@
             <button type="button" class="btn btn-cancel" (click)="closeModal()"
                 style="padding: 8px 16px; border: 1px solid var(--color-neutral-40); background-color: var(--color-bg-secondary); color: var(--color-text-primary); border-radius: 6px; cursor: pointer;">Hủy</button>
             <button type="button" id="btn-submit-prescription" class="btn btn-primary" (click)="onPrimaryButtonClick()"
-                [disabled]="isSaving"
-                style="padding: 10px 24px; border: none; background: #6a1b9a; color: white; border-radius: 8px; cursor: pointer; font-weight: 600; box-shadow: 0 4px 10px rgba(106, 27, 154, 0.2); transition: all 0.2s; min-width: 140px;"
+                [disabled]="isSaving || (isAdmin && !editedPharmacistId)"
+                style="padding: 10px 24px; border: none; background: var(--color-primary); color: white; border-radius: 8px; cursor: pointer; font-weight: 600; box-shadow: 0 4px 10px rgba(74, 85, 162, 0.25); transition: all 0.2s; min-width: 140px;"
                 [style.opacity]="isSaving ? '0.7' : '1'" [style.cursor]="isSaving ? 'not-allowed' : 'pointer'">
                 <span *ngIf="!isSaving">{{ primaryButtonLabel }}</span>
                 <span *ngIf="isSaving"><i class="bi bi-arrow-repeat spin"></i> Đang gửi...</span>
@@ -319,6 +337,39 @@
         'bi-exclamation-triangle-fill': notification.type === 'warning'
     }"></i>
     <span>{{ notification.message }}</span>
+</div>
+
+<!-- Xác nhận xóa (giống danh sách đơn hàng) -->
+<div class="modal-wrapper" *ngIf="isConfirmModalOpen">
+    <div class="modal-backdrop" (click)="closeConfirmModal()"></div>
+    <div class="modal-content-wrapper"
+        style="width: 400px; max-width: 90vw; background: var(--color-bg-secondary); border-radius: 12px; box-shadow: var(--shadow-xl); overflow: hidden; animation: fadeIn 0.3s ease-out;">
+        <div class="modal-header" style="border-bottom: none; padding: 20px 24px 0; background: transparent;">
+            <h5 class="modal-title"
+                style="color: var(--color-danger); display: flex; align-items: center; gap: 10px; font-size: 18px; margin: 0;">
+                <i class="bi bi-exclamation-triangle-fill"></i> Xác nhận xóa
+            </h5>
+            <button type="button" class="close" (click)="closeConfirmModal()"
+                style="background: none; border: none; font-size: 24px; color: var(--color-text-secondary); cursor: pointer;">&times;</button>
+        </div>
+        <div class="modal-body" style="padding: 16px 24px; background: transparent;">
+            <p style="margin: 0; color: var(--color-text-primary); font-size: 16px;">
+                Bạn có chắc chắn muốn xóa <strong style="color: var(--color-danger);">{{ selectedCount }}</strong> đơn
+                tư vấn đơn thuốc đã chọn?
+            </p>
+            <p style="margin-top: 8px; font-size: 14px; color: var(--color-text-secondary);">Thao tác này không thể hoàn
+                tác.</p>
+        </div>
+        <div class="modal-footer"
+            style="border-top: none; padding: 0 24px 24px; justify-content: flex-end; gap: 12px; background: transparent;">
+            <button type="button" (click)="closeConfirmModal()"
+                style="background: var(--color-neutral-30); color: var(--color-text-primary); border: none; padding: 10px 20px; border-radius: 8px; font-weight: 500; cursor: pointer;">Hủy</button>
+            <button type="button" (click)="confirmDelete()"
+                style="background: var(--color-danger); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 500; display: flex; align-items: center; gap: 8px; cursor: pointer; transition: background 0.2s;">
+                <i class="bi bi-trash"></i> Xóa ngay
+            </button>
+        </div>
+    </div>
 </div>
 
 <!-- Dialog chọn trạng thái khi đang tư vấn -->

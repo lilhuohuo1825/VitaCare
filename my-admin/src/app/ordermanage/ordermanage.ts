@@ -453,10 +453,31 @@ export class Ordermanage implements OnInit {
     this.isFilterOpen = false;
   }
 
-  onSortSelect(column: string, direction: 'asc' | 'desc') {
-    this.sortColumn = column;
-    this.sortDirection = direction;
+  /** Giống quản lý sản phẩm: lần đầu chọn tiêu chí → hướng mặc định; cùng tiêu chí → đảo asc/desc */
+  private defaultSortDirectionForOrder(kind: 'date' | 'total'): 'asc' | 'desc' {
+    return 'desc';
+  }
 
+  onSortRowClick(kind: 'date' | 'total') {
+    if (this.sortColumn === kind) {
+      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.sortColumn = kind;
+      this.sortDirection = this.defaultSortDirectionForOrder(kind);
+    }
+    this.applySortToFilteredOrders();
+    this.showOrderSortNotification();
+  }
+
+  setSortDirection(kind: 'date' | 'total', direction: 'asc' | 'desc', event?: Event) {
+    event?.stopPropagation();
+    this.sortColumn = kind;
+    this.sortDirection = direction;
+    this.applySortToFilteredOrders();
+    this.showOrderSortNotification();
+  }
+
+  private applySortToFilteredOrders() {
     this.filteredOrders.sort((a, b) => {
       let valA: any = a[this.sortColumn as keyof typeof a] || 0;
       let valB: any = b[this.sortColumn as keyof typeof b] || 0;
@@ -473,13 +494,16 @@ export class Ordermanage implements OnInit {
       if (valA > valB) return this.sortDirection === 'asc' ? 1 : -1;
       return 0;
     });
+  }
 
+  private showOrderSortNotification() {
     let sortLabel = '';
-    if (column === 'date') sortLabel = direction === 'desc' ? 'Mới nhất' : 'Cũ nhất';
-    else sortLabel = direction === 'desc' ? 'Tổng tiền cao nhất' : 'Tổng tiền thấp nhất';
-
+    if (this.sortColumn === 'date') {
+      sortLabel = this.sortDirection === 'desc' ? 'Ngày đặt: Mới nhất' : 'Ngày đặt: Cũ nhất';
+    } else {
+      sortLabel = this.sortDirection === 'desc' ? 'Tổng tiền: Cao → thấp' : 'Tổng tiền: Thấp → cao';
+    }
     this.showNotification(`Đã sắp xếp theo: ${sortLabel}`);
-    this.isSortDropdownOpen = false;
   }
 
   onSearch(event: any) {
@@ -568,17 +592,7 @@ export class Ordermanage implements OnInit {
       return matchesSearch && matchesStatus && matchesAdvStatus && matchesAdvPayment && matchesTime && matchesTotal;
     });
 
-    // Default sort: newest first
-    this.filteredOrders.sort((a, b) => {
-      const valA = a[this.sortColumn as keyof typeof a];
-      const valB = b[this.sortColumn as keyof typeof b];
-      if (this.sortColumn === 'date') {
-        const timeA = valA ? new Date(valA as any).getTime() : 0;
-        const timeB = valB ? new Date(valB as any).getTime() : 0;
-        return this.sortDirection === 'asc' ? timeA - timeB : timeB - timeA;
-      }
-      return this.sortDirection === 'asc' ? Number(valA) - Number(valB) : Number(valB) - Number(valA);
-    });
+    this.applySortToFilteredOrders();
 
     this.updateSelectionCount();
   }

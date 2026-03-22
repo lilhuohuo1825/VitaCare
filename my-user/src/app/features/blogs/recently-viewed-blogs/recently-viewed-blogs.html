@@ -8,7 +8,7 @@
   </div>
   <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-6 g-3">
     <div class="col" *ngFor="let blog of blogs">
-      <a [href]="blog.url" target="_blank"
+      <a [routerLink]="getBlogDetailLink(blog)"
         class="blog-card border rounded-3 overflow-hidden text-decoration-none d-block h-100 shadow-sm"
         (click)="onClickBlog(blog)" style="transition: transform 0.2s, box-shadow 0.2s;"
         onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)';"

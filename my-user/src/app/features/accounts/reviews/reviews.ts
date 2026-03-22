@@ -2,12 +2,14 @@ import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild, ElementRef, Inp
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
-import { Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ReviewFormComponent, ReviewProduct } from '../../../components/review-form/review-form';
 import { ReviewSyncService } from '../../../core/services/review-sync.service';
 import { ReviewBadgeService } from '../../../core/services/review-badge.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { OrderService } from '../../../core/services/order.service';
+import { CoinService } from '../../../core/services/coin.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { CartService, CartItem } from '../../../core/services/cart.service';
 import { CartSidebarService } from '../../../core/services/cart-sidebar.service';
 import { Subscription } from 'rxjs';
@@ -91,10 +93,13 @@ export class ReviewsComponent implements OnInit, OnDestroy, OnChanges {
   constructor(
     private http: HttpClient,
     private router: Router,
+    private route: ActivatedRoute,
     private reviewSyncService: ReviewSyncService,
     private reviewBadgeService: ReviewBadgeService,
     private toastService: ToastService,
     private orderService: OrderService,
+    private coinService: CoinService,
+    private authService: AuthService,
     private cdr: ChangeDetectorRef,
     private cartService: CartService,
     private cartSidebar: CartSidebarService,
@@ -104,8 +109,25 @@ export class ReviewsComponent implements OnInit, OnDestroy, OnChanges {
   showReviewModal: boolean = false;
   selectedProductsForReview: ReviewProduct[] = [];
 
+  // Coin reward popup after submitting review
+  showReviewCoinClaimPopup: boolean = false;
+  reviewCoinClaimAmount: number = 200;
+  reviewCoinClaimOrderCode: string | null = null;
+  reviewCoinClaimUserId: string | null = null;
+  reviewCoinClaimInProgress: boolean = false;
+
+  // Flying bag effect (giống nhận xu ở Orders)
+  showReviewFlyingCoin: boolean = false;
+  flyStartX = 0;
+  flyStartY = 0;
+  flyOffsetPath = "path('M 0 0 Q 0 0 0 0')";
+
   @ViewChild(OrderDetailAcc) orderDetailModal!: OrderDetailAcc;
+  @ViewChild('reviewClaimBurstBtn') reviewClaimBurstBtn!: ElementRef<HTMLButtonElement>;
   allOrdersData: any[] = [];
+
+  // If user navigates with /account?menu=reviews&orderId=..., auto-open the review form.
+  private pendingOrderIdToOpenReview: string | null = null;
 
   // Expanded orders state
   expandedOrders: Set<string> = new Set();
@@ -282,6 +304,96 @@ export class ReviewsComponent implements OnInit, OnDestroy, OnChanges {
   onCloseReviewModal(): void {
     this.showReviewModal = false;
     this.selectedProductsForReview = [];
+  }
+
+  /**
+   * Người dùng bấm trong popup để nhận thưởng xu 200.
+   * Backend đã idempotency theo `orderCode` để tránh cộng trùng.
+   */
+  private resolveRewardUserId(): string {
+    const fromAuth = String(this.authService.currentUser()?.user_id || '').trim();
+    if (fromAuth && fromAuth !== 'guest') return fromAuth;
+    const fromInput = String(this.userId || '').trim();
+    if (fromInput && fromInput !== 'guest') return fromInput;
+    const fromOrderService = String(this.orderService.getCustomerID() || '').trim();
+    if (fromOrderService && fromOrderService !== 'guest') return fromOrderService;
+    return '';
+  }
+
+  async claimReviewReward(): Promise<void> {
+    if (this.reviewCoinClaimInProgress) return;
+    const orderCode = String(this.reviewCoinClaimOrderCode || '').trim();
+    if (!orderCode) return;
+
+    // Tránh spam click trong cùng phiên (backend vẫn đảm bảo idempotency).
+    const claimKey = `vc_review_reward_claimed_${orderCode}`;
+    if (localStorage.getItem(claimKey)) {
+      this.showReviewCoinClaimPopup = false;
+      return;
+    }
+
+    this.reviewCoinClaimInProgress = true;
+    try {
+      const uid = this.resolveRewardUserId();
+      if (!uid || uid === 'guest') {
+        this.toastService.showError('Không xác định được tài khoản để cộng xu.');
+        return;
+      }
+      await this.coinService.applyReviewReward(orderCode, this.reviewCoinClaimAmount, uid || this.reviewCoinClaimUserId || undefined);
+      localStorage.setItem(claimKey, String(Date.now()));
+      this.toastService.showSuccess('Nhận xu thành công!');
+      this.prepareFlyingCoinTargetFromClaimBtn(this.reviewClaimBurstBtn?.nativeElement || null);
+      this.showReviewFlyingCoin = true;
+      setTimeout(() => {
+        this.showReviewFlyingCoin = false;
+        this.cdr.detectChanges();
+      }, 2000);
+    } catch (e: any) {
+      this.toastService.showError(e?.message || 'Cộng xu thất bại, vui lòng thử lại.');
+      return;
+    } finally {
+      this.reviewCoinClaimInProgress = false;
+      // Giống flow nhận hàng: popup tự tắt sau vài giây.
+      setTimeout(() => {
+        this.showReviewCoinClaimPopup = false;
+        this.reviewCoinClaimOrderCode = null;
+        this.reviewCoinClaimUserId = null;
+        this.cdr.detectChanges();
+      }, 1600);
+    }
+  }
+
+  private prepareFlyingCoinTargetFromClaimBtn(btnEl?: HTMLElement | null): void {
+    const btn = btnEl || this.reviewClaimBurstBtn?.nativeElement;
+    if (!btn || typeof window === 'undefined') return;
+
+    const COIN_SIZE = 80;
+    const HALF = COIN_SIZE / 2;
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+
+    const claimRect = btn.getBoundingClientRect();
+    const coinContainer = document.querySelector('.coin-bag-container') as HTMLElement | null;
+    const coinRect = coinContainer?.getBoundingClientRect?.();
+
+    const startX = claimRect.left + claimRect.width / 2 - HALF;
+    const startY = claimRect.top + claimRect.height / 2 - HALF;
+
+    const endX = coinRect ? coinRect.left + coinRect.width / 2 - HALF : w - 17 - HALF;
+    const endY = coinRect ? coinRect.top + coinRect.height / 2 - HALF : h - 260;
+
+    const dx = endX - startX;
+    const dy = endY - startY;
+    const peakY = Math.min(startY, endY) - 160;
+    const ctrlX = startX + dx / 2;
+    const ctrlY = peakY;
+
+    const ctrlRelX = ctrlX - startX;
+    const ctrlRelY = ctrlY - startY;
+
+    this.flyStartX = startX;
+    this.flyStartY = startY;
+    this.flyOffsetPath = `path('M 0 0 Q ${ctrlRelX} ${ctrlRelY} ${dx} ${dy}')`;
   }
 
   onSubmitReview(reviewedProducts: ReviewProduct[]): void {
@@ -512,6 +624,15 @@ export class ReviewsComponent implements OnInit, OnDestroy, OnChanges {
         this.reviewBadgeService.setUnreviewedCount(this.unreviewedItems.length);
         console.log('Updated review badge count to:', this.unreviewedItems.length);
 
+        // Chuyển sang tab "Đã đánh giá" ngay để nút đổi sang "Xem lại đánh giá"
+        this.showReviewed = true;
+        // Chuẩn bị popup nhận xu 200
+        this.reviewCoinClaimOrderCode = String(orderID || orderId || '');
+        this.reviewCoinClaimUserId = String(customerID || '');
+        const claimKey = `vc_review_reward_claimed_${this.reviewCoinClaimOrderCode}`;
+        this.showReviewCoinClaimPopup = !localStorage.getItem(claimKey);
+        this.cdr.detectChanges();
+
         if (failCount > 0) {
           console.warn(` ${failCount} reviews failed to submit`);
           this.toastService.showError(
@@ -611,6 +732,10 @@ export class ReviewsComponent implements OnInit, OnDestroy, OnChanges {
     this.clearOldReviewData();
     this.loadPromotionsAndTargets();
     this.loadReviewedItems();
+
+    // Query param for direct navigation to review modal
+    this.pendingOrderIdToOpenReview = this.route.snapshot.queryParamMap.get('orderId');
+
     const customerID = this.userId || this.orderService.getCustomerID();
     if (customerID && customerID !== 'guest') {
       this.loadUnreviewedOrders();
@@ -1028,6 +1153,27 @@ export class ReviewsComponent implements OnInit, OnDestroy, OnChanges {
 
     console.log('Final unreviewed items count:', this.unreviewedItems.length);
     this.reviewBadgeService.setUnreviewedCount(this.unreviewedItems.length);
+    this.cdr.detectChanges();
+
+    this.tryOpenReviewModalForPendingOrderId();
+  }
+
+  private tryOpenReviewModalForPendingOrderId(): void {
+    if (!this.pendingOrderIdToOpenReview) return;
+    if (!this.unreviewedItems || this.unreviewedItems.length === 0) return;
+
+    const target = String(this.pendingOrderIdToOpenReview);
+
+    const item =
+      this.unreviewedItems.find((i) => String(i.orderId || '') === target) ||
+      this.unreviewedItems.find((i) => String(i.id || '') === target) ||
+      this.unreviewedItems.find((i) => String((i as any).OrderID || '') === target) ||
+      this.unreviewedItems.find((i) => String(i.orderNumber || '') === target);
+
+    if (!item) return;
+
+    this.pendingOrderIdToOpenReview = null;
+    this.onAddReview(item);
     this.cdr.detectChanges();
   }
 

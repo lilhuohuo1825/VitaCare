@@ -22,6 +22,8 @@ export class ProductInfoSummary {
   @Input() consultationsData: any = { questions: [] };
   @Output() quantityChange = new EventEmitter<number>();
   @Output() tabScroll = new EventEmitter<string>();
+  attentionCartCount = 1;
+  attentionViewCount = 1;
 
   constructor(
     private cartService: CartService,
@@ -31,6 +33,10 @@ export class ProductInfoSummary {
   ) { }
 
   private quickViewService = inject(QuickViewService);
+
+  ngOnChanges(): void {
+    this.buildAttentionStats();
+  }
 
   updateQuantity(delta: number): void {
     const stock = this.product?.stock !== undefined ? this.product.stock : 99;
@@ -93,6 +99,31 @@ export class ProductInfoSummary {
 
     // Chuyển hướng sang trang tư vấn
     this.router.navigate(['/consultation'], { queryParams });
+  }
+
+  onCountryOriginClick(event: Event): void {
+    event.preventDefault();
+
+    const origin = String(this.product?.country || this.product?.origin || '').trim();
+    if (!origin) return;
+
+    const currentCategorySlug = this.categoryPath?.length
+      ? String(this.categoryPath[this.categoryPath.length - 1]?.slug || '')
+      : '';
+
+    this.quickViewService.close();
+
+    if (currentCategorySlug) {
+      const segments = currentCategorySlug.split('/').filter(Boolean);
+      this.router.navigate(['/category', ...segments], {
+        queryParams: { origin }
+      });
+      return;
+    }
+
+    this.router.navigate(['/products'], {
+      queryParams: { origin }
+    });
   }
 
   viewBusinessLicense(): void {
@@ -183,5 +214,39 @@ export class ProductInfoSummary {
 
     // Nếu không tìm thấy, trả về rỗng để không hiện sai cờ
     return '';
+  }
+
+  formatSoldCount(sold: any): string {
+    const value = Number(sold || 0);
+    if (!Number.isFinite(value) || value <= 0) return '0';
+
+    if (value >= 10000) {
+      return `${Math.floor(value / 1000)}k`;
+    }
+
+    return `${Math.floor(value)}`;
+  }
+
+  private buildAttentionStats(): void {
+    const productSeed = this.getProductSeed();
+    this.attentionCartCount = this.hashToRange(`${productSeed}-cart`, 1, 400);
+    this.attentionViewCount = this.hashToRange(`${productSeed}-view`, 1, 400);
+  }
+
+  private getProductSeed(): string {
+    if (!this.product) return `fallback-${Date.now()}`;
+    const productId = this.product._id?.$oid || this.product._id || this.product.id || '';
+    return String(productId || this.product.sku || this.product.slug || this.product.name || 'product');
+  }
+
+  private hashToRange(seed: string, min: number, max: number): number {
+    const safeSeed = String(seed || '');
+    let hash = 0;
+    for (let i = 0; i < safeSeed.length; i++) {
+      hash = ((hash << 5) - hash) + safeSeed.charCodeAt(i);
+      hash |= 0;
+    }
+    const span = max - min + 1;
+    return min + (Math.abs(hash) % span);
   }
 }

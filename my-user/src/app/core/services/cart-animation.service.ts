@@ -2,7 +2,7 @@ import { Injectable, NgZone } from '@angular/core';
 
 @Injectable({ providedIn: 'root' })
 export class CartAnimationService {
-  private cartTargetSelector = '.vc_action_cart .vc_action_icon';
+  private cartTargetSelector = '.vc_action_cart .vc_action_icon i.bi-basket2-fill';
   private mobileCartTargetSelector = '.vc_m_right .vc_m_icon_btn[aria-label="Giỏ thuốc"]';
 
   constructor(private zone: NgZone) {}
@@ -30,19 +30,20 @@ export class CartAnimationService {
       const startX = sourceRect.left + sourceRect.width / 2;
       const startY = sourceRect.top + sourceRect.height / 2;
 
-      pill.style.left = `${startX}px`;
-      pill.style.top = `${startY}px`;
-      document.body.appendChild(pill);
-
       const endX = targetRect.left + targetRect.width / 2;
       const endY = targetRect.top + targetRect.height / 2;
 
-      const dx = endX - startX;
-      const dy = endY - startY;
+      // Single smooth curve (quadratic bezier): start -> control -> end
+      const controlX = (startX + endX) / 2;
+      const controlY = Math.min(startY, endY) - Math.max(120, Math.abs(endY - startY) * 0.35);
+      const curvePath = `path("M ${startX} ${startY} Q ${controlX} ${controlY} ${endX} ${endY}")`;
+
+      pill.style.setProperty('offset-path', curvePath);
+      pill.style.setProperty('offset-distance', '0%');
+      pill.style.setProperty('offset-rotate', '0deg');
+      document.body.appendChild(pill);
 
       requestAnimationFrame(() => {
-        pill.style.setProperty('--fly-dx', `${dx}px`);
-        pill.style.setProperty('--fly-dy', `${dy}px`);
         pill.classList.add('vc-fly-pill--active');
       });
 
@@ -53,7 +54,8 @@ export class CartAnimationService {
       };
       pill.addEventListener('animationend', onEnd);
 
-      setTimeout(() => pill.remove(), 1800);
+      // Keep fallback timeout longer than CSS animation duration
+      setTimeout(() => pill.remove(), 4200);
     });
   }
 

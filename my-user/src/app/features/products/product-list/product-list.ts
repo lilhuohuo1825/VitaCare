@@ -146,6 +146,8 @@ export class ProductList implements OnInit {
       'hàn quốc': 'https://img.icons8.com/color/48/south-korea.png',
       'thụy sỹ': 'https://img.icons8.com/color/48/switzerland.png',
       'thụy sĩ': 'https://img.icons8.com/color/48/switzerland.png',
+      'bỉ': 'https://img.icons8.com/color/48/belgium.png',
+      'belgium': 'https://img.icons8.com/color/48/belgium.png',
       'canada': 'https://img.icons8.com/color/48/canada.png',
       'thái lan': 'https://img.icons8.com/color/48/thailand.png',
       'đan mạch': 'https://img.icons8.com/color/48/denmark.png',

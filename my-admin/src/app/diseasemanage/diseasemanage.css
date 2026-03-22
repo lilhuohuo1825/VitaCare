@@ -1,8 +1,8 @@
-/* Diseasemanage Styles - Unified with Blog Management */
+/* Diseasemanage — căn spacing giống Quản lý blog (breadcrumb + header margin + filter, không gap 24px) */
 .container.blog-manage-container {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-6);
+    gap: 0;
     font-family: var(--font-family-base);
 }
 
@@ -118,7 +118,7 @@
     border-color: #4A55A2 !important;
 }
 
-/* Filter Bar */
+/* Filter Bar — giống blogmanage.css */
 .filter-bar {
     display: flex;
     align-items: center;
@@ -329,14 +329,10 @@
     font-weight: 700;
 }
 
-/* Table */
-.table-scrollable-container {
-    background-color: var(--color-bg-secondary);
-    border-radius: var(--radius-lg);
+/* Bảng — dùng class global .table-scrollable (utilities.css) giống Quản lý blog */
+.blog-manage-container>.table-scrollable {
+    margin-top: 0;
     box-shadow: var(--shadow-sm);
-    overflow: auto;
-    border: 1px solid var(--color-neutral-30);
-    max-height: calc(100vh - 300px);
 }
 
 table {
@@ -603,17 +599,8 @@ input[type="checkbox"] {
 .notification-toast.warning { border-left-color: var(--color-warning, #f2994a); }
 .notification-toast.warning i { color: var(--color-warning, #f2994a); font-size: 20px; }
 
-/* Scrollbar */
-.table-scrollable-container::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-}
-
-.table-scrollable-container::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 10px;
-}
-
-.table-scrollable-container::-webkit-scrollbar-track {
-    background: transparent;
+/* Scrollbar — bổ sung nhẹ cho vùng cuộn trong trang (global đã có base) */
+.blog-manage-container .table-scrollable::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
 }

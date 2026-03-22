@@ -88,6 +88,22 @@
           </span>
           <i class="bi bi-chevron-right"></i>
         </button>
+        <div class="cart-sidebar-vitaxu-row">
+          <div class="cart-sidebar-vitaxu-left">
+            <i class="bi bi-coin"></i>
+            <div class="cart-sidebar-vitaxu-meta">
+              <span>Dùng Vita Xu</span>
+              <small>Số dư: {{ vitaXuBalance() | number:'1.0-0' }} xu</small>
+            </div>
+          </div>
+          <div class="cart-sidebar-vitaxu-right">
+            <span class="cart-sidebar-vitaxu-amount" *ngIf="useVitaXu()">-{{ vitaXuDiscount() | number:'1.0-0' }}₫</span>
+            <label class="cart-sidebar-vitaxu-switch">
+              <input type="checkbox" [checked]="useVitaXu()" (change)="toggleUseVitaXu($any($event.target).checked)" />
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
         <div class="cart-sidebar-summary">
           <div class="cart-sidebar-summary-row">
             <span>Tổng tiền</span>
@@ -103,6 +119,12 @@
             <span>Giảm giá voucher</span>
             <strong class="cart-sidebar-discount" [class.has-value]="voucherDiscount() > 0">
               <span *ngIf="voucherDiscount() > 0">-</span>{{ voucherDiscount() | number:'1.0-0' }}₫
+            </strong>
+          </div>
+          <div class="cart-sidebar-summary-row border-0">
+            <span>Giảm Vita Xu</span>
+            <strong class="cart-sidebar-discount" [class.has-value]="vitaXuDiscount() > 0">
+              <span *ngIf="vitaXuDiscount() > 0">-</span>{{ vitaXuDiscount() | number:'1.0-0' }}₫
             </strong>
           </div>
           <div class="cart-sidebar-summary-row border-0">

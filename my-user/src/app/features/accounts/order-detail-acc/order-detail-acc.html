@@ -247,6 +247,11 @@
                     *ngIf="!hasOrderBeenReturned(selectedOrder)" type="button">
                     Trả hàng
                 </button>
+                <div class="received-xu-chip" [class.received-xu-chip--claimed]="isOrderCoinsClaimed(selectedOrder)"
+                    *ngIf="getReceivedRewardXU(selectedOrder) > 0">
+                    <i class="bi bi-coin"></i>
+                    <span>+{{ getReceivedRewardXU(selectedOrder) }} xu</span>
+                </div>
                 <button class="action-btn received-btn" (click)="confirmReceivedOrder()" type="button">
                     Đã nhận hàng
                 </button>
@@ -266,6 +271,33 @@
                 </button>
             </div>
         </div>
+    </div>
+</div>
+
+<!-- Popup chúc mừng nhận xu từ đơn hàng -->
+<div class="remind-claim-burst-overlay" *ngIf="showOrderCoinClaimPopup">
+    <div class="remind-claim-burst" role="dialog" aria-modal="true">
+        <img src="assets/images/homepage/bump/congrate.png" alt="Chúc mừng" class="remind-claim-burst-image">
+        <p class="remind-claim-burst-title">
+            Bạn nhận được <strong>{{ orderCoinClaimAmount }} xu</strong>
+        </p>
+        <p class="order-coin-reward-hint">
+            từ đơn hàng <strong>{{ orderCoinClaimOrderCode }}</strong>
+        </p>
+        <button type="button" class="remind-claim-burst-amount"
+            (click)="$event.preventDefault(); $event.stopPropagation(); claimOrderCoins()"
+            [disabled]="orderCoinClaimInProgress" aria-label="Nhận {{ orderCoinClaimAmount }} xu" #orderDetailClaimBurstBtn>
+            <img src="assets/images/homepage/bump/tui_xu.png" alt="Coin bag">
+            <span>+{{ orderCoinClaimAmount }} xu</span>
+        </button>
+    </div>
+</div>
+
+<!-- Hiệu ứng bay xu -->
+<div class="flying-coin-overlay" *ngIf="showOrderFlyingCoin">
+    <div class="flying-coin" [style.left.px]="flyStartX" [style.top.px]="flyStartY"
+        [style.offsetPath]="flyOffsetPath">
+        <img src="assets/images/homepage/bump/tui_xu.png" alt="Flying Bag" class="flying-bag-img">
     </div>
 </div>
 
@@ -306,6 +338,10 @@
         </div>
         <div class="cancel-message">
             <h3 class="cancel-title">Xác nhận đã nhận hàng</h3>
+            <p class="received-reward-xu" *ngIf="selectedOrder">
+                <span class="received-reward-plus">+{{ getReceivedRewardXU(selectedOrder) }}</span>
+                xu <span class="received-reward-note">(1% giá trị đơn hàng)</span>
+            </p>
         </div>
         <div class="cancel-footer">
             <button class="cancel-modal-btn cancel-no-btn" (click)="closeConfirmReceivedModal()">

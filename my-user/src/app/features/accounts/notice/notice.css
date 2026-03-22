@@ -215,10 +215,10 @@
 
 .notice-load-more-wrap {
   display: flex;
-  justify-content: flex-start;
+  justify-content: center;
   width: 100%;
   margin: 10px 0 0;
-  padding-left: 14px;
+  padding-left: 0;
 }
 
 .notice-load-more-btn {
@@ -432,7 +432,7 @@
 }
 
 .notice-icon-order-delivering {
-  color: #2563eb;
+  color: #00589F;
   background: transparent;
 }
 
@@ -476,8 +476,12 @@
 }
 
 .notice-icon-evaluation {
-  color: #00589F;
-  background: transparent;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  border: 1px solid rgba(236, 72, 153, 0.22);
+  background: rgba(236, 72, 153, 0.10);
+  color: #db2777;
 }
 
 .notice-card-body {

@@ -176,44 +176,103 @@
                 <i class="bi bi-trash"></i> Xóa
             </button>
             <div class="dropdown-container" style="position: relative;">
-                <button class="btn btn-sm action-btn icon-text" (click)="toggleSortDropdown($event)">
+                <button class="btn btn-sm action-btn icon-text" (click)="toggleSortDropdown($event)"
+                    [class.active]="isSortDropdownOpen || sortKind !== 'updated' || sortDirection !== 'desc'">
                     <i class="bi bi-arrow-down-up"></i> Sắp xếp
                 </button>
                 <div class="dropdown-popup sort-dropdown-menu" *ngIf="isSortDropdownOpen"
                     (click)="$event.stopPropagation()">
-                    <div class="sort-options-list">
-                        <button (click)="onSortSelect('price', 'desc')" class="sort-option-btn"
-                            [class.active]="sortColumn === 'price' && sortDirection === 'desc'">
-                            <i class="bi bi-sort-numeric-down-alt"></i> Giá: Cao nhất
-                        </button>
-                        <button (click)="onSortSelect('price', 'asc')" class="sort-option-btn"
-                            [class.active]="sortColumn === 'price' && sortDirection === 'asc'">
-                            <i class="bi bi-sort-numeric-down"></i> Giá: Thấp nhất
-                        </button>
-                        <button (click)="onSortSelect('name', 'asc')" class="sort-option-btn"
-                            [class.active]="sortColumn === 'name' && sortDirection === 'asc'">
-                            <i class="bi bi-sort-alpha-down"></i> Tên: A → Z
-                        </button>
-                        <button (click)="onSortSelect('name', 'desc')" class="sort-option-btn"
-                            [class.active]="sortColumn === 'name' && sortDirection === 'desc'">
-                            <i class="bi bi-sort-alpha-up"></i> Tên: Z → A
-                        </button>
-                        <button (click)="onSortSelect('stock', 'desc')" class="sort-option-btn"
-                            [class.active]="sortColumn === 'stock' && sortDirection === 'desc'">
-                            <i class="bi bi-box-seam"></i> Tồn: Nhiều nhất
-                        </button>
-                        <button (click)="onSortSelect('stock', 'asc')" class="sort-option-btn"
-                            [class.active]="sortColumn === 'stock' && sortDirection === 'asc'">
-                            <i class="bi bi-box"></i> Tồn: Ít nhất
-                        </button>
-                        <button (click)="onSortSelect('sold', 'desc')" class="sort-option-btn"
-                            [class.active]="sortColumn === 'sold' && sortDirection === 'desc'">
-                            <i class="bi bi-fire"></i> Bán chạy nhất
-                        </button>
-                        <button (click)="onSortSelect('sold', 'asc')" class="sort-option-btn"
-                            [class.active]="sortColumn === 'sold' && sortDirection === 'asc'">
-                            <i class="bi bi-sort-numeric-down"></i> Bán chậm nhất
-                        </button>
+                    <div class="sort-options-list compact-sort-list">
+                        <div class="sort-row" [class.row-active]="sortKind === 'updated'">
+                            <button type="button" class="sort-row-label" (click)="onSortRowClick('updated')">
+                                <i class="bi bi-clock-history"></i>
+                                <span>Cập nhật</span>
+                            </button>
+                            <div class="sort-row-arrows">
+                                <button type="button" class="sort-arrow-btn" title="Cũ → mới (tăng dần)"
+                                    [class.dir-active]="sortKind === 'updated' && sortDirection === 'asc'"
+                                    (click)="setSortDirection('updated', 'asc', $event)">
+                                    <i class="bi bi-sort-up"></i>
+                                </button>
+                                <button type="button" class="sort-arrow-btn" title="Mới → cũ (giảm dần)"
+                                    [class.dir-active]="sortKind === 'updated' && sortDirection === 'desc'"
+                                    (click)="setSortDirection('updated', 'desc', $event)">
+                                    <i class="bi bi-sort-down"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="sort-row" [class.row-active]="sortKind === 'price'">
+                            <button type="button" class="sort-row-label" (click)="onSortRowClick('price')">
+                                <i class="bi bi-tag"></i>
+                                <span>Giá</span>
+                            </button>
+                            <div class="sort-row-arrows">
+                                <button type="button" class="sort-arrow-btn" title="Giá thấp → cao"
+                                    [class.dir-active]="sortKind === 'price' && sortDirection === 'asc'"
+                                    (click)="setSortDirection('price', 'asc', $event)">
+                                    <i class="bi bi-sort-numeric-up"></i>
+                                </button>
+                                <button type="button" class="sort-arrow-btn" title="Giá cao → thấp"
+                                    [class.dir-active]="sortKind === 'price' && sortDirection === 'desc'"
+                                    (click)="setSortDirection('price', 'desc', $event)">
+                                    <i class="bi bi-sort-numeric-down"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="sort-row" [class.row-active]="sortKind === 'name'">
+                            <button type="button" class="sort-row-label" (click)="onSortRowClick('name')">
+                                <i class="bi bi-fonts"></i>
+                                <span>Tên</span>
+                            </button>
+                            <div class="sort-row-arrows">
+                                <button type="button" class="sort-arrow-btn" title="A → Z"
+                                    [class.dir-active]="sortKind === 'name' && sortDirection === 'asc'"
+                                    (click)="setSortDirection('name', 'asc', $event)">
+                                    <i class="bi bi-sort-alpha-up"></i>
+                                </button>
+                                <button type="button" class="sort-arrow-btn" title="Z → A"
+                                    [class.dir-active]="sortKind === 'name' && sortDirection === 'desc'"
+                                    (click)="setSortDirection('name', 'desc', $event)">
+                                    <i class="bi bi-sort-alpha-down"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="sort-row" [class.row-active]="sortKind === 'stock'">
+                            <button type="button" class="sort-row-label" (click)="onSortRowClick('stock')">
+                                <i class="bi bi-box-seam"></i>
+                                <span>Tồn</span>
+                            </button>
+                            <div class="sort-row-arrows">
+                                <button type="button" class="sort-arrow-btn" title="Tồn ít → nhiều"
+                                    [class.dir-active]="sortKind === 'stock' && sortDirection === 'asc'"
+                                    (click)="setSortDirection('stock', 'asc', $event)">
+                                    <i class="bi bi-sort-numeric-up"></i>
+                                </button>
+                                <button type="button" class="sort-arrow-btn" title="Tồn nhiều → ít"
+                                    [class.dir-active]="sortKind === 'stock' && sortDirection === 'desc'"
+                                    (click)="setSortDirection('stock', 'desc', $event)">
+                                    <i class="bi bi-sort-numeric-down"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="sort-row" [class.row-active]="sortKind === 'sold'">
+                            <button type="button" class="sort-row-label" (click)="onSortRowClick('sold')">
+                                <i class="bi bi-fire"></i>
+                                <span>Bán chạy</span>
+                            </button>
+                            <div class="sort-row-arrows">
+                                <button type="button" class="sort-arrow-btn" title="Đã bán ít → nhiều"
+                                    [class.dir-active]="sortKind === 'sold' && sortDirection === 'asc'"
+                                    (click)="setSortDirection('sold', 'asc', $event)">
+                                    <i class="bi bi-sort-numeric-up"></i>
+                                </button>
+                                <button type="button" class="sort-arrow-btn" title="Đã bán nhiều → ít"
+                                    [class.dir-active]="sortKind === 'sold' && sortDirection === 'desc'"
+                                    (click)="setSortDirection('sold', 'desc', $event)">
+                                    <i class="bi bi-sort-numeric-down"></i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -509,7 +568,7 @@
 
                 </div>
             </div>
-            <div class="modal-footer">
+            <div class="modal-footer product-modal-footer">
                 <button type="button" class="btn btn-cancel-light" (click)="closeProductModal()">
                     HUỶ
                 </button>

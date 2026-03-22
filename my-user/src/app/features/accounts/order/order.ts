@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject, ChangeDetectorRef, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, ChangeDetectorRef, signal, computed, HostListener } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -10,6 +10,7 @@ import { ToastService } from '../../../core/services/toast.service';
 import { ConfirmService } from '../../../core/services/confirm.service';
 import { PromotionService, ApplicablePromotion } from '../../../core/services/promotion.service';
 import { CategoryService } from '../../../core/services/category.service';
+import { CoinService } from '../../../core/services/coin.service';
 
 import { StoreService, StoreFilter } from '../../../core/services/store.service';
 import { Store } from '../../../core/models/store.model';
@@ -67,6 +68,7 @@ export class Order implements OnInit, OnDestroy {
   private location = inject(Location);
   private promotionService = inject(PromotionService);
   private categoryService = inject(CategoryService);
+  private coinService = inject(CoinService);
 
   cart: Cart | null = null;
   cartLoading = true;
@@ -75,6 +77,9 @@ export class Order implements OnInit, OnDestroy {
   cartSubtotal = 0;
   cartDirectDiscount = 0;
   cartVoucherDiscount = 0;
+  cartVitaXuDiscount = 0;
+  vitaXuBalance = 0;
+  useVitaXu = false;
   isBuyNow = false;
   deliveryTab: 'home' | 'pharmacy' = 'home';
   paymentMethod = '';
@@ -169,6 +174,15 @@ export class Order implements OnInit, OnDestroy {
 
   /** Popup thanh toán QR cho các phương thức không phải COD */
   showQrPaymentModal = false;
+  transferContentCode = '';
+  qrCountdownSeconds = signal(0);
+  qrCountdownLabel = computed(() => {
+    const safe = Math.max(0, Math.floor(this.qrCountdownSeconds() || 0));
+    const mm = String(Math.floor(safe / 60)).padStart(2, '0');
+    const ss = String(safe % 60).padStart(2, '0');
+    return `${mm}:${ss}`;
+  });
+  private qrCountdownTimer: ReturnType<typeof setInterval> | null = null;
   /** Payload đơn hàng tạm thời, chỉ gửi sau khi user bấm \"Đã thanh toán\" */
   private pendingOrderPayload: any | null = null;
 
@@ -294,6 +308,33 @@ export class Order implements OnInit, OnDestroy {
     return this.totalPrice + this.shippingFee;
   }
 
+  private calcSubtotalFromItems(items: CartItem[]): number {
+    return (items || []).reduce(
+      (s, i) => s + (((Number(i.price) || 0) + (Number(i.discount) || 0)) * (Number(i.quantity) || 1)),
+      0
+    );
+  }
+
+  private calcDirectDiscountFromItems(items: CartItem[]): number {
+    return (items || []).reduce(
+      (s, i) => s + ((Number(i.discount) || 0) * (Number(i.quantity) || 1)),
+      0
+    );
+  }
+
+  private recalculateTotalPrice(): void {
+    const base = Math.max(0, (this.cartSubtotal || 0) - (this.cartDirectDiscount || 0) - (this.cartVoucherDiscount || 0));
+    const vitaXu = this.useVitaXu ? Math.min(this.vitaXuBalance || 0, base) : 0;
+    this.cartVitaXuDiscount = vitaXu;
+    this.totalPrice = Math.max(0, base - vitaXu);
+  }
+
+  toggleUseVitaXu(checked: boolean): void {
+    this.useVitaXu = !!checked;
+    this.recalculateTotalPrice();
+    this.cdr.detectChanges();
+  }
+
   /** Có phải phương thức thanh toán online (không phải thanh toán khi nhận hàng) hay không */
   get isOnlinePayment(): boolean {
     return !!this.paymentMethod && this.paymentMethod !== 'cod';
@@ -318,6 +359,65 @@ export class Order implements OnInit, OnDestroy {
       default:
         return 'Thanh toán tiền mặt khi nhận hàng';
     }
+  }
+
+  get qrCustomerName(): string {
+    const raw = String(this.recipientNamePhone || '').trim();
+    if (!raw) return this.payerName || 'Khách hàng';
+    return raw.split('-')[0]?.trim() || this.payerName || 'Khách hàng';
+  }
+
+  get qrCustomerPhone(): string {
+    const raw = String(this.recipientNamePhone || '').trim();
+    if (!raw) return this.payerPhone || '';
+    return raw.split('-')[1]?.trim() || this.payerPhone || '';
+  }
+
+  get qrItemCount(): number {
+    return (this.cart?.items || []).reduce((s, i) => s + (Number(i.quantity) || 1), 0);
+  }
+
+  get qrEarnXu(): number {
+    return Math.max(0, Math.floor((this.orderTotal || 0) * 0.01));
+  }
+
+  private generateTransferContentCode(length: number = 10): string {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let code = '';
+    for (let i = 0; i < length; i++) {
+      code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return code;
+  }
+
+  private startQrCountdown(seconds: number = 300): void {
+    this.stopQrCountdown();
+    this.qrCountdownSeconds.set(Math.max(0, Math.floor(seconds)));
+    this.qrCountdownTimer = setInterval(() => {
+      if (this.qrCountdownSeconds() <= 0) {
+        this.stopQrCountdown();
+        this.showQrPaymentModal = false;
+        this.pendingOrderPayload = null;
+        this.toastService.showError('Hết thời gian thanh toán QR. Vui lòng thực hiện lại.');
+        this.cdr.detectChanges();
+        return;
+      }
+      this.qrCountdownSeconds.update((v) => Math.max(0, v - 1));
+    }, 1000);
+  }
+
+  private stopQrCountdown(): void {
+    if (this.qrCountdownTimer) {
+      clearInterval(this.qrCountdownTimer);
+      this.qrCountdownTimer = null;
+    }
+  }
+
+  downloadQrImage(): void {
+    const link = document.createElement('a');
+    link.href = 'assets/images/order/QR.png';
+    link.download = `vitacare-qr-${Date.now()}.png`;
+    link.click();
   }
 
   /** Label hiển thị thời gian nhận hàng đã chọn */
@@ -404,6 +504,7 @@ export class Order implements OnInit, OnDestroy {
     document.body.classList.add(this.bodyClass);
     this.initDeliveryTime();
     const user = this.authService.currentUser();
+    this.vitaXuBalance = Math.max(0, Number(this.coinService.coinData()?.balance || 0));
     this.cartLoading = true;
 
     if (user?.user_id) {
@@ -447,27 +548,25 @@ export class Order implements OnInit, OnDestroy {
       };
       const summary = this.buyNowService.getSummary();
       if (summary) {
-        this.cartSubtotal = summary.subtotal || 0;
-        this.cartDirectDiscount = summary.directDiscount || 0;
+        const detectedSubtotal = this.calcSubtotalFromItems(items);
+        const detectedDirectDiscount = this.calcDirectDiscountFromItems(items);
+        this.cartSubtotal = summary.subtotal || detectedSubtotal;
+        // Luôn ưu tiên discount dò từ sản phẩm đã chọn để hiển thị đúng thực tế.
+        this.cartDirectDiscount = detectedDirectDiscount;
         this.cartVoucherDiscount = summary.voucherDiscount || 0;
+        this.cartVitaXuDiscount = (summary as any).vitaXuDiscount || 0;
+        this.useVitaXu = this.cartVitaXuDiscount > 0;
         this.summaryPromotionId = (summary as any).promotionId || null;
         this.appliedPromotionName = summary.promotionName || '';
-        this.totalPrice = Math.max(
-          0,
-          (this.cartSubtotal || 0) - (this.cartDirectDiscount || 0) - (this.cartVoucherDiscount || 0),
-        );
+        this.recalculateTotalPrice();
       } else {
         // Fallback: tính toán lại nếu không có summary (trường hợp vào /order trực tiếp)
-        this.cartSubtotal = items.reduce(
-          (s, i) => s + ((i.price || 0) + (i.discount || 0)) * (i.quantity || 1),
-          0,
-        );
-        this.cartDirectDiscount = items.reduce(
-          (s, i) => s + (i.discount || 0) * (i.quantity || 1),
-          0,
-        );
+        this.cartSubtotal = this.calcSubtotalFromItems(items);
+        this.cartDirectDiscount = this.calcDirectDiscountFromItems(items);
         this.cartVoucherDiscount = 0;
-        this.totalPrice = this.cartSubtotal - this.cartDirectDiscount;
+        this.cartVitaXuDiscount = 0;
+        this.useVitaXu = false;
+        this.recalculateTotalPrice();
       }
       this.cartLoading = false;
       return;
@@ -493,6 +592,12 @@ export class Order implements OnInit, OnDestroy {
             (s, i) => s + (i.price || 0) * (i.quantity || 1),
             0
           );
+          const items = this.cart?.items || [];
+          this.cartSubtotal = this.calcSubtotalFromItems(items);
+          this.cartDirectDiscount = this.calcDirectDiscountFromItems(items);
+          this.cartVoucherDiscount = 0;
+          this.cartVitaXuDiscount = 0;
+          this.useVitaXu = false;
           this.cdr.detectChanges();
         },
         error: () => {
@@ -514,6 +619,11 @@ export class Order implements OnInit, OnDestroy {
         (s, i) => s + (i.price || 0) * (i.quantity || 1),
         0
       );
+      this.cartSubtotal = this.calcSubtotalFromItems(guestItems);
+      this.cartDirectDiscount = this.calcDirectDiscountFromItems(guestItems);
+      this.cartVoucherDiscount = 0;
+      this.cartVitaXuDiscount = 0;
+      this.useVitaXu = false;
       this.cartLoading = false;
       this.cdr.detectChanges();
     }
@@ -555,6 +665,7 @@ export class Order implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     document.body.classList.remove(this.bodyClass);
+    this.stopQrCountdown();
     if (this.isBuyNow) {
       this.buyNowService.clear();
     }
@@ -1365,11 +1476,9 @@ export class Order implements OnInit, OnDestroy {
     const id = this.selectedPromotionId;
     if (!id) {
       this.cartVoucherDiscount = 0;
+      // giữ nguyên giảm Vita Xu khi bỏ voucher
       this.appliedPromotionName = '';
-      this.totalPrice = Math.max(
-        0,
-        (this.cartSubtotal || 0) - (this.cartDirectDiscount || 0),
-      );
+      this.recalculateTotalPrice();
       this.showPromotionModal = false;
       this.cdr.detectChanges();
       return;
@@ -1378,10 +1487,7 @@ export class Order implements OnInit, OnDestroy {
     if (!promo || !promo.isApplicable) return;
     this.cartVoucherDiscount = promo.discountAmount;
     this.appliedPromotionName = promo.name;
-    this.totalPrice = Math.max(
-      0,
-      (this.cartSubtotal || 0) - (this.cartDirectDiscount || 0) - (this.cartVoucherDiscount || 0),
-    );
+    this.recalculateTotalPrice();
     this.showPromotionModal = false;
     this.cdr.detectChanges();
   }
@@ -1491,6 +1597,7 @@ export class Order implements OnInit, OnDestroy {
       subtotal: this.cartSubtotal, // Original price of all items
       directDiscount: this.cartDirectDiscount,
       voucherDiscount: this.cartVoucherDiscount,
+      vitaXuDiscount: this.cartVitaXuDiscount,
       shippingFee: this.shippingFee,
       shippingDiscount: this.shippingFee === 0 ? Order.DEFAULT_SHIPPING_FEE : 0,
       totalAmount: this.orderTotal,
@@ -1532,7 +1639,9 @@ export class Order implements OnInit, OnDestroy {
 
     // Thanh toán online: lưu payload tạm và mở popup QR để user thanh toán
     this.pendingOrderPayload = { ...payload, statusPayment: 'paid' };
+    this.transferContentCode = this.generateTransferContentCode(10);
     this.showQrPaymentModal = true;
+    this.startQrCountdown(300);
     this.cdr.detectChanges();
   }
 
@@ -1540,6 +1649,7 @@ export class Order implements OnInit, OnDestroy {
   cancelQrPayment(): void {
     this.showQrPaymentModal = false;
     this.pendingOrderPayload = null;
+    this.stopQrCountdown();
     this.cdr.detectChanges();
   }
 
@@ -1548,6 +1658,7 @@ export class Order implements OnInit, OnDestroy {
     if (!this.pendingOrderPayload || this.isSubmitting) return;
     this.isSubmitting = true;
     this.showQrPaymentModal = false;
+    this.stopQrCountdown();
     this.submitOrderToServer(this.pendingOrderPayload);
   }
 
@@ -1559,6 +1670,11 @@ export class Order implements OnInit, OnDestroy {
       next: res => {
         this.isSubmitting = false;
         if (res.success) {
+          if (this.cartVitaXuDiscount > 0) {
+            this.coinService.applyCheckoutVitaXuReset(res.order_id || '');
+            // Đồng bộ lại từ backend để chắc chắn UI không giữ số dư cũ.
+            this.coinService.refreshFromBackend().catch(() => { });
+          }
           this.successOrderId = res.order_id || '';
           this.showOrderSuccess = true;
           const currentUser = this.authService.currentUser();

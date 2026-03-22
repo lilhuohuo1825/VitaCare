@@ -6,8 +6,57 @@
 
 .bv-page {
   background: #eef5ff;
-  padding: 16px 0 48px;
+  padding: 0 0 48px;
   min-height: 60vh;
+}
+
+/* Đồng bộ breadcrumb theo chuẩn trang Danh mục sản phẩm */
+.bv-page nav[aria-label="breadcrumb"] {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.bv-page .breadcrumb-vc {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 8px 0 4px 0 !important;
+  margin-top: 0 !important;
+  margin-bottom: 20px !important;
+  list-style: none;
+  font-size: 14px !important;
+  font-family: var(--font-family-title, 'Inter', sans-serif) !important;
+  background: transparent !important;
+}
+
+.bv-page .breadcrumb-vc .breadcrumb-item {
+  display: flex;
+  align-items: center;
+  color: #666 !important;
+}
+
+.bv-page .breadcrumb-vc .breadcrumb-item + .breadcrumb-item::before {
+  content: "/" !important;
+  padding: 0 10px !important;
+  color: #999 !important;
+  font-weight: normal !important;
+}
+
+.bv-page .breadcrumb-vc .breadcrumb-item a {
+  color: #666 !important;
+  text-decoration: none !important;
+  transition: color 0.2s ease;
+}
+
+.bv-page .breadcrumb-vc .breadcrumb-item a:hover {
+  color: var(--color-primary) !important;
+}
+
+.bv-page .breadcrumb-vc .breadcrumb-item.active,
+.bv-page .breadcrumb-vc .breadcrumb-item:last-child,
+.bv-page .breadcrumb-vc .breadcrumb-item.active span,
+.bv-page .breadcrumb-vc .breadcrumb-item:last-child span {
+  color: var(--color-primary) !important;
+  font-weight: 700 !important;
 }
 
 /* Block xem nhanh category trong data (có thể ẩn/xóa khi không cần) */

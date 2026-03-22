@@ -1,14 +1,31 @@
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef, ChangeDetectorRef } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  ViewChild,
+  ElementRef,
+  ChangeDetectorRef,
+  HostListener
+} from '@angular/core';
 import { AuthService } from '../services/auth.service';
 import { OrderService } from '../services/order.service';
 import { CustomerService } from '../services/customer.service';
 import { ProductService } from '../services/product.service';
 import { ConsultationService } from '../services/consultation.service';
 import { PromotionService } from '../services/promotion.service';
+import { BlogService } from '../services/blog.service';
+import { DiseaseService } from '../services/disease.service';
 import { CommonModule, DecimalPipe } from '@angular/common';
-import { forkJoin, Subscription } from 'rxjs';
+import { forkJoin, Subscription, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { ThemeService } from '../services/theme.service';
+import {
+  DashboardExportService,
+  type ExportFormat,
+  type DashboardExportInput
+} from '../services/dashboard-export.service';
+import { DashboardPreloadService } from '../services/dashboard-preload.service';
 
 declare var Chart: any;
 
@@ -26,13 +43,15 @@ export class Home implements OnInit {
   @ViewChild('ordersVolumeChart') ordersVolumeChartRef!: ElementRef;
   @ViewChild('promoDistributionChart') promoDistributionChartRef!: ElementRef;
   @ViewChild('statusPieChart') statusPieChartRef!: ElementRef;
-  @ViewChild('customerBarChart') customerBarChartRef!: ElementRef;
+  @ViewChild('activityTrendChart') activityTrendChartRef!: ElementRef;
   @ViewChild('topProductsChart') topProductsChartRef!: ElementRef;
+  @ViewChild('prescriptionConsultChart') prescriptionConsultChartRef!: ElementRef;
+  @ViewChild('productConsultChart') productConsultChartRef!: ElementRef;
+  @ViewChild('diseaseConsultChart') diseaseConsultChartRef!: ElementRef;
 
   // New Chart refs
   @ViewChild('paymentMethodChart') paymentMethodChartRef!: ElementRef;
   @ViewChild('customerTierChart') customerTierChartRef!: ElementRef;
-  @ViewChild('peakHoursChart') peakHoursChartRef!: ElementRef;
 
   stats: any = {};
   isLoading = true;
@@ -42,7 +61,13 @@ export class Home implements OnInit {
   totalCustomersCount = 0;
   totalProductsCount = 0;
   totalOutOfStockCount = 0;
+  totalDoctorsCount = 0;
+  totalPharmacistsCount = 0;
+  totalAdminsCount = 0;
+  totalVisibleBlogsCount = 0;
+  totalVisibleDiseasePostsCount = 0;
   showingLowStockFallback = false;
+  exportMenuOpen = false;
 
   recentOrders: any[] = [];
   topProducts: any[] = [];
@@ -54,6 +79,8 @@ export class Home implements OnInit {
   private currentCustomers: any[] = [];
   private currentPrescriptions: any[] = [];
   private currentPromotions: any[] = [];
+  private currentProductConsultations: any[] = [];
+  private currentDiseaseConsultations: any[] = [];
 
   constructor(
     private authService: AuthService,
@@ -62,11 +89,68 @@ export class Home implements OnInit {
     private productService: ProductService,
     private consultationService: ConsultationService,
     private promotionService: PromotionService,
+    private blogService: BlogService,
+    private diseaseService: DiseaseService,
     private cdr: ChangeDetectorRef,
     private decimalPipe: DecimalPipe,
     private router: Router,
-    private themeService: ThemeService
+    private themeService: ThemeService,
+    private dashboardExport: DashboardExportService,
+    private dashboardPreload: DashboardPreloadService
   ) { }
+
+  @HostListener('document:click')
+  onDocumentClick(): void {
+    this.exportMenuOpen = false;
+  }
+
+  toggleExportMenu(ev: Event): void {
+    ev.stopPropagation();
+    this.exportMenuOpen = !this.exportMenuOpen;
+  }
+
+  exportReport(format: ExportFormat): void {
+    this.exportMenuOpen = false;
+    if (this.isLoading) return;
+
+    const input: DashboardExportInput = {
+      stats: this.stats,
+      orders: this.currentOrders,
+      customers: this.currentCustomers,
+      prescriptions: this.currentPrescriptions,
+      promotions: this.currentPromotions,
+      productConsultations: this.currentProductConsultations,
+      diseaseConsultations: this.currentDiseaseConsultations,
+      totalProductsCount: this.totalProductsCount,
+      totalOrdersCount: this.totalOrdersCount,
+      totalCustomersCount: this.totalCustomersCount,
+      totalRevenue: this.totalRevenue,
+      totalDoctorsCount: this.totalDoctorsCount,
+      totalPharmacistsCount: this.totalPharmacistsCount,
+      totalAdminsCount: this.totalAdminsCount,
+      totalVisibleBlogsCount: this.totalVisibleBlogsCount,
+      totalVisibleDiseasePostsCount: this.totalVisibleDiseasePostsCount,
+      topProducts: this.topProducts,
+      recentOrders: this.recentOrders,
+      outOfStockProducts: this.outOfStockProducts,
+      totalOutOfStockCount: this.totalOutOfStockCount,
+      showingLowStockFallback: this.showingLowStockFallback,
+      getOrderStatusText: (o) => this.getOrderStatusText(o)
+    };
+
+    const snapshot = this.dashboardExport.buildSnapshot(input);
+    const base = `tong-quan-vitacare-${new Date().toISOString().slice(0, 10)}`;
+
+    if (format === 'xlsx') {
+      this.dashboardExport.downloadXlsx(snapshot, base);
+      return;
+    }
+    if (format === 'csv') {
+      this.dashboardExport.downloadCsv(snapshot, base);
+      return;
+    }
+    void this.dashboardExport.downloadPdf(snapshot, base);
+  }
 
   ngOnInit() {
     this.loadData();
@@ -95,11 +179,25 @@ export class Home implements OnInit {
     Chart.defaults.borderColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
   }
 
-  printDashboard() {
-    window.print();
-  }
-
   loadData() {
+    const cached = this.dashboardPreload.consumeCachedResults();
+    if (cached) {
+      this.applyForkJoinResults(cached);
+      this.isLoading = false;
+      this.cdr.detectChanges();
+      setTimeout(
+        () =>
+          this.initCharts(
+            this.currentOrders,
+            this.currentCustomers,
+            this.currentPrescriptions,
+            this.currentPromotions
+          ),
+        300
+      );
+      return;
+    }
+
     this.isLoading = true;
     forkJoin({
       stats: this.authService.getStats(),
@@ -107,26 +205,31 @@ export class Home implements OnInit {
       customers: this.customerService.getCustomers(),
       products: this.productService.getAllProducts(),
       prescriptions: this.consultationService.getPrescriptionConsultations(),
-      promotions: this.promotionService.getPromotions()
+      promotions: this.promotionService.getPromotions(),
+      blogs: this.blogService.getBlogs(1, 500),
+      diseases: this.diseaseService.getDiseases(1, 500),
+      productConsults: this.consultationService.getProductConsultations().pipe(
+        catchError(() => of({ data: [] }))
+      ),
+      diseaseConsults: this.consultationService.getDiseaseConsultations().pipe(
+        catchError(() => of({ success: true, data: [] }))
+      )
     }).subscribe({
       next: (results: any) => {
-        this.stats = results.stats.data || results.stats;
-        this.currentOrders = results.orders.data || results.orders;
-        this.currentCustomers = results.customers.data || results.customers;
-        this.currentPrescriptions =
-          results.prescriptions?.data ||
-          (Array.isArray(results.prescriptions) ? results.prescriptions : []);
-        this.currentPromotions =
-          results.promotions?.data ||
-          (Array.isArray(results.promotions) ? results.promotions : []);
-        const products = results.products.data || results.products;
-
-        this.processMetrics(this.currentOrders, this.currentCustomers, products);
+        this.applyForkJoinResults(results);
         this.isLoading = false;
 
         this.cdr.detectChanges();
-        // Slightly longer delay for high-quality rendering
-        setTimeout(() => this.initCharts(this.currentOrders, this.currentCustomers, this.currentPrescriptions, this.currentPromotions), 300);
+        setTimeout(
+          () =>
+            this.initCharts(
+              this.currentOrders,
+              this.currentCustomers,
+              this.currentPrescriptions,
+              this.currentPromotions
+            ),
+          300
+        );
       },
       error: (err) => {
         console.error('Error loading dashboard data:', err);
@@ -134,6 +237,40 @@ export class Home implements OnInit {
         this.cdr.detectChanges();
       }
     });
+  }
+
+  private applyForkJoinResults(results: any): void {
+    this.stats = results.stats.data || results.stats;
+    this.totalDoctorsCount = Number(this.stats?.doctors ?? 0);
+    this.totalPharmacistsCount = Number(this.stats?.pharmacists ?? 0);
+    this.totalAdminsCount = Number(this.stats?.admins ?? 0);
+    this.currentOrders = results.orders.data || results.orders;
+    this.currentCustomers = results.customers.data || results.customers;
+    this.currentPrescriptions =
+      results.prescriptions?.data ||
+      (Array.isArray(results.prescriptions) ? results.prescriptions : []);
+    this.currentPromotions =
+      results.promotions?.data ||
+      (Array.isArray(results.promotions) ? results.promotions : []);
+    const pc = results.productConsults as any;
+    this.currentProductConsultations = Array.isArray(pc?.data)
+      ? pc.data
+      : Array.isArray(pc)
+        ? pc
+        : [];
+    const dcc = results.diseaseConsults as any;
+    this.currentDiseaseConsultations =
+      dcc?.success && Array.isArray(dcc.data)
+        ? dcc.data
+        : Array.isArray(dcc)
+          ? dcc
+          : [];
+    const blogs = results.blogs?.data || [];
+    const diseases = results.diseases?.data || [];
+    const products = results.products.data || results.products;
+
+    this.processMetrics(this.currentOrders, this.currentCustomers, products);
+    this.processContentMetrics(blogs, diseases);
   }
 
   processMetrics(orders: any[], customers: any[], products: any[]) {
@@ -147,7 +284,7 @@ export class Home implements OnInit {
       const da = new Date(a.createdAt || a.route?.pending || Date.now()).getTime();
       const db = new Date(b.createdAt || b.route?.pending || Date.now()).getTime();
       return db - da;
-    }).slice(0, 4);
+    }).slice(0, 10);
 
     this.topProducts = (products || [])
       .map((p: any) => ({
@@ -157,7 +294,7 @@ export class Home implements OnInit {
         image: p.image || (Array.isArray(p.gallery) && p.gallery.length > 0 ? p.gallery[0] : '')
       }))
       .sort((a: any, b: any) => b.sales - a.sales)
-      .slice(0, 5);
+      .slice(0, 3);
 
     const normalizedProducts = (products || []).map((p: any) => ({
       ...p,
@@ -178,6 +315,20 @@ export class Home implements OnInit {
     this.outOfStockProducts = (outOfStockAll.length > 0 ? outOfStockAll : lowStockAll).slice(0, 5);
   }
 
+  private processContentMetrics(blogs: any[], diseases: any[]) {
+    this.totalVisibleBlogsCount = (blogs || []).filter((b: any) => {
+      const approved = b.isApproved;
+      const status = String(b.status || b.state || '').toLowerCase();
+      return approved === true || status === 'active' || status === 'published' || status === 'visible' || status === 'show';
+    }).length;
+
+    this.totalVisibleDiseasePostsCount = (diseases || []).filter((d: any) => {
+      const approved = d.is_approved;
+      const status = String(d.status || d.state || '').toLowerCase();
+      return approved === true || status === 'active' || status === 'published' || status === 'visible' || status === 'show';
+    }).length;
+  }
+
   initCharts(orders: any[], customers: any[], prescriptions: any[], promotions: any[]) {
     if (typeof Chart === 'undefined') return;
 
@@ -185,13 +336,15 @@ export class Home implements OnInit {
     this.renderPrescriptionStatusChart(prescriptions);
     this.renderPromoDistributionChart(promotions);
     this.renderStatusPieChart(orders);
-    this.renderCustomerBarChart(customers);
+    this.renderActivityTrendChart(orders, customers);
 
     // New Charts
-    this.renderPaymentMethodChart(orders);
     this.renderCustomerTierChart(customers);
-    this.renderPeakHoursChart(orders);
     this.renderTopProductsChart(this.topProducts);
+
+    this.renderPrescriptionConsultStatusChart(prescriptions);
+    this.renderProductConsultStatusChart(this.currentProductConsultations);
+    this.renderDiseaseConsultStatusChart(this.currentDiseaseConsultations);
   }
 
   private renderRevenueChart(revenueData: any[]) {
@@ -429,48 +582,253 @@ export class Home implements OnInit {
     });
   }
 
-  private renderCustomerBarChart(customers: any[]) {
-    if (!this.customerBarChartRef) return;
-    const ctx = this.customerBarChartRef.nativeElement.getContext('2d');
+  /** Trạng thái tư vấn đơn thuốc — nhãn đồng bộ trang Quản lý tư vấn đơn thuốc */
+  private renderPrescriptionConsultStatusChart(prescriptions: any[]) {
+    if (!this.prescriptionConsultChartRef) return;
+    const ctx = this.prescriptionConsultChartRef.nativeElement.getContext('2d');
     const isDark = this.themeService.isDarkMode;
 
-    if (this.charts['customerBar']) this.charts['customerBar'].destroy();
+    if (this.charts['prescriptionConsult']) this.charts['prescriptionConsult'].destroy();
 
-    const days = [0, 0, 0, 0, 0, 0, 0];
-    customers.forEach(u => {
-      const d = u.registerdate || u.createdAt || Date.now();
-      const day = new Date(d).getDay();
-      days[day === 0 ? 6 : day - 1]++;
+    const statuses = ['pending', 'waiting', 'unreachable', 'advised', 'cancelled'];
+    const statusLabels: { [key: string]: string } = {
+      pending: 'Chờ xử lý',
+      waiting: 'Đang tư vấn',
+      unreachable: 'Chưa thể liên hệ',
+      advised: 'Đã tư vấn',
+      cancelled: 'Đã huỷ'
+    };
+
+    const counts = statuses.reduce((acc, s) => ({ ...acc, [s]: 0 }), {} as Record<string, number>);
+    (prescriptions || []).forEach((p: any) => {
+      const s = String(p?.status || 'pending').toLowerCase();
+      if (counts[s] !== undefined) counts[s]++;
     });
+    const labels = statuses.map(s => statusLabels[s]);
+    const data = statuses.map(s => counts[s]);
 
-    this.charts['customerBar'] = new Chart(ctx, {
-      type: 'bar',
+    this.charts['prescriptionConsult'] = new Chart(ctx, {
+      type: 'doughnut',
       data: {
-        labels: ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'],
+        labels,
         datasets: [{
-          data: days,
-          backgroundColor: '#6366f1',
-          borderRadius: 8,
-          barThickness: 32,
-          hoverBackgroundColor: 'rgba(99, 102, 241, 0.95)'
+          data,
+          backgroundColor: [
+            'rgba(99, 102, 241, 0.95)',
+            'rgba(99, 102, 241, 0.8)',
+            'rgba(99, 102, 241, 0.62)',
+            'rgba(99, 102, 241, 0.45)',
+            'rgba(99, 102, 241, 0.3)'
+          ],
+          borderColor: isDark ? '#1e293b' : '#ffffff',
+          borderWidth: 2,
+          hoverOffset: 6
         }]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
+        cutout: '72%',
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              boxWidth: 10,
+              padding: 8,
+              color: isDark ? '#cbd5e1' : '#64748b',
+              font: { size: 10 }
+            }
+          }
+        }
+      }
+    });
+  }
+
+  /** Trạng thái câu hỏi tư vấn sản phẩm — đồng bộ trang Tư vấn sản phẩm */
+  private renderProductConsultStatusChart(products: any[]) {
+    if (!this.productConsultChartRef) return;
+    const ctx = this.productConsultChartRef.nativeElement.getContext('2d');
+    const isDark = this.themeService.isDarkMode;
+
+    if (this.charts['productConsult']) this.charts['productConsult'].destroy();
+
+    const getQuestionState = (q: any): 'pending' | 'assigned' | 'answered' => {
+      if (q?.status === 'answered' && q?.answer) return 'answered';
+      if (q?.status === 'assigned') return 'assigned';
+      return 'pending';
+    };
+
+    const tally = { pending: 0, assigned: 0, answered: 0 };
+    (products || []).forEach((p: any) => {
+      (p?.questions || []).forEach((q: any) => {
+        const st = getQuestionState(q);
+        tally[st]++;
+      });
+    });
+
+    const labels = ['Chờ xử lý', 'Đã phân công', 'Đã trả lời'];
+    const data = [tally.pending, tally.assigned, tally.answered];
+
+    this.charts['productConsult'] = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels,
+        datasets: [{
+          data,
+          backgroundColor: [
+            'rgba(99, 102, 241, 0.95)',
+            'rgba(99, 102, 241, 0.65)',
+            'rgba(99, 102, 241, 0.35)'
+          ],
+          borderColor: isDark ? '#1e293b' : '#ffffff',
+          borderWidth: 2,
+          hoverOffset: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '72%',
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              boxWidth: 10,
+              padding: 8,
+              color: isDark ? '#cbd5e1' : '#64748b',
+              font: { size: 10 }
+            }
+          }
+        }
+      }
+    });
+  }
+
+  /** Trạng thái câu hỏi tư vấn bệnh */
+  private renderDiseaseConsultStatusChart(diseaseRows: any[]) {
+    if (!this.diseaseConsultChartRef) return;
+    const ctx = this.diseaseConsultChartRef.nativeElement.getContext('2d');
+    const isDark = this.themeService.isDarkMode;
+
+    if (this.charts['diseaseConsult']) this.charts['diseaseConsult'].destroy();
+
+    const isPending = (q: any) =>
+      !q?.answer || q?.status === 'unreviewed' || q?.status === 'pending';
+
+    let pending = 0;
+    let answered = 0;
+    (diseaseRows || []).forEach((row: any) => {
+      (row?.questions || []).forEach((q: any) => {
+        if (isPending(q)) pending++;
+        else answered++;
+      });
+    });
+
+    this.charts['diseaseConsult'] = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Chờ xử lý', 'Đã trả lời'],
+        datasets: [{
+          data: [pending, answered],
+          backgroundColor: [
+            'rgba(99, 102, 241, 0.85)',
+            'rgba(99, 102, 241, 0.4)'
+          ],
+          borderColor: isDark ? '#1e293b' : '#ffffff',
+          borderWidth: 2,
+          hoverOffset: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '72%',
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              boxWidth: 10,
+              padding: 8,
+              color: isDark ? '#cbd5e1' : '#64748b',
+              font: { size: 10 }
+            }
+          }
+        }
+      }
+    });
+  }
+
+  private renderActivityTrendChart(orders: any[], customers: any[]) {
+    if (!this.activityTrendChartRef) return;
+    const ctx = this.activityTrendChartRef.nativeElement.getContext('2d');
+    const isDark = this.themeService.isDarkMode;
+
+    if (this.charts['activityTrend']) this.charts['activityTrend'].destroy();
+
+    const orderHours = new Array(24).fill(0);
+    (orders || []).forEach((o: any) => {
+      const d = new Date(o.createdAt || o.route?.pending || Date.now());
+      orderHours[d.getHours()]++;
+    });
+
+    const registrationHours = new Array(24).fill(0);
+    (customers || []).forEach((u: any) => {
+      const d = new Date(u.registerdate || u.createdAt || Date.now());
+      registrationHours[d.getHours()]++;
+    });
+
+    this.charts['activityTrend'] = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: Array.from({ length: 24 }, (_, i) => `${i}h`),
+        datasets: [
+          {
+            label: 'Đơn hàng',
+            data: orderHours,
+            borderColor: 'rgba(99, 102, 241, 0.95)',
+            backgroundColor: 'rgba(99, 102, 241, 0.2)',
+            borderWidth: 3,
+            tension: 0.35,
+            pointRadius: 2,
+            pointHoverRadius: 4,
+            fill: false
+          },
+          {
+            label: 'Đăng ký',
+            data: registrationHours,
+            borderColor: 'rgba(99, 102, 241, 0.55)',
+            backgroundColor: 'rgba(99, 102, 241, 0.12)',
+            borderWidth: 2,
+            tension: 0.35,
+            pointRadius: 2,
+            pointHoverRadius: 4,
+            fill: false
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'top',
+            labels: { color: isDark ? '#cbd5e1' : '#64748b', boxWidth: 10, padding: 12 }
+          }
+        },
         scales: {
           x: {
             grid: { display: false },
-            ticks: { color: isDark ? '#94a3b8' : '#64748b' }
+            ticks: {
+              autoSkip: true,
+              maxTicksLimit: 12,
+              color: isDark ? '#94a3b8' : '#64748b',
+              font: { size: 10 }
+            }
           },
           y: {
             beginAtZero: true,
             grid: { color: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)' },
-            ticks: {
-              precision: 0,
-              color: isDark ? '#94a3b8' : '#64748b'
-            }
+            ticks: { precision: 0, color: isDark ? '#94a3b8' : '#64748b' }
           }
         }
       }
@@ -568,52 +926,7 @@ export class Home implements OnInit {
     });
   }
 
-  private renderPeakHoursChart(orders: any[]) {
-    if (!this.peakHoursChartRef) return;
-    const ctx = this.peakHoursChartRef.nativeElement.getContext('2d');
-    const isDark = this.themeService.isDarkMode;
-
-    if (this.charts['peak']) this.charts['peak'].destroy();
-
-    const hours = new Array(24).fill(0);
-    orders.forEach(o => {
-      const d = new Date(o.createdAt || o.route?.pending || Date.now());
-      hours[d.getHours()]++;
-    });
-
-    this.charts['peak'] = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: Array.from({ length: 24 }, (_, i) => i + 'h'),
-        datasets: [{
-          label: 'Số đơn hàng',
-          data: hours,
-          backgroundColor: isDark ? 'rgba(99, 102, 241, 0.6)' : 'rgba(99, 102, 241, 0.7)',
-          borderRadius: 2
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: {
-          x: {
-            grid: { display: false },
-            ticks: {
-              font: { size: 9 },
-              autoSkip: true,
-              maxRotation: 0,
-              color: isDark ? '#94a3b8' : '#64748b'
-            }
-          },
-          y: {
-            display: false,
-            beginAtZero: true
-          }
-        }
-      }
-    });
-  }
+  
 
   private renderTopProductsChart(products: any[]) {
     if (!this.topProductsChartRef) return;
@@ -622,7 +935,7 @@ export class Home implements OnInit {
 
     if (this.charts['topProducts']) this.charts['topProducts'].destroy();
 
-    const top = (products || []).slice(0, 5);
+    const top = (products || []).slice(0, 3);
     const labels = top.map((p: any) => {
       const name = String(p.name || 'Sản phẩm');
       return name.length > 34 ? `${name.slice(0, 34)}...` : name;
@@ -638,10 +951,8 @@ export class Home implements OnInit {
           data,
           backgroundColor: [
             'rgba(99, 102, 241, 0.95)',
-            'rgba(99, 102, 241, 0.82)',
-            'rgba(99, 102, 241, 0.7)',
-            'rgba(99, 102, 241, 0.58)',
-            'rgba(99, 102, 241, 0.46)'
+            'rgba(99, 102, 241, 0.75)',
+            'rgba(99, 102, 241, 0.5)'
           ],
           borderRadius: 8,
           borderSkipped: false,
@@ -704,5 +1015,22 @@ export class Home implements OnInit {
 
   viewOrderDetail(orderId: string) {
     this.router.navigate(['/admin/orders/detail', orderId]);
+  }
+
+  getOrderStatusText(order: any): string {
+    const raw = String(order?.status || '').toLowerCase();
+    if (raw === 'pending') return 'Chờ xác nhận';
+    if (['confirmed', 'shipping', 'delivered', 'unreview', 'reviewed'].includes(raw)) return 'Đã xác nhận';
+    if (raw === 'cancelled') return 'Đã hủy';
+    if (['returned', 'refunded', 'returning', 'processing_return', 'return_processing', 'rejected'].includes(raw)) return 'Hoàn trả';
+    return 'Chờ xác nhận';
+  }
+
+  getOrderStatusClass(order: any): string {
+    const raw = String(order?.status || '').toLowerCase();
+    if (raw === 'cancelled') return 'status-red';
+    if (['confirmed', 'shipping', 'delivered', 'unreview', 'reviewed'].includes(raw)) return 'status-green';
+    if (['returned', 'refunded', 'returning', 'processing_return', 'return_processing', 'rejected', 'pending'].includes(raw)) return 'status-yellow';
+    return 'status-yellow';
   }
 }

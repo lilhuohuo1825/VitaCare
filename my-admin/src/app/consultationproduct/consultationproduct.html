@@ -28,6 +28,11 @@
             <span class="stat-label">CẦN PHẢN HỒI</span>
             <span class="stat-value">{{ pendingCount }}</span>
         </div>
+        <div class="stat-card stat-assigned" (click)="filterByStatus('assigned')"
+            [class.active-filter]="currentFilter === 'assigned'" style="cursor: pointer;">
+            <span class="stat-label">ĐÃ PHÂN CÔNG</span>
+            <span class="stat-value">{{ assignedCount }}</span>
+        </div>
         <div class="stat-card stat-answered" (click)="filterByStatus('answered')"
             [class.active-filter]="currentFilter === 'answered'" style="cursor: pointer;">
             <span class="stat-label">ĐÃ TRẢ LỜI</span>
@@ -49,8 +54,7 @@
             <table class="data-table">
                 <thead>
                     <tr>
-                        <th width="150">SKU</th>
-                        <th>TÊN SẢN PHẨM</th>
+                        <th>SẢN PHẨM</th>
                         <th width="120" style="text-align: center;">TỔNG CÂU HỎI</th>
                         <th width="120" style="text-align: center;">CẦN PHẢN HỒI</th>
                         <th width="120" style="text-align: center;">THAO TÁC</th>
@@ -58,13 +62,25 @@
                 </thead>
                 <tbody>
                     <tr *ngFor="let p of filteredProducts" (click)="selectProduct(p)">
-                        <td><b>{{ p.sku }}</b></td>
-                        <td>{{ p.productName }}</td>
+                        <td>
+                            <div class="product-info">
+                                <div class="img-placeholder" style="overflow: hidden;">
+                                    <img *ngIf="p.image" [src]="p.image"
+                                        style="width: 100%; height: 100%; object-fit: cover;" alt="">
+                                    <i *ngIf="!p.image" class="bi bi-image"></i>
+                                </div>
+                                <div class="text-info">
+                                    <span class="product-name">{{ p.productName }}</span>
+                                    <span class="product-sku">{{ p.sku }}</span>
+                                </div>
+                            </div>
+                        </td>
                         <td style="text-align: center;">{{ p.totalQuestions }}</td>
                         <td style="text-align: center;">
-                            <span *ngIf="p.unansweredCount > 0" style="color: #c62828; font-weight: bold;">{{
-                                p.unansweredCount }}</span>
-                            <span *ngIf="p.unansweredCount === 0" style="color: #999;">0</span>
+                            <span *ngIf="(p.pendingCount ?? p.unansweredCount ?? 0) > 0"
+                                style="color: #c62828; font-weight: bold;">{{ p.pendingCount ?? p.unansweredCount
+                                }}</span>
+                            <span *ngIf="(p.pendingCount ?? p.unansweredCount ?? 0) === 0" style="color: #999;">0</span>
                         </td>
                         <td style="text-align: center;">
                             <button class="btn btn-outline"
@@ -82,7 +98,7 @@
         <div class="selected-product-info" style="margin-bottom: 20px;">
             <div class="product-details">
                 <h2 style="color: #6a1b9a;">Sản phẩm: {{ selectedProduct.productName }}</h2>
-                <span>Mã SKU: {{ selectedProduct.sku }} • {{ selectedProduct.unansweredCount }} câu hỏi mới</span>
+                <span>Mã SKU: {{ selectedProduct.sku }} • {{ selectedProduct.pendingCount ?? selectedProduct.unansweredCount ?? 0 }} câu hỏi mới</span>
             </div>
             <button (click)="goBackToProducts()" class="btn-back-main">
                 <i class="bi bi-arrow-left"></i> Quay lại danh sách
@@ -118,6 +134,11 @@
                                     <input type="checkbox" [checked]="isFilterSelected('status', 'pending')"
                                         (change)="toggleFilter('status', 'pending')">
                                     <span>Chờ phản hồi</span>
+                                </label>
+                                <label class="dropdown-option">
+                                    <input type="checkbox" [checked]="isFilterSelected('status', 'assigned')"
+                                        (change)="toggleFilter('status', 'assigned')">
+                                    <span>Đã phân công</span>
                                 </label>
                                 <label class="dropdown-option">
                                     <input type="checkbox" [checked]="isFilterSelected('status', 'answered')"
@@ -184,16 +205,18 @@
                             </div>
                         </td>
                         <td>
-                            <div class="status-badge"
-                                [ngClass]="(!item.answer || item.status === 'unreviewed' || item.status === 'pending') ? 'status-pending' : 'status-answered'">
+                            <div class="status-badge" [ngClass]="getQuestionStatusClass(item)">
                                 <span class="status-dot"></span>
-                                <span class="status-text">{{ (!item.answer || item.status === 'unreviewed' ||
-                                    item.status === 'pending') ? 'Đang chờ' : 'Đã trả lời' }}</span>
+                                <span class="status-text">{{ getQuestionStatusText(item) }}</span>
+                            </div>
+                            <div *ngIf="item.answer && item.answeredBy"
+                                style="font-size: 12px; color: var(--color-text-secondary); margin-top: 4px;">
+                                Bởi: {{ item.answeredBy }}
                             </div>
                         </td>
                         <td>
                             <button class="btn btn-primary" style="padding: 4px 12px; font-size: 12px;">{{ (!item.answer
-                                || item.status === 'unreviewed' || item.status === 'pending') ?
+                                || item.status === 'unreviewed' || item.status === 'pending' || item.status === 'assigned') ?
                                 'Trả lời' : 'Sửa' }}</button>
                         </td>
                     </tr>
@@ -242,20 +265,24 @@
                     dung trả
                     lời:</label>
                 <textarea class="form-control" rows="4" [(ngModel)]="replyContent"
-                    placeholder="Nhập câu trả lời của bạn..."
+                    [placeholder]="isAdmin ? 'Nhập câu trả lời (để trống nếu muốn phân công cho dược sĩ)...' : 'Nhập câu trả lời của bạn...'"
                     style="width: 100%; border-radius: 6px; border: 1px solid var(--color-neutral-40); padding: 10px; resize: none; color: var(--color-text-primary);"></textarea>
             </div>
 
             <div class="form-group mt-3" style="margin-top: 20px; border-top: 1px solid #f0f0f0; padding-top: 15px;">
                 <label
-                    style="color: var(--color-text-primary); font-weight: 600; display: block; margin-bottom: 8px;">Người
-                    trả lời (Dược
-                    sĩ)</label>
-                <select class="form-control" [(ngModel)]="editedPharmacistId"
+                    style="color: var(--color-text-primary); font-weight: 600; display: block; margin-bottom: 8px;">Dược sĩ
+                    được phân công</label>
+                <select class="form-control" [(ngModel)]="editedPharmacistId" [disabled]="isPharmacist || !!replyContent.trim()"
                     style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--color-neutral-40); outline: none;">
                     <option value="">Chọn dược sĩ</option>
                     <option *ngFor="let p of pharmacists" [value]="p._id">Dược sĩ {{ p.pharmacistName }}</option>
                 </select>
+                <small *ngIf="isAdmin" style="display: block; margin-top: 8px; color: var(--color-text-secondary);">
+                    Phân cho dược sĩ khi không đủ chuyên môn trả lời tư vấn                </small>
+                <small *ngIf="isPharmacist" style="display: block; margin-top: 8px; color: var(--color-text-secondary);">
+                    Bạn đang đăng nhập vai trò dược sĩ và chỉ có thể trả lời câu hỏi được phân công.
+                </small>
             </div>
         </div>
         <div class="modal-footer"
@@ -268,13 +295,14 @@
         </div>
     </div>
 
-    <!-- Notification Toast -->
-    <div class="notification-toast" *ngIf="notification.show" [ngClass]="notification.type">
-        <i class="bi" [ngClass]="{
-            'bi-check-circle-fill': notification.type === 'success',
-            'bi-x-circle-fill': notification.type === 'error',
-            'bi-exclamation-triangle-fill': notification.type === 'warning'
-        }"></i>
-        <span>{{ notification.message }}</span>
-    </div>
+</div>
+
+<!-- Notification Toast (luôn hiển thị ở góc phải, không phụ thuộc modal) -->
+<div class="notification-toast" *ngIf="notification.show" [ngClass]="notification.type">
+    <i class="bi" [ngClass]="{
+        'bi-check-circle-fill': notification.type === 'success',
+        'bi-x-circle-fill': notification.type === 'error',
+        'bi-exclamation-triangle-fill': notification.type === 'warning'
+    }"></i>
+    <span>{{ notification.message }}</span>
 </div>

@@ -2,7 +2,9 @@ import { Component, ElementRef, QueryList, ViewChildren, ChangeDetectorRef } fro
 import { CommonModule } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators, FormBuilder, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { take } from 'rxjs';
 import { AuthService, AuthRole } from '../services/auth.service';
+import { DashboardPreloadService } from '../services/dashboard-preload.service';
 
 @Component({
   selector: 'app-login',
@@ -67,6 +69,7 @@ export class Login {
   constructor(
     private router: Router,
     private authService: AuthService,
+    public dashboardPreload: DashboardPreloadService,
     private fb: FormBuilder,
     private cdr: ChangeDetectorRef
   ) {
@@ -143,10 +146,22 @@ export class Login {
         if (success) {
           this.isLoginSuccess = true;
           this.cdr.detectChanges();
-          setTimeout(() => {
-            // Navigate to Admin Dashboard
-            this.router.navigate(['/admin/dashboard']);
-          }, 2000);
+          // Tải dữ liệu tổng quan trước; thanh tiến trình + mascot đồng bộ với preload
+          this.dashboardPreload
+            .preload()
+            .pipe(take(1))
+            .subscribe({
+              next: () => {
+                this.router.navigate(['/admin/dashboard']);
+                this.isLoginSuccess = false;
+                this.cdr.detectChanges();
+              },
+              error: () => {
+                this.router.navigate(['/admin/dashboard']);
+                this.isLoginSuccess = false;
+                this.cdr.detectChanges();
+              }
+            });
         }
       },
       error: (err) => {

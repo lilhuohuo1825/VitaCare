@@ -798,16 +798,27 @@ export class Promotionmanage implements OnInit {
     }
   }
 
-  onFileUpload(event: any) {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e: any) => {
+  onFileUpload(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input?.files?.[0];
+    if (input) input.value = '';
+    if (!file) return;
+    this.promotionService.uploadBannerImage(file).subscribe({
+      next: (res) => {
+        const url = res?.imageUrl;
+        if (!res?.success || !url) {
+          this.showNotification(res?.message || 'Tải ảnh thất bại.', 'error');
+          return;
+        }
         if (!this.currentPromotion.images) this.currentPromotion.images = [];
-        this.currentPromotion.images.push(e.target.result);
+        this.currentPromotion.images.push(url);
+        this.showNotification('Đã tải ảnh lên (URL ngắn).');
         this.cdr.markForCheck();
-      };
-      reader.readAsDataURL(file);
-    }
+      },
+      error: () => {
+        this.showNotification('Tải ảnh thất bại (kiểm tra backend).', 'error');
+        this.cdr.markForCheck();
+      },
+    });
   }
 }

@@ -116,10 +116,29 @@
                         placeholder="ví dụ: dinh dưỡng, tim mạch, giảm cân">
                 </div>
 
-                <input class="input-author" type="text" [(ngModel)]="blogData.author.fullName" placeholder="Tác giả">
+                <div style="margin-bottom: 20px;">
+                    <label class="text-xs font-bold text-neutral-50 block mb-1">Tác giả (author):</label>
+                    <div class="blog-person-card">
+                        <input class="input-author" type="text" [(ngModel)]="blogData.author.fullName" placeholder="Họ tên tác giả">
+                        <input class="input-email" type="text" [(ngModel)]="blogData.author.email" placeholder="Email tác giả">
+                    </div>
+                </div>
 
-                <input class="input-email" type="text" [(ngModel)]="blogData.author.email"
-                    placeholder="Tacgia@gmail.com">
+                <div *ngIf="getApproverDisplayName() || blogData.isApproved" style="margin-bottom: 20px;">
+                    <label class="text-xs font-bold text-neutral-50 block mb-1">Dược sĩ duyệt bài (approver):</label>
+                    <div *ngIf="getApproverDisplayName()" class="blog-person-card blog-person-card--readonly">
+                        <strong class="blog-person-name">{{ getApproverDisplayName() }}</strong>
+                        <span *ngIf="blogData.approver?.email || blogData.approver?.mail" class="blog-person-meta">
+                            {{ blogData.approver?.email || blogData.approver?.mail }}
+                        </span>
+                        <span *ngIf="blogData.approvedAt" class="blog-person-meta blog-person-meta--small">
+                            Thời điểm duyệt: {{ blogData.approvedAt | date:'dd/MM/yyyy HH:mm' }}
+                        </span>
+                    </div>
+                    <div *ngIf="!getApproverDisplayName() && blogData.isApproved" class="blog-person-card blog-person-card--empty">
+                        Bài đã duyệt nhưng chưa có thông tin người duyệt (lưu lại sau khi dược sĩ duyệt để ghi nhận).
+                    </div>
+                </div>
 
                 <div class="date-group">
                     <input type="date" class="form-control" [(ngModel)]="blogData.publishedAt"

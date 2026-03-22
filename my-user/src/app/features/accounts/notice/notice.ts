@@ -226,7 +226,7 @@ export class Notice implements OnInit, OnDestroy {
       // 5) Đánh giá (được tạo từ /api/reviews nhưng type = order_updated) => dùng icon thùng hàng
       if (titleLc.includes('đánh giá') || msgLc.includes('đánh giá')) {
         return {
-          icon: 'bi-chat-left-text-fill',
+          icon: 'bi-chat-dots',
           iconClass: 'notice-icon-evaluation',
           label: 'Đánh giá',
         };
@@ -391,12 +391,30 @@ export class Notice implements OnInit, OnDestroy {
 
   isQaNotice(item: NoticeItem): boolean {
     if (item.type === 'qa_reply' || item.type === 'qa_submitted') return true;
-    // Backward compat: old Q&A notices used type order_updated
-    if (
-      item.type === 'order_updated' &&
-      (item.title?.includes('Câu hỏi') || item.linkLabel === 'Xem phản hồi')
-    )
-      return true;
+    // Backend backward-compat: một số notice dùng type `order_updated` nhưng nội dung chứa "Câu hỏi"/"Đánh giá"
+    if (item.type === 'order_updated') {
+      const titleLc = String(item.title || '').toLowerCase();
+      const msgLc = String(item.message || '').toLowerCase();
+
+      // Q&A
+      if (
+        titleLc.includes('câu hỏi') ||
+        msgLc.includes('câu hỏi') ||
+        item.linkLabel === 'Xem phản hồi'
+      ) {
+        return true;
+      }
+
+      // Evaluation (xếp chung vào tab "Hỏi đáp" theo yêu cầu)
+      if (
+        // Chỉ gom các notice đánh giá "đã được gửi" (tránh gom nhầm đơn hàng "chờ bạn đánh giá")
+        item.linkLabel === 'Xem đánh giá' ||
+        titleLc.includes('đánh giá đã được gửi')
+      ) {
+        return true;
+      }
+    }
+
     return false;
   }
 
@@ -418,6 +436,33 @@ export class Notice implements OnInit, OnDestroy {
   goToLink(item: NoticeItem): void {
     this.markAsRead(item);
 
+    // 1) Đánh giá: điều hướng sang trang chi tiết sản phẩm + scroll tới phần review
+    if (
+      (item.linkLabel === 'Xem đánh giá' || String(item.title || '').includes('Đánh giá')) &&
+      item.meta
+    ) {
+      const skuOrSlug = item.meta;
+      this.router.navigate(['/product', skuOrSlug], { queryParams: { scrollTo: 'reviews' } });
+      return;
+    }
+
+    // 2) Hỏi đáp (QA): điều hướng sang trang chi tiết sản phẩm + scroll tới phần questions
+    if (this.isQaNotice(item)) {
+      // Ưu tiên meta (sku)
+      const skuOrSlug = item.meta;
+      // Nếu meta không có, cố gắng parse từ link `/product/:slug`
+      const linkSku =
+        item.link && item.link.startsWith('/product/')
+          ? item.link.replace('/product/', '').split(/[?#]/)[0]
+          : '';
+
+      const target = skuOrSlug || linkSku;
+      if (target) {
+        this.router.navigate(['/product', target], { queryParams: { scrollTo: 'questions' } });
+        return;
+      }
+    }
+
     if (this.isOrderNotice(item) && item.meta) {
       this.router.navigate(['/account'], { queryParams: { menu: 'orders', orderId: item.meta } });
       return;
@@ -432,8 +477,12 @@ export class Notice implements OnInit, OnDestroy {
       this.router.navigate(['/account'], { queryParams: { menu: 'remind' } });
       return;
     }
+    // QA còn lại: nếu chưa match được case ở trên thì fallback theo link hiện có
     if (this.isQaNotice(item) && item.link) {
-      if (item.link.startsWith('/')) {
+      if (item.link.startsWith('/product/')) {
+        const targetSku = item.link.replace('/product/', '').split(/[?#]/)[0];
+        this.router.navigate(['/product', targetSku], { queryParams: { scrollTo: 'questions' } });
+      } else if (item.link.startsWith('/')) {
         this.router.navigateByUrl(item.link);
       } else {
         this.router.navigate(['/account'], { queryParams: { menu: 'notifications' } });

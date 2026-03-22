@@ -1,9 +1,10 @@
-import { Component, inject } from '@angular/core';
+import { Component, effect, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ProductGallery } from '../product-gallery/product-gallery';
 import { ProductInfoSummary } from '../product-info-summary/product-info-summary';
 import { QuickViewService } from '../../../core/services/quick-view.service';
+import { ProductService } from '../../../core/services/product.service';
 
 @Component({
   selector: 'app-product-quick-view',
@@ -14,8 +15,45 @@ import { QuickViewService } from '../../../core/services/quick-view.service';
 })
 export class ProductQuickView {
   readonly quickViewService = inject(QuickViewService);
+  private readonly productService = inject(ProductService);
   selectedImage: string = '';
   isGalleryModalOpen: boolean = false;
+  detailedProduct: any = null;
+
+  constructor() {
+    effect(() => {
+      const baseProduct = this.quickViewService.product();
+
+      if (!baseProduct) {
+        this.detailedProduct = null;
+        return;
+      }
+
+      this.detailedProduct = {
+        ...baseProduct,
+        sold: this.parseSoldValue(baseProduct.sold)
+      };
+
+      const slug = this.getProductSlug(baseProduct);
+      if (!slug) return;
+
+      this.productService.getProductBySlug(slug).subscribe({
+        next: (fullProduct: any) => {
+          const current = this.quickViewService.product();
+          if (!current || this.getProductSlug(current) !== slug) return;
+
+          this.detailedProduct = {
+            ...baseProduct,
+            ...fullProduct,
+            sold: this.parseSoldValue(fullProduct?.sold ?? baseProduct.sold)
+          };
+        },
+        error: () => {
+          // Keep using base product when detail API fails.
+        }
+      });
+    });
+  }
 
   closeQuickView() {
     this.selectedImage = '';
@@ -45,5 +83,20 @@ export class ProductQuickView {
     }
     if (product.slug && product.slug.trim() !== '') return product.slug;
     return '';
+  }
+
+  get quickViewProduct(): any {
+    return this.detailedProduct || this.quickViewService.product();
+  }
+
+  private parseSoldValue(raw: any): number {
+    if (typeof raw === 'number' && Number.isFinite(raw)) return raw;
+    if (typeof raw === 'string') {
+      const cleaned = raw.replace(/[^\d.-]/g, '');
+      const parsed = Number(cleaned);
+      return Number.isFinite(parsed) ? parsed : 0;
+    }
+    const parsed = Number(raw);
+    return Number.isFinite(parsed) ? parsed : 0;
   }
 }

@@ -155,49 +155,43 @@ html {
 
 .vc-fly-pill {
     position: fixed;
+    left: 0;
+    top: 0;
     z-index: 100000;
-    width: 32px;
-    height: 32px;
+    width: 24px;
+    height: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 50%;
     background: linear-gradient(135deg, #0070bd 0%, #00589F 100%);
     color: #fff;
-    font-size: 16px;
+    font-size: 13px;
     pointer-events: none;
-    transform: translate(-50%, -50%) scale(1);
+    offset-distance: 0%;
+    offset-rotate: 0deg;
+    offset-anchor: center;
+    transform: scale(1);
     opacity: 1;
     box-shadow: 0 4px 14px rgba(0, 88, 159, 0.5);
-    will-change: transform, opacity;
+    will-change: offset-distance, transform, opacity;
 }
 
 .vc-fly-pill--active {
-    animation: vcFlyToCart 1.1s cubic-bezier(0.25, 0.75, 0.3, 1) forwards;
+    animation: vcFlyToCart 2.8s cubic-bezier(0.2, 0.78, 0.25, 1) forwards;
 }
 
 @keyframes vcFlyToCart {
     0% {
-        transform: translate(-50%, -50%) scale(1);
+        offset-distance: 0%;
+        transform: scale(1.08);
         opacity: 1;
-    }
-
-    25% {
-        transform: translate(calc(-50% + var(--fly-dx) * 0.12),
-                calc(-50% + var(--fly-dy) * 0.12 - 70px)) scale(1.18);
-        opacity: 1;
-    }
-
-    60% {
-        transform: translate(calc(-50% + var(--fly-dx) * 0.6),
-                calc(-50% + var(--fly-dy) * 0.5 - 30px)) scale(0.85);
-        opacity: 0.9;
     }
 
     100% {
-        transform: translate(calc(-50% + var(--fly-dx)),
-                calc(-50% + var(--fly-dy))) scale(0.3);
-        opacity: 0.35;
+        offset-distance: 100%;
+        transform: scale(0.3);
+        opacity: 0.25;
     }
 }
 

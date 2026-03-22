@@ -52,6 +52,16 @@ h6 {
   animation: logout-modal-in 0.25s ease-out;
 }
 
+.logout-confirm-modal--compact {
+  width: min(360px, calc(100vw - 64px));
+  min-width: 0;
+  padding: 24px 18px;
+}
+
+.logout-confirm-modal--compact .logout-confirm-title {
+  margin-bottom: 16px;
+}
+
 .logout-confirm-title {
   margin: 0 0 20px;
   font-size: 16px;

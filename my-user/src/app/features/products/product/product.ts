@@ -200,8 +200,9 @@ export class Product implements OnInit, OnDestroy {
 
     private syncFiltersFromUrl(qParams: any) {
         this.filters.brand = qParams['brand'] || '';
-        this.filters.keyword = qParams['keyword'] || ''; // Sync keyword
-        this.searchMode = qParams['mode'] === 'article' ? 'article' : 'product';
+        this.filters.keyword = qParams['s'] || qParams['keyword'] || ''; // New format: ?s=...
+        const modeParam = qParams['type'] || qParams['mode'] || 'product';
+        this.searchMode = modeParam === 'article' ? 'article' : 'product';
         this.filters.minPrice = qParams['minPrice'] !== undefined ? (qParams['minPrice'] === 'null' ? null : Number(qParams['minPrice'])) : null;
         this.filters.maxPrice = qParams['maxPrice'] !== undefined ? (qParams['maxPrice'] === 'null' ? null : Number(qParams['maxPrice'])) : null;
         this.filters.sort = qParams['sort'] || 'newest';
@@ -347,14 +348,18 @@ export class Product implements OnInit, OnDestroy {
     }
 
     updateUrl() {
-        this.router.navigate([], {
-            relativeTo: this.route,
+        const routePath = this.filters.keyword ? '/tim-kiem' : null;
+        this.router.navigate(routePath ? [routePath] : [], {
+            relativeTo: routePath ? undefined : this.route,
             queryParams: {
                 brand: this.filters.brand || null,
-                keyword: this.filters.keyword || null, // Persist keyword in URL
-                minPrice: this.filters.minPrice !== null ? this.filters.minPrice : 'null',
-                maxPrice: this.filters.maxPrice !== null ? this.filters.maxPrice : 'null',
-                sort: this.filters.sort,
+                s: this.filters.keyword || null,
+                type: this.searchMode,
+                keyword: null, // clear legacy param
+                mode: null, // clear legacy param
+                minPrice: this.filters.minPrice !== null ? this.filters.minPrice : null,
+                maxPrice: this.filters.maxPrice !== null ? this.filters.maxPrice : null,
+                sort: this.filters.sort && this.filters.sort !== 'newest' ? this.filters.sort : null,
                 page: this.filters.page === 1 ? null : this.filters.page,
                 limit: this.filters.limit === 12 ? null : this.filters.limit,
                 audience: this.filters.audience?.length ? this.filters.audience.join(',') : null,
@@ -590,13 +595,7 @@ export class Product implements OnInit, OnDestroy {
         if (this.searchMode === mode) return;
         this.searchMode = mode;
 
-        // Update URL with mode parameter
-        this.router.navigate([], {
-            relativeTo: this.route,
-            queryParams: { mode: mode },
-            queryParamsHandling: 'merge',
-            replaceUrl: true
-        });
+        this.updateUrl();
 
         // Fetch appropriate data
         if (mode === 'article') {
@@ -665,7 +664,14 @@ export class Product implements OnInit, OnDestroy {
 
     getBlogDetailLink(blog: any): string {
         if (!blog) return '/blog';
-        const slug = blog.slug || (blog.url && typeof blog.url === 'string' ? blog.url.replace(/.*\/(blog|bai-viet)\/?/i, '').replace(/\.html$/i, '').trim() : '') || (blog._id ? String(blog._id) : '');
+        const raw = String(blog.slug || blog.link || blog.url || '').trim();
+        const slug = raw
+            .replace(/^https?:\/\/[^/]+/i, '')
+            .replace(/^\/?(blog|bai-viet)\//i, '')
+            .replace(/\/$/, '')
+            .replace(/\.html?$/i, '')
+            .replace(/[?#].*$/, '')
+            .trim() || (blog._id ? String(blog._id) : '');
         return slug ? `/blog/${encodeURIComponent(slug)}` : '/blog';
     }
 

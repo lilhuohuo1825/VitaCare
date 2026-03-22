@@ -25,4 +25,14 @@ export class PromotionService {
     deletePromotion(id: string): Observable<any> {
         return this.http.delete<any>(`${this.apiUrl}/${id}`);
     }
+
+    /** Upload file → URL ngắn /api/promo-images/... (cùng backend với KM) */
+    uploadBannerImage(file: File): Observable<{ success: boolean; imageUrl?: string; token?: string; message?: string }> {
+        const fd = new FormData();
+        fd.append('file', file, file.name || 'banner.jpg');
+        return this.http.post<{ success: boolean; imageUrl?: string; token?: string; message?: string }>(
+            `${this.apiUrl}/upload-banner-image`,
+            fd
+        );
+    }
 }

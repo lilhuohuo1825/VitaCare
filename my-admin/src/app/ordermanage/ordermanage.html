@@ -158,7 +158,7 @@
                     <!-- Total Amount Submenu -->
                     <div class="dropdown-item-parent">
                         <div class="dropdown-item">
-                            <span>Khoảng giá (VNĐ)</span>
+                            <span>Tổng đơn (VNĐ)</span>
                             <span style="font-size: 16px; color: #ccc; line-height: 1;">‹</span>
                         </div>
                         <div class="dropdown-submenu" (click)="$event.stopPropagation()">
@@ -195,28 +195,49 @@
                 <i class="bi bi-trash"></i> Xoá
             </button>
             <div class="dropdown-container" style="position: relative;">
-                <button class="btn btn-sm action-btn icon-text" (click)="toggleSortDropdown($event)">
+                <button class="btn btn-sm action-btn icon-text" (click)="toggleSortDropdown($event)"
+                    [class.active]="isSortDropdownOpen || sortColumn !== 'date' || sortDirection !== 'desc'">
                     <i class="bi bi-arrow-down-up"></i> Sắp xếp
                 </button>
                 <div class="dropdown-popup sort-dropdown-menu" *ngIf="isSortDropdownOpen"
                     (click)="$event.stopPropagation()">
-                    <div class="sort-options-list">
-                        <button (click)="onSortSelect('date', 'desc')" class="sort-option-btn"
-                            [class.active]="sortColumn === 'date' && sortDirection === 'desc'">
-                            <i class="bi bi-calendar-event"></i> Ngày: Mới nhất
-                        </button>
-                        <button (click)="onSortSelect('date', 'asc')" class="sort-option-btn"
-                            [class.active]="sortColumn === 'date' && sortDirection === 'asc'">
-                            <i class="bi bi-calendar"></i> Ngày: Cũ nhất
-                        </button>
-                        <button (click)="onSortSelect('total', 'desc')" class="sort-option-btn"
-                            [class.active]="sortColumn === 'total' && sortDirection === 'desc'">
-                            <i class="bi bi-sort-numeric-down-alt"></i> Tổng tiền: Cao nhất
-                        </button>
-                        <button (click)="onSortSelect('total', 'asc')" class="sort-option-btn"
-                            [class.active]="sortColumn === 'total' && sortDirection === 'asc'">
-                            <i class="bi bi-sort-numeric-down"></i> Tổng tiền: Thấp nhất
-                        </button>
+                    <div class="sort-options-list compact-sort-list">
+                        <div class="sort-row" [class.row-active]="sortColumn === 'date'">
+                            <button type="button" class="sort-row-label" (click)="onSortRowClick('date')">
+                                <i class="bi bi-calendar-event"></i>
+                                <span>Ngày đặt</span>
+                            </button>
+                            <div class="sort-row-arrows">
+                                <button type="button" class="sort-arrow-btn" title="Cũ → mới"
+                                    [class.dir-active]="sortColumn === 'date' && sortDirection === 'asc'"
+                                    (click)="setSortDirection('date', 'asc', $event)">
+                                    <i class="bi bi-sort-up"></i>
+                                </button>
+                                <button type="button" class="sort-arrow-btn" title="Mới → cũ"
+                                    [class.dir-active]="sortColumn === 'date' && sortDirection === 'desc'"
+                                    (click)="setSortDirection('date', 'desc', $event)">
+                                    <i class="bi bi-sort-down"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="sort-row" [class.row-active]="sortColumn === 'total'">
+                            <button type="button" class="sort-row-label" (click)="onSortRowClick('total')">
+                                <i class="bi bi-cash-stack"></i>
+                                <span>Tổng tiền</span>
+                            </button>
+                            <div class="sort-row-arrows">
+                                <button type="button" class="sort-arrow-btn" title="Thấp → cao"
+                                    [class.dir-active]="sortColumn === 'total' && sortDirection === 'asc'"
+                                    (click)="setSortDirection('total', 'asc', $event)">
+                                    <i class="bi bi-sort-numeric-up"></i>
+                                </button>
+                                <button type="button" class="sort-arrow-btn" title="Cao → thấp"
+                                    [class.dir-active]="sortColumn === 'total' && sortDirection === 'desc'"
+                                    (click)="setSortDirection('total', 'desc', $event)">
+                                    <i class="bi bi-sort-numeric-down"></i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

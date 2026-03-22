@@ -32,6 +32,7 @@ import { NoticeService } from '../../../core/services/notice.service';
   styleUrls: ['./product-detail.css', './product-detail-reviews.css'],
 })
 export class ProductDetail implements OnInit {
+  private lastReviewRefreshAt = 0;
   product: any = null;
   productFaqs: any[] = [];
   openFaqIndexes: Set<number> = new Set();
@@ -96,6 +97,9 @@ export class ProductDetail implements OnInit {
   selectedVideo: any = null;
   safeVideoUrl: SafeResourceUrl | null = null;
   modalRelatedVideos: any[] = [];
+
+  // Scroll target from query param: 'reviews' | 'questions'
+  private pendingScrollTo: 'reviews' | 'questions' | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -231,6 +235,44 @@ export class ProductDetail implements OnInit {
       if (slug && slug !== 'undefined' && slug !== 'null') {
         this.fetchProduct(slug);
       }
+    });
+
+    // 3. Ưu tiên lấy query param ngay từ snapshot (tránh race condition khi điều hướng)
+    const initialScrollTo = this.route.snapshot?.queryParamMap?.get('scrollTo');
+    if (initialScrollTo === 'reviews' || initialScrollTo === 'questions') {
+      this.pendingScrollTo = initialScrollTo;
+    }
+
+    // 3. Theo dõi query param để tự scroll tới phần review/qa
+    this.route.queryParamMap.subscribe((qParams: any) => {
+      const scrollTo = qParams.get('scrollTo');
+      if (!scrollTo) return;
+      if (scrollTo === 'reviews' || scrollTo === 'questions') {
+        this.pendingScrollTo = scrollTo;
+        // Nếu product đã render xong thì scroll luôn
+        if (!this.loading && this.product) {
+          const st = this.pendingScrollTo;
+          this.pendingScrollTo = null;
+          setTimeout(() => this.scrollToSection(st as string), 150);
+        }
+      }
+    });
+
+    // Auto refresh reviews if user just submitted from another page (Orders popup)
+    window.addEventListener('storage', (e: StorageEvent) => {
+      if (!e.key || typeof e.key !== 'string') return;
+      if (!e.key.startsWith('vc_review_submitted_')) return;
+
+      const sku = e.key.replace('vc_review_submitted_', '');
+      if (!sku || !this.product?.sku) return;
+      if (String(this.product.sku) !== String(sku)) return;
+
+      const now = Date.now();
+      // Simple throttle: avoid spamming requests
+      if (this['lastReviewRefreshAt'] && now - (this as any).lastReviewRefreshAt < 500) return;
+      (this as any).lastReviewRefreshAt = now;
+
+      this.fetchReviews(String(sku));
     });
 
     this.guestId = this.getOrCreateGuestId();
@@ -476,12 +518,20 @@ export class ProductDetail implements OnInit {
           this.fetchProductFaqs(pId);
 
         }
-        this.loading = false;
-        this.cdr.detectChanges();
+          this.loading = false;
+          this.cdr.detectChanges();
+
+          // Scroll tới section nếu có yêu cầu
+          if (this.pendingScrollTo) {
+            const st = this.pendingScrollTo;
+            this.pendingScrollTo = null;
+            setTimeout(() => this.scrollToSection(st), 250);
+          }
       },
       error: (err: any) => {
         console.error('Error fetching product:', err);
         this.loading = false;
+            this.pendingScrollTo = null;
         this.cdr.detectChanges();
       }
     });
@@ -1332,6 +1382,17 @@ export class ProductDetail implements OnInit {
   getAvatarUrl(item: any): string | null {
     if (!item || !item.avatar) return null;
     return item.avatar;
+  }
+
+  getReviewImageUrl(img: any): string {
+    const s = String(img || '').trim();
+    if (!s) return '';
+    if (s.startsWith('data:')) return s;
+    if (s.startsWith('http://') || s.startsWith('https://')) return s;
+    // If backend already returns absolute/relative with leading slash, keep it.
+    if (s.startsWith('/')) return s;
+    // Fallback: assume relative path on backend host.
+    return `http://localhost:3000/${s.replace(/^\/+/, '')}`;
   }
 
   getInitials(name: string): string {
