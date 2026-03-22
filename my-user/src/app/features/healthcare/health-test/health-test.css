@@ -962,18 +962,6 @@
     margin-top: 4px;
 }
 
-<<<<<<< HEAD
-=======
-/* ═══════════════════════════════════════════
-   REGISTRATION (Borrowing Store System CSS)
-═══════════════════════════════════════════ */
-.ht-register-container .form-control::placeholder {
-    color: var(--vc-main);
-    opacity: 1;
-    /* Override default browser opacity for placeholder */
-}
-
->>>>>>> 6c84c12d749fff38442261dfd3973b4752b86acc
 .ht-reg-container {
     max-width: 600px;
     margin: 0 auto;
