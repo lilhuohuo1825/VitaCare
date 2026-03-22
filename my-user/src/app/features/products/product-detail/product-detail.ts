@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef, effect, inject, Injector } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, effect, inject, Injector } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
@@ -31,7 +31,7 @@ import { NoticeService } from '../../../core/services/notice.service';
   templateUrl: './product-detail.html',
   styleUrls: ['./product-detail.css', './product-detail-reviews.css'],
 })
-export class ProductDetail implements OnInit {
+export class ProductDetail implements OnInit, OnDestroy {
   private lastReviewRefreshAt = 0;
   product: any = null;
   productFaqs: any[] = [];
@@ -101,6 +101,12 @@ export class ProductDetail implements OnInit {
   // Scroll target from query param: 'reviews' | 'questions'
   private pendingScrollTo: 'reviews' | 'questions' | null = null;
 
+  /** Tooltip danh sách người đã bấm "Hữu ích" */
+  likerHoverKey: string | null = null;
+  likerHoverPanel: { loading: boolean; names: string[]; more: number } | null = null;
+  private likerHoverHideTimer: ReturnType<typeof setTimeout> | null = null;
+  private readonly likerNamesCache = new Map<string, Record<string, string>>();
+
   constructor(
     private route: ActivatedRoute,
     private productService: ProductService,
@@ -119,6 +125,86 @@ export class ProductDetail implements OnInit {
       const user = this.authService.currentUser();
       this.loadFavorites();
     }, { allowSignalWrites: true });
+  }
+
+  ngOnDestroy(): void {
+    if (this.likerHoverHideTimer) {
+      clearTimeout(this.likerHoverHideTimer);
+      this.likerHoverHideTimer = null;
+    }
+  }
+
+  likerPanelVisible(key: string): boolean {
+    return this.likerHoverKey === key && this.likerHoverPanel != null;
+  }
+
+  private normalizeLikeUserIds(likes: any[] | null | undefined): string[] {
+    if (!Array.isArray(likes)) return [];
+    return likes
+      .map((x) => (x && typeof x === 'object' && x.$oid ? String(x.$oid) : String(x || '').trim()))
+      .filter(Boolean);
+  }
+
+  private applyLikerHoverNames(panelKey: string, orderedIds: string[], nameMap: Record<string, string>) {
+    if (this.likerHoverKey !== panelKey) return;
+    const display = orderedIds.map((id) => nameMap[id] || 'Thành viên');
+    const names = display.slice(0, 4);
+    const more = Math.max(0, orderedIds.length - 4);
+    this.likerHoverPanel = { loading: false, names, more };
+    this.cdr.markForCheck();
+  }
+
+  onLikersEnter(panelKey: string, likes: any[] | null | undefined) {
+    const ids = this.normalizeLikeUserIds(likes);
+    if (ids.length === 0) return;
+
+    if (this.likerHoverHideTimer) {
+      clearTimeout(this.likerHoverHideTimer);
+      this.likerHoverHideTimer = null;
+    }
+
+    this.likerHoverKey = panelKey;
+    this.likerHoverPanel = { loading: true, names: [], more: 0 };
+    this.cdr.markForCheck();
+
+    const cacheKey = [...ids].sort().join('|');
+    const cached = this.likerNamesCache.get(cacheKey);
+    if (cached) {
+      this.applyLikerHoverNames(panelKey, ids, cached);
+      return;
+    }
+
+    this.productService.getUserDisplayNames(ids).subscribe({
+      next: (map) => {
+        this.likerNamesCache.set(cacheKey, map);
+        this.applyLikerHoverNames(panelKey, ids, map);
+      },
+      error: () => {
+        if (this.likerHoverKey !== panelKey) return;
+        this.likerHoverPanel = {
+          loading: false,
+          names: ids.slice(0, 4).map(() => 'Thành viên'),
+          more: Math.max(0, ids.length - 4),
+        };
+        this.cdr.markForCheck();
+      },
+    });
+  }
+
+  onLikersLeave() {
+    if (this.likerHoverHideTimer) clearTimeout(this.likerHoverHideTimer);
+    this.likerHoverHideTimer = setTimeout(() => {
+      this.likerHoverKey = null;
+      this.likerHoverPanel = null;
+      this.cdr.markForCheck();
+    }, 220);
+  }
+
+  onLikersPopoverEnter() {
+    if (this.likerHoverHideTimer) {
+      clearTimeout(this.likerHoverHideTimer);
+      this.likerHoverHideTimer = null;
+    }
   }
 
   openVideoDetail(video: any, event?: Event) {

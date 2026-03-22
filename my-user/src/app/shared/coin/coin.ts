@@ -13,7 +13,7 @@ export class Coin {
   public coinService = inject(CoinService);
   isImgError = signal(false);
 
-  balance = computed(() => this.coinService.coinData().balance);
+  readonly balance = this.coinService.effectiveBalance;
   isLoading = computed(() => this.coinService.coinBagLoading());
 
   // Chỉ dịch chuyển dọc (giữ nguyên cột phải)

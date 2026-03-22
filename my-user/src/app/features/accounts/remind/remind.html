@@ -513,9 +513,9 @@
               </div>
               <div class="remind-diary-item-actions">
                 <button type="button" class="remind-diary-edit"
-                  [class.is-active]="activeDiaryEditKey() === ((item.reminder?._id || '') + ':' + item.time)"
+                  [class.is-active]="activeDiaryEditKey() === ((item.reminder._id || '') + ':' + item.time)"
                   [disabled]="isDateClaimed(diarySelectedDate())"
-                  (click)="$event.stopPropagation(); openEdit(item.reminder, diarySelectedDate(), ((item.reminder?._id || '') + ':' + item.time))"
+                  (click)="$event.stopPropagation(); openEdit(item.reminder, diarySelectedDate(), ((item.reminder._id || '') + ':' + item.time))"
                   aria-label="Chỉnh sửa lời nhắc">
                   <i class="bi bi-pencil"></i>
                 </button>

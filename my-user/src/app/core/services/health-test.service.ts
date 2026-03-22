@@ -15,9 +15,16 @@ export interface QuizResultReq {
   quiz_id: string;
   score: number;
   result_id: string;
+  /** Chỉ khi đã đăng nhập — backend bỏ qua lưu nếu thiếu */
+  user_id?: string;
+  result_title?: string;
+  result_badge?: string;
+  recommendation?: string;
 }
 
-@Injectable({ providedIn: 'root' })
+@Injectable({
+  providedIn: 'root'
+})
 export class HealthTestService {
   constructor(private http: HttpClient) { }
 
@@ -29,7 +36,8 @@ export class HealthTestService {
     return this.http.post(`${API_BASE}/api/quiz-results`, req);
   }
 
-  getQuizHistory(quiz_id: string): Observable<any[]> {
-    return this.http.get<any[]>(`${API_BASE}/api/quiz-history/${quiz_id}`);
+  getQuizHistory(quiz_id: string, user_id: string): Observable<any[]> {
+    const q = encodeURIComponent(user_id);
+    return this.http.get<any[]>(`${API_BASE}/api/quiz-history/${encodeURIComponent(quiz_id)}?user_id=${q}`);
   }
 }

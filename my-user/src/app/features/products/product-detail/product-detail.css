@@ -339,34 +339,90 @@
     font-weight: 500;
 }
 
-/* Custom Delete Modal */
+/* Custom Delete Modal — gọn, không kế thừa min-height 500px / flex:1 của modal chung */
 .vc_delete_modal_overlay {
     z-index: 2500;
-    /* Higher than other modals */
+    background: rgba(15, 23, 42, 0.45);
+    backdrop-filter: blur(3px);
 }
 
 .vc_delete_modal_container {
-    max-width: 280px;
-    border-radius: 12px;
-    animation: vcFadeIn 0.2s ease-out;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    width: auto !important;
+    max-width: min(360px, calc(100vw - 32px)) !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    border-radius: 14px !important;
+    overflow: visible !important;
+    display: block !important;
+    background: linear-gradient(180deg, #f0f7fc 0%, #ffffff 42%);
+    border: 1px solid rgba(0, 88, 159, 0.12);
+    box-shadow:
+        0 4px 6px rgba(0, 88, 159, 0.06),
+        0 18px 40px rgba(0, 40, 80, 0.14);
+    animation: vcDeleteModalIn 0.22s ease-out;
 }
 
 .vc_delete_modal_container .vc_modal_body {
-    padding: 1.25rem !important;
+    flex: none !important;
+    overflow: visible !important;
+    padding: 1.35rem 1.5rem 1.25rem !important;
 }
 
 .vc_delete_modal_container h5 {
-    font-size: 1.1rem;
+    font-size: 1.05rem;
+    color: #0f172a;
+    letter-spacing: -0.02em;
 }
 
 .vc_delete_modal_container p {
-    font-size: 0.85rem;
-    line-height: 1.4;
+    font-size: 0.875rem;
+    line-height: 1.45;
+    color: #64748b;
+    max-width: 280px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
-.delete-icon-wrapper i {
-    font-size: 2.5rem !important;
+.vc_delete_modal_container .delete-icon-wrapper {
+    width: 52px;
+    height: 52px;
+    margin-left: auto;
+    margin-right: auto;
+    border-radius: 50%;
+    background: rgba(255, 193, 7, 0.15);
+    border: 1px solid rgba(255, 193, 7, 0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.vc_delete_modal_container .delete-icon-wrapper i {
+    font-size: 1.65rem !important;
+    color: #e6a700 !important;
+}
+
+.vc_delete_modal_actions {
+    margin-top: 1.1rem;
+}
+
+.vc_delete_modal_actions .btn {
+    min-width: 96px;
+    border-radius: 8px;
+    font-weight: 600;
+    padding-top: 0.45rem;
+    padding-bottom: 0.45rem;
+}
+
+@keyframes vcDeleteModalIn {
+    from {
+        opacity: 0;
+        transform: scale(0.96) translateY(6px);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
 }
 
 @keyframes vcFadeInUp {
@@ -1311,49 +1367,8 @@
     font-weight: 500;
 }
 
-/* ================= Custom Delete Modal ================= */
-.vc_delete_modal_overlay {
-    z-index: 1060 !important;
-}
-
-.vc_delete_modal_container {
-    max-width: 330px !important;
-    border-radius: 12px;
-    animation: vcFadeIn 0.2s ease-out;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-}
-
 .vc-liked-active {
     color: #ffc107 !important;
     /* Vibrant Yellow */
     font-weight: 500;
-}
-
-.vc_delete_modal_container .vc_modal_body {
-    padding: 1.25rem !important;
-}
-
-.vc_delete_modal_container h5 {
-    font-size: 1.1rem;
-}
-
-.vc_delete_modal_container p {
-    font-size: 0.85rem;
-    line-height: 1.4;
-}
-
-.delete-icon-wrapper i {
-    font-size: 2.5rem !important;
-}
-
-@keyframes vcFadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
 }

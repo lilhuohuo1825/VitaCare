@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -27,6 +27,20 @@ export class ProductService {
   }
 
   constructor(private http: HttpClient) { }
+
+  /** Lấy tên hiển thị theo danh sách user_id (tooltip người đã thích). */
+  getUserDisplayNames(ids: string[]): Observable<Record<string, string>> {
+    const clean = [...new Set(ids.map((x) => String(x || '').trim()).filter(Boolean))];
+    if (clean.length === 0) return of({});
+    return this.http
+      .post<{ success: boolean; names: Record<string, string> }>(`${this.apiBase}/api/users/display-names`, {
+        ids: clean,
+      })
+      .pipe(
+        map((res) => (res && res.names) || {}),
+        catchError(() => of({}))
+      );
+  }
 
   getProducts(options: any = {}): Observable<any> {
     const params = new URLSearchParams();

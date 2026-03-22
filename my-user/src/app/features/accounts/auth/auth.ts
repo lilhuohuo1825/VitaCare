@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { AuthApiService } from '../../../core/services/auth-api.service';
+import { HOME_URL } from '../../../core/constants/navigation.constants';
 
 @Component({
   selector: 'app-auth',
@@ -215,7 +216,7 @@ export class Auth implements OnDestroy {
 
             // Delay navigation slightly to ensure UI transition is smooth
             setTimeout(() => {
-              this.router.navigate(['/']);
+              this.router.navigate([HOME_URL]);
             }, 100);
           } else {
             console.warn('[AuthComponent] login success false or no user in res');
@@ -485,7 +486,7 @@ export class Auth implements OnDestroy {
             this.authService.showHeaderSuccess('Đổi mật khẩu thành công. Bạn đã đăng nhập.');
 
             setTimeout(() => {
-              this.router.navigate(['/']);
+              this.router.navigate([HOME_URL]);
             }, 100);
           } else {
             this.errors = { ...this.errors, password: res.message || 'Không thể đổi mật khẩu.' };
@@ -619,7 +620,7 @@ export class Auth implements OnDestroy {
             this.authService.showHeaderSuccess('Bạn đã đăng ký tài khoản thành công!');
 
             setTimeout(() => {
-              this.router.navigate(['/']);
+              this.router.navigate([HOME_URL]);
             }, 100);
           } else {
             this.errors = { ...this.errors, phone: res.message || 'Đăng ký thất bại.' };

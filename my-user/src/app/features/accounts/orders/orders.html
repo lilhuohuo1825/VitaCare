@@ -1,42 +1,47 @@
-<!-- Orders Management Component -->
-<div class="orders-container">
-    <!-- Breadcrumb removed - handled by parent Account component -->
-    <!-- Header Section -->
-    <div class="orders-header">
-        <div>
-            <h1 class="orders-title">ĐƠN HÀNG CỦA TÔI</h1>
-            <p>Theo dõi đơn hàng của bạn</p>
-        </div>
-        <div class="search-container">
-            <div class="search-box">
-                <button type="button" class="search-icon-btn" (click)="performSearch()">
-                    <i class="bi bi-search search-icon"></i>
-                </button>
-                <input #searchInput type="text" [(ngModel)]="searchQuery"
-                    placeholder="Tìm kiếm theo mã đơn hàng hoặc tên sản phẩm" class="search-input"
-                    (keyup.enter)="performSearch()" />
-                <button *ngIf="searchQuery" type="button" class="clear-btn" (click)="clearSearch()">
-                    <i class="bi bi-x-circle-fill clear-icon"></i>
-                </button>
+<!-- Orders Management Component — neo chung: tiêu đề + tìm kiếm + phân loại (giống Thông báo) -->
+<div class="orders-container vc_container pt-2 pb-5">
+    <!-- Neo dưới header site: khi sentinel cuộn khỏi vùng nhìn → bật khung giả -->
+    <div class="orders-sticky-sentinel" #ordersStickySentinel aria-hidden="true"></div>
+    <div class="orders-sticky-block" [class.orders-sticky-block--backdrop]="stickyOrdersBackdrop">
+        <!-- Header Section -->
+        <div class="orders-header">
+            <div>
+                <h1 class="orders-title">ĐƠN HÀNG CỦA TÔI</h1>
+                <p>Theo dõi đơn hàng của bạn</p>
+            </div>
+            <div class="search-container">
+                <div class="search-box">
+                    <button type="button" class="search-icon-btn" (click)="performSearch()">
+                        <i class="bi bi-search search-icon"></i>
+                    </button>
+                    <input #searchInput type="text" [(ngModel)]="searchQuery"
+                        placeholder="Tìm kiếm theo mã đơn hàng hoặc tên sản phẩm" class="search-input"
+                        (keyup.enter)="performSearch()" />
+                    <button *ngIf="searchQuery" type="button" class="clear-btn" (click)="clearSearch()">
+                        <i class="bi bi-x-circle-fill clear-icon"></i>
+                    </button>
+                </div>
             </div>
         </div>
-    </div>
 
-    <!-- Tab Navigation -->
-    <div class="tab-navigation">
-        <button class="tab-scroll-btn tab-scroll-left" (click)="scrollTabs(-200)" [class.hidden]="!canScrollLeft">
-            <i class="bi bi-chevron-left scroll-arrow left"></i>
-        </button>
-        <div class="tab-list" #tabList>
-            <button *ngFor="let tab of tabs" class="tab-button" [class.active]="activeTab === tab.id"
-                (click)="onTabClick(tab.id)">
-                <span class="tab-label">{{ tab.label }}</span>
-                <span class="tab-badge" *ngIf="tab.count > 0 && tab.id !== 'all'">{{ tab.count }}</span>
+        <!-- Tab Navigation -->
+        <div class="tab-navigation">
+            <button class="tab-scroll-btn tab-scroll-left" (click)="scrollTabs(-200)" [class.hidden]="!canScrollLeft">
+                <i class="bi bi-chevron-left scroll-arrow left"></i>
+            </button>
+            <div class="tab-list" #tabList>
+                <button *ngFor="let tab of tabs" class="tab-button" [class.active]="activeTab === tab.id"
+                    (click)="onTabClick(tab.id)">
+                    <span class="tab-label">{{ tab.label }}</span>
+                    <span class="tab-badge" *ngIf="tab.count > 0 && tab.id !== 'all'">{{ tab.count }}</span>
+                </button>
+            </div>
+            <button class="tab-scroll-btn tab-scroll-right" (click)="scrollTabs(200)" [class.hidden]="!canScrollRight">
+                <i class="bi bi-chevron-right scroll-arrow right"></i>
             </button>
         </div>
-        <button class="tab-scroll-btn tab-scroll-right" (click)="scrollTabs(200)" [class.hidden]="!canScrollRight">
-            <i class="bi bi-chevron-right scroll-arrow right"></i>
-        </button>
+        <!-- Lớp mờ dần khi nội dung lướt lên (chỉ hiện khi đã cuộn — class backdrop) -->
+        <div class="orders-scroll-fade" aria-hidden="true"></div>
     </div>
 
     <!-- Orders Content -->

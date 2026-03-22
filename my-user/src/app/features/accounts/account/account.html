@@ -3,7 +3,7 @@
   <div class="vc_container pt-2" *ngIf="activeMenu === 'health'; else accountBreadcrumb">
     <nav aria-label="breadcrumb">
       <ol class="breadcrumb-vc">
-        <li class="breadcrumb-item"><a routerLink="/">Trang chủ</a></li>
+        <li class="breadcrumb-item"><a routerLink="/nhathuocvitacare">Trang chủ</a></li>
         <li class="breadcrumb-item active" aria-current="page">Công cụ sức khỏe</li>
       </ol>
     </nav>
@@ -13,7 +13,7 @@
     <div class="vc_container pt-2" *ngIf="activeMenu !== 'reviews'">
       <nav aria-label="breadcrumb">
         <ol class="breadcrumb-vc">
-          <li class="breadcrumb-item"><a routerLink="/">Trang chủ</a></li>
+          <li class="breadcrumb-item"><a routerLink="/nhathuocvitacare">Trang chủ</a></li>
           <li class="breadcrumb-item"><a routerLink="/account" [queryParams]="{ menu: 'info' }">Cá nhân</a></li>
           <li class="breadcrumb-item active" aria-current="page">{{ breadcrumbLabel }}</li>
         </ol>
@@ -24,7 +24,7 @@
     <!-- Account Component - User Profile Sidebar -->
     <div class="account-wrapper" [class.account-wrapper--health-full]="activeMenu === 'health'"
       [class.account-wrapper--reviews-full]="activeMenu === 'reviews'"
-      [class.account-wrapper--notice-full]="activeMenu === 'notifications'">
+      [class.account-wrapper--notice-full]="activeMenu === 'notifications' || activeMenu === 'prescriptions' || activeMenu === 'orders' || activeMenu === 'reviews'">
       <!-- User Profile Card with Menu (ẩn khi đang xem Sổ sức khỏe) -->
       <div class="account-sidebar" *ngIf="activeMenu !== 'health'">
         <!-- User Avatar & Info -->

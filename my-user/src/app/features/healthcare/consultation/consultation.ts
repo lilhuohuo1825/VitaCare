@@ -8,6 +8,7 @@ import { ProductService } from '../../../core/services/product.service';
 import { CategoryService } from '../../../core/services/category.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { HOME_URL } from '../../../core/constants/navigation.constants';
 
 export interface ConsultationProduct {
   productName: string;
@@ -403,7 +404,7 @@ export class Consultation implements OnInit {
 
   closePrescriptionSuccess(): void {
     this.showPrescriptionSuccess = false;
-    this.router.navigate(['/']);
+    this.router.navigate([HOME_URL]);
   }
 
   goToPrescriptions(): void {

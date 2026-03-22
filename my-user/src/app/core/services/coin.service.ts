@@ -1,7 +1,10 @@
-import { Injectable, signal, inject } from '@angular/core';
+import { Injectable, signal, inject, computed, effect } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from './auth.service';
 import { firstValueFrom } from 'rxjs';
+
+/** Cùng backend với HealthTestService — tránh 404 khi gọi /api qua localhost:4200 (proxy không áp dụng hoặc POST lỗi). */
+const API_BASE = 'http://localhost:3000';
 
 export interface CoinHistory {
     amount: number;
@@ -23,8 +26,12 @@ export interface CoinData {
 export class CoinService {
     private http = inject(HttpClient);
     private auth = inject(AuthService);
-    private static STORAGE_KEY = 'vc_coin_data';
-    private apiUrl = '/api/users-memory/coins';
+    /** Cache cũ không gắn user — gây lộn số dư khi đổi tài khoản; chỉ dùng để xóa một lần. */
+    private static readonly LEGACY_STORAGE_KEY = 'vc_coin_data';
+    private static storageKeyForUser(userId: string): string {
+        return `vc_coin_data_${String(userId || '').trim()}`;
+    }
+    private readonly apiUrl = `${API_BASE}/api/users-memory/coins`;
 
     /**
      * Dùng để chặn trường hợp loadFromBackend (chạy async lúc init) trả về SAU khi
@@ -32,6 +39,8 @@ export class CoinService {
      */
     private lastCoinSetAt = 0;
     private bagLoadingTimer: ReturnType<typeof setTimeout> | null = null;
+    /** User đã load coin vào memory (tránh gộp số dư giữa 2 tài khoản). */
+    private loadedUserId: string | null = null;
 
     coinData = signal<CoinData>({
         balance: 0,
@@ -41,52 +50,164 @@ export class CoinService {
     });
     coinBagLoading = signal(false);
 
-    constructor() {
-        this.initialize();
+    /**
+     * Số xu hiển thị / dùng thanh toán: chỉ khi đã đăng nhập.
+     * Khách vãng lai luôn 0 — tránh lộ số dư từ localStorage của phiên trước.
+     */
+    readonly effectiveBalance = computed(() => {
+        const u = this.auth.currentUser();
+        if (!u?.user_id) return 0;
+        return Math.max(0, Number(this.coinData().balance || 0));
+    });
+
+    /**
+     * Các ngày đã nhận xu nhắc lịch/điểm danh: từ history (dateKey YYYY-MM-DD, amount > 0).
+     * Dùng để lịch tháng giữ chip xám cho mọi ngày đã nhận, không chỉ lastCompletedDate.
+     */
+    readonly reminderClaimAmountByDate = computed(() => {
+        const map = new Map<string, number>();
+        for (const h of this.coinData().history || []) {
+            if (!h) continue;
+            const dk = String(h.dateKey || '').trim();
+            if (!CoinService.isCalendarDateKey(dk)) continue;
+            const amt = Number(h.amount) || 0;
+            if (amt <= 0) continue;
+            const prev = map.get(dk);
+            if (prev === undefined || amt > prev) map.set(dk, amt);
+        }
+        return map;
+    });
+
+    private static isCalendarDateKey(key: string): boolean {
+        return /^\d{4}-\d{2}-\d{2}$/.test(String(key || '').trim());
     }
 
-    private async initialize() {
-        // Ưu tiên load từ backend nếu đã đăng nhập
-        const user = this.auth.currentUser();
-        if (user?.user_id) {
-            await this.loadFromBackend(user.user_id);
-        } else {
-            this.loadFromStorage();
+    constructor() {
+        effect(() => {
+            const u = this.auth.currentUser();
+            const uid = u?.user_id ? String(u.user_id).trim() : '';
+            if (!uid) {
+                this.loadedUserId = null;
+                this.coinData.set({
+                    balance: 0,
+                    lastCompletedDate: null,
+                    currentStreak: 0,
+                    history: []
+                });
+                return;
+            }
+            if (this.loadedUserId === uid) {
+                return;
+            }
+            this.loadedUserId = uid;
+            try {
+                localStorage.removeItem(CoinService.LEGACY_STORAGE_KEY);
+            } catch {
+                /* ignore */
+            }
+            this.loadFromStorageForUser(uid);
+            void this.loadFromBackend(uid);
+        });
+    }
+
+    private emptyCoinData(): CoinData {
+        return { balance: 0, lastCompletedDate: null, currentStreak: 0, history: [] };
+    }
+
+    private loadFromStorageForUser(userId: string): void {
+        const key = CoinService.storageKeyForUser(userId);
+        const raw = localStorage.getItem(key);
+        if (!raw) {
+            this.coinData.set(this.emptyCoinData());
+            this.lastCoinSetAt = Date.now();
+            return;
+        }
+        try {
+            const parsed = JSON.parse(raw) as Partial<CoinData>;
+            this.coinData.set({
+                balance: Math.max(0, Number(parsed.balance) || 0),
+                lastCompletedDate: parsed.lastCompletedDate ?? null,
+                currentStreak: Math.max(0, Number(parsed.currentStreak) || 0),
+                history: Array.isArray(parsed.history) ? parsed.history : []
+            });
+            this.lastCoinSetAt = Date.now();
+        } catch (e) {
+            console.error('Failed to parse coin data', e);
+            this.coinData.set(this.emptyCoinData());
         }
     }
 
+    /** Gộp history hai phía, bỏ bản ghi trùng (dateKey + amount + reason). */
+    private mergeHistoriesUnique(a: CoinHistory[] = [], b: CoinHistory[] = []): CoinHistory[] {
+        const seen = new Set<string>();
+        const out: CoinHistory[] = [];
+        for (const h of [...(a || []), ...(b || [])]) {
+            if (!h) continue;
+            const sig = `${String(h.dateKey)}|${Number(h.amount)}|${String(h.reason || '')}`;
+            if (seen.has(sig)) continue;
+            seen.add(sig);
+            out.push(h);
+        }
+        return out;
+    }
+
+    /** Gộp server + local: ưu tiên ngày nhận xu mới hơn (YYYY-MM-DD), balance lấy max, history gộp đủ hai nguồn. */
+    private mergeCoinDataFromServer(local: CoinData, server: CoinData): CoinData {
+        const lk = local.lastCompletedDate;
+        const sk = server.lastCompletedDate;
+        const bal = Math.max(Number(local.balance) || 0, Number(server.balance) || 0);
+        const hist = this.mergeHistoriesUnique(local.history, server.history);
+
+        if (lk && sk) {
+            if (lk > sk) return { ...local, balance: bal, history: hist };
+            if (lk < sk) return { ...server, balance: bal, history: hist };
+            return {
+                ...server,
+                balance: bal,
+                currentStreak: Math.max(Number(local.currentStreak) || 0, Number(server.currentStreak) || 0),
+                history: hist,
+            };
+        }
+        if (lk && !sk) return { ...local, balance: bal, history: hist };
+        if (!lk && sk) return { ...server, balance: bal, history: hist };
+        return { ...server, balance: bal, history: hist };
+    }
+
     private async loadFromBackend(userId: string) {
+        const uid = String(userId || '').trim();
+        if (!uid) return;
         const requestStartAt = Date.now();
         try {
-            const res = await firstValueFrom(this.http.get<any>(`${this.apiUrl}?user_id=${userId}`));
+            const res = await firstValueFrom(this.http.get<any>(`${this.apiUrl}?user_id=${encodeURIComponent(uid)}`));
+            const currentUid = String(this.auth.currentUser()?.user_id || '').trim();
+            if (currentUid !== uid) {
+                return;
+            }
             if (res.success) {
                 // Nếu coinData đã được cập nhật bởi luồng khác (nhận xu) sau thời điểm request này bắt đầu,
                 // thì bỏ response để UI không bị "tụt" lại cho tới khi reload.
                 if (this.lastCoinSetAt > requestStartAt) return;
-                this.coinData.set(res.coins);
+                const merged = this.mergeCoinDataFromServer(this.coinData(), res.coins);
+                this.coinData.set(merged);
                 this.lastCoinSetAt = Date.now();
                 this.saveToStorage();
             }
         } catch (e) {
             console.error('Failed to load coins from backend', e);
-            this.loadFromStorage();
-        }
-    }
-
-    private loadFromStorage(): void {
-        const raw = localStorage.getItem(CoinService.STORAGE_KEY);
-        if (raw) {
-            try {
-                this.coinData.set(JSON.parse(raw));
-                this.lastCoinSetAt = Date.now();
-            } catch (e) {
-                console.error('Failed to parse coin data', e);
+            if (String(this.auth.currentUser()?.user_id || '').trim() === uid) {
+                this.loadFromStorageForUser(uid);
             }
         }
     }
 
     private saveToStorage(): void {
-        localStorage.setItem(CoinService.STORAGE_KEY, JSON.stringify(this.coinData()));
+        const uid = String(this.auth.currentUser()?.user_id || '').trim();
+        if (!uid) return;
+        try {
+            localStorage.setItem(CoinService.storageKeyForUser(uid), JSON.stringify(this.coinData()));
+        } catch (e) {
+            console.error('Failed to save coin data', e);
+        }
     }
 
     /** Lấy số tiền thưởng cho ngày cụ thể (dùng trên Calendar) */
@@ -94,16 +215,19 @@ export class CoinService {
         const data = this.coinData();
         const todayKey = this.formatDateKey(new Date());
 
-        // Nếu đã hoàn thành ngày này rồi (Today hoặc Past)
+        const claimedAmt = this.reminderClaimAmountByDate().get(dateKey);
+        if (claimedAmt != null && claimedAmt > 0) {
+            return claimedAmt;
+        }
         if (data.lastCompletedDate === dateKey) {
-            return this.getRewardForStreak(data.currentStreak);
+            return this.getRewardForStreak(Math.max(data.currentStreak || 0, 1));
         }
 
         // Nếu là ngày mai (hoặc tương lai) và hôm nay đã xong
         if (dateKey > todayKey) {
             // Nếu hôm nay xong, streak tiếp theo là +1
             if (data.lastCompletedDate === todayKey) {
-                return this.getRewardForStreak(data.currentStreak + 1);
+                return this.getRewardForStreak(Math.max(data.currentStreak || 0, 1) + 1);
             }
             // Nếu hôm nay chưa xong, chưa biết chuỗi có bị đứt không, mặc định mốc 1
             return 50;
@@ -116,7 +240,7 @@ export class CoinService {
             const yesterdayKey = this.formatDateKey(yesterday);
 
             if (data.lastCompletedDate === yesterdayKey) {
-                return this.getRewardForStreak(data.currentStreak + 1);
+                return this.getRewardForStreak(Math.max(data.currentStreak || 0, 1) + 1);
             }
             return 50;
         }
@@ -125,12 +249,13 @@ export class CoinService {
     }
 
     isDateCompleted(dateKey: string): boolean {
+        if (this.reminderClaimAmountByDate().has(dateKey)) return true;
         return this.coinData().lastCompletedDate === dateKey;
     }
 
     /**
-     * Số xu hiển thị trên lịch (hôm nay + 5 ngày tới), giả sử điểm danh đủ nối tiếp.
-     * Bậc: 50 → 100 → 200 → 300 (lặp). Trả về null nếu không nằm trong cửa sổ 6 ngày hoặc ngày quá khứ (trừ ngày đã nhận).
+     * Số xu trên ô lịch: tương lai (hôm nay → +5) theo chuỗi dự kiến; quá khứ: mọi ngày đã nhận (history) trả về đúng số đã nhận để chip xám.
+     * Bậc tương lai: 50 → 100 → 200 → 300 (lặp). null nếu ô quá khứ không có nhận xu, hoặc tương lai ngoài +5 ngày.
      */
     getCalendarCoinPreview(dateKey: string): number | null {
         const data = this.coinData();
@@ -142,8 +267,10 @@ export class CoinService {
         const windowEnd = this.addDaysToDateKey(todayKey, 5);
 
         if (dateKey < todayKey) {
+            const histAmt = this.reminderClaimAmountByDate().get(dateKey);
+            if (histAmt != null && histAmt > 0) return histAmt;
             if (data.lastCompletedDate === dateKey) {
-                return this.getRewardForStreak(data.currentStreak);
+                return this.getRewardForStreak(Math.max(data.currentStreak || 0, 1));
             }
             return null;
         }
@@ -157,21 +284,24 @@ export class CoinService {
 
         if (data.lastCompletedDate === todayKey) {
             firstPending = this.addDaysToDateKey(todayKey, 1);
-            streakOnFirstPending = (data.currentStreak || 0) + 1;
+            streakOnFirstPending = Math.max(data.currentStreak || 0, 1) + 1;
         } else {
             firstPending = todayKey;
             if (!data.lastCompletedDate) {
                 streakOnFirstPending = 1;
             } else if (data.lastCompletedDate === yesterdayKey) {
-                streakOnFirstPending = (data.currentStreak || 0) + 1;
+                /* currentStreak lưu sai = 0 (server cũ dùng UTC) vẫn coi đã qua ít nhất 1 ngày chuỗi */
+                streakOnFirstPending = Math.max(data.currentStreak || 0, 1) + 1;
             } else {
                 streakOnFirstPending = 1;
             }
         }
 
         if (dateKey < firstPending) {
+            const histAmt = this.reminderClaimAmountByDate().get(dateKey);
+            if (histAmt != null && histAmt > 0) return histAmt;
             if (data.lastCompletedDate === dateKey) {
-                return this.getRewardForStreak(data.currentStreak);
+                return this.getRewardForStreak(Math.max(data.currentStreak || 0, 1));
             }
             return null;
         }
@@ -184,7 +314,7 @@ export class CoinService {
     async applyDailyReward(dateKey: string, reason: string = 'Hoàn thành nhắc nhở'): Promise<{ amount: number; newTotal: number; isRewardApplied: boolean }> {
         const data = this.coinData();
 
-        if (data.lastCompletedDate === dateKey) {
+        if (data.lastCompletedDate === dateKey || this.reminderClaimAmountByDate().has(dateKey)) {
             return { amount: 0, newTotal: data.balance, isRewardApplied: false };
         }
 
@@ -195,7 +325,7 @@ export class CoinService {
 
         let newStreak = 1;
         if (data.lastCompletedDate === yesterdayKey) {
-            newStreak = (data.currentStreak || 0) + 1;
+            newStreak = Math.max(data.currentStreak || 0, 1) + 1;
         }
 
         const reward = this.getRewardForStreak(newStreak);
@@ -213,7 +343,7 @@ export class CoinService {
             balance: newTotal,
             lastCompletedDate: dateKey,
             currentStreak: newStreak,
-            history: [newEntry, ...(data.history || [])].slice(0, 50)
+            history: [newEntry, ...(data.history || [])]
         };
 
         this.coinData.set(updatedData);
@@ -246,7 +376,19 @@ export class CoinService {
         // Xóa ngay lập tức ở local để UI phản ánh ngay
         this.coinData.set(emptyCoins);
         this.lastCoinSetAt = Date.now();
-        localStorage.removeItem(CoinService.STORAGE_KEY);
+        const uidReset = String(this.auth.currentUser()?.user_id || '').trim();
+        if (uidReset) {
+            try {
+                localStorage.removeItem(CoinService.storageKeyForUser(uidReset));
+            } catch {
+                /* ignore */
+            }
+        }
+        try {
+            localStorage.removeItem(CoinService.LEGACY_STORAGE_KEY);
+        } catch {
+            /* ignore */
+        }
 
         const user = this.auth.currentUser();
         if (user?.user_id) {
@@ -343,39 +485,95 @@ export class CoinService {
     }
 
     /**
-     * Hiệu ứng realtime cho túi xu sau khi đặt hàng dùng Vita Xu:
-     * hiện loading ngắn rồi đồng bộ badge về 0 ngay lập tức.
+     * Thưởng xu sau khi hoàn thành bài kiểm tra sức khỏe (50 xu/lần, tối đa 2 lần/ngày trên server).
+     * Idempotent theo claimToken (mỗi lần làm bài một token).
      */
-    applyCheckoutVitaXuReset(orderCode?: string): void {
+    async applyQuizReward(
+        claimToken: string,
+        quizId: string,
+        explicitUserId?: string
+    ): Promise<{ success: boolean; alreadyApplied?: boolean; coins?: CoinData; message?: string }> {
+        const uid = String(explicitUserId || this.auth.currentUser()?.user_id || '').trim();
+        const tok = String(claimToken || '').trim();
+        const qid = String(quizId || '').trim();
+
+        if (!uid || uid === 'guest') {
+            throw new Error('Vui lòng đăng nhập để nhận xu.');
+        }
+        if (!tok) {
+            throw new Error('Thiếu mã nhận thưởng.');
+        }
+        if (!qid) {
+            throw new Error('Thiếu mã bài test.');
+        }
+
+        const res = await firstValueFrom(
+            this.http.post<any>(`${this.apiUrl}/quiz-reward`, {
+                user_id: uid,
+                quiz_id: qid,
+                claimToken: tok,
+            })
+        );
+
+        if (!res?.success) {
+            throw new Error(res?.message || 'Không thể nhận xu.');
+        }
+
+        if (res?.coins) {
+            this.coinData.set(res.coins);
+            this.lastCoinSetAt = Date.now();
+            this.saveToStorage();
+        } else {
+            await this.loadFromBackend(uid);
+        }
+
+        return { success: true, alreadyApplied: !!res?.alreadyApplied, coins: res?.coins, message: res?.message };
+    }
+
+    /**
+     * Sau khi đặt hàng dùng Vita Xu: trừ đúng số xu đơn, ghi history chi tiêu.
+     * Không đụng lastCompletedDate / currentStreak — chuỗi nhắc lịch giữ nguyên (khớp backend).
+     * Cập nhật local **ngay** (không chờ timeout) để refreshFromBackend merge đúng, không bị ghi đè mất history.
+     */
+    applyCheckoutVitaXuReset(orderCode?: string, xuUsedFromOrder?: number): void {
         if (this.bagLoadingTimer) {
             clearTimeout(this.bagLoadingTimer);
             this.bagLoadingTimer = null;
         }
         this.coinBagLoading.set(true);
 
-        this.bagLoadingTimer = setTimeout(() => {
-            const prev = this.coinData();
-            const currentBalance = Math.max(0, Number(prev?.balance || 0));
-            const history = Array.isArray(prev?.history) ? prev.history : [];
-            const dateKey = `vita-xu-used-${String(orderCode || Date.now())}`;
-            const existed = history.some((h) => String(h?.dateKey || '') === dateKey);
+        const prev = this.coinData();
+        const currentBalance = Math.max(0, Number(prev?.balance || 0));
+        const rawUse = Number(xuUsedFromOrder);
+        const use =
+            rawUse > 0 ? Math.min(currentBalance, Math.floor(rawUse)) : currentBalance;
+        const history = Array.isArray(prev?.history) ? prev.history : [];
+        const dateKey = `vita-xu-used-${String(orderCode || Date.now())}`;
+        const existed = history.some((h) => String(h?.dateKey || '') === dateKey);
 
-            const entry = currentBalance > 0 && !existed
-                ? [{
-                    amount: -currentBalance,
-                    reason: `Sử dụng toàn bộ Vita Xu cho đơn hàng ${String(orderCode || '')}`.trim(),
-                    date: new Date(),
-                    dateKey,
-                } as CoinHistory]
+        const entry =
+            use > 0 && !existed
+                ? ([
+                      {
+                          amount: -use,
+                          reason: `Sử dụng Vita Xu cho đơn hàng ${String(orderCode || '')}`.trim(),
+                          date: new Date(),
+                          dateKey,
+                      },
+                  ] as CoinHistory[])
                 : [];
 
-            this.coinData.set({
-                ...prev,
-                balance: 0,
-                history: [...entry, ...history].slice(0, 100),
-            });
-            this.lastCoinSetAt = Date.now();
-            this.saveToStorage();
+        const newBal = Math.max(0, currentBalance - use);
+
+        this.coinData.set({
+            ...prev,
+            balance: newBal,
+            history: [...entry, ...history],
+        });
+        this.lastCoinSetAt = Date.now();
+        this.saveToStorage();
+
+        this.bagLoadingTimer = setTimeout(() => {
             this.coinBagLoading.set(false);
             this.bagLoadingTimer = null;
         }, 850);
@@ -391,10 +589,73 @@ export class CoinService {
         await this.loadFromBackend(userId);
     }
 
+    /** Khớp backend `QUIZ_REASON` trong POST /quiz-reward */
+    static readonly QUIZ_HEALTH_REASON = 'Hoàn thành bài kiểm tra sức khỏe';
+
+    /** 50 xu/lần, tối đa 2 lần/ngày → 100 xu/ngày (theo ngày Asia/Ho_Chi_Minh). */
+    static readonly QUIZ_HEALTH_REWARD_EACH = 50;
+    static readonly QUIZ_HEALTH_DAILY_MAX_XU = 100;
+
+    /** Số lần đã nhận xu từ bài test sức khỏe hôm nay (VN), tối đa 2/ngày trên server. */
+    countQuizHealthRewardsToday(): number {
+        const today = new Date().toLocaleString('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).slice(0, 10);
+        const reason = CoinService.QUIZ_HEALTH_REASON;
+        let n = 0;
+        for (const h of this.coinData().history || []) {
+            if (!h || String(h.reason || '').trim() !== reason) continue;
+            if (!h.date) continue;
+            try {
+                const vn = new Date(h.date as Date | string)
+                    .toLocaleString('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' })
+                    .slice(0, 10);
+                if (vn === today) n++;
+            } catch {
+                /* ignore */
+            }
+        }
+        return n;
+    }
+
+    /**
+     * Tổng xu đã cộng từ bài kiểm tra sức khỏe trong ngày (VN) — chỉ dòng amount dương.
+     * Dùng kèm số lần: đủ 100 xu hoặc đủ 2 lần thì coi như hết lượt trong ngày.
+     */
+    sumQuizHealthRewardsXuToday(): number {
+        const today = new Date().toLocaleString('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).slice(0, 10);
+        const reason = CoinService.QUIZ_HEALTH_REASON;
+        let sum = 0;
+        for (const h of this.coinData().history || []) {
+            if (!h || String(h.reason || '').trim() !== reason) continue;
+            if (!h.date) continue;
+            try {
+                const vn = new Date(h.date as Date | string)
+                    .toLocaleString('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' })
+                    .slice(0, 10);
+                if (vn !== today) continue;
+                const amt = Number(h.amount) || 0;
+                if (amt > 0) sum += amt;
+            } catch {
+                /* ignore */
+            }
+        }
+        return sum;
+    }
+
+    /**
+     * Hết lượt thưởng bài test trong ngày: đủ 2 lần hoặc đủ 100 xu (cùng ngày VN).
+     * Sang ngày mới (theo múi giờ VN) lịch sử không còn khớp “hôm nay” → badge/nút lại vàng.
+     */
+    isQuizHealthDailyRewardCapReached(): boolean {
+        if (this.countQuizHealthRewardsToday() >= 2) return true;
+        if (this.sumQuizHealthRewardsXuToday() >= CoinService.QUIZ_HEALTH_DAILY_MAX_XU) return true;
+        return false;
+    }
+
     private getRewardForStreak(streak: number): number {
-        if (streak === 1) return 50;
-        if (streak === 2) return 100;
-        if (streak === 3) return 200;
+        const s = Math.max(1, Math.floor(Number(streak) || 0));
+        if (s === 1) return 50;
+        if (s === 2) return 100;
+        if (s === 3) return 200;
         return 300;
     }
 

@@ -1,6 +1,16 @@
 /* Account Component - Bộ nhận diện VitaCare */
 /* Primary: #00589F | Light: #43A2E6 | Soft: #AACEF2 | Purple: #BAA7DE */
 
+:host {
+  /* Dưới header site — giảm nhẹ để neo sidebar (và tab thông báo) cao hơn, gần hàng danh mục */
+  --vc-account-sidebar-sticky-top: 164px;
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: clip;
+}
+
 .page-container {
   font-family: 'Inter', sans-serif;
 }
@@ -27,7 +37,8 @@
   color: #fff;
   box-shadow: 0 4px 20px rgba(0, 88, 159, 0.35);
   position: sticky;
-  top: 90px;
+  /* Dưới header cố định (tăng dần nếu vẫn bị che) */
+  top: var(--vc-account-sidebar-sticky-top, 164px);
   z-index: 10;
   align-self: flex-start;
 }
@@ -222,7 +233,7 @@
   flex-direction: column;
 }
 
-/* Thông báo: chặn scroll ngoài, chỉ dùng 1 scroll nội bộ của danh sách */
+/* Thông báo / Đơn thuốc / Đơn hàng: cuộn theo trang — khối neo sticky + khung giả trong notice / prescriptions / orders.css */
 .account-wrapper--notice-full .account-content {
   overflow: visible;
   min-height: 0;
@@ -236,7 +247,7 @@
 
 /* Neo sidebar thấp hơn một chút trên tab Quản lý đánh giá */
 .account-wrapper--reviews-full .account-sidebar {
-  top: 100px;
+  top: calc(var(--vc-account-sidebar-sticky-top, 164px) + 10px);
 }
 
 /* Responsive */
@@ -249,5 +260,16 @@
   .account-sidebar {
     width: 100%;
     min-width: auto;
+  }
+}
+
+/* Mobile: header ngắn hơn (vc_m_header), sticky top nhỏ hơn desktop */
+@media (max-width: 767px) {
+  :host {
+    --vc-account-sidebar-sticky-top: 122px;
+  }
+
+  .account-wrapper--reviews-full .account-sidebar {
+    top: calc(var(--vc-account-sidebar-sticky-top) + 10px);
   }
 }

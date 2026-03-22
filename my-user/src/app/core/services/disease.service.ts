@@ -79,4 +79,32 @@ export class DiseaseService {
       })
     );
   }
+
+  /** Toggle "Hữu ích" trên câu hỏi về bệnh. */
+  likeDiseaseConsultation(data: { sku: string; questionId: string; userId: string }): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/consultations/disease/like`, data).pipe(
+      catchError((err) => {
+        console.error('Like disease consultation error:', err);
+        throw err;
+      })
+    );
+  }
+
+  /** Trả lời câu hỏi về bệnh. */
+  replyDiseaseConsultation(data: {
+    sku: string;
+    questionId: string;
+    content: string;
+    fullname?: string;
+    user_id?: string | null;
+    avatar?: string;
+    isAdmin?: boolean;
+  }): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/consultations/disease/reply`, data).pipe(
+      catchError((err) => {
+        console.error('Reply disease consultation error:', err);
+        throw err;
+      })
+    );
+  }
 }

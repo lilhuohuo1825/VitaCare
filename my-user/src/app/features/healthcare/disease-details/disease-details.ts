@@ -7,6 +7,7 @@ import { DiseaseService } from '../../../core/services/disease.service';
 import { ProductService } from '../../../core/services/product.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { NoticeService } from '../../../core/services/notice.service';
 import { LoadingShippingComponent } from '../../../shared/loading-shipping/loading-shipping';
 
 @Component({
@@ -57,6 +58,12 @@ export class DiseaseDetails implements OnInit, OnDestroy {
   replyingToQuestionId: string | null = null;
   consultationReplyContent = '';
 
+  /** Tooltip danh sách người đã bấm "Hữu ích" (câu hỏi về bệnh). */
+  likerHoverKey: string | null = null;
+  likerHoverPanel: { loading: boolean; names: string[]; more: number } | null = null;
+  private likerHoverHideTimer: ReturnType<typeof setTimeout> | null = null;
+  private readonly likerNamesCache = new Map<string, Record<string, string>>();
+
   // Video Modal State
   showVideoModal = false;
   safeVideoUrl: SafeResourceUrl | null = null;
@@ -84,6 +91,7 @@ export class DiseaseDetails implements OnInit, OnDestroy {
     private productService: ProductService,
     readonly authService: AuthService,
     private toastService: ToastService,
+    private noticeService: NoticeService,
     private sanitizer: DomSanitizer,
     private cdr: ChangeDetectorRef,
     private ngZone: NgZone
@@ -113,7 +121,121 @@ export class DiseaseDetails implements OnInit, OnDestroy {
     });
   }
 
-  ngOnDestroy() { }
+  ngOnDestroy(): void {
+    if (this.likerHoverHideTimer) {
+      clearTimeout(this.likerHoverHideTimer);
+      this.likerHoverHideTimer = null;
+    }
+  }
+
+  likerPanelVisible(key: string): boolean {
+    return this.likerHoverKey === key && this.likerHoverPanel != null;
+  }
+
+  private normalizeLikeUserIds(likes: any[] | null | undefined): string[] {
+    if (!Array.isArray(likes)) return [];
+    return likes
+      .map((x) => (x && typeof x === 'object' && x.$oid ? String(x.$oid) : String(x || '').trim()))
+      .filter(Boolean);
+  }
+
+  private applyLikerHoverNames(panelKey: string, orderedIds: string[], nameMap: Record<string, string>) {
+    if (this.likerHoverKey !== panelKey) return;
+    const display = orderedIds.map((id) => nameMap[id] || 'Thành viên');
+    const names = display.slice(0, 4);
+    const more = Math.max(0, orderedIds.length - 4);
+    this.likerHoverPanel = { loading: false, names, more };
+    this.cdr.markForCheck();
+  }
+
+  onLikersEnter(panelKey: string, likes: any[] | null | undefined) {
+    const ids = this.normalizeLikeUserIds(likes);
+    if (ids.length === 0) return;
+
+    if (this.likerHoverHideTimer) {
+      clearTimeout(this.likerHoverHideTimer);
+      this.likerHoverHideTimer = null;
+    }
+
+    this.likerHoverKey = panelKey;
+    this.likerHoverPanel = { loading: true, names: [], more: 0 };
+    this.cdr.markForCheck();
+
+    const cacheKey = [...ids].sort().join('|');
+    const cached = this.likerNamesCache.get(cacheKey);
+    if (cached) {
+      this.applyLikerHoverNames(panelKey, ids, cached);
+      return;
+    }
+
+    this.productService.getUserDisplayNames(ids).subscribe({
+      next: (map) => {
+        this.likerNamesCache.set(cacheKey, map);
+        this.applyLikerHoverNames(panelKey, ids, map);
+      },
+      error: () => {
+        if (this.likerHoverKey !== panelKey) return;
+        this.likerHoverPanel = {
+          loading: false,
+          names: ids.slice(0, 4).map(() => 'Thành viên'),
+          more: Math.max(0, ids.length - 4),
+        };
+        this.cdr.markForCheck();
+      },
+    });
+  }
+
+  onLikersLeave() {
+    if (this.likerHoverHideTimer) clearTimeout(this.likerHoverHideTimer);
+    this.likerHoverHideTimer = setTimeout(() => {
+      this.likerHoverKey = null;
+      this.likerHoverPanel = null;
+      this.cdr.markForCheck();
+    }, 220);
+  }
+
+  onLikersPopoverEnter() {
+    if (this.likerHoverHideTimer) {
+      clearTimeout(this.likerHoverHideTimer);
+      this.likerHoverHideTimer = null;
+    }
+  }
+
+  /** ID câu hỏi hỏi đáp (Mongo / string). */
+  getGenericId(item: any): string {
+    if (!item) return '';
+    const id = item._id || item.id;
+    if (id && typeof id === 'object' && id.$oid) return id.$oid;
+    return String(id || '');
+  }
+
+  getCurrentUserIdOrGuest(): string {
+    return this.authService.currentUser()?.user_id || this.getOrCreateUserId();
+  }
+
+  /**
+   * Khóa `sku` trong consultations_disease phải trùng lúc POST câu hỏi:
+   * ưu tiên slug CMS, không có thì dùng id (tránh GET theo id trong khi DB lưu theo slug).
+   */
+  consultationSku(d: { slug?: string; id?: unknown } | null | undefined): string {
+    if (!d) return '';
+    const slug = (d as any).slug;
+    if (slug != null && String(slug).trim() !== '') return String(slug).trim();
+    const id = (d as any).id;
+    if (id != null && String(id).trim() !== '') return String(id).trim();
+    return '';
+  }
+
+  private applyDiseaseConsultationPayload(res: any): void {
+    const fallbackSku = this.consultationSku(this.disease);
+    const sku = res?.sku ?? this.consultationsData.sku ?? fallbackSku;
+    const questions = Array.isArray(res?.questions) ? res.questions : this.consultationsData.questions || [];
+    this.consultationsData = { sku, questions };
+  }
+
+  private triggerNoticeRefreshSoon(): void {
+    setTimeout(() => this.noticeService.triggerRefresh(), 600);
+  }
 
   @HostListener('window:scroll')
   onWindowScroll() {
@@ -224,8 +346,8 @@ export class DiseaseDetails implements OnInit, OnDestroy {
               this.expandedFaqs[data.faqs[0].id] = true;
             }
 
-            // Fetch consultations
-            this.fetchConsultations(String(data.id));
+            // Fetch consultations (cùng khóa với POST: slug ưu tiên)
+            this.fetchConsultations(this.consultationSku(data));
 
             // Setup scroll spy: no setup needed, using @HostListener
 
@@ -586,14 +708,34 @@ export class DiseaseDetails implements OnInit, OnDestroy {
           this.consultationsData = { sku, questions };
           this.cdr.markForCheck();
           this.cdr.detectChanges();
+          this.maybeScrollToConsultationFromQuery();
         });
       },
       error: (err) => {
         console.error('Error fetching consultations:', err);
         this.cdr.markForCheck();
         this.cdr.detectChanges();
+        this.maybeScrollToConsultationFromQuery();
       }
     });
+  }
+
+  /** Từ thông báo: ?scrollTo=consultation — cuộn tới khối hỏi đáp sau khi tải trang */
+  private maybeScrollToConsultationFromQuery(): void {
+    const v = this.route.snapshot.queryParamMap.get('scrollTo');
+    if (v !== 'consultation') return;
+    setTimeout(() => {
+      const el = document.querySelector('.consultations-list');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+      this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: { scrollTo: null },
+        queryParamsHandling: 'merge',
+        replaceUrl: true,
+      });
+    }, 280);
   }
 
   get filteredConsultations() {
@@ -669,7 +811,7 @@ export class DiseaseDetails implements OnInit, OnDestroy {
     }
 
     const payload = {
-      sku: this.disease.slug || String(this.disease.id),
+      sku: this.consultationSku(this.disease),
       productName: this.disease.name,
       question: this.userReviewContent,
       user_id: userId,
@@ -680,7 +822,7 @@ export class DiseaseDetails implements OnInit, OnDestroy {
       next: (res) => {
         this.toastService.showSuccess('Câu hỏi của bạn đã được gửi thành công! VitaCare sẽ phản hồi sớm nhất có thể.');
         this.closeReviewModal();
-        this.fetchConsultations(payload.sku);
+        this.fetchConsultations(this.consultationSku(this.disease));
       },
       error: (err) => {
         console.error('Submit question error:', err);
@@ -690,30 +832,70 @@ export class DiseaseDetails implements OnInit, OnDestroy {
   }
 
   isConsultationLiked(question: any): boolean {
-    const userId = this.getOrCreateUserId();
-    return question.likes && question.likes.includes(userId);
-  }
-
-  likeConsultation(question: any) {
-    const userId = this.getOrCreateUserId();
-    this.productService.likeConsultation({
-      sku: this.disease.slug || String(this.disease.id),
-      questionId: question.id,
-      userId: userId
-    }).subscribe({
-      next: (data) => {
-        this.consultationsData = data;
-        this.cdr.detectChanges();
-      },
-      error: (err) => console.error('Like consultation error', err)
+    const userId = String(this.getCurrentUserIdOrGuest() || '');
+    if (!userId || !question || !Array.isArray(question.likes)) return false;
+    return question.likes.some((id: any) => {
+      const idStr = id && typeof id === 'object' && id.$oid ? id.$oid : String(id || '');
+      return idStr === userId;
     });
   }
 
+  likeConsultation(question: any) {
+    const userId = String(this.getCurrentUserIdOrGuest() || '');
+    if (!userId) {
+      this.authService.openAuthModal();
+      return;
+    }
+    const qId = this.getGenericId(question);
+    if (!qId) return;
+
+    const sku = this.consultationSku(this.disease);
+
+    if (!Array.isArray(question.likes)) question.likes = [];
+    const idx = question.likes.findIndex((id: any) => {
+      const idStr = id && typeof id === 'object' && id.$oid ? id.$oid : String(id || '');
+      return idStr === userId;
+    });
+    if (idx > -1) {
+      question.likes.splice(idx, 1);
+    } else {
+      question.likes.push(userId);
+    }
+    this.cdr.detectChanges();
+
+    this.diseaseService
+      .likeDiseaseConsultation({
+        sku,
+        questionId: qId,
+        userId,
+      })
+      .subscribe({
+        next: (data: any) => {
+          if (data?.questions) {
+            const updatedQ = data.questions.find((q: any) => this.getGenericId(q) === qId);
+            if (updatedQ) {
+              question.likes = updatedQ.likes;
+            } else {
+              this.applyDiseaseConsultationPayload(data);
+            }
+          } else {
+            this.applyDiseaseConsultationPayload(data);
+          }
+          this.cdr.detectChanges();
+          this.triggerNoticeRefreshSoon();
+        },
+        error: (err) => {
+          console.error('Like disease consultation error', err);
+        },
+      });
+  }
+
   toggleReplyConsultation(question: any) {
-    if (this.replyingToQuestionId === question.id) {
+    const qid = this.getGenericId(question);
+    if (this.replyingToQuestionId === qid) {
       this.replyingToQuestionId = null;
     } else {
-      this.replyingToQuestionId = question.id;
+      this.replyingToQuestionId = qid;
       this.consultationReplyContent = '';
     }
   }
@@ -724,26 +906,36 @@ export class DiseaseDetails implements OnInit, OnDestroy {
       return;
     }
 
+    const user = this.authService.currentUser();
+    const fullname = user
+      ? String(user.full_name || user.phone || 'Người dùng')
+      : 'Khách';
+    const avatar = user ? String(user.avatar || '') : '';
+
     const payload = {
-      sku: this.disease.slug || String(this.disease.id),
-      questionId: question.id,
-      content: this.consultationReplyContent,
-      fullname: '',
-      isAdmin: false
+      sku: this.consultationSku(this.disease),
+      questionId: this.getGenericId(question),
+      content: this.consultationReplyContent.trim(),
+      fullname,
+      user_id: user?.user_id || this.getCurrentUserIdOrGuest(),
+      avatar,
+      isAdmin: !!(user as any)?.['isAdmin'],
     };
 
-    this.productService.replyToConsultation(payload).subscribe({
+    this.diseaseService.replyDiseaseConsultation(payload).subscribe({
       next: (data) => {
         this.toastService.showSuccess('Đã gửi phản hồi thành công!');
-        this.consultationsData = data;
+        this.applyDiseaseConsultationPayload(data);
         this.replyingToQuestionId = null;
         this.consultationReplyContent = '';
         this.cdr.detectChanges();
+        this.triggerNoticeRefreshSoon();
       },
       error: (err) => {
-        console.error('Reply consultation error:', err);
-        this.toastService.showError('Lỗi gửi phản hồi. Vui lòng thử lại.');
-      }
+        console.error('Reply disease consultation error:', err);
+        const msg = err.error?.message || 'Lỗi gửi phản hồi. Vui lòng thử lại.';
+        this.toastService.showError(msg);
+      },
     });
   }
 

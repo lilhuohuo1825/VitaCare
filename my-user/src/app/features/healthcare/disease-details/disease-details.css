@@ -1537,6 +1537,65 @@
     color: #00589F !important;
 }
 
+.vc-liked-active {
+    color: #ffc107 !important;
+    font-weight: 500;
+}
+
+/* Tooltip: ai đã bấm "Hữu ích" — hỏi đáp bệnh */
+.vc-like-hover-wrap {
+    position: relative;
+    display: inline-block;
+    vertical-align: middle;
+    z-index: 20;
+}
+
+.vc-like-popover {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    margin-top: 6px;
+    width: max-content;
+    max-width: min(280px, calc(100vw - 24px));
+    padding: 7px 12px;
+    background: #e8f4fc;
+    border: 1px solid rgba(0, 88, 159, 0.2);
+    border-radius: 8px;
+    box-shadow: 0 6px 18px rgba(0, 88, 159, 0.12);
+    pointer-events: auto;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.vc-like-popover-loading {
+    font-size: 12px;
+    color: #00589f;
+    opacity: 0.75;
+    padding: 2px 0;
+}
+
+.vc-like-popover-name {
+    font-size: 12px;
+    line-height: 1.45;
+    font-weight: 500;
+    color: #00589f;
+    padding: 2px 0;
+    white-space: nowrap;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.vc-like-popover-more {
+    font-size: 11px;
+    font-weight: 500;
+    color: rgba(0, 88, 159, 0.72);
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 1px solid rgba(0, 88, 159, 0.14);
+    white-space: nowrap;
+}
+
 /* ======= MODAL STYLES ======= */
 .vc_modal_overlay {
     position: fixed;

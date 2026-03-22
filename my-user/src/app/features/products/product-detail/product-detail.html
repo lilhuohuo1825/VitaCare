@@ -10,7 +10,7 @@
         <!-- Breadcrumbs -->
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb-vc">
-                <li class="breadcrumb-item"><a routerLink="/">Trang chủ</a></li>
+                <li class="breadcrumb-item"><a routerLink="/nhathuocvitacare">Trang chủ</a></li>
                 <li class="breadcrumb-item" *ngFor="let cat of categoryPath; let last = last" [class.active]="last">
                     <a *ngIf="!last" [routerLink]="['/category', cat.slug]">{{ cat.name }}</a>
                     <span *ngIf="last">{{ cat.name }}</span>
@@ -267,8 +267,8 @@
                             </div>
                             <div class="flex-grow-1">
                                 <h6 class="fw-bold mb-1">{{ review.fullname }}</h6>
-                                <div class="review-purchased text-muted small mb-2">
-                                    Mua: {{ product?.name }}
+                                <div *ngIf="review.verified_purchase" class="review-purchased text-muted small mb-2">
+                                    Mua: {{ review.purchased_product_name || product?.name }}
                                 </div>
                                 <div class="review-meta d-flex align-items-center gap-2 mb-2">
                                     <div class="mini-stars">
@@ -293,15 +293,29 @@
 
                                 <!-- Interaction -->
                                 <div class="d-flex gap-3 align-items-center mb-3">
-                                    <button
-                                        class="btn btn-link btn-sm text-decoration-none p-0 d-flex align-items-center gap-1"
-                                        [class.vc-liked-active]="isLiked(review)" [class.text-muted]="!isLiked(review)"
-                                        (click)="likeReview(review)">
-                                        <i class="bi" [class.bi-hand-thumbs-up-fill]="isLiked(review)"
-                                            [class.bi-hand-thumbs-up]="!isLiked(review)"></i>
-                                        <span>Hữu ích {{ review.likes?.length > 0 ? '(' + review.likes.length + ')' : ''
-                                            }}</span>
-                                    </button>
+                                    <div class="vc-like-hover-wrap"
+                                        (mouseenter)="onLikersEnter('lr-' + getGenericId(review), review.likes)"
+                                        (mouseleave)="onLikersLeave()">
+                                        <button
+                                            class="btn btn-link btn-sm text-decoration-none p-0 d-flex align-items-center gap-1"
+                                            [class.vc-liked-active]="isLiked(review)" [class.text-muted]="!isLiked(review)"
+                                            (click)="likeReview(review)">
+                                            <i class="bi" [class.bi-hand-thumbs-up-fill]="isLiked(review)"
+                                                [class.bi-hand-thumbs-up]="!isLiked(review)"></i>
+                                            <span>Hữu ích {{ review.likes?.length > 0 ? '(' + review.likes.length + ')' : ''
+                                                }}</span>
+                                        </button>
+                                        <div *ngIf="likerPanelVisible('lr-' + getGenericId(review))" class="vc-like-popover"
+                                            (mouseenter)="onLikersPopoverEnter()">
+                                            <div *ngIf="likerHoverPanel?.loading" class="vc-like-popover-loading">Đang tải…</div>
+                                            <ng-container *ngIf="likerHoverPanel && !likerHoverPanel.loading">
+                                                <div class="vc-like-popover-name" *ngFor="let nm of likerHoverPanel.names">{{ nm }}</div>
+                                                <div class="vc-like-popover-more" *ngIf="likerHoverPanel.more > 0">
+                                                    Xem thêm {{ likerHoverPanel.more }} người khác
+                                                </div>
+                                            </ng-container>
+                                        </div>
+                                    </div>
                                     <button class="btn btn-link btn-sm text-decoration-none p-0 text-primary fw-medium"
                                         (click)="toggleReply(review)">Trả lời</button>
 
@@ -412,17 +426,31 @@
                                         <div class="reply-meta d-flex align-items-center gap-3">
                                             <!-- Reply Like -->
                                             <div class="reply-like-actions d-flex align-items-center gap-1">
-                                                <button
-                                                    class="btn btn-sm btn-link p-0 text-decoration-none d-flex align-items-center gap-1"
-                                                    [ngClass]="isReviewReplyLiked(reply) ? 'vc-liked-active' : 'text-muted'"
-                                                    (click)="likeReviewReply(review, reply)"
-                                                    style="font-size: 0.85rem;">
-                                                    <i class="bi"
-                                                        [ngClass]="isReviewReplyLiked(reply) ? 'bi-hand-thumbs-up-fill' : 'bi-hand-thumbs-up'"></i>
-                                                    <span>Hữu ích</span>
-                                                    <span *ngIf="reply.likes?.length > 0">({{ reply.likes.length
-                                                        }})</span>
-                                                </button>
+                                                <div class="vc-like-hover-wrap"
+                                                    (mouseenter)="onLikersEnter('lrr-' + getGenericId(review) + '-' + (reply._id || ''), reply.likes)"
+                                                    (mouseleave)="onLikersLeave()">
+                                                    <button
+                                                        class="btn btn-sm btn-link p-0 text-decoration-none d-flex align-items-center gap-1"
+                                                        [ngClass]="isReviewReplyLiked(reply) ? 'vc-liked-active' : 'text-muted'"
+                                                        (click)="likeReviewReply(review, reply)"
+                                                        style="font-size: 0.85rem;">
+                                                        <i class="bi"
+                                                            [ngClass]="isReviewReplyLiked(reply) ? 'bi-hand-thumbs-up-fill' : 'bi-hand-thumbs-up'"></i>
+                                                        <span>Hữu ích</span>
+                                                        <span *ngIf="reply.likes?.length > 0">({{ reply.likes.length
+                                                            }})</span>
+                                                    </button>
+                                                    <div *ngIf="likerPanelVisible('lrr-' + getGenericId(review) + '-' + (reply._id || ''))" class="vc-like-popover"
+                                                        (mouseenter)="onLikersPopoverEnter()">
+                                                        <div *ngIf="likerHoverPanel?.loading" class="vc-like-popover-loading">Đang tải…</div>
+                                                        <ng-container *ngIf="likerHoverPanel && !likerHoverPanel.loading">
+                                                            <div class="vc-like-popover-name" *ngFor="let nm of likerHoverPanel.names">{{ nm }}</div>
+                                                            <div class="vc-like-popover-more" *ngIf="likerHoverPanel.more > 0">
+                                                                Xem thêm {{ likerHoverPanel.more }} người khác
+                                                            </div>
+                                                        </ng-container>
+                                                    </div>
+                                                </div>
                                             </div>
                                             <!-- Manage Reply Buttons -->
                                             <div class="reply-actions d-flex align-items-center gap-3 ms-2"
@@ -517,18 +545,32 @@
 
                                 <div class="interaction d-flex gap-3 align-items-center mb-3">
                                     <span class="text-muted small">{{ formatDate(q.createdAt) }}</span>
-                                    <button
-                                        class="btn btn-link btn-sm text-decoration-none p-0 d-flex align-items-center gap-1"
-                                        [class.vc-liked-active]="isConsultationLiked(q)"
-                                        [class.text-muted]="!isConsultationLiked(q)"
-                                        [style.color]="isConsultationLiked(q) ? '#ffc107' : ''"
-                                        (click)="likeConsultation(q)">
-                                        <i class="bi" [class.bi-hand-thumbs-up-fill]="isConsultationLiked(q)"
-                                            [class.bi-hand-thumbs-up]="!isConsultationLiked(q)"
-                                            [style.color]="isConsultationLiked(q) ? '#ffc107' : ''"></i>
-                                        <span [style.color]="isConsultationLiked(q) ? '#ffc107' : ''">Hữu ích {{
-                                            q.likes?.length > 0 ? '(' + q.likes.length + ')' : '' }}</span>
-                                    </button>
+                                    <div class="vc-like-hover-wrap"
+                                        (mouseenter)="onLikersEnter('lq-' + getGenericId(q), q.likes)"
+                                        (mouseleave)="onLikersLeave()">
+                                        <button
+                                            class="btn btn-link btn-sm text-decoration-none p-0 d-flex align-items-center gap-1"
+                                            [class.vc-liked-active]="isConsultationLiked(q)"
+                                            [class.text-muted]="!isConsultationLiked(q)"
+                                            [style.color]="isConsultationLiked(q) ? '#ffc107' : ''"
+                                            (click)="likeConsultation(q)">
+                                            <i class="bi" [class.bi-hand-thumbs-up-fill]="isConsultationLiked(q)"
+                                                [class.bi-hand-thumbs-up]="!isConsultationLiked(q)"
+                                                [style.color]="isConsultationLiked(q) ? '#ffc107' : ''"></i>
+                                            <span [style.color]="isConsultationLiked(q) ? '#ffc107' : ''">Hữu ích {{
+                                                q.likes?.length > 0 ? '(' + q.likes.length + ')' : '' }}</span>
+                                        </button>
+                                        <div *ngIf="likerPanelVisible('lq-' + getGenericId(q))" class="vc-like-popover"
+                                            (mouseenter)="onLikersPopoverEnter()">
+                                            <div *ngIf="likerHoverPanel?.loading" class="vc-like-popover-loading">Đang tải…</div>
+                                            <ng-container *ngIf="likerHoverPanel && !likerHoverPanel.loading">
+                                                <div class="vc-like-popover-name" *ngFor="let nm of likerHoverPanel.names">{{ nm }}</div>
+                                                <div class="vc-like-popover-more" *ngIf="likerHoverPanel.more > 0">
+                                                    Xem thêm {{ likerHoverPanel.more }} người khác
+                                                </div>
+                                            </ng-container>
+                                        </div>
+                                    </div>
                                     <button class="btn btn-link btn-sm text-decoration-none p-0 text-primary fw-medium"
                                         (click)="toggleReplyConsultation(q)">Trả lời</button>
                                     <ng-container *ngIf="q.user_id && authService.currentUser()?.user_id === q.user_id">
@@ -615,16 +657,30 @@
 
                                                 <!-- Reply Like -->
                                                 <div class="reply-like-actions d-flex align-items-center gap-1">
-                                                    <button
-                                                        class="btn btn-sm btn-link p-0 text-decoration-none d-flex align-items-center gap-1"
-                                                        [ngClass]="isReplyLiked(rep) ? 'vc-liked-active' : 'text-muted'"
-                                                        (click)="likeReply(q, rep)" style="font-size: 0.85rem;">
-                                                        <i class="bi"
-                                                            [ngClass]="isReplyLiked(rep) ? 'bi-hand-thumbs-up-fill' : 'bi-hand-thumbs-up'"></i>
-                                                        <span>Hữu ích</span>
-                                                        <span *ngIf="rep.likes?.length > 0">({{ rep.likes.length
-                                                            }})</span>
-                                                    </button>
+                                                    <div class="vc-like-hover-wrap"
+                                                        (mouseenter)="onLikersEnter('lqr-' + getGenericId(q) + '-' + (rep._id || ''), rep.likes)"
+                                                        (mouseleave)="onLikersLeave()">
+                                                        <button
+                                                            class="btn btn-sm btn-link p-0 text-decoration-none d-flex align-items-center gap-1"
+                                                            [ngClass]="isReplyLiked(rep) ? 'vc-liked-active' : 'text-muted'"
+                                                            (click)="likeReply(q, rep)" style="font-size: 0.85rem;">
+                                                            <i class="bi"
+                                                                [ngClass]="isReplyLiked(rep) ? 'bi-hand-thumbs-up-fill' : 'bi-hand-thumbs-up'"></i>
+                                                            <span>Hữu ích</span>
+                                                            <span *ngIf="rep.likes?.length > 0">({{ rep.likes.length
+                                                                }})</span>
+                                                        </button>
+                                                        <div *ngIf="likerPanelVisible('lqr-' + getGenericId(q) + '-' + (rep._id || ''))" class="vc-like-popover"
+                                                            (mouseenter)="onLikersPopoverEnter()">
+                                                            <div *ngIf="likerHoverPanel?.loading" class="vc-like-popover-loading">Đang tải…</div>
+                                                            <ng-container *ngIf="likerHoverPanel && !likerHoverPanel.loading">
+                                                                <div class="vc-like-popover-name" *ngFor="let nm of likerHoverPanel.names">{{ nm }}</div>
+                                                                <div class="vc-like-popover-more" *ngIf="likerHoverPanel.more > 0">
+                                                                    Xem thêm {{ likerHoverPanel.more }} người khác
+                                                                </div>
+                                                            </ng-container>
+                                                        </div>
+                                                    </div>
                                                 </div>
 
                                                 <!-- Reply Management (Same line) -->
@@ -673,16 +729,30 @@
                                                 }}</span>
 
                                             <!-- Expert Answer Like -->
-                                            <button
-                                                class="btn btn-sm btn-link p-0 text-decoration-none d-flex align-items-center gap-1"
-                                                [ngClass]="isExpertAnswerLiked(q) ? 'vc-liked-active' : 'text-muted'"
-                                                (click)="likeExpertAnswer(q)" style="font-size: 0.85rem;">
-                                                <i class="bi"
-                                                    [ngClass]="isExpertAnswerLiked(q) ? 'bi-hand-thumbs-up-fill' : 'bi-hand-thumbs-up'"></i>
-                                                <span>Hữu ích</span>
-                                                <span *ngIf="q.answerLikes?.length > 0">({{ q.answerLikes.length
-                                                    }})</span>
-                                            </button>
+                                            <div class="vc-like-hover-wrap"
+                                                (mouseenter)="onLikersEnter('lqx-' + getGenericId(q), q.answerLikes)"
+                                                (mouseleave)="onLikersLeave()">
+                                                <button
+                                                    class="btn btn-sm btn-link p-0 text-decoration-none d-flex align-items-center gap-1"
+                                                    [ngClass]="isExpertAnswerLiked(q) ? 'vc-liked-active' : 'text-muted'"
+                                                    (click)="likeExpertAnswer(q)" style="font-size: 0.85rem;">
+                                                    <i class="bi"
+                                                        [ngClass]="isExpertAnswerLiked(q) ? 'bi-hand-thumbs-up-fill' : 'bi-hand-thumbs-up'"></i>
+                                                    <span>Hữu ích</span>
+                                                    <span *ngIf="q.answerLikes?.length > 0">({{ q.answerLikes.length
+                                                        }})</span>
+                                                </button>
+                                                <div *ngIf="likerPanelVisible('lqx-' + getGenericId(q))" class="vc-like-popover"
+                                                    (mouseenter)="onLikersPopoverEnter()">
+                                                    <div *ngIf="likerHoverPanel?.loading" class="vc-like-popover-loading">Đang tải…</div>
+                                                    <ng-container *ngIf="likerHoverPanel && !likerHoverPanel.loading">
+                                                        <div class="vc-like-popover-name" *ngFor="let nm of likerHoverPanel.names">{{ nm }}</div>
+                                                        <div class="vc-like-popover-more" *ngIf="likerHoverPanel.more > 0">
+                                                            Xem thêm {{ likerHoverPanel.more }} người khác
+                                                        </div>
+                                                    </ng-container>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -791,18 +861,18 @@
 <!-- Delete Confirmation Modal -->
 <div class="vc_modal_overlay vc_delete_modal_overlay" *ngIf="showDeleteConfirmModal" (click)="closeDeleteModal()">
     <div class="vc_modal_container vc_delete_modal_container" (click)="$event.stopPropagation()">
-        <div class="vc_modal_body p-4 text-center">
-            <div class="delete-icon-wrapper mb-2">
-                <i class="bi bi-exclamation-triangle-fill text-warning fs-1"></i>
+        <div class="vc_modal_body text-center">
+            <div class="delete-icon-wrapper mb-3">
+                <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
             </div>
             <h5 class="fw-bold mb-2">Xác nhận xóa</h5>
-            <p class="text-muted mb-3 small">
+            <p class="text-muted mb-0 small">
                 {{ deleteType === 'review' ? 'Bạn có chắc chắn muốn xóa đánh giá này không?' : 'Bạn có chắc chắn muốn
                 xóa câu hỏi này không?' }}
             </p>
-            <div class="d-flex justify-content-center gap-2">
-                <button class="btn btn-vc-basic px-4 btn-sm" (click)="confirmDelete()">Xóa</button>
-                <button class="btn btn-vc-outline-basic px-4 btn-sm" (click)="closeDeleteModal()">Hủy</button>
+            <div class="d-flex justify-content-center gap-2 flex-wrap vc_delete_modal_actions">
+                <button type="button" class="btn btn-vc-basic px-4 btn-sm" (click)="confirmDelete()">Xóa</button>
+                <button type="button" class="btn btn-vc-outline-basic px-4 btn-sm" (click)="closeDeleteModal()">Hủy</button>
             </div>
         </div>
     </div>

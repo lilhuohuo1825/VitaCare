@@ -4,7 +4,7 @@
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb-vc">
                 <li class="breadcrumb-item">
-                    <a routerLink="/" (click)="triggerCDR()">Trang chủ</a>
+                    <a routerLink="/nhathuocvitacare" (click)="triggerCDR()">Trang chủ</a>
                 </li>
                 <li class="breadcrumb-item">
                     <a href="#" (click)="navigateToDiseaseList($event)">Tra cứu bệnh</a>
@@ -357,22 +357,39 @@
 
                                     <div class="interaction d-flex gap-3 align-items-center mb-3">
                                         <span class="text-muted small">{{ formatDate(q.createdAt) }}</span>
-                                        <button
-                                            class="btn btn-link btn-sm text-decoration-none p-0 d-flex align-items-center gap-1"
-                                            [class.text-warning]="isConsultationLiked(q)"
-                                            [class.text-muted]="!isConsultationLiked(q)" (click)="likeConsultation(q)">
-                                            <i class="bi" [class.bi-hand-thumbs-up-fill]="isConsultationLiked(q)"
-                                                [class.bi-hand-thumbs-up]="!isConsultationLiked(q)"></i>
-                                            <span>Hữu ích {{ q.likes?.length > 0 ? '(' + q.likes.length + ')' : ''
-                                                }}</span>
-                                        </button>
+                                        <div class="vc-like-hover-wrap"
+                                            (mouseenter)="onLikersEnter('ldq-' + getGenericId(q), q.likes)"
+                                            (mouseleave)="onLikersLeave()">
+                                            <button
+                                                class="btn btn-link btn-sm text-decoration-none p-0 d-flex align-items-center gap-1"
+                                                [class.vc-liked-active]="isConsultationLiked(q)"
+                                                [class.text-muted]="!isConsultationLiked(q)"
+                                                [style.color]="isConsultationLiked(q) ? '#ffc107' : ''"
+                                                (click)="likeConsultation(q)">
+                                                <i class="bi" [class.bi-hand-thumbs-up-fill]="isConsultationLiked(q)"
+                                                    [class.bi-hand-thumbs-up]="!isConsultationLiked(q)"
+                                                    [style.color]="isConsultationLiked(q) ? '#ffc107' : ''"></i>
+                                                <span [style.color]="isConsultationLiked(q) ? '#ffc107' : ''">Hữu ích {{
+                                                    q.likes?.length > 0 ? '(' + q.likes.length + ')' : '' }}</span>
+                                            </button>
+                                            <div *ngIf="likerPanelVisible('ldq-' + getGenericId(q))" class="vc-like-popover"
+                                                (mouseenter)="onLikersPopoverEnter()">
+                                                <div *ngIf="likerHoverPanel?.loading" class="vc-like-popover-loading">Đang tải…</div>
+                                                <ng-container *ngIf="likerHoverPanel && !likerHoverPanel.loading">
+                                                    <div class="vc-like-popover-name" *ngFor="let nm of likerHoverPanel.names">{{ nm }}</div>
+                                                    <div class="vc-like-popover-more" *ngIf="likerHoverPanel.more > 0">
+                                                        Xem thêm {{ likerHoverPanel.more }} người khác
+                                                    </div>
+                                                </ng-container>
+                                            </div>
+                                        </div>
                                         <button
                                             class="btn btn-link btn-sm text-decoration-none p-0 text-primary fw-medium"
                                             (click)="toggleReplyConsultation(q)">Trả lời</button>
                                     </div>
 
                                     <!-- Reply Area -->
-                                    <div *ngIf="replyingToQuestionId === q.id"
+                                    <div *ngIf="replyingToQuestionId === getGenericId(q)"
                                         class="mt-2 ps-3 border-start border-vc-primary">
                                         <div class="d-flex align-items-center p-2 border bg-white shadow-sm"
                                             style="border-radius: 20px;">

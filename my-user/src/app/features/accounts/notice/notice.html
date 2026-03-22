@@ -1,7 +1,6 @@
 <div class="notice-container vc_container pt-2 pb-5">
-  <!-- Session: giống Orders - header + tabs cố định, scroll chỉ ở danh sách -->
-  <div class="notice-content-wrapper">
-    <!-- Header: giống orders -->
+  <div class="notice-sticky-sentinel" #noticeStickySentinel aria-hidden="true"></div>
+  <div class="notice-sticky-block" [class.notice-sticky-block--backdrop]="stickyTabBackdrop">
     <div class="notice-header">
       <div>
         <h1 class="notice-title">THÔNG BÁO</h1>
@@ -17,172 +16,166 @@
       </button>
     </div>
 
-    <div class="notice-body-panel">
-    <!-- Tab bar neo trên đầu list -->
-    <div class="tab-navigation">
-      <div class="tab-list">
-        @for (tab of tabs; track tab.id) {
-          <button
-            type="button"
-            class="tab-button"
-            [class.active]="activeTab === tab.id"
-            (click)="setActiveTab(tab.id)"
-          >
-            <span class="tab-label">{{ tab.label }}</span>
-            <span class="tab-badge" *ngIf="getTabCount(tab.id) > 0">{{ getTabCount(tab.id) }}</span>
-          </button>
-        }
-      </div>
-    </div>
-
-    <!-- Danh sách thông báo -->
-    <div class="notice-scroll">
-      <div class="notice-content">
-        @if (loading) {
-          <div class="notice-empty">
-            <i
-              class="bi bi-arrow-repeat notice-empty-icon notice-loading-spin"
-              aria-hidden="true"
-            ></i>
-            <p class="notice-empty-title">Đang tải thông báo...</p>
-          </div>
-        } @else if (loadError) {
-          <div class="notice-empty">
-            <i class="bi bi-exclamation-circle notice-empty-icon" aria-hidden="true"></i>
-            <p class="notice-empty-title">{{ loadError }}</p>
-          </div>
-        } @else if (getFilteredList().length === 0) {
-          <div class="notice-empty">
-            <i class="bi bi-bell-slash notice-empty-icon" aria-hidden="true"></i>
-            <p class="notice-empty-title">Chưa có thông báo</p>
-            <p class="notice-empty-desc">
-              Các thông báo về đơn hàng, đơn thuốc và sổ sức khỏe sẽ hiển thị tại đây.
-            </p>
-          </div>
-        } @else {
-          <ul class="notice-list">
-            @for (item of getFilteredList(); track item.id) {
-              <li
-                class="notice-item-wrapper"
-                [class.notice-item-unread]="!item.read"
-                id="notice-item-{{ item.id }}"
-              >
-                <!-- Thanh trạng thái giống order-status-card -->
-                <div
-                  class="notice-status-card"
-                  [class.notice-status-unread]="!item.read"
-                  [class.notice-status-read]="item.read"
-                >
-                  <div class="notice-status-left">
-                    <span class="notice-status-text">{{ item.read ? 'Đã đọc' : 'Chưa đọc' }}</span>
-                  </div>
-                  <div class="notice-status-right">
-                    <span class="notice-status-time">{{ item.time }}</span>
-                    @if (item.meta) {
-                      <span class="notice-status-sep">|</span>
-                      <span class="notice-status-meta">{{ item.meta }}</span>
-                    }
-                  </div>
-                </div>
-                <!-- Nội dung thông báo -->
-                <div class="notice-card" [class.is-read]="item.read">
-                  <div class="notice-card-icon" [ngClass]="getItemConfig(item).iconClass">
-                    <i class="bi" [ngClass]="getItemConfig(item).icon" aria-hidden="true"></i>
-                  </div>
-                  <div class="notice-card-body">
-                    <div class="notice-card-title-row">
-                      <h3 class="notice-card-title">{{ item.title }}</h3>
-                      <span class="notice-card-top-time">{{ item.time }}</span>
-                    </div>
-                    <p class="notice-card-message">{{ item.message }}</p>
-                    <div class="notice-card-meta">
-                      @if (item.meta) {
-                        <span class="notice-card-meta-code">{{ item.meta }}</span>
-                      }
-                    </div>
-                    @if (
-                      (item.link || item.meta) &&
-                      (item.linkLabel ||
-                        isOrderNotice(item) ||
-                        isPrescriptionNotice(item) ||
-                        isReminderNotice(item) ||
-                        isQaNotice(item))
-                    ) {
-                      <button type="button" class="notice-card-link" (click)="goToLink(item)">
-                        {{
-                          item.linkLabel ||
-                            (isOrderNotice(item)
-                              ? 'Xem đơn hàng'
-                              : isPrescriptionNotice(item)
-                                ? 'Xem đơn thuốc'
-                                : isReminderNotice(item)
-                                  ? 'Mở lịch nhắc'
-                                  : isQaNotice(item)
-                                    ? 'Xem phản hồi'
-                                    : 'Xem chi tiết')
-                        }}
-                        <i class="bi bi-chevron-right"></i>
-                      </button>
-                    }
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  class="notice-delete-btn"
-                  (click)="requestDeleteNotice(item)"
-                  aria-label="Xóa thông báo"
-                >
-                  <i class="bi bi-trash" aria-hidden="true"></i>
-                </button>
-              </li>
-            }
-          </ul>
-        }
-      </div>
-    </div>
-
-    @if (showDeleteConfirm && deleteConfirmItem) {
-      <div
-        class="notice-confirm-overlay"
-        (click)="cancelDeleteNoticeConfirm()"
-      >
-        <div
-          class="notice-confirm-modal"
-          (click)="$event.stopPropagation()"
-          role="dialog"
-          aria-modal="true"
-        >
-          <h3 class="notice-confirm-title">Xác nhận xóa</h3>
-          <p class="notice-confirm-hint">{{ getDeleteConfirmHint(deleteConfirmItem) }}</p>
-          <div class="notice-confirm-actions">
+    <nav class="notice-tab-nav" aria-label="Lọc thông báo theo loại">
+      <div class="tab-navigation">
+        <div class="tab-list">
+          @for (tab of tabs; track tab.id) {
             <button
               type="button"
-              class="notice-confirm-btn notice-confirm-cancel"
-              (click)="cancelDeleteNoticeConfirm()"
+              class="tab-button"
+              [class.active]="activeTab === tab.id"
+              (click)="setActiveTab(tab.id)"
             >
-              Hủy
+              <span class="tab-label">{{ tab.label }}</span>
+              <span class="tab-badge" *ngIf="getTabCount(tab.id) > 0">{{ getTabCount(tab.id) }}</span>
             </button>
-            <button
-              type="button"
-              class="notice-confirm-btn notice-confirm-ok"
-              (click)="confirmDeleteNoticeConfirm()"
-            >
-              Xóa
-            </button>
-          </div>
+          }
         </div>
       </div>
-    }
-
-    </div>
-
-    @if (!loading && !loadError && getFilteredList().length > 0 && getFilteredTotal() > getFilteredList().length) {
-    <div class="notice-load-more-wrap">
-      <button type="button" class="notice-load-more-btn" (click)="loadMore()">
-        Xem thêm
-        <i class="bi bi-chevron-double-down" aria-hidden="true"></i>
-      </button>
-    </div>
-    }
+      <div class="notice-scroll-fade" aria-hidden="true"></div>
+    </nav>
   </div>
+
+  <div class="notice-content-wrapper">
+    <div class="notice-body-panel">
+      <div class="notice-list-panel">
+        <div class="notice-scroll">
+          <div class="notice-content">
+            @if (loading) {
+              <div class="notice-empty">
+                <i
+                  class="bi bi-arrow-repeat notice-empty-icon notice-loading-spin"
+                  aria-hidden="true"
+                ></i>
+                <p class="notice-empty-title">Đang tải thông báo...</p>
+              </div>
+            } @else if (loadError) {
+              <div class="notice-empty">
+                <i class="bi bi-exclamation-circle notice-empty-icon" aria-hidden="true"></i>
+                <p class="notice-empty-title">{{ loadError }}</p>
+              </div>
+            } @else if (getFilteredList().length === 0) {
+              <div class="notice-empty">
+                <i class="bi bi-bell-slash notice-empty-icon" aria-hidden="true"></i>
+                <p class="notice-empty-title">Chưa có thông báo</p>
+                <p class="notice-empty-desc">
+                  Các thông báo về đơn hàng, đơn thuốc và sổ sức khỏe sẽ hiển thị tại đây.
+                </p>
+              </div>
+            } @else {
+              <ul class="notice-list">
+                @for (item of getFilteredList(); track item.id) {
+                  <li
+                    class="notice-item-wrapper"
+                    [class.notice-item-unread]="!item.read"
+                    id="notice-item-{{ item.id }}"
+                  >
+                    <div
+                      class="notice-status-card"
+                      [class.notice-status-unread]="!item.read"
+                      [class.notice-status-read]="item.read"
+                    >
+                      <div class="notice-status-left">
+                        <span class="notice-status-text">{{ item.read ? 'Đã đọc' : 'Chưa đọc' }}</span>
+                      </div>
+                      <div class="notice-status-right">
+                        <span class="notice-status-time">{{ item.time }}</span>
+                        @if (noticeMetaDisplay(item)) {
+                          <span class="notice-status-sep">|</span>
+                          <span class="notice-status-meta">{{ noticeMetaDisplay(item) }}</span>
+                        }
+                      </div>
+                    </div>
+                    <div class="notice-card" [class.is-read]="item.read">
+                      <div class="notice-card-icon" [ngClass]="getItemConfig(item).iconClass">
+                        <i class="bi" [ngClass]="getItemConfig(item).icon" aria-hidden="true"></i>
+                      </div>
+                      <div class="notice-card-body">
+                        <div class="notice-card-title-row">
+                          <h3 class="notice-card-title">{{ item.title }}</h3>
+                          <span class="notice-card-top-time">{{ item.time }}</span>
+                        </div>
+                        <p class="notice-card-message">{{ item.message }}</p>
+                        <div class="notice-card-meta">
+                          @if (isHelpfulLikeNotice(item)) {
+                            <span class="notice-card-tag notice-card-tag--helpful">Hữu ích</span>
+                          }
+                          @if (noticeMetaDisplay(item)) {
+                            <span class="notice-card-meta-code">{{ noticeMetaDisplay(item) }}</span>
+                          }
+                        </div>
+                        @if (
+                          (item.link || item.meta || item.meta_label) &&
+                          (item.linkLabel ||
+                            isOrderNotice(item) ||
+                            isPrescriptionNotice(item) ||
+                            isReminderNotice(item) ||
+                            isQaNotice(item))
+                        ) {
+                          <button type="button" class="notice-card-link" (click)="goToLink(item)">
+                            {{
+                              item.linkLabel ||
+                                (isOrderNotice(item)
+                                  ? 'Xem đơn hàng'
+                                  : isPrescriptionNotice(item)
+                                    ? 'Xem đơn thuốc'
+                                    : isReminderNotice(item)
+                                      ? 'Mở lịch nhắc'
+                                      : isQaNotice(item)
+                                        ? 'Xem phản hồi'
+                                        : 'Xem chi tiết')
+                            }}
+                            <i class="bi bi-chevron-right"></i>
+                          </button>
+                        }
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      class="notice-delete-btn"
+                      (click)="requestDeleteNotice(item)"
+                      aria-label="Xóa thông báo"
+                    >
+                      <i class="bi bi-trash" aria-hidden="true"></i>
+                    </button>
+                  </li>
+                }
+              </ul>
+            }
+          </div>
+
+          @if (!loading && !loadError && getFilteredList().length > 0 && getFilteredTotal() > getFilteredList().length) {
+            <div class="notice-load-more-wrap">
+              <button type="button" class="notice-load-more-btn" (click)="loadMore()">
+                Xem thêm
+                <i class="bi bi-chevron-double-down" aria-hidden="true"></i>
+              </button>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  @if (showDeleteConfirm && deleteConfirmItem) {
+    <div class="notice-confirm-overlay" (click)="cancelDeleteNoticeConfirm()">
+      <div
+        class="notice-confirm-modal"
+        (click)="$event.stopPropagation()"
+        role="dialog"
+        aria-modal="true"
+      >
+        <h3 class="notice-confirm-title">Xác nhận xóa</h3>
+        <p class="notice-confirm-hint">{{ getDeleteConfirmHint(deleteConfirmItem) }}</p>
+        <div class="notice-confirm-actions">
+          <button type="button" class="notice-confirm-btn notice-confirm-cancel" (click)="cancelDeleteNoticeConfirm()">
+            Hủy
+          </button>
+          <button type="button" class="notice-confirm-btn notice-confirm-ok" (click)="confirmDeleteNoticeConfirm()">
+            Xóa
+          </button>
+        </div>
+      </div>
+    </div>
+  }
 </div>

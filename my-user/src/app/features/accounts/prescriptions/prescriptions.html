@@ -1,41 +1,46 @@
-<!-- Prescriptions Management Component -->
-<div class="prescriptions-container">
-    <!-- Breadcrumb removed - handled by parent Account component -->
-    <!-- Header Section -->
-    <div class="prescriptions-header">
-        <div>
-            <h1 class="prescriptions-title">ĐƠN THUỐC CỦA TÔI</h1>
-            <p>Theo dõi yêu cầu tư vấn đơn thuốc của bạn</p>
-        </div>
-        <div class="search-container">
-            <div class="search-box">
-                <button type="button" class="search-icon-btn" (click)="performSearch()">
-                    <i class="bi bi-search search-icon"></i>
-                </button>
-                <input #searchInput type="text" [(ngModel)]="searchQuery"
-                    placeholder="Tìm kiếm theo mã đơn hàng hoặc tên sản phẩm" class="search-input"
-                    (keyup.enter)="performSearch()" />
-                <button *ngIf="searchQuery" type="button" class="clear-btn" (click)="clearSearch()">
-                    <i class="bi bi-x-circle-fill clear-icon"></i>
-                </button>
+<!-- Prescriptions Management Component — layout neo tab giống Thông báo -->
+<div class="prescriptions-container vc_container pt-2 pb-5">
+    <div class="prescriptions-page-wrapper">
+        <!-- Header Section (IntersectionObserver: bật khung giả khi đã cuộn qua tiêu đề) -->
+        <div class="prescriptions-header" #prescriptionsHeader>
+            <div>
+                <h1 class="prescriptions-title">ĐƠN THUỐC CỦA TÔI</h1>
+                <p>Theo dõi yêu cầu tư vấn đơn thuốc của bạn</p>
+            </div>
+            <div class="search-container">
+                <div class="search-box">
+                    <button type="button" class="search-icon-btn" (click)="performSearch()">
+                        <i class="bi bi-search search-icon"></i>
+                    </button>
+                    <input #searchInput type="text" [(ngModel)]="searchQuery"
+                        placeholder="Tìm kiếm theo mã đơn hàng hoặc tên sản phẩm" class="search-input"
+                        (keyup.enter)="performSearch()" />
+                    <button *ngIf="searchQuery" type="button" class="clear-btn" (click)="clearSearch()">
+                        <i class="bi bi-x-circle-fill clear-icon"></i>
+                    </button>
+                </div>
             </div>
         </div>
-    </div>
 
-    <!-- Tab Navigation -->
-    <div class="tab-navigation">
-        <div class="tab-list">
-            <button *ngFor="let tab of tabs" class="tab-button" [class.active]="activeTab === tab.id"
-                (click)="setActiveTab(tab.id)">
-                <span class="tab-label">{{ tab.label }}</span>
-                <span class="tab-badge" *ngIf="tab.count > 0 && tab.id !== 'all'">{{ tab.count }}</span>
-            </button>
-        </div>
-    </div>
+        <div class="prescriptions-body-panel">
+            <nav class="prescriptions-tab-nav"
+                [class.prescriptions-tab-nav--backdrop]="stickyTabBackdrop"
+                aria-label="Lọc đơn thuốc theo trạng thái">
+                <div class="tab-navigation">
+                    <div class="tab-list">
+                        <button *ngFor="let tab of tabs" class="tab-button" [class.active]="activeTab === tab.id"
+                            (click)="setActiveTab(tab.id)">
+                            <span class="tab-label">{{ tab.label }}</span>
+                            <span class="tab-badge" *ngIf="tab.count > 0 && tab.id !== 'all'">{{ tab.count }}</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="prescriptions-scroll-fade" aria-hidden="true"></div>
+            </nav>
 
-    <!-- Prescriptions Content -->
-    <div class="prescriptions-content-wrapper">
-        <div class="prescriptions-content">
+            <div class="prescriptions-list-panel">
+                <div class="prescriptions-content-wrapper">
+                    <div class="prescriptions-content">
             <!-- Prescriptions List -->
             <div *ngIf="filteredPrescriptions.length > 0" class="prescriptions-list">
                 <div *ngFor="let prescription of filteredPrescriptions" class="prescription-wrapper">
@@ -161,6 +166,9 @@
                     <img src="assets/icon/no-order.png" alt="No prescriptions" class="empty-icon-img" />
                 </div>
                 <p class="empty-message">Bạn không có đơn thuốc nào</p>
+            </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -383,3 +391,4 @@
             </div>
         </div>
     </div>
+</div>

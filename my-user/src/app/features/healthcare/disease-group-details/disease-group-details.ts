@@ -4,6 +4,7 @@ import { DiseaseService } from '../../../core/services/disease.service';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { GROUP_BANNER_MAP } from '../disease/disease-icon';
+import { HOME_URL } from '../../../core/constants/navigation.constants';
 
 /** Fallback tên hiển thị cho nhóm bệnh thường gặp / theo mùa */
 const GROUP_DISPLAY_NAME_FALLBACK: Record<string, string> = {
@@ -165,6 +166,6 @@ export class DiseaseGroupDetails implements OnInit, OnDestroy {
 
   goHome(e: Event): void {
     e.preventDefault();
-    this.router.navigate(['/']);
+    this.router.navigate([HOME_URL]);
   }
 }
