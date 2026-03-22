@@ -123,7 +123,7 @@
                 </a>
               </div>
               <div class="order-pharmacy-selects" style="grid-template-columns: 1fr 1fr 1fr;">
-                <div class="order-custom-dropdown" [class.disabled]="!allPharmacyLocations?.length"
+                <div class="order-custom-dropdown" [class.disabled]="!allPharmacyLocations.length"
                   (click)="togglePharmacyProvinceDropdown($event)">
                   <input type="hidden" [(ngModel)]="pharmacyProvince" name="pharmacy_province" />
                   <div class="order-custom-dropdown-selected" [class.placeholder]="!pharmacyProvince">
@@ -366,7 +366,7 @@
               <span>Tổng tiền</span>
               <strong class="order-summary-value-total">{{ cartSubtotal || totalPrice | number:'1.0-0' }}₫</strong>
             </div>
-            <div class="order-vitaxu-row order-vitaxu-row-inline">
+            <div class="order-vitaxu-row order-vitaxu-row-inline" [class.order-vitaxu-row--guest]="isGuest">
               <div class="order-vitaxu-left">
                 <i class="bi bi-coin"></i>
                 <div class="order-vitaxu-meta">
@@ -375,9 +375,10 @@
                 </div>
               </div>
               <div class="order-vitaxu-right">
-                <span class="order-vitaxu-amount" *ngIf="useVitaXu">-{{ cartVitaXuDiscount | number:'1.0-0' }}₫</span>
-                <label class="order-vitaxu-switch">
-                  <input type="checkbox" [checked]="useVitaXu" (change)="toggleUseVitaXu($any($event.target).checked)" />
+                <span class="order-vitaxu-amount" *ngIf="useVitaXu && !isGuest">-{{ cartVitaXuDiscount | number:'1.0-0' }}₫</span>
+                <label class="order-vitaxu-switch" [attr.aria-disabled]="isGuest">
+                  <input type="checkbox" [checked]="useVitaXu && !isGuest" [disabled]="isGuest"
+                    (change)="toggleUseVitaXu($any($event.target).checked)" />
                   <span class="slider"></span>
                 </label>
               </div>
@@ -402,7 +403,7 @@
               <span>Thành tiền</span>
               <strong class="order-total-amount">{{ orderTotal | number:'1.0-0' }}₫</strong>
             </div>
-            <div class="order-summary-xu-earn">
+            <div class="order-summary-xu-earn" *ngIf="!isGuest">
               <i class="bi bi-coin"></i>
               <span>Kiếm được {{ qrEarnXu | number:'1.0-0' }} Vita Xu</span>
             </div>
@@ -590,7 +591,7 @@
                 <label class="order-addr-form-label">Tỉnh/Thành phố <span class="order-addr-required">*</span></label>
                 <div
                   class="order-custom-dropdown"
-                  [class.disabled]="!provinces?.length"
+                  [class.disabled]="!provinces.length"
                   (click)="toggleProvinceDropdown($event)">
                   <input type="hidden" [(ngModel)]="addressForm.provinceCode" name="addr_province" />
                   <div
@@ -919,7 +920,7 @@
                 </div>
                 <div class="vc-qr-order-row"><span>Thanh toán:</span><strong>{{ paymentMethodLabel }}</strong></div>
                 <div class="vc-qr-order-row"><span>Tổng cộng:</span><strong class="vc-qr-order-total">{{ orderTotal | number:'1.0-0' }}₫</strong></div>
-                <div class="vc-qr-order-xu">
+                <div class="vc-qr-order-xu" *ngIf="!isGuest">
                   <i class="bi bi-coin" aria-hidden="true"></i>
                   <span>Kiếm {{ qrEarnXu | number:'1.0-0' }} Vita Xu</span>
                 </div>

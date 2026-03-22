@@ -65,7 +65,6 @@
                                 <!-- Level 2 -->
                                 <div class="dropdown-submenu cat-submenu-l2"
                                     *ngIf="getSubCategories(l1._id).length > 0">
-                                    <div class="submenu-level-label">{{ l1.name }}</div>
                                     <div class="dropdown-item-parent" *ngFor="let l2 of getSubCategories(l1._id)">
                                         <div class="dropdown-item">
                                             <label class="flex items-center gap-2" (click)="$event.stopPropagation()">

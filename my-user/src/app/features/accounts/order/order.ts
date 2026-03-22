@@ -11,6 +11,7 @@ import { ConfirmService } from '../../../core/services/confirm.service';
 import { PromotionService, ApplicablePromotion } from '../../../core/services/promotion.service';
 import { CategoryService } from '../../../core/services/category.service';
 import { CoinService } from '../../../core/services/coin.service';
+import { HOME_URL } from '../../../core/constants/navigation.constants';
 
 import { StoreService, StoreFilter } from '../../../core/services/store.service';
 import { Store } from '../../../core/models/store.model';
@@ -78,7 +79,6 @@ export class Order implements OnInit, OnDestroy {
   cartDirectDiscount = 0;
   cartVoucherDiscount = 0;
   cartVitaXuDiscount = 0;
-  vitaXuBalance = 0;
   useVitaXu = false;
   isBuyNow = false;
   deliveryTab: 'home' | 'pharmacy' = 'home';
@@ -330,6 +330,12 @@ export class Order implements OnInit, OnDestroy {
   }
 
   toggleUseVitaXu(checked: boolean): void {
+    if (!this.authService.currentUser()?.user_id) {
+      this.useVitaXu = false;
+      this.recalculateTotalPrice();
+      this.cdr.detectChanges();
+      return;
+    }
     this.useVitaXu = !!checked;
     this.recalculateTotalPrice();
     this.cdr.detectChanges();
@@ -500,11 +506,15 @@ export class Order implements OnInit, OnDestroy {
     return !this.authService.currentUser()?.user_id;
   }
 
+  /** Số dư Vita Xu hiển thị / áp đơn — 0 khi chưa đăng nhập. */
+  get vitaXuBalance(): number {
+    return this.coinService.effectiveBalance();
+  }
+
   ngOnInit() {
     document.body.classList.add(this.bodyClass);
     this.initDeliveryTime();
     const user = this.authService.currentUser();
-    this.vitaXuBalance = Math.max(0, Number(this.coinService.coinData()?.balance || 0));
     this.cartLoading = true;
 
     if (user?.user_id) {
@@ -1357,7 +1367,7 @@ export class Order implements OnInit, OnDestroy {
 
   goBack() {
     if (this.showOrderSuccess) {
-      this.router.navigate(['/']);
+      this.router.navigate([HOME_URL]);
       return;
     }
     this.location.back();
@@ -1667,13 +1677,17 @@ export class Order implements OnInit, OnDestroy {
     this.http.post<{ success: boolean; order_id?: string; message?: string }>(
       'http://localhost:3000/api/orders', payload
     ).subscribe({
-      next: res => {
+      next: async (res) => {
         this.isSubmitting = false;
         if (res.success) {
           if (this.cartVitaXuDiscount > 0) {
-            this.coinService.applyCheckoutVitaXuReset(res.order_id || '');
-            // Đồng bộ lại từ backend để chắc chắn UI không giữ số dư cũ.
-            this.coinService.refreshFromBackend().catch(() => { });
+            // Cập nhật local ngay rồi mới refresh — tránh race với timer cũ làm merge mất history.
+            this.coinService.applyCheckoutVitaXuReset(res.order_id || '', this.cartVitaXuDiscount);
+            try {
+              await this.coinService.refreshFromBackend();
+            } catch {
+              /* ignore */
+            }
           }
           this.successOrderId = res.order_id || '';
           this.showOrderSuccess = true;
@@ -1748,7 +1762,7 @@ export class Order implements OnInit, OnDestroy {
 
   closeOrderSuccess(): void {
     this.showOrderSuccess = false;
-    this.router.navigate(['/']);
+    this.router.navigate([HOME_URL]);
   }
 
   goToOrders(): void {

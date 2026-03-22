@@ -15,6 +15,7 @@ import {
   BODY_IMAGE,
   ICON_FALLBACK
 } from './disease-icon';
+import { HOME_URL } from '../../../core/constants/navigation.constants';
 
 interface BodyPart {
   name: string;
@@ -590,7 +591,7 @@ export class Disease implements OnInit, OnDestroy, AfterViewInit {
 
   goHome(e: Event): void {
     e.preventDefault();
-    this.router.navigate(['/']);
+    this.router.navigate([HOME_URL]);
   }
 
   initScrollReveal(): void {

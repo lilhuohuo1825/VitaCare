@@ -4,7 +4,7 @@
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb-vc">
                 <li class="breadcrumb-item">
-                    <a routerLink="/" (click)="triggerCDR()">Trang chủ</a>
+                    <a routerLink="/nhathuocvitacare" (click)="triggerCDR()">Trang chủ</a>
                 </li>
                 <li class="breadcrumb-item">
                     <a href="#" (click)="navigateToDiseaseList($event)">Tra cứu bệnh</a>
@@ -213,28 +213,26 @@
                             <!-- Article Rating -->
                             <div class="dd-rating-card">
                                 <h4 class="dd-rating-title">Đánh giá độ hữu ích của bài viết</h4>
-                                <div class="dd-rating-options">
-                                    <div class="dd-rating-item">
-                                        <span class="dd-rating-emoji">😓</span>
-                                        <span class="dd-rating-text">Thất vọng</span>
-                                    </div>
-                                    <div class="dd-rating-item">
-                                        <span class="dd-rating-emoji">🙁</span>
-                                        <span class="dd-rating-text">Không hữu ích</span>
-                                    </div>
-                                    <div class="dd-rating-item">
-                                        <span class="dd-rating-emoji">😐</span>
-                                        <span class="dd-rating-text">Bình thường</span>
-                                    </div>
-                                    <div class="dd-rating-item">
-                                        <span class="dd-rating-emoji">😉</span>
-                                        <span class="dd-rating-text">Hữu ích</span>
-                                    </div>
-                                    <div class="dd-rating-item">
-                                        <span class="dd-rating-emoji">🤩</span>
-                                        <span class="dd-rating-text">Rất hữu ích</span>
-                                    </div>
+                                <p class="dd-rating-summary" *ngIf="articleRatingTotal > 0">
+                                    {{ articleRatingTotal }} lượt đánh giá
+                                    <ng-container *ngIf="articleRatingAverage > 0">
+                                        <span class="dd-rating-summary-sep">·</span>
+                                        Trung bình {{ articleRatingAverage }}/5
+                                    </ng-container>
+                                </p>
+                                <div class="dd-rating-options" [class.dd-rating-options--busy]="articleRatingSubmitting">
+                                    <button type="button" class="dd-rating-item"
+                                        *ngFor="let opt of articleRatingOptions"
+                                        [class.dd-rating-item--selected]="userArticleRating === opt.score"
+                                        (click)="submitArticleRating(opt.score)"
+                                        [attr.aria-pressed]="userArticleRating === opt.score">
+                                        <span class="dd-rating-emoji">{{ opt.emoji }}</span>
+                                        <span class="dd-rating-text">{{ opt.text }}</span>
+                                    </button>
                                 </div>
+                                <p class="dd-rating-hint text-muted small mb-0 mt-2" *ngIf="userArticleRating != null">
+                                    Bạn có thể chọn lại mức khác để đổi đánh giá.
+                                </p>
                             </div>
                         </div>
 
@@ -357,22 +355,39 @@
 
                                     <div class="interaction d-flex gap-3 align-items-center mb-3">
                                         <span class="text-muted small">{{ formatDate(q.createdAt) }}</span>
-                                        <button
-                                            class="btn btn-link btn-sm text-decoration-none p-0 d-flex align-items-center gap-1"
-                                            [class.text-warning]="isConsultationLiked(q)"
-                                            [class.text-muted]="!isConsultationLiked(q)" (click)="likeConsultation(q)">
-                                            <i class="bi" [class.bi-hand-thumbs-up-fill]="isConsultationLiked(q)"
-                                                [class.bi-hand-thumbs-up]="!isConsultationLiked(q)"></i>
-                                            <span>Hữu ích {{ q.likes?.length > 0 ? '(' + q.likes.length + ')' : ''
-                                                }}</span>
-                                        </button>
+                                        <div class="vc-like-hover-wrap"
+                                            (mouseenter)="onLikersEnter('ldq-' + getGenericId(q), q.likes)"
+                                            (mouseleave)="onLikersLeave()">
+                                            <button
+                                                class="btn btn-link btn-sm text-decoration-none p-0 d-flex align-items-center gap-1"
+                                                [class.vc-liked-active]="isConsultationLiked(q)"
+                                                [class.text-muted]="!isConsultationLiked(q)"
+                                                [style.color]="isConsultationLiked(q) ? '#ffc107' : ''"
+                                                (click)="likeConsultation(q)">
+                                                <i class="bi" [class.bi-hand-thumbs-up-fill]="isConsultationLiked(q)"
+                                                    [class.bi-hand-thumbs-up]="!isConsultationLiked(q)"
+                                                    [style.color]="isConsultationLiked(q) ? '#ffc107' : ''"></i>
+                                                <span [style.color]="isConsultationLiked(q) ? '#ffc107' : ''">Hữu ích {{
+                                                    q.likes?.length > 0 ? '(' + q.likes.length + ')' : '' }}</span>
+                                            </button>
+                                            <div *ngIf="likerPanelVisible('ldq-' + getGenericId(q))" class="vc-like-popover"
+                                                (mouseenter)="onLikersPopoverEnter()">
+                                                <div *ngIf="likerHoverPanel?.loading" class="vc-like-popover-loading">Đang tải…</div>
+                                                <ng-container *ngIf="likerHoverPanel && !likerHoverPanel.loading">
+                                                    <div class="vc-like-popover-name" *ngFor="let nm of likerHoverPanel.names">{{ nm }}</div>
+                                                    <div class="vc-like-popover-more" *ngIf="likerHoverPanel.more > 0">
+                                                        Xem thêm {{ likerHoverPanel.more }} người khác
+                                                    </div>
+                                                </ng-container>
+                                            </div>
+                                        </div>
                                         <button
                                             class="btn btn-link btn-sm text-decoration-none p-0 text-primary fw-medium"
                                             (click)="toggleReplyConsultation(q)">Trả lời</button>
                                     </div>
 
                                     <!-- Reply Area -->
-                                    <div *ngIf="replyingToQuestionId === q.id"
+                                    <div *ngIf="replyingToQuestionId === getGenericId(q)"
                                         class="mt-2 ps-3 border-start border-vc-primary">
                                         <div class="d-flex align-items-center p-2 border bg-white shadow-sm"
                                             style="border-radius: 20px;">

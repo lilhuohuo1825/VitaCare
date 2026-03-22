@@ -1,7 +1,9 @@
 /* Orders Component Styles */
 
 :host {
-  font-family: 'Inter', sans-serif;
+    font-family: 'Inter', sans-serif;
+    display: block;
+    width: 100%;
 }
 
 /* ===== ORDERS PAGE LAYOUT ===== */
@@ -13,10 +15,86 @@
     width: 100%;
     max-width: var(--container-max-width);
     margin: 0 auto;
-    padding: 0 40px;
     font-family: 'Inter', sans-serif;
     color: var(--color-text-primary);
+    overflow: visible;
 }
+
+/* Neo chung: tiêu đề + tìm kiếm + thanh phân loại — cùng offset với sidebar */
+.orders-sticky-sentinel {
+    height: 1px;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    pointer-events: none;
+    visibility: hidden;
+}
+
+.orders-sticky-block {
+    position: sticky;
+    top: var(--vc-account-sidebar-sticky-top, 164px);
+    z-index: 2;
+    margin: 0 0 12px;
+    padding: 8px 0 6px;
+    background: var(--color-bg-light);
+    /* Không shadow — tránh “khung” 4 cạnh lộ trên nền trang */
+    box-shadow: none;
+    isolation: isolate;
+    overflow: visible;
+}
+
+/* Gradient mờ dần khi thẻ đơn lướt lên — chỉ bật opacity khi đã cuộn (backdrop) */
+.orders-scroll-fade {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: max(100vw, calc(100% + 240px));
+    top: 100%;
+    height: 44px;
+    pointer-events: none;
+    z-index: 6;
+    opacity: 0;
+    transition: opacity 0.32s ease-out;
+    background: linear-gradient(
+        to bottom,
+        rgba(229, 238, 248, 0.84) 0%,
+        rgba(229, 238, 248, 0.5) 45%,
+        rgba(229, 238, 248, 0.16) 82%,
+        rgba(229, 238, 248, 0) 100%
+    );
+}
+
+.orders-sticky-block.orders-sticky-block--backdrop .orders-scroll-fade {
+    opacity: 1;
+}
+
+.orders-sticky-block .orders-header {
+    margin-bottom: 12px;
+}
+
+.orders-sticky-block .search-container {
+    margin-bottom: 4px;
+}
+
+.orders-sticky-block.orders-sticky-block--backdrop::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 100%;
+    width: max(100vw, calc(100% + 240px));
+    height: 112px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    outline: none;
+    box-shadow: none;
+    transform: translateX(-50%);
+    background: var(--color-bg-light);
+    z-index: 3;
+    pointer-events: none;
+}
+
+/* Không dùng ::after — vệt dưới gây lộ “khung” trắng; khe che bằng padding + nền wrapper */
 
 /* ===== HEADER ===== */
 .orders-header {
@@ -138,21 +216,21 @@
     border-color: var(--color-primary);
 }
 
-/* ===== TAB NAVIGATION ===== */
-.tab-navigation {
-    margin-bottom: 20px;
+/* ===== TAB NAVIGATION (nằm trong .orders-sticky-block — không sticky riêng) ===== */
+.orders-sticky-block .tab-navigation {
+    margin-bottom: 0;
     position: relative;
+    z-index: 1;
     display: flex;
     align-items: center;
     gap: 0;
-    background: white;
+    background: #fff;
     border-radius: 12px;
-    padding: 4px;
-    box-shadow: var(--shadow-sm);
-    /* 0 2px 10px rgba(0, 0, 0, 0.05) */
-    position: sticky;
-    top: 12px;
-    z-index: 30;
+    padding: 2px;
+    /* Không shadow — vệt tối dưới khối tab do bóng rgba(15,23,42) */
+    box-shadow: none;
+    /* Gạch active (.orders-sticky-block .tab-button) đặt trong nút — không bị clip mép */
+    overflow: hidden;
 }
 
 .tab-list {
@@ -259,6 +337,16 @@
     border-radius: 2px;
 }
 
+/* Trong khối neo: gạch active nằm trong nút — không tràn ra mép dưới khung trắng */
+.orders-sticky-block .tab-button.active::after {
+    bottom: 6px;
+}
+
+.orders-sticky-block .tab-button,
+.orders-sticky-block .tab-item {
+    padding: 12px 20px;
+}
+
 .tab-badge {
     background: var(--color-danger);
     /* #c42326 */
@@ -305,6 +393,10 @@
     /* Bỏ scroll nội bộ: dùng 1 scroll lớn của trình duyệt */
     overflow-y: visible;
     max-height: none;
+    position: relative;
+    z-index: 0;
+    /* Cùng màu nền trang — khe/margin không lộ trắng */
+    background: var(--color-bg-light);
 }
 
 /* (Giữ nguyên các style scrollbar cũ nếu còn, nhưng wrapper không còn overflow-y auto) */
@@ -1542,10 +1634,6 @@
 }
 
 @media (max-width: 768px) {
-    .orders-container {
-        padding: 0;
-    }
-
     .content-header,
     .orders-header {
         padding: 0;

@@ -79,4 +79,66 @@ export class DiseaseService {
       })
     );
   }
+
+  /** Toggle "Hữu ích" trên câu hỏi về bệnh. */
+  likeDiseaseConsultation(data: { sku: string; questionId: string; userId: string }): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/consultations/disease/like`, data).pipe(
+      catchError((err) => {
+        console.error('Like disease consultation error:', err);
+        throw err;
+      })
+    );
+  }
+
+  /** Thống kê đánh giá độ hữu ích bài bệnh (1–5). */
+  getDiseaseArticleRating(sku: string, userId?: string): Observable<{
+    success: boolean;
+    counts: Record<number, number>;
+    total: number;
+    average: number;
+    userScore: number | null;
+  }> {
+    const q = userId?.trim() ? `?userId=${encodeURIComponent(userId.trim())}` : '';
+    return this.http
+      .get<any>(`${this.apiUrl}/diseases/article-rating/${encodeURIComponent(sku)}${q}`)
+      .pipe(
+        catchError(() =>
+          of({
+            success: false,
+            counts: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
+            total: 0,
+            average: 0,
+            userScore: null,
+          })
+        )
+      );
+  }
+
+  /** Gửi / đổi điểm đánh giá bài bệnh (mỗi user một điểm). */
+  postDiseaseArticleRating(data: { sku: string; score: number; userId: string }): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/diseases/article-rating`, data).pipe(
+      catchError((err) => {
+        console.error('Post disease article rating error:', err);
+        throw err;
+      })
+    );
+  }
+
+  /** Trả lời câu hỏi về bệnh. */
+  replyDiseaseConsultation(data: {
+    sku: string;
+    questionId: string;
+    content: string;
+    fullname?: string;
+    user_id?: string | null;
+    avatar?: string;
+    isAdmin?: boolean;
+  }): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/consultations/disease/reply`, data).pipe(
+      catchError((err) => {
+        console.error('Reply disease consultation error:', err);
+        throw err;
+      })
+    );
+  }
 }

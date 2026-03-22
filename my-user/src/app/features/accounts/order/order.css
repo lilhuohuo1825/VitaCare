@@ -953,6 +953,43 @@
   transform: translateX(16px);
 }
 
+/* Khách vãng lai: không dùng Vita Xu — thanh xám, toggle không tương tác */
+.order-vitaxu-row--guest {
+  background: #f3f4f6;
+  border-color: #e5e7eb;
+  opacity: 0.92;
+}
+
+.order-vitaxu-row--guest .order-vitaxu-left {
+  color: #6b7280;
+}
+
+.order-vitaxu-row--guest .order-vitaxu-left .bi-coin {
+  color: #9ca3af;
+}
+
+.order-vitaxu-row--guest .order-vitaxu-meta small {
+  color: #9ca3af;
+}
+
+.order-vitaxu-row--guest .order-vitaxu-switch {
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
+.order-vitaxu-row--guest .order-vitaxu-switch .slider {
+  cursor: not-allowed;
+  background-color: #d1d5db;
+}
+
+.order-vitaxu-row--guest .order-vitaxu-switch input:checked + .slider {
+  background-color: #d1d5db;
+}
+
+.order-vitaxu-row--guest .order-vitaxu-switch input:checked + .slider:before {
+  transform: translateX(0);
+}
+
 /* Section chung: Chi tiết thanh toán + checkbox + Mua hàng + điều khoản */
 .order-checkout-section {
   display: flex;

@@ -1,4 +1,15 @@
-import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild, ElementRef, Input, OnChanges, SimpleChanges, ChangeDetectorRef } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  AfterViewInit,
+  ViewChild,
+  ElementRef,
+  Input,
+  OnChanges,
+  SimpleChanges,
+  ChangeDetectorRef,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
@@ -81,7 +92,7 @@ interface ReviewItem {
   templateUrl: './reviews.html',
   styleUrls: ['./reviews.css'],
 })
-export class ReviewsComponent implements OnInit, OnDestroy, OnChanges {
+export class ReviewsComponent implements OnInit, AfterViewInit, OnDestroy, OnChanges {
   private reviewSyncSubscription: Subscription = new Subscription();
 
   /** Truyền từ Account để tải đơn ngay khi vào tab (tránh phải active 2 lần) */
@@ -124,6 +135,15 @@ export class ReviewsComponent implements OnInit, OnDestroy, OnChanges {
 
   @ViewChild(OrderDetailAcc) orderDetailModal!: OrderDetailAcc;
   @ViewChild('reviewClaimBurstBtn') reviewClaimBurstBtn!: ElementRef<HTMLButtonElement>;
+  @ViewChild('reviewsStickySentinel', { read: ElementRef }) reviewsStickySentinelRef?: ElementRef<HTMLElement>;
+
+  stickyReviewsBackdrop = false;
+
+  private reviewsStickyIntersectionObserver?: IntersectionObserver;
+
+  private resizeReviewsBackdropListener?: () => void;
+
+  private resizeReviewsBackdropTimer?: ReturnType<typeof setTimeout>;
   allOrdersData: any[] = [];
 
   // If user navigates with /account?menu=reviews&orderId=..., auto-open the review form.
@@ -258,22 +278,6 @@ export class ReviewsComponent implements OnInit, OnDestroy, OnChanges {
 
   onSortChange(): void {
     // Sorting is handled in the getter (kept for backward compatibility if needed)
-  }
-
-  onEditReview(item: ReviewItem): void {
-    // Convert reviewed item to ReviewProduct format for editing
-    this.selectedProductsForReview = [
-      {
-        id: item.id,
-        productName: item.productName,
-        productImage: item.productImage,
-        category: item.category,
-        rating: item.rating,
-        reviewText: item.reviewText,
-        images: item.images || [],
-      },
-    ];
-    this.showReviewModal = true;
   }
 
   onAddReview(item: ReviewItem): void {
@@ -754,6 +758,40 @@ export class ReviewsComponent implements OnInit, OnDestroy, OnChanges {
     });
   }
 
+  ngAfterViewInit(): void {
+    queueMicrotask(() => {
+      this.setupReviewsStickyBackdropObserver();
+      this.resizeReviewsBackdropListener = () => {
+        if (this.resizeReviewsBackdropTimer) clearTimeout(this.resizeReviewsBackdropTimer);
+        this.resizeReviewsBackdropTimer = setTimeout(() => this.setupReviewsStickyBackdropObserver(), 180);
+      };
+      window.addEventListener('resize', this.resizeReviewsBackdropListener, { passive: true });
+    });
+  }
+
+  private setupReviewsStickyBackdropObserver(): void {
+    const el = this.reviewsStickySentinelRef?.nativeElement;
+    if (!el || typeof IntersectionObserver === 'undefined') return;
+
+    const accountHost = el.closest('app-account');
+    const raw = accountHost
+      ? getComputedStyle(accountHost).getPropertyValue('--vc-account-sidebar-sticky-top').trim()
+      : '';
+    const parsed = parseInt(raw.replace('px', ''), 10);
+    const insetPx = Number.isFinite(parsed) && parsed > 0 ? parsed : 164;
+
+    this.reviewsStickyIntersectionObserver?.disconnect();
+    this.reviewsStickyIntersectionObserver = new IntersectionObserver(
+      (entries) => {
+        const e = entries[0];
+        this.stickyReviewsBackdrop = !e?.isIntersecting;
+        this.cdr.markForCheck();
+      },
+      { root: null, rootMargin: `-${insetPx}px 0px 0px 0px`, threshold: 0 },
+    );
+    this.reviewsStickyIntersectionObserver.observe(el);
+  }
+
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['userId'] || changes['forceReload']) {
       console.log('ngOnChanges: userId or forceReload changed, resetting showReviewed to false');
@@ -780,6 +818,16 @@ export class ReviewsComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   ngOnDestroy(): void {
+    if (this.resizeReviewsBackdropListener) {
+      window.removeEventListener('resize', this.resizeReviewsBackdropListener);
+      this.resizeReviewsBackdropListener = undefined;
+    }
+    if (this.resizeReviewsBackdropTimer) {
+      clearTimeout(this.resizeReviewsBackdropTimer);
+      this.resizeReviewsBackdropTimer = undefined;
+    }
+    this.reviewsStickyIntersectionObserver?.disconnect();
+    this.reviewsStickyIntersectionObserver = undefined;
     if (this.reviewSyncSubscription) {
       this.reviewSyncSubscription.unsubscribe();
     }
@@ -1241,33 +1289,30 @@ export class ReviewsComponent implements OnInit, OnDestroy, OnChanges {
     return new Intl.NumberFormat('vi-VN').format(numPrice) + ' ₫';
   }
 
-  goToProductDetail(item: ReviewItem): void {
-    // Lấy slug/id sản phẩm để điều hướng
+  goToProductDetail(item: ReviewItem, scrollToReviews = false): void {
+    const extras = scrollToReviews ? { queryParams: { scrollTo: 'reviews' } } : undefined;
     const productId = item.productId || item.sku;
     if (!productId) {
-      // Nếu không có productId, thử extract từ id (format: orderId_productId)
       const idParts = item.id.split('_');
       if (idParts.length > 1) {
-        // Nếu có format orderId_productId, lấy productId
         const extractedId = idParts[1];
-        // Thử tìm trong products array
         if (item.products && item.products.length > 0) {
           const product = item.products.find(
             (p: any) => p.id === extractedId || (p.sku && p.sku === extractedId)
           );
           if (product) {
             const finalId = (product as ProductInfo).slug || (product as ProductInfo).backendId || (product as ProductInfo).sku || product.id;
-            this.router.navigate(['/product', finalId]);
+            this.router.navigate(['/product', finalId], extras);
             return;
           }
         }
-        this.router.navigate(['/product', extractedId]);
+        this.router.navigate(['/product', extractedId], extras);
         return;
       }
       console.warn('No product ID found for navigation');
       return;
     }
-    this.router.navigate(['/product', productId]);
+    this.router.navigate(['/product', productId], extras);
   }
 
   goToProductDetailFromUnreviewed(product: ProductInfo): void {

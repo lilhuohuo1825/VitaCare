@@ -1,9 +1,14 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
+import { HOME_ROUTE_SEGMENT } from './core/constants/navigation.constants';
 
 export const routes: Routes = [
-  { path: '', loadComponent: () => import('./features/pages/home/home').then(m => m.Home) },
-  { path: 'home', redirectTo: '', pathMatch: 'full' },
+  { path: '', redirectTo: HOME_ROUTE_SEGMENT, pathMatch: 'full' },
+  {
+    path: HOME_ROUTE_SEGMENT,
+    loadComponent: () => import('./features/pages/home/home').then(m => m.Home),
+  },
+  { path: 'home', redirectTo: HOME_ROUTE_SEGMENT, pathMatch: 'full' },
   {
     // Route chuyên cho Nhóm bệnh (Tra cứu bệnh)
     // Đặt TRƯỚC các route category chung để không bị match nhầm vào Product
@@ -184,5 +189,5 @@ export const routes: Routes = [
     path: 'benh/:id',
     loadComponent: () => import('./features/healthcare/disease-details/disease-details').then(m => m.DiseaseDetails),
   },
-  { path: '**', redirectTo: '' },
+  { path: '**', redirectTo: HOME_ROUTE_SEGMENT },
 ];

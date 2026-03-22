@@ -3,7 +3,7 @@
     <div class="vc_container pt-2">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb-vc">
-                <li class="breadcrumb-item"><a routerLink="/">Trang chủ</a></li>
+                <li class="breadcrumb-item"><a routerLink="/nhathuocvitacare">Trang chủ</a></li>
 
                 <li class="breadcrumb-item active" *ngIf="screen === 'list'">Kiểm tra sức khỏe</li>
                 <li class="breadcrumb-item" *ngIf="screen !== 'list'">
@@ -20,14 +20,6 @@
                                 }}</a>
                         </li>
                         <li class="breadcrumb-item active">Kết quả kiểm tra</li>
-                    </ng-container>
-
-                    <ng-container *ngIf="screen === 'history'">
-                        <li class="breadcrumb-item">
-                            <a (click)="resetAll()" style="cursor: pointer;">{{ selectedQuiz.category_short
-                                }}</a>
-                        </li>
-                        <li class="breadcrumb-item active">Lịch sử</li>
                     </ng-container>
                 </ng-container>
             </ol>
@@ -50,9 +42,22 @@
             </div>
         </div>
 
+        <!-- Chỉ tài khoản đăng nhập: xem lịch sử đã lưu — vãng lai không hiện nút -->
+        <div class="ht-list-history-bar" *ngIf="isLoggedIn">
+            <button type="button" class="ht-history-overview-btn" (click)="openHealthHistoryOverview()">
+                Xem lịch sử kiểm tra sức khỏe
+                <span class="ht-history-overview-btn__chev" aria-hidden="true">&gt;&gt;</span>
+            </button>
+        </div>
+
         <div class="ht-grid">
             <div class="ht-card" *ngFor="let quiz of quizzes" [style.--card-color]="quiz.color"
                 [style.--card-bg]="quiz.bgColor" (click)="startQuiz(quiz)">
+                <span class="ht-card-coin-badge" [class.ht-card-coin-badge--exhausted]="listQuizCoinBadgeExhausted()"
+                    aria-label="Hoàn thành bài test có thể nhận 50 xu">
+                    <span class="material-symbols-rounded ht-card-coin-badge__icon" aria-hidden="true">payments</span>
+                    +50 xu
+                </span>
                 <div class="ht-card-icon-wrap material-symbols-rounded">{{ quiz.icon }}</div>
                 <div class="ht-card-info">
                     <span class="ht-card-tag">Kiểm tra</span>
@@ -75,8 +80,7 @@
         </button>
         <div class="ht-intro-card"
             style="background: var(--vc-neutral-10); border-radius: 20px; border: 1px solid var(--vc-neutral-30); padding: 32px 24px; text-align: center; box-shadow: 0 4px 16px rgba(0, 88, 159, 0.05); max-width: 600px; margin: 0 auto;">
-            <div class="ht-intro-icon-wrap"
-                style="width: 64px; height: 64px; border-radius: 16px; background: var(--vc-main-bg); color: var(--vc-main); display: flex; align-items: center; justify-content: center; font-size: 32px; margin: 0 auto 20px;">
+            <div class="ht-intro-icon-wrap">
                 <span class="material-symbols-rounded">{{ selectedQuiz.icon }}</span>
             </div>
             <h2 style="font-size: 22px; font-weight: 800; color: var(--vc-main); margin-bottom: 12px;">{{
@@ -86,8 +90,7 @@
                 {{ selectedQuiz.questions?.length || 0 }} câu hỏi
             </div>
 
-            <div class="ht-intro-content"
-                style="text-align: left; background: var(--vc-neutral-20); padding: 20px; border-radius: 12px; margin-bottom: 32px;">
+            <div class="ht-intro-content">
                 <p style="font-size: 15px; color: var(--vc-main); line-height: 1.6; margin-bottom: 12px;">
                     Bài kiểm tra này sẽ đưa ra các câu hỏi trắc nghiệm ngắn giúp bạn đánh giá sơ bộ nguy cơ mắc
                     <strong>{{ selectedQuiz.category_short }}</strong>.
@@ -148,107 +151,6 @@
         </div>
     </div>
 
-
-
-    <!-- REGISTER SCREEN FOR GUESTS -->
-    <div class="ht-register-container" *ngIf="screen === 'register'"
-        style="max-width: 600px; margin: 0 auto; padding: 32px 20px;">
-        <div style="background: white; border-radius: 16px; padding: 32px; box-shadow: 0 4px 20px rgba(0,0,0,0.06);">
-            <h2 style="font-size: 22px; font-weight: 800; color: var(--vc-neutral-80); margin-bottom: 8px;">Đăng ký nhận
-                kết quả</h2>
-            <p style="font-size: 14px; color: var(--vc-neutral-60); margin-bottom: 24px;">Điền thông tin để nhận kết quả
-                kiểm tra {{ selectedQuiz.category }} của bạn</p>
-
-            <form (ngSubmit)="handleSubmitReg()">
-                <div class="form-group mb-3">
-                    <label
-                        style="font-size: 14px; font-weight: 600; color: var(--vc-neutral-80); margin-bottom: 8px;"><span
-                            style="color: red;">*</span> Họ và tên</label>
-                    <input type="text" class="form-control" placeholder="Họ và tên" [(ngModel)]="form.name" name="name"
-                        style="border-radius: 8px; border: 1px solid var(--vc-neutral-30); padding: 12px; font-size: 14px; color: var(--vc-main);">
-                    <div style="color: red; font-size: 12px; margin-top: 4px;" *ngIf="formErrors.name">{{
-                        formErrors.name }}</div>
-                </div>
-
-                <div class="form-group mb-3">
-                    <label
-                        style="font-size: 14px; font-weight: 600; color: var(--vc-neutral-80); margin-bottom: 8px;"><span
-                            style="color: red;">*</span> Tỉnh/ Thành phố</label>
-                    <select class="form-select" [(ngModel)]="form.province" name="province"
-                        style="border-radius: 8px; border: 1px solid var(--vc-neutral-30); padding: 12px; font-size: 14px; color: var(--vc-main);">
-                        <option value="">Chọn Thành Phố/Tỉnh</option>
-                        <option *ngFor="let p of tinhThanhList" [value]="p">{{ p }}</option>
-                    </select>
-                    <div style="color: red; font-size: 12px; margin-top: 4px;" *ngIf="formErrors.province">{{
-                        formErrors.province }}</div>
-                </div>
-
-                <div class="form-group mb-3">
-                    <label
-                        style="font-size: 14px; font-weight: 600; color: var(--vc-neutral-80); margin-bottom: 8px;"><span
-                            style="color: red;">*</span> Số điện thoại</label>
-                    <input type="tel" class="form-control" placeholder="Nhập số điện thoại" [(ngModel)]="form.phone"
-                        name="phone"
-                        style="border-radius: 8px; border: 1px solid var(--vc-neutral-30); padding: 12px; font-size: 14px; color: var(--vc-main);">
-                    <div style="color: red; font-size: 12px; margin-top: 4px;" *ngIf="formErrors.phone">{{
-                        formErrors.phone }}</div>
-                </div>
-
-                <div class="row mb-3">
-                    <div class="col-6">
-                        <label
-                            style="font-size: 14px; font-weight: 600; color: var(--vc-neutral-80); margin-bottom: 8px;">Ngày
-                            sinh</label>
-                        <input type="date" class="form-control" [(ngModel)]="form.dob" name="dob"
-                            style="border-radius: 8px; border: 1px solid var(--vc-neutral-30); padding: 12px; font-size: 14px; color: var(--vc-main);">
-                    </div>
-                    <div class="col-6">
-                        <label
-                            style="font-size: 14px; font-weight: 600; color: var(--vc-neutral-80); margin-bottom: 8px;">Giới
-                            tính</label>
-                        <select class="form-select" [(ngModel)]="form.gender" name="gender"
-                            style="border-radius: 8px; border: 1px solid var(--vc-neutral-30); padding: 12px; font-size: 14px; color: var(--vc-main);">
-                            <option value="Nam">Nam</option>
-                            <option value="Nữ">Nữ</option>
-                            <option value="Khác">Khác</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="form-group mb-4">
-                    <label
-                        style="font-size: 14px; font-weight: 600; color: var(--vc-neutral-80); margin-bottom: 8px;">Mã
-                        giới thiệu (Tùy chọn)</label>
-                    <input type="text" class="form-control" placeholder="Nhập mã giới thiệu"
-                        [(ngModel)]="form.referralCode" name="referralCode"
-                        style="border-radius: 8px; border: 1px solid var(--vc-neutral-30); padding: 12px; font-size: 14px; color: var(--vc-main);">
-                </div>
-
-                <div class="form-check mb-4" style="display: flex; align-items: flex-start; gap: 8px;">
-                    <input class="form-check-input" type="checkbox" [(ngModel)]="form.agreed" name="agreed"
-                        id="agreeTOS" style="margin-top: 4px;">
-                    <label class="form-check-label" for="agreeTOS"
-                        style="font-size: 13px; color: var(--vc-main); line-height: 1.5;">
-                        Bằng cách tích vào ô chọn, bạn đã đồng ý với việc lưu thông tin và chấp nhận <a href="#"
-                            style="color: var(--vc-main); font-weight: 600; text-decoration: none;">Điều khoản
-                            VitaCare</a>
-                    </label>
-                </div>
-                <div style="color: red; font-size: 12px; margin-top: -16px; margin-bottom: 16px;"
-                    *ngIf="formErrors.agreed">{{ formErrors.agreed }}</div>
-
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 24px;">
-                    <button type="button" class="btn"
-                        style="background: var(--vc-neutral-20); color: var(--vc-main); font-weight: 600; padding: 12px 24px; border-radius: 8px;"
-                        (click)="beginQuiz()">Trả lời lại</button>
-                    <button type="submit" class="btn btn-primary-vc"
-                        style="padding: 12px 24px; border-radius: 8px; font-weight: 600;"
-                        [disabled]="!form.name || !form.province || !form.phone || !form.agreed">Nhận kết quả</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
     <!-- RESULT SCREEN -->
     <div class="ht-result-container" *ngIf="screen === 'result'">
         <div class="ht-result-header">
@@ -259,7 +161,11 @@
         </div>
 
         <div class="ht-result-doctor" [ngClass]="result.isLow ? 'low' : 'high'">
-            {{ result.isLow ? '👨‍⚕️' : '🩺' }}
+            <span class="material-symbols-rounded ht-result-steth-icon" aria-hidden="true">stethoscope</span>
+        </div>
+
+        <div class="ht-result-score" [ngClass]="result.isLow ? 'low' : 'high'">
+            Điểm số của bạn: {{ result.score }}
         </div>
 
         <div class="ht-result-box">
@@ -276,60 +182,206 @@
             </div>
         </div>
 
-        <div class="ht-result-score" [ngClass]="result.isLow ? 'low' : 'high'">
-            Điểm số của bạn: {{ result.score }}
-        </div>
-
-        <div class="ht-result-actions">
-            <button class="ht-btn ht-btn-outline" (click)="startQuiz(selectedQuiz)">Làm lại</button>
-            <button class="btn btn-primary-vc" style="padding: 12px 24px; font-size: 14px;" (click)="resetAll()">Khám
-                phá bài test khác</button>
+        <div class="ht-result-footer-actions">
+            <div class="ht-result-actions">
+                <button class="ht-btn ht-btn-outline" (click)="startQuiz(selectedQuiz)">Làm lại</button>
+                <button class="btn btn-primary-vc" style="padding: 12px 24px; font-size: 14px;" (click)="resetAll()">Khám
+                    phá bài test khác</button>
+                <ng-container *ngIf="quizClaimToken">
+                    <button type="button" class="ht-quiz-coin-fab ht-quiz-coin-fab--inline"
+                        *ngIf="isLoggedIn && !quizCoinClaimed && !quizCoinDailyLimitExhausted"
+                        (click)="openQuizCoinCelebration()"
+                        [disabled]="quizCoinBusy || showQuizClaimCelebration">
+                        <span class="material-symbols-rounded" aria-hidden="true">payments</span>
+                        <span>{{ quizCoinBusy ? 'Đang xử lý...' : 'Nhận +50 xu' }}</span>
+                    </button>
+                    <button type="button"
+                        class="ht-quiz-coin-fab ht-quiz-coin-fab--inline ht-quiz-coin-fab--limit"
+                        *ngIf="isLoggedIn && !quizCoinClaimed && quizCoinDailyLimitExhausted"
+                        (click)="openQuizDailyLimitPopup()" [disabled]="quizCoinBusy">
+                        <span class="material-symbols-rounded" aria-hidden="true">payments</span>
+                        <span>Nhận +50 xu</span>
+                    </button>
+                    <div class="ht-quiz-coin-fab ht-quiz-coin-fab--done ht-quiz-coin-fab--inline"
+                        *ngIf="isLoggedIn && quizCoinClaimed" role="status">
+                        <span class="material-symbols-rounded" aria-hidden="true">check_circle</span>
+                        <span>Đã nhận xu</span>
+                    </div>
+                    <button type="button" class="ht-quiz-coin-fab ht-quiz-coin-fab--inline"
+                        *ngIf="!isLoggedIn" (click)="openQuizGuestLoginPopup()">
+                        <span class="material-symbols-rounded" aria-hidden="true">payments</span>
+                        <span>Nhận +50 xu</span>
+                    </button>
+                </ng-container>
+            </div>
+            <p class="ht-quiz-coin-hint"
+                *ngIf="quizCoinHint && !showQuizClaimCelebration && !showQuizDailyLimitPopup && !showQuizGuestLoginPopup">{{ quizCoinHint }}</p>
         </div>
     </div>
 
-    <!-- HISTORY SCREEN -->
-    <div class="ht-history-container" *ngIf="screen === 'history'"
-        style="max-width: 680px; margin: 0 auto; padding: 32px 20px;">
-        <div class="ht-history-header" style="display: flex; align-items: center; gap: 16px; margin-bottom: 32px;">
-            <button class="ht-btn ht-btn-outline" (click)="resetAll()"
-                style="padding: 8px 12px; display: flex; align-items: center; border: none; background: transparent; color: var(--vc-main);">
-                <span class="material-symbols-rounded" style="font-size: 20px;">arrow_back_ios</span>
+    <!-- Popup nhận xu (congrate + túi) — giống nhắc lịch -->
+    <div class="remind-claim-burst-overlay" *ngIf="showQuizClaimCelebration" (click)="onQuizClaimOverlayClick($event)">
+        <div class="remind-claim-burst" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+            <img src="assets/images/homepage/bump/congrate.png" alt="Chúc mừng" class="remind-claim-burst-image">
+            <p class="remind-claim-burst-title">Bạn nhận được <strong>{{ quizCoinRewardAmount }} xu</strong></p>
+            <button type="button" class="remind-claim-burst-amount" #quizClaimBurstBtn
+                (click)="confirmQuizClaimFromPopup()" [disabled]="quizCoinBusy"
+                aria-label="Nhận {{ quizCoinRewardAmount }} xu">
+                <img src="assets/images/homepage/bump/tui_xu.png" alt="">
+                <span>+{{ quizCoinRewardAmount }} xu</span>
             </button>
-            <div>
-                <h2 style="font-size: 20px; font-weight: 800; color: var(--vc-main); margin: 0;">Lịch sử {{
-                    selectedQuiz.category_short }}</h2>
-                <p style="font-size: 13px; color: var(--vc-main); margin: 4px 0 0; opacity: 0.8;">Quản lý các kết quả
-                    kiểm tra trước đây của bạn</p>
+        </div>
+    </div>
+
+    <!-- Hết lượt nhận xu bài test trong ngày -->
+    <div class="remind-claim-burst-overlay" *ngIf="showQuizDailyLimitPopup"
+        (click)="onQuizDailyLimitOverlayClick($event)">
+        <div class="remind-claim-burst ht-quiz-limit-dialog" role="dialog" aria-modal="true"
+            (click)="$event.stopPropagation()">
+            <p class="ht-quiz-limit-text">Bạn đã hết lượt nhận xu cho hôm nay, hãy quay lại vào ngày mai nha</p>
+            <button type="button" class="btn btn-primary-vc" style="padding: 12px 24px; font-size: 14px;"
+                (click)="closeQuizDailyLimitPopup()">Đóng</button>
+        </div>
+    </div>
+
+    <!-- Vãng lai: cần đăng nhập mới có túi xu / nhận thưởng -->
+    <div class="remind-claim-burst-overlay" *ngIf="showQuizGuestLoginPopup"
+        (click)="onQuizGuestLoginOverlayClick($event)">
+        <div class="remind-claim-burst ht-quiz-limit-dialog ht-quiz-guest-login-dialog" role="dialog" aria-modal="true"
+            (click)="$event.stopPropagation()">
+            <p class="ht-quiz-limit-text">Bạn chưa đăng nhập nên chưa có túi xu. Hãy đăng nhập để nhận xu nha!</p>
+            <div class="ht-quiz-guest-login-actions">
+                <button type="button" class="btn btn-primary-vc" style="padding: 12px 24px; font-size: 14px;"
+                    (click)="loginFromQuizGuestPopup()">Đăng nhập</button>
+                <button type="button" class="ht-btn ht-btn-outline" style="padding: 12px 24px; font-size: 14px;"
+                    (click)="closeQuizGuestLoginPopup()">Đóng</button>
             </div>
         </div>
+    </div>
 
-        <div *ngIf="!historyRecords || historyRecords.length === 0"
-            style="text-align: center; padding: 48px 24px; background: var(--vc-neutral-10); border-radius: 16px; border: 1px dashed var(--vc-neutral-40);">
-            <span class="material-symbols-rounded"
-                style="font-size: 48px; color: var(--vc-neutral-40); margin-bottom: 12px; display: block;">history</span>
-            <p style="font-size: 15px; color: var(--vc-main); font-weight: 600;">Bạn chưa có kết quả kiểm tra nào</p>
-            <p style="font-size: 13px; color: var(--vc-main); opacity: 0.8;">Hãy thực hiện bài kiểm tra để theo dõi sức
-                khỏe.</p>
-            <button class="btn btn-primary-vc" style="margin-top: 16px; padding: 10px 24px;" (click)="beginQuiz()">Làm
-                bài test ngay</button>
+    <!-- Túi bay về túi xu header -->
+    <div class="flying-coin-overlay" *ngIf="showQuizFlyingCoin">
+        <div class="flying-coin" [style.left.px]="flyStartX" [style.top.px]="flyStartY"
+            [style.offsetPath]="flyOffsetPath">
+            <img src="assets/images/homepage/bump/tui_xu.png" alt="" class="flying-bag-img">
         </div>
+    </div>
 
-        <div class="ht-history-list" *ngIf="historyRecords && historyRecords.length > 0">
-            <div class="ht-history-card" *ngFor="let record of historyRecords"
-                style="background: var(--vc-neutral-10); border-radius: 16px; padding: 20px; margin-bottom: 16px; border: 1px solid var(--vc-neutral-30); box-shadow: 0 2px 8px rgba(0,0,0,0.03); display: flex; justify-content: space-between; align-items: center;">
-                <div>
-                    <div
-                        style="font-size: 12px; color: var(--vc-main); opacity: 0.7; margin-bottom: 6px; font-weight: 600;">
-                        {{ record.created_at | date:'dd/MM/yyyy HH:mm' }}
-                    </div>
-                    <div style="font-size: 16px; font-weight: 700; color: var(--vc-main); margin-bottom: 4px;">{{
-                        record.ResultConfig?.title || 'Đã ghi nhận' }}</div>
-                    <div style="font-size: 13px; color: var(--vc-main);"><span style="font-weight: 600;">Điểm số:</span>
-                        {{ record.score }}</div>
+    <!-- Popup lịch sử bài test (chỉ user đăng nhập) -->
+    <div class="remind-claim-burst-overlay ht-history-modal-overlay" *ngIf="showQuizHistoryModal"
+        (click)="onQuizHistoryOverlayClick($event)">
+        <div class="ht-history-modal" role="dialog" aria-modal="true" aria-labelledby="ht-history-modal-title"
+            (click)="$event.stopPropagation()">
+            <div class="ht-history-modal-head">
+                <button type="button" class="ht-history-modal-back" (click)="closeQuizHistoryModal()"
+                    aria-label="Đóng">
+                    <span class="material-symbols-rounded">close</span>
+                </button>
+                <div class="ht-history-modal-titles">
+                    <h2 id="ht-history-modal-title">Lịch sử {{ historyModalQuiz?.category_short }}</h2>
+                    <p>Kết quả các lần làm trước — nên tầm soát ít nhất mỗi tuần một lần.</p>
                 </div>
-                <div class="ht-history-badge" [ngClass]="record.score === 0 ? 'low' : 'high'">
-                    {{ record.score === 0 ? 'Tốt' : 'Lưu ý' }}
+            </div>
+
+            <div class="ht-history-modal-body">
+                <div class="ht-history-modal-loading" *ngIf="historyLoading">Đang tải lịch sử…</div>
+
+                <div class="ht-history-modal-empty" *ngIf="!historyLoading && (!historyRecords || historyRecords.length === 0)">
+                    <span class="material-symbols-rounded">history</span>
+                    <p>Chưa có kết quả kiểm tra nào được lưu.</p>
+                    <button type="button" class="btn btn-primary-vc" (click)="startQuizFromHistoryModal()">
+                        Làm bài test ngay
+                    </button>
                 </div>
+
+                <div class="ht-history-modal-list" *ngIf="!historyLoading && historyRecords.length">
+                    <article class="ht-history-modal-card" *ngFor="let record of historyRecords"
+                        [ngClass]="{ 'ht-history-modal-card--risk-high': historyBadgeClass(record) === 'high' }">
+                        <div class="ht-history-modal-card-main">
+                            <div class="ht-history-modal-times">
+                                <div class="ht-history-time-row">
+                                    <span class="ht-history-relative">{{ formatRelativeTimeVi(record.createdAt || record.created_at) }}</span>
+                                    <span class="ht-history-absolute">{{ (record.createdAt || record.created_at) | date:'dd/MM/yyyy HH:mm' }}</span>
+                                </div>
+                                <p class="ht-history-weekly-hint" *ngIf="historyQuizWeeklyCadence()">
+                                    Khuyến nghị nên kiểm tra sức khỏe mỗi tuần 1 lần.
+                                </p>
+                            </div>
+                            <h3 class="ht-history-modal-title">{{ historyDisplayTitle(record) }}</h3>
+                            <p class="ht-history-modal-score">Điểm số: <strong>{{ record.score }}</strong></p>
+                            <p class="ht-history-modal-rec" *ngIf="record.recommendation">{{ record.recommendation }}</p>
+                        </div>
+                        <div class="ht-history-card-right">
+                            <button type="button" class="ht-history-warning-btn" *ngIf="historyRecordNeedsWeeklyRetake(record)"
+                                (click)="startQuizFromHistoryModal()">
+                                <span class="material-symbols-rounded" aria-hidden="true">warning</span>
+                                Làm lại test định kỳ
+                            </button>
+                            <div class="ht-history-badge" [ngClass]="historyBadgeClass(record)">
+                                {{ historyDisplayBadge(record) }}
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tổng quan lịch sử toàn bộ bài test (chỉ user đăng nhập) -->
+    <div class="remind-claim-burst-overlay ht-history-modal-overlay" *ngIf="showHealthOverviewModal"
+        (click)="onHealthOverviewOverlayClick($event)">
+        <div class="ht-history-modal ht-health-overview-modal" role="dialog" aria-modal="true"
+            aria-labelledby="ht-health-overview-title" (click)="$event.stopPropagation()">
+            <div class="ht-history-modal-head">
+                <button type="button" class="ht-history-modal-back" (click)="closeHealthOverviewModal()"
+                    aria-label="Đóng">
+                    <span class="material-symbols-rounded">close</span>
+                </button>
+                <div class="ht-history-modal-titles">
+                    <h2 id="ht-health-overview-title">Lịch sử kiểm tra sức khỏe</h2>
+                    <p>Phân loại theo kết quả mới nhất từng bài (đã lưu trên tài khoản của bạn).</p>
+                </div>
+            </div>
+            <div class="ht-history-modal-body ht-health-overview-body">
+                <div class="ht-overview-tabs" role="tablist">
+                    <button type="button" role="tab" [class.ht-overview-tab--active]="healthOverviewTab === 'all'"
+                        (click)="healthOverviewTab = 'all'">Tất cả</button>
+                    <button type="button" role="tab" [class.ht-overview-tab--active]="healthOverviewTab === 'overdue'"
+                        (click)="healthOverviewTab = 'overdue'">Quá hạn kiểm tra lại</button>
+                    <button type="button" role="tab" [class.ht-overview-tab--active]="healthOverviewTab === 'risk'"
+                        (click)="healthOverviewTab = 'risk'">Nguy cơ cao / Lưu ý</button>
+                    <button type="button" role="tab" [class.ht-overview-tab--active]="healthOverviewTab === 'safe'"
+                        (click)="healthOverviewTab = 'safe'">An toàn</button>
+                </div>
+                <div class="ht-overview-loading" *ngIf="healthOverviewLoading">Đang tải lịch sử…</div>
+                <p class="ht-overview-empty" *ngIf="!healthOverviewLoading && !healthOverviewItems.length">
+                    Bạn chưa có kết quả kiểm tra nào được lưu. Hãy làm ít nhất một bài test để xem lịch sử tại đây.
+                </p>
+                <p class="ht-overview-empty" *ngIf="!healthOverviewLoading && healthOverviewItems.length && !filteredHealthOverviewItems.length">
+                    Không có bài test nào trong nhóm này.
+                </p>
+                <ul class="ht-overview-list" *ngIf="!healthOverviewLoading && filteredHealthOverviewItems.length">
+                    <li class="ht-overview-row" *ngFor="let item of filteredHealthOverviewItems">
+                        <div class="ht-overview-row-main">
+                            <span class="ht-overview-row-title">{{ item.quiz.category_short || item.quiz.category }}</span>
+                            <span class="ht-overview-row-meta">
+                                Lần làm gần nhất: {{ formatRelativeTimeVi(item.latest.createdAt || item.latest.created_at) }}
+                                · {{ (item.latest.createdAt || item.latest.created_at) | date:'dd/MM/yyyy HH:mm' }}
+                            </span>
+                            <div class="ht-overview-row-tags" *ngIf="item.latest">
+                                <span class="ht-overview-tag ht-overview-tag--risk" *ngIf="item.isHighRisk">Nguy cơ cao</span>
+                                <span class="ht-overview-tag ht-overview-tag--safe" *ngIf="item.isSafe && !item.isHighRisk">An toàn</span>
+                                <span class="ht-overview-tag ht-overview-tag--overdue" *ngIf="item.isOverdue">Quá hạn định kỳ</span>
+                            </div>
+                        </div>
+                        <div class="ht-overview-row-actions">
+                            <button type="button" class="ht-btn ht-btn-outline ht-overview-link"
+                                (click)="openQuizHistoryFromOverview(item.quiz)">Chi tiết</button>
+                            <button type="button" class="btn btn-primary-vc ht-overview-primary"
+                                (click)="startQuizFromHealthOverview(item.quiz)">Làm bài</button>
+                        </div>
+                    </li>
+                </ul>
             </div>
         </div>
     </div>

@@ -1,5 +1,4 @@
 import { Component, OnInit, AfterViewInit, OnDestroy, NgZone, ChangeDetectorRef } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { DoctorService, Doctor } from '../../../core/services/doctor.service';
 
@@ -9,7 +8,7 @@ const DEFAULT_DOCTOR_AVATAR = 'assets/images/banner/woman_doctor.png';
 @Component({
   selector: 'app-about',
   standalone: true,
-  imports: [RouterLink, CommonModule],
+  imports: [CommonModule],
   templateUrl: './about.html',
   styleUrl: './about.css',
 })

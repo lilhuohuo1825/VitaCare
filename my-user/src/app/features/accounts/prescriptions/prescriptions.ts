@@ -1,13 +1,15 @@
 import {
+  AfterViewInit,
+  ChangeDetectorRef,
   Component,
+  ElementRef,
   inject,
-  OnInit,
   Input,
   OnChanges,
+  OnDestroy,
+  OnInit,
   SimpleChanges,
-  ChangeDetectorRef,
   ViewChild,
-  ElementRef,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -30,8 +32,16 @@ interface Tab {
   templateUrl: './prescriptions.html',
   styleUrl: './prescriptions.css',
 })
-export class Prescriptions implements OnInit, OnChanges {
+export class Prescriptions implements OnInit, OnChanges, AfterViewInit, OnDestroy {
+  @ViewChild('prescriptionsHeader', { read: ElementRef }) prescriptionsHeaderRef?: ElementRef<HTMLElement>;
   @ViewChild('searchInput') searchInput?: ElementRef;
+
+  /** Bật lớp nền che khi đã cuộn qua tiêu đề (giống Thông báo). */
+  stickyTabBackdrop = false;
+
+  private headerIntersectionObserver?: IntersectionObserver;
+  private resizeBackdropListener?: () => void;
+  private resizeBackdropTimer?: ReturnType<typeof setTimeout>;
 
   private prescriptionService = inject(PrescriptionService);
   private http = inject(HttpClient);
@@ -80,6 +90,56 @@ export class Prescriptions implements OnInit, OnChanges {
     if (changes['userId'] && this.userId) {
       this.fetchPrescriptions(this.userId);
     }
+  }
+
+  ngAfterViewInit(): void {
+    queueMicrotask(() => {
+      this.setupPrescriptionsHeaderBackdropObserver();
+      this.resizeBackdropListener = () => {
+        if (this.resizeBackdropTimer) clearTimeout(this.resizeBackdropTimer);
+        this.resizeBackdropTimer = setTimeout(() => this.setupPrescriptionsHeaderBackdropObserver(), 180);
+      };
+      window.addEventListener('resize', this.resizeBackdropListener, { passive: true });
+    });
+  }
+
+  ngOnDestroy(): void {
+    if (this.resizeBackdropListener) {
+      window.removeEventListener('resize', this.resizeBackdropListener);
+      this.resizeBackdropListener = undefined;
+    }
+    if (this.resizeBackdropTimer) {
+      clearTimeout(this.resizeBackdropTimer);
+      this.resizeBackdropTimer = undefined;
+    }
+    this.headerIntersectionObserver?.disconnect();
+    this.headerIntersectionObserver = undefined;
+  }
+
+  /**
+   * Giống Thông báo: khi khối tiêu đề không còn giao viewport dưới header site, bật lớp nền che.
+   */
+  private setupPrescriptionsHeaderBackdropObserver(): void {
+    const el = this.prescriptionsHeaderRef?.nativeElement;
+    if (!el || typeof IntersectionObserver === 'undefined') return;
+
+    const accountHost = el.closest('app-account');
+    const raw = accountHost
+      ? getComputedStyle(accountHost).getPropertyValue('--vc-account-sidebar-sticky-top').trim()
+      : '';
+    const parsed = parseInt(raw.replace('px', ''), 10);
+    const insetPx = Number.isFinite(parsed) && parsed > 0 ? parsed : 164;
+
+    this.headerIntersectionObserver?.disconnect();
+    this.headerIntersectionObserver = new IntersectionObserver(
+      (entries) => {
+        const e = entries[0];
+        this.stickyTabBackdrop = !e?.isIntersecting;
+        this.cdr.markForCheck();
+      },
+      { root: null, rootMargin: `-${insetPx}px 0px 0px 0px`, threshold: 0 },
+    );
+    this.headerIntersectionObserver.observe(el);
   }
 
   fetchPrescriptions(userId: string): void {

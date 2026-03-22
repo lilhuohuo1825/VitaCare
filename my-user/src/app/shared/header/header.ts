@@ -23,7 +23,8 @@ import { NoticeService } from '../../core/services/notice.service';
 import { ReminderService } from '../../core/services/reminder.service';
 import { ReminderBadgeService } from '../../core/services/reminder-badge.service';
 import { BlogPopupService } from '../../core/services/blog-popup.service';
-import type { NoticeItem } from '../../features/accounts/notice/notice';
+import { isHelpfulLikeNotice, type NoticeItem } from '../../features/accounts/notice/notice';
+import { HOME_URL } from '../../core/constants/navigation.constants';
 import { getLocalIcon } from './header-icons';
 
 @Component({
@@ -47,6 +48,9 @@ export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
   private reminderBadgeService = inject(ReminderBadgeService);
   private blogPopupService = inject(BlogPopupService);
   private notificationPopupsScheduled = false;
+
+  /** Dropdown chuông: nhận diện thông báo "Hữu ích" (template). */
+  readonly bellHelpfulLikeNotice = isHelpfulLikeNotice;
 
   search_value = '';
   cart_count = 0;
@@ -851,11 +855,14 @@ export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
     const title = n.title || '';
     const message = n.message || '';
 
+    if (isHelpfulLikeNotice(n)) return 'bi-hand-thumbs-up-fill';
     if (n.type === 'medication_reminder') return 'bi-alarm-fill';
     if (n.type === 'prescription_created') return 'bi-capsule-pill';
     if (n.type === 'prescription_updated') return 'bi-file-earmark-medical';
+    if (n.type === 'review_reply') return 'bi-chat-dots-fill';
     if (n.type === 'qa_reply') return 'bi-chat-left-quote-fill';
-    if (n.type === 'qa_submitted' || n.linkLabel === 'Xem phản hồi') return 'bi-chat-left-text-fill';
+    if (n.type === 'qa_submitted' || n.linkLabel === 'Xem phản hồi')
+      return 'bi-chat-left-text-fill';
     if (n.type === 'order_updated' && (title.includes('Câu hỏi') || message.includes('câu hỏi'))) return 'bi-question-circle-fill';
     if (n.type === 'order_updated' && (title.includes('Đánh giá') || n.linkLabel === 'Xem đánh giá')) return 'bi-chat-dots';
     if (n.type === 'order_updated' && (title.includes('đang được giao') || message.includes('đang trên đường'))) return 'bi-truck';
@@ -870,9 +877,12 @@ export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
     const title = n.title || '';
     const message = n.message || '';
 
+    if (isHelpfulLikeNotice(n)) return 'vc_notify_icon--helpful';
     if (n.type === 'medication_reminder') return 'vc_notify_icon--remind';
     if (n.type === 'prescription_created' || n.type === 'prescription_updated') return 'vc_notify_icon--prescription';
-    if (n.type === 'qa_reply' || n.type === 'qa_submitted' || n.linkLabel === 'Xem phản hồi') return 'vc_notify_icon--qa';
+    if (n.type === 'review_reply') return 'vc_notify_icon--evaluation';
+    if (n.type === 'qa_reply' || n.type === 'qa_submitted' || n.linkLabel === 'Xem phản hồi')
+      return 'vc_notify_icon--qa';
     if (n.type === 'order_updated' && (title.includes('Câu hỏi') || message.includes('câu hỏi'))) return 'vc_notify_icon--qa';
     if (n.type === 'order_updated' && (title.includes('Đánh giá') || n.linkLabel === 'Xem đánh giá')) return 'vc_notify_icon--evaluation';
     if (n.type === 'order_updated' && (title.includes('đang được giao') || message.includes('đang trên đường'))) return 'vc_notify_icon--order-delivering';
@@ -1532,7 +1542,7 @@ export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  goHome(e: Event): void { e.preventDefault(); this.router.navigate(['/']); }
+  goHome(e: Event): void { e.preventDefault(); this.router.navigate([HOME_URL]); }
 
   onMouseEnter(category: string): void {
     if (this.menuTimeout) clearTimeout(this.menuTimeout);

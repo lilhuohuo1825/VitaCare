@@ -13,12 +13,18 @@
   box-sizing: border-box;
 }
 
+html {
+  overflow-x: clip;
+  max-width: 100%;
+}
+
 body {
   font-family: 'Arimo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background-color: #E5EEF8 !important;
   background-image: none !important;
   color: #424242;
   line-height: 1.6;
+  overflow-x: clip;
 }
 
 h1,
@@ -227,6 +233,9 @@ h6 {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: clip;
   background-color: #E5EEF8 !important;
 }
 
@@ -247,6 +256,9 @@ body.vitacare-order-page .app-layout {
 .app-main {
   flex: 1;
   min-height: 0;
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: clip;
   position: relative;
 }
 
@@ -266,6 +278,8 @@ body.vitacare-order-page .app-layout {
   background-color: #E5EEF8 !important;
   background-image: none !important;
   isolation: isolate;
+  overflow-x: clip;
+  max-width: 100%;
 }
 
 /* Đồng nhất nền - loại bỏ mọi background ẩn từ thư viện */

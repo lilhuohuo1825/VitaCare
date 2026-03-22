@@ -1,5 +1,6 @@
 import { Injectable, signal, inject } from '@angular/core';
 import { Router } from '@angular/router';
+import { HOME_URL } from '../constants/navigation.constants';
 
 const STORAGE_KEY = 'vitacare_user';
 
@@ -74,7 +75,7 @@ export class AuthService {
   confirmLogout(): void {
     this.showLogoutConfirm.set(false);
     this.doLogout();
-    this.router.navigate(['/']);
+    this.router.navigate([HOME_URL]);
   }
 
   openAuthModal(): void {

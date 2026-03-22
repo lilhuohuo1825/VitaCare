@@ -1,4 +1,13 @@
-import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+  inject,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { finalize } from 'rxjs/operators';
@@ -14,7 +23,8 @@ export type NoticeType =
   | 'health_check'
   | 'medication_reminder'
   | 'qa_reply'
-  | 'qa_submitted';
+  | 'qa_submitted'
+  | 'review_reply';
 
 export interface NoticeItem {
   id: string;
@@ -30,6 +40,17 @@ export interface NoticeItem {
   link?: string;
   linkLabel?: string;
   meta?: string;
+  /** Tên hiển thị (sản phẩm / bệnh / bài) thay cho slug–SKU trong UI. */
+  meta_label?: string;
+  /** Phân loại hiển thị: ví dụ `helpful_like` = đánh dấu hữu ích (icon/tag riêng). */
+  noticeTag?: string;
+}
+
+/** Thông báo do người khác bấm "Hữu ích" (đánh giá / hỏi đáp). Có `noticeTag` hoặc nhận diện theo nội dung (dữ liệu cũ). */
+export function isHelpfulLikeNotice(item: Pick<NoticeItem, 'noticeTag' | 'message'>): boolean {
+  if (item.noticeTag === 'helpful_like') return true;
+  const m = String(item.message || '');
+  return m.includes('đánh dấu') && m.includes('hữu ích');
 }
 
 export type NoticeTabId = 'all' | 'orders' | 'prescriptions' | 'reminders' | 'qa';
@@ -41,13 +62,27 @@ export type NoticeTabId = 'all' | 'orders' | 'prescriptions' | 'reminders' | 'qa
   templateUrl: './notice.html',
   styleUrl: './notice.css',
 })
-export class Notice implements OnInit, OnDestroy {
+export class Notice implements OnInit, AfterViewInit, OnDestroy {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private authService = inject(AuthService);
   private reminderService = inject(ReminderService);
   private noticeService = inject(NoticeService);
   private cdr = inject(ChangeDetectorRef);
+
+  /** Dùng trong template (tag + icon). */
+  readonly isHelpfulLikeNotice = isHelpfulLikeNotice;
+
+  @ViewChild('noticeStickySentinel', { read: ElementRef }) noticeStickySentinelRef?: ElementRef<HTMLElement>;
+
+  /** Bật lớp nền + gradient khi khối neo đã dính (sentinel ra khỏi viewport). */
+  stickyTabBackdrop = false;
+
+  private noticeStickyIntersectionObserver?: IntersectionObserver;
+
+  private resizeBackdropListener?: () => void;
+
+  private resizeBackdropTimer?: ReturnType<typeof setTimeout>;
 
   list: NoticeItem[] = [];
   activeTab: NoticeTabId = 'all';
@@ -127,6 +162,11 @@ export class Notice implements OnInit, OnDestroy {
       iconClass: 'notice-icon-qa',
       label: 'Hỏi đáp',
     },
+    review_reply: {
+      icon: 'bi-chat-dots-fill',
+      iconClass: 'notice-icon-qa',
+      label: 'Hỏi đáp',
+    },
   };
 
   ngOnInit(): void {
@@ -146,11 +186,56 @@ export class Notice implements OnInit, OnDestroy {
     this.startPolling();
   }
 
+  ngAfterViewInit(): void {
+    queueMicrotask(() => {
+      this.setupNoticeStickyBackdropObserver();
+      this.resizeBackdropListener = () => {
+        if (this.resizeBackdropTimer) clearTimeout(this.resizeBackdropTimer);
+        this.resizeBackdropTimer = setTimeout(() => this.setupNoticeStickyBackdropObserver(), 180);
+      };
+      window.addEventListener('resize', this.resizeBackdropListener, { passive: true });
+    });
+  }
+
   ngOnDestroy(): void {
+    if (this.resizeBackdropListener) {
+      window.removeEventListener('resize', this.resizeBackdropListener);
+      this.resizeBackdropListener = undefined;
+    }
+    if (this.resizeBackdropTimer) {
+      clearTimeout(this.resizeBackdropTimer);
+      this.resizeBackdropTimer = undefined;
+    }
+    this.noticeStickyIntersectionObserver?.disconnect();
+    this.noticeStickyIntersectionObserver = undefined;
     if (this.pollHandle) {
       clearInterval(this.pollHandle);
       this.pollHandle = null;
     }
+  }
+
+  /** Giống Đơn hàng: sentinel trước khối neo — khi không còn intersect → bật backdrop + gradient. */
+  private setupNoticeStickyBackdropObserver(): void {
+    const el = this.noticeStickySentinelRef?.nativeElement;
+    if (!el || typeof IntersectionObserver === 'undefined') return;
+
+    const accountHost = el.closest('app-account');
+    const raw = accountHost
+      ? getComputedStyle(accountHost).getPropertyValue('--vc-account-sidebar-sticky-top').trim()
+      : '';
+    const parsed = parseInt(raw.replace('px', ''), 10);
+    const insetPx = Number.isFinite(parsed) && parsed > 0 ? parsed : 164;
+
+    this.noticeStickyIntersectionObserver?.disconnect();
+    this.noticeStickyIntersectionObserver = new IntersectionObserver(
+      (entries) => {
+        const e = entries[0];
+        this.stickyTabBackdrop = !e?.isIntersecting;
+        this.cdr.markForCheck();
+      },
+      { root: null, rootMargin: `-${insetPx}px 0px 0px 0px`, threshold: 0 },
+    );
+    this.noticeStickyIntersectionObserver.observe(el);
   }
 
   private startPolling(): void {
@@ -164,10 +249,46 @@ export class Notice implements OnInit, OnDestroy {
   }
 
   /**
+   * Dòng phụ trên thẻ thông báo: ưu tiên tên hiển thị, không dùng slug/đường dẫn CMS.
+   * Bản ghi cũ không có `meta_label` thì cố parse từ `message` (nội dung trong ngoặc kép).
+   */
+  noticeMetaDisplay(item: NoticeItem): string {
+    const fromLabel = String(item.meta_label || '').trim();
+    if (fromLabel) return fromLabel;
+
+    const msg = String(item.message || '');
+    const patterns = [
+      /đánh giá của bạn về sản phẩm "([^"]+)"/i,
+      /về sản phẩm "([^"]+)"/i,
+      /về bệnh "([^"]+)"/i,
+      /về "([^"]+)"/i,
+    ];
+    for (const re of patterns) {
+      const m = msg.match(re);
+      if (m?.[1]) return m[1].trim();
+    }
+
+    const rawMeta = String(item.meta || '').trim();
+    if (this.isQaNotice(item) && (rawMeta.includes('benh/') || /\.html$/i.test(rawMeta))) {
+      return '';
+    }
+
+    return rawMeta;
+  }
+
+  /**
    * Icon/ màu cho từng item (đặc biệt: order_updated cần phân loại theo trạng thái).
    * Tránh việc dùng chung 1 icon cho mọi order_updated.
    */
   getItemConfig(item: NoticeItem) {
+    if (isHelpfulLikeNotice(item)) {
+      return {
+        icon: 'bi-hand-thumbs-up-fill',
+        iconClass: 'notice-icon-helpful',
+        label: 'Hữu ích',
+      };
+    }
+
     const titleLc = String(item.title || '').toLowerCase();
     const msgLc = String(item.message || '').toLowerCase();
 
@@ -390,6 +511,8 @@ export class Notice implements OnInit, OnDestroy {
   }
 
   isQaNotice(item: NoticeItem): boolean {
+    // Phản hồi đánh giá / hữu ích: cùng tab lọc "Hỏi đáp" với QA sản phẩm
+    if (item.type === 'review_reply') return true;
     if (item.type === 'qa_reply' || item.type === 'qa_submitted') return true;
     // Backend backward-compat: một số notice dùng type `order_updated` nhưng nội dung chứa "Câu hỏi"/"Đánh giá"
     if (item.type === 'order_updated') {
@@ -433,8 +556,64 @@ export class Notice implements OnInit, OnDestroy {
     });
   }
 
+  /**
+   * Hỏi đáp trên trang chi tiết bệnh: link dạng /benh/:id hoặc meta CMS (benh/...html).
+   * Phải xử lý trước nhánh /product vì meta bệnh không phải SKU sản phẩm.
+   */
+  private extractDiseaseSlugFromConsultationMeta(meta: string): string | null {
+    const raw = String(meta || '').trim();
+    if (!raw) return null;
+    const lower = raw.toLowerCase();
+    if (!lower.includes('benh/') && !lower.endsWith('.html')) return null;
+    let clean = raw;
+    if (lower.startsWith('benh/')) clean = clean.slice(5);
+    clean = clean.replace(/\.html$/i, '');
+    const parts = clean.split('/').filter(Boolean);
+    const seg = parts.length ? parts[parts.length - 1] : clean;
+    return seg || null;
+  }
+
+  private navigateDiseaseConsultationNotice(item: NoticeItem): boolean {
+    if (!this.isQaNotice(item)) return false;
+
+    const pathOnly = String(item.link || '').trim().split(/[?#]/)[0];
+    const pathMatch = pathOnly.match(/^\/(benh|disease)\/(.+)$/);
+    if (pathMatch) {
+      const base = pathMatch[1];
+      const id = decodeURIComponent(pathMatch[2]);
+      this.router.navigate([`/${base}`, id], { queryParams: { scrollTo: 'consultation' } });
+      return true;
+    }
+
+    const slug = this.extractDiseaseSlugFromConsultationMeta(String(item.meta || ''));
+    if (!slug) return false;
+
+    const legacyAccount =
+      pathOnly === '/account' || item.linkLabel === 'Xem thông báo';
+    const looksDiseaseCopy =
+      String(item.message || '').includes(' về bệnh') ||
+      String(item.title || '').toLowerCase().includes('bệnh');
+
+    if (legacyAccount || looksDiseaseCopy) {
+      this.router.navigate(['/benh', slug], { queryParams: { scrollTo: 'consultation' } });
+      return true;
+    }
+
+    return false;
+  }
+
   goToLink(item: NoticeItem): void {
     this.markAsRead(item);
+
+    if (this.navigateDiseaseConsultationNotice(item)) {
+      return;
+    }
+
+    // Phản hồi trên đánh giá của người khác → mở tab đánh giá sản phẩm
+    if (item.type === 'review_reply' && item.meta) {
+      this.router.navigate(['/product', item.meta], { queryParams: { scrollTo: 'reviews' } });
+      return;
+    }
 
     // 1) Đánh giá: điều hướng sang trang chi tiết sản phẩm + scroll tới phần review
     if (

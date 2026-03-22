@@ -66,6 +66,7 @@ const ProductGroup = mongoose.model('product_groups', genericSchema, 'product_gr
 const Pharmacist = mongoose.model('pharmacists', genericSchema, 'pharmacists');
 const ConsultationProductModel = mongoose.model('admin_consultations_product', genericSchema, 'consultations_product');
 const ConsultationDiseaseModel = mongoose.model('admin_consultations_disease', genericSchema, 'consultations_disease');
+const DiseaseArticleRatingModel = mongoose.model('disease_article_ratings_doc', genericSchema, 'disease_article_ratings');
 const ConsultationPrescriptionModel = mongoose.model('admin_consultations_prescription', genericSchema, 'consultations_prescription');
 const ReviewModel = mongoose.model('admin_reviews', genericSchema, 'reviews');
 const DiseaseModel = mongoose.model('admin_diseases', genericSchema, 'benh');
@@ -197,7 +198,25 @@ const addressesCollection = () => mongoose.connection.db.collection('addresses')
 const healthprofilesCollection = () => mongoose.connection.db.collection('healthprofiles');
 const healthProfilesCollection = () => mongoose.connection.db.collection('healthProfiles'); // New, camelCase version
 const quizCollection = () => mongoose.connection.db.collection('quiz'); // New
-const resultsCollection = () => mongoose.connection.db.collection('results'); // New
+/** Cấu hình logic / ngưỡng kết quả bài test (disease_id, results[], logic_type) — đọc cho GET /api/quizzes */
+const resultsCollection = () => mongoose.connection.db.collection('results');
+/** Lượt làm bài test đã lưu của user (user_id, quiz_id, điểm, tiêu đề…) — tách khỏi `results` cấu hình */
+const USERS_RESULT_TEST_COLLECTION_NAME = 'users_result_test';
+const usersResultTestCollection = () => mongoose.connection.db.collection(USERS_RESULT_TEST_COLLECTION_NAME);
+
+let usersResultTestCollectionEnsured = false;
+
+/** Tạo collection `users_result_test` nếu chưa có (gọi trước insert khi user hoàn thành bài test). */
+async function ensureUsersResultTestCollection() {
+  if (usersResultTestCollectionEnsured) return;
+  const db = mongoose.connection.db;
+  const existing = await db.listCollections({ name: USERS_RESULT_TEST_COLLECTION_NAME }).toArray();
+  if (existing.length === 0) {
+    await db.createCollection(USERS_RESULT_TEST_COLLECTION_NAME);
+  }
+  usersResultTestCollectionEnsured = true;
+}
+
 const locationsCollection = () => mongoose.connection.db.collection('tree_complete');
 const ordersCollection = () => mongoose.connection.db.collection('orders');
 const noticesCollection = () => mongoose.connection.db.collection('notice');
@@ -951,25 +970,94 @@ app.get('/api/stores', async (req, res) => {
 
 // ================= HEALTH TEST API =================
 
-// GET /api/quizzes - Lấy danh sách bài kiểm tra sức khỏe
+// GET /api/quizzes - Lấy danh sách bài kiểm tra sức khỏe (gộp logic phân tích từ collection `results` hoặc data/results.json — không phải lịch sử user)
 app.get('/api/quizzes', async (req, res) => {
   try {
-    const list = await quizCollection().find({}).toArray();
-    res.json(list);
+    const quizzes = await quizCollection().find({}).toArray();
+    let resultsDocs = [];
+    try {
+      resultsDocs = await resultsCollection().find({}).toArray();
+    } catch (e) {
+      console.warn('[GET /api/quizzes] Không đọc được collection results:', e);
+    }
+    let resultsFromFile = [];
+    const resultsPath = path.join(__dirname, '../data/results.json');
+    if (fs.existsSync(resultsPath)) {
+      try {
+        resultsFromFile = JSON.parse(fs.readFileSync(resultsPath, 'utf8'));
+        if (!Array.isArray(resultsFromFile)) resultsFromFile = [];
+      } catch (e) {
+        console.warn('[GET /api/quizzes] results.json không hợp lệ:', e);
+      }
+    }
+
+    const pickResultConfig = (quizId) => {
+      const fromDb = resultsDocs.find(
+        (r) =>
+          r &&
+          r.disease_id === quizId &&
+          Array.isArray(r.results) &&
+          r.results.length > 0
+      );
+      if (fromDb) {
+        return {
+          results: fromDb.results,
+          logic_type: fromDb.logic_type
+        };
+      }
+      const fromFile = resultsFromFile.find(
+        (r) =>
+          r &&
+          r.disease_id === quizId &&
+          Array.isArray(r.results) &&
+          r.results.length > 0
+      );
+      if (fromFile) {
+        return {
+          results: fromFile.results,
+          logic_type: fromFile.logic_type
+        };
+      }
+      return null;
+    };
+
+    const mergedQuizzes = quizzes.map((quiz) => {
+      const cfg = pickResultConfig(quiz.quiz_id);
+      if (!cfg) return quiz;
+      return { ...quiz, results: cfg.results, logic_type: cfg.logic_type };
+    });
+
+    res.json(mergedQuizzes);
   } catch (err) {
     console.error('[GET /api/quizzes] Error:', err);
     res.status(500).json({ success: false, message: 'Lỗi lấy danh sách bài thi.' });
   }
 });
 
-// POST /api/quiz-results - Lưu kết quả kiểm tra
+// POST /api/quiz-results — Lưu một lượt làm bài vào `users_result_test` (không ghi vào `results` — collection đó dành cho cấu hình phân tích)
 app.post('/api/quiz-results', async (req, res) => {
   try {
+    const uid = String(req.body.user_id || '').trim();
+    if (!uid || uid === 'guest') {
+      return res.json({ success: true, skipped: true, message: 'Không lưu lịch sử cho khách vãng lai.' });
+    }
+    const quiz_id = String(req.body.quiz_id || '').trim();
+    const score = Number(req.body.score) || 0;
     const resultDoc = {
-      ...req.body,
+      user_id: uid,
+      quiz_id,
+      score,
+      result_id: String(req.body.result_id || ''),
+      result_title: String(req.body.result_title || ''),
+      result_badge: String(req.body.result_badge || ''),
+      recommendation: String(req.body.recommendation || ''),
+      name: String(req.body.name || ''),
+      province: String(req.body.province || ''),
+      phone: String(req.body.phone || ''),
       createdAt: new Date().toISOString()
     };
-    await resultsCollection().insertOne(resultDoc);
+    await ensureUsersResultTestCollection();
+    await usersResultTestCollection().insertOne(resultDoc);
     res.json({ success: true, message: 'Đã lưu kết quả thành công.' });
   } catch (err) {
     console.error('[POST /api/quiz-results] Error:', err);
@@ -977,15 +1065,48 @@ app.post('/api/quiz-results', async (req, res) => {
   }
 });
 
-// GET /api/quiz-history/:quiz_id - Lấy lịch sử kết quả của bài thi
+/** Gộp lịch sử từ users_result_test và (tùy chọn) bản ghi cũ nhầm lưu trong `results` có user_id + quiz_id */
+async function getQuizHistoryMerged(quiz_id, user_id, limit = 50) {
+  const sort = { createdAt: -1, _id: -1 };
+  const [fromDedicated, fromLegacyResults] = await Promise.all([
+    usersResultTestCollection().find({ quiz_id, user_id }).sort(sort).limit(limit).toArray(),
+    // Bản ghi cũ (nhầm) từng insert vào `results`: có cả quiz_id + user_id; doc cấu hình chỉ có disease_id
+    resultsCollection()
+      .find({ quiz_id, user_id })
+      .sort(sort)
+      .limit(limit)
+      .toArray()
+  ]);
+  const seen = new Set();
+  const merged = [];
+  const pushDedup = (doc) => {
+    const key = doc && doc._id != null ? String(doc._id) : null;
+    if (key && seen.has(key)) return;
+    if (key) seen.add(key);
+    merged.push(doc);
+  };
+  for (const d of fromDedicated) pushDedup(d);
+  for (const d of fromLegacyResults) pushDedup(d);
+  merged.sort((a, b) => {
+    const ta = new Date(a.createdAt || a.created_at || 0).getTime();
+    const tb = new Date(b.createdAt || b.created_at || 0).getTime();
+    if (tb !== ta) return tb - ta;
+    const ida = a._id && String(a._id);
+    const idb = b._id && String(b._id);
+    return idb.localeCompare(ida);
+  });
+  return merged.slice(0, limit);
+}
+
+// GET /api/quiz-history/:quiz_id?user_id= — Lịch sử theo user + bài test (bắt buộc user_id)
 app.get('/api/quiz-history/:quiz_id', async (req, res) => {
   try {
-    const { quiz_id } = req.params;
-    const history = await resultsCollection()
-      .find({ quiz_id })
-      .sort({ _id: -1 })
-      .limit(20)
-      .toArray();
+    const quiz_id = String(req.params.quiz_id || '').trim();
+    const user_id = String(req.query.user_id || '').trim();
+    if (!user_id) {
+      return res.status(400).json({ success: false, message: 'Thiếu user_id.' });
+    }
+    const history = await getQuizHistoryMerged(quiz_id, user_id, 50);
     res.json(history);
   } catch (err) {
     console.error('[GET /api/quiz-history] Error:', err);
@@ -1198,11 +1319,13 @@ app.post('/api/orders', async (req, res) => {
       updatedAt: now,
     };
 
-    // Nếu user dùng Vita Xu ở trang đặt hàng thì reset/xoá dữ liệu xu cũ trong users_memory.coins
+    // Vita Xu: trừ số dư + prepend history; giữ lastCompletedDate / currentStreak.
+    // Dùng pipeline $concatArrays để không ghi đè nhầm history; chuẩn hoá history nếu DB lưu object thay vì array.
     if (uid) {
+      const uidNorm = String(uid).trim();
       const xuToUse = Math.max(0, Math.floor(Number(vitaXuDiscount) || 0));
       if (xuToUse > 0) {
-        const memoryUser = await usersMemoryCollection().findOne({ user_id: uid });
+        const memoryUser = await usersMemoryCollection().findOne({ user_id: uidNorm });
         const coins = memoryUser?.coins || { balance: 0, lastCompletedDate: null, currentStreak: 0, history: [] };
         const currentBalance = Number(coins.balance) || 0;
         if (currentBalance < xuToUse) {
@@ -1212,19 +1335,71 @@ app.post('/api/orders', async (req, res) => {
           });
         }
 
-        // Theo yêu cầu hiện tại: đã dùng Vita Xu thì xoá dữ liệu xu cũ để bắt đầu chu kỳ tích xu mới.
-        const newCoins = {
-          balance: 0,
-          lastCompletedDate: null,
-          currentStreak: 0,
-          history: []
+        let prevHistory = [];
+        if (Array.isArray(coins.history)) prevHistory = coins.history;
+        else if (coins.history && typeof coins.history === 'object') prevHistory = Object.values(coins.history);
+
+        const newBalance = Math.max(0, currentBalance - xuToUse);
+        const spendDateKey = `vita-xu-order-${orderId}`;
+        const spendEntry = {
+          amount: -xuToUse,
+          reason: `Sử dụng Vita Xu cho đơn hàng ${orderId}`,
+          date: new Date().toISOString(),
+          dateKey: spendDateKey,
         };
 
-        await usersMemoryCollection().updateOne(
-          { user_id: uid },
-          { $set: { user_id: uid, coins: newCoins, updatedAt: new Date() } },
-          { upsert: true }
-        );
+        try {
+          await usersMemoryCollection().updateOne(
+            { user_id: uidNorm },
+            [
+              {
+                $set: {
+                  user_id: uidNorm,
+                  updatedAt: new Date(),
+                  coins: {
+                    $let: {
+                      vars: {
+                        c: { $ifNull: ['$coins', { balance: 0, lastCompletedDate: null, currentStreak: 0, history: [] }] },
+                      },
+                      in: {
+                        balance: {
+                          $max: [
+                            { $subtract: [{ $toDouble: { $ifNull: ['$$c.balance', 0] } }, xuToUse] },
+                            0,
+                          ],
+                        },
+                        lastCompletedDate: { $ifNull: ['$$c.lastCompletedDate', null] },
+                        currentStreak: { $toInt: { $ifNull: ['$$c.currentStreak', 0] } },
+                        history: {
+                          $concatArrays: [
+                            [{ $literal: spendEntry }],
+                            {
+                              $cond: [{ $isArray: '$$c.history' }, '$$c.history', []],
+                            },
+                          ],
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            ],
+            { upsert: true }
+          );
+        } catch (e) {
+          console.warn('[POST /api/orders] Vita Xu pipeline fallback:', e?.message || e);
+          const newCoins = {
+            balance: newBalance,
+            lastCompletedDate: coins.lastCompletedDate != null ? coins.lastCompletedDate : null,
+            currentStreak: Math.max(0, Math.floor(Number(coins.currentStreak) || 0)),
+            history: [spendEntry, ...prevHistory],
+          };
+          await usersMemoryCollection().updateOne(
+            { user_id: uidNorm },
+            { $set: { user_id: uidNorm, coins: newCoins, updatedAt: new Date() } },
+            { upsert: true }
+          );
+        }
       }
     }
 
@@ -1525,6 +1700,8 @@ app.get('/api/notices', async (req, res) => {
       link: d.link,
       linkLabel: d.linkLabel,
       meta: d.meta,
+      meta_label: d.meta_label,
+      noticeTag: d.noticeTag,
     }));
     const now = new Date();
     let dueReminders = [];
@@ -1544,6 +1721,85 @@ app.get('/api/notices', async (req, res) => {
   } catch (err) {
     console.error('[GET /api/notices] Error:', err);
     res.status(500).json({ success: false, message: 'Lỗi máy chủ khi lấy thông báo.' });
+  }
+});
+
+/** Tên hiển thị khách (like): cố định theo id — "Khách vãng lai" + 3 chữ số */
+function guestHelpfulDisplayName(guestId) {
+  const s = String(guestId);
+  let h = 2166136261;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  const n = (h >>> 0) % 1000;
+  return `Khách vãng lai ${String(n).padStart(3, '0')}`;
+}
+
+// POST /api/users/display-names — map user_id → tên hiển thị (tooltip "Hữu ích")
+app.post('/api/users/display-names', async (req, res) => {
+  try {
+    let ids = req.body?.ids;
+    if (!Array.isArray(ids)) ids = [];
+    const unique = [...new Set(ids.map((x) => String(x || '').trim()).filter(Boolean))].slice(0, 100);
+    const names = {};
+    if (unique.length === 0) {
+      return res.json({ success: true, names });
+    }
+
+    const needDb = unique.filter((id) => !id.toLowerCase().startsWith('guest_'));
+    for (const id of unique) {
+      if (id.toLowerCase().startsWith('guest_')) {
+        names[id] = guestHelpfulDisplayName(id);
+      } else {
+        names[id] = 'Thành viên';
+      }
+    }
+
+    if (needDb.length === 0) {
+      return res.json({ success: true, names });
+    }
+
+    const objectIds = [];
+    for (const id of needDb) {
+      if (mongoose.Types.ObjectId.isValid(id)) {
+        try {
+          objectIds.push(new mongoose.Types.ObjectId(id));
+        } catch (_) {}
+      }
+    }
+
+    const orConds = [{ user_id: { $in: needDb } }];
+    if (objectIds.length) orConds.push({ _id: { $in: objectIds } });
+
+    const docs = await usersCollection()
+      .find({ $or: orConds })
+      .project({ user_id: 1, full_name: 1, fullname: 1 })
+      .toArray();
+
+    const resolveOne = (id) => {
+      const idStr = String(id);
+      const byUid = docs.find((d) => d.user_id != null && String(d.user_id) === idStr);
+      if (byUid) {
+        const n = String(byUid.full_name || byUid.fullname || '').trim();
+        return n || 'Thành viên';
+      }
+      const byOid = docs.find((d) => d._id != null && String(d._id) === idStr);
+      if (byOid) {
+        const n = String(byOid.full_name || byOid.fullname || '').trim();
+        return n || 'Thành viên';
+      }
+      return 'Thành viên';
+    };
+
+    for (const id of needDb) {
+      names[id] = resolveOne(id);
+    }
+
+    res.json({ success: true, names });
+  } catch (err) {
+    console.error('[POST /api/users/display-names] Error:', err);
+    res.status(500).json({ success: false, message: 'Lỗi máy chủ.' });
   }
 });
 
@@ -2519,50 +2775,6 @@ app.get('/api/store-locations/wards', async (req, res) => {
   } catch (err) {
     console.error('Get store wards error:', err);
     res.status(500).json({ success: false, message: 'Lỗi máy chủ khi lấy danh sách phường/xã có nhà thuốc.' });
-  }
-});
-
-// ========= QUIZ (Trắc nghiệm sức khỏe) =========
-// GET /api/quizzes - danh sách bộ câu hỏi
-app.get('/api/quizzes', async (req, res) => {
-  try {
-    const quizzes = await quizCollection().find({}).toArray();
-
-    // Gộp dữ liệu results vào quiz
-    let resultsData = [];
-    const resultsPath = path.join(__dirname, '../data/results.json');
-    if (fs.existsSync(resultsPath)) {
-      resultsData = JSON.parse(fs.readFileSync(resultsPath, 'utf8'));
-    }
-
-    const mergedQuizzes = quizzes.map(quiz => {
-      const match = resultsData.find(r => r.disease_id === quiz.quiz_id);
-      if (match && match.results) {
-        return { ...quiz, results: match.results };
-      }
-      return quiz;
-    });
-
-    res.json(mergedQuizzes);
-  } catch (err) {
-    console.error('[GET /api/quizzes] Error:', err);
-    res.status(500).json({ message: 'Lỗi khi lấy danh sách câu hỏi.' });
-  }
-});
-
-// POST /api/quiz-results - gửi kết quả trắc nghiệm
-app.post('/api/quiz-results', async (req, res) => {
-  try {
-    const newResult = {
-      ...req.body,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
-    const saved = await resultsCollection().insertOne(newResult);
-    res.status(201).json({ message: 'Đã lưu kết quả.', result: { ...newResult, _id: saved.insertedId } });
-  } catch (err) {
-    console.error('[POST /api/quiz-results] Error:', err);
-    res.status(500).json({ message: 'Lỗi khi lưu kết quả.' });
   }
 });
 
@@ -3836,6 +4048,96 @@ app.get('/api/product-faqs/:productId', async (req, res) => {
 });
 
 // ========= REVIEWS =========
+/** SKU trong DB có thể là string hoặc number — dùng chung khi find/update */
+function reviewsSkuFilter(skuStr) {
+  const s = String(skuStr || '').trim();
+  if (!s) return null;
+  const num = Number(s);
+  if (!isNaN(num) && String(num) === s) {
+    return { $or: [{ sku: s }, { sku: num }] };
+  }
+  return { sku: s };
+}
+
+function reviewIdEquals(stored, requestId) {
+  const req = String(requestId || '').trim();
+  if (!req || stored == null) return false;
+  const asStr = stored.toString ? stored.toString() : String(stored);
+  if (asStr === req) return true;
+  if (mongoose.Types.ObjectId.isValid(req)) {
+    try {
+      const want = new mongoose.Types.ObjectId(req);
+      if (stored && typeof stored.equals === 'function') return want.equals(stored);
+      if (mongoose.Types.ObjectId.isValid(asStr)) return want.equals(new mongoose.Types.ObjectId(asStr));
+    } catch (_) {}
+  }
+  return false;
+}
+
+/** Đơn đã giao / đã nhận — mới coi là mua thật để gắn nhãn "Mua: ..." */
+const REVIEW_PURCHASE_ORDER_STATUSES = new Set([
+  'delivered',
+  'unreview',
+  'reviewed',
+  'completed',
+  'received',
+]);
+
+/**
+ * Kiểm tra đơn thuộc customer, đã ở trạng thái cho phép đánh giá, và có SKU trong đơn.
+ * Trả về tên sản phẩm theo dòng trong đơn (productName).
+ */
+async function verifyOrderContainsSkuForReview(orderId, customerId, skuStr) {
+  const oid = String(orderId || '').trim();
+  const cid = String(customerId || '').trim();
+  const skuWant = String(skuStr || '').trim();
+  if (!oid || !cid || !skuWant) {
+    return { verified: false, purchased_product_name: null };
+  }
+
+  const order = await ordersCollection().findOne({ order_id: oid });
+  if (!order) {
+    return { verified: false, purchased_product_name: null };
+  }
+
+  const uid = String(order.user_id || order.userId || '').trim();
+  if (!uid || uid !== cid) {
+    return { verified: false, purchased_product_name: null };
+  }
+
+  const st = String(order.status || '').toLowerCase().trim();
+  if (!REVIEW_PURCHASE_ORDER_STATUSES.has(st)) {
+    return { verified: false, purchased_product_name: null };
+  }
+
+  const items = Array.isArray(order.item)
+    ? order.item
+    : Array.isArray(order.products)
+      ? order.products
+      : [];
+
+  const norm = (s) => String(s == null ? '' : s).trim();
+  const wantNum = Number(skuWant);
+  const wantIsNumeric = !Number.isNaN(wantNum) && String(wantNum) === skuWant;
+
+  const line = items.find((it) => {
+    const lineSku = norm(it.sku);
+    if (lineSku === skuWant) return true;
+    if (wantIsNumeric) {
+      const ln = Number(lineSku);
+      if (!Number.isNaN(ln) && ln === wantNum) return true;
+    }
+    return false;
+  });
+
+  if (!line) {
+    return { verified: false, purchased_product_name: null };
+  }
+
+  const pname = String(line.productName || line.name || '').trim();
+  return { verified: true, purchased_product_name: pname || null };
+}
+
 // GET /api/reviews/:sku - lấy danh sách đánh giá cho 1 SKU
 app.get('/api/reviews/:sku', async (req, res) => {
   try {
@@ -3844,11 +4146,40 @@ app.get('/api/reviews/:sku', async (req, res) => {
       return res.status(400).json({ success: false, message: 'Thiếu sku.' });
     }
 
-    const doc = await reviewsCollection().findOne({ sku });
+    const skuFilter = reviewsSkuFilter(sku);
+    const doc = skuFilter ? await reviewsCollection().findOne(skuFilter) : null;
     if (!doc) {
       return res.json({ sku, reviews: [] });
     }
-    res.json(doc);
+
+    const verifyCache = new Map();
+    const cacheKey = (oid, cid) => `${oid}|${cid}|${sku}`;
+    const getVerified = async (r) => {
+      if (r && r.verified_purchase) return r;
+      const oid = r && r.order_id != null ? String(r.order_id).trim() : '';
+      const cid = r && r.customer_id != null ? String(r.customer_id).trim() : '';
+      if (!oid || !cid) {
+        return { ...r, verified_purchase: false, purchased_product_name: null };
+      }
+      const key = cacheKey(oid, cid);
+      let v = verifyCache.get(key);
+      if (!v) {
+        v = await verifyOrderContainsSkuForReview(oid, cid, sku);
+        verifyCache.set(key, v);
+      }
+      if (v.verified) {
+        return {
+          ...r,
+          verified_purchase: true,
+          purchased_product_name: v.purchased_product_name || r.purchased_product_name || null,
+        };
+      }
+      return { ...r, verified_purchase: false, purchased_product_name: null };
+    };
+
+    const rawReviews = Array.isArray(doc.reviews) ? doc.reviews : [];
+    const reviews = await Promise.all(rawReviews.map((r) => getVerified(r)));
+    res.json({ ...doc, reviews });
   } catch (err) {
     console.error('[GET /api/reviews/:sku] Error:', err);
     res.status(500).json({ success: false, message: 'Lỗi máy chủ khi lấy đánh giá sản phẩm.' });
@@ -3884,15 +4215,34 @@ app.post('/api/reviews', async (req, res) => {
       (fullname && String(fullname).trim()) ||
       `Khách hàng vãng lai ${Math.floor(1000 + Math.random() * 9000)}`;
 
+    const cid = customer_id ? String(customer_id).trim() : '';
+    let orderIdStored = order_id ? String(order_id).trim() : '';
+    let verified_purchase = false;
+    let purchased_product_name = null;
+
+    if (orderIdStored && cid) {
+      const v = await verifyOrderContainsSkuForReview(orderIdStored, cid, skuStr);
+      if (v.verified) {
+        verified_purchase = true;
+        purchased_product_name = v.purchased_product_name;
+      } else {
+        orderIdStored = '';
+      }
+    } else {
+      orderIdStored = '';
+    }
+
     const entry = {
       _id: new mongoose.Types.ObjectId().toString(),
-      customer_id: customer_id ? String(customer_id).trim() : null,
+      customer_id: cid || null,
       fullname: safeName,
       avatar: avatar || '',
       content: content || '',
       rating: safeRating,
       time: time ? new Date(time) : new Date(),
-      order_id: order_id ? String(order_id).trim() : null,
+      order_id: orderIdStored || null,
+      verified_purchase,
+      purchased_product_name: verified_purchase ? purchased_product_name : null,
       images: Array.isArray(images) ? images : [],
       likes: [],
       replies: []
@@ -3915,13 +4265,12 @@ app.post('/api/reviews', async (req, res) => {
       );
     }
 
-    // Nếu có order_id, cập nhật trạng thái đơn hàng tương ứng sang "reviewed"
-    const orderIdStr = order_id ? String(order_id).trim() : '';
-    if (orderIdStr) {
+    // Chỉ khi đơn hợp lệ (đã mua SKU này) mới cập nhật trạng thái đơn sang "reviewed"
+    if (verified_purchase && orderIdStored) {
       try {
         const ocol = ordersCollection();
         await ocol.updateMany(
-          { order_id: orderIdStr },
+          { order_id: orderIdStored },
           {
             $set: {
               status: 'reviewed',
@@ -3950,6 +4299,7 @@ app.post('/api/reviews', async (req, res) => {
           link: '/account',
           linkLabel: 'Xem đánh giá',
           meta: skuStr,
+          meta_label: pName,
         });
       } catch (e) {
         console.warn('[POST /api/reviews] Cannot create notice:', e.message);
@@ -3964,7 +4314,7 @@ app.post('/api/reviews', async (req, res) => {
   }
 });
 
-// POST /api/reviews/reply - trả lời 1 đánh giá
+// POST /api/reviews/reply - trả lời 1 đánh giá (ghi vào reviews[].replies + has_replies / last_reply_at)
 app.post('/api/reviews/reply', async (req, res) => {
   try {
     const { sku, reviewId, content, fullname, isAdmin, avatar, userId } = req.body || {};
@@ -3978,33 +4328,94 @@ app.post('/api/reviews/reply', async (req, res) => {
     }
 
     const col = reviewsCollection();
-    const doc = await col.findOne({ sku: skuStr });
+    const skuFilter = reviewsSkuFilter(skuStr);
+    if (!skuFilter) {
+      return res.status(400).json({ success: false, message: 'Thiếu sku.' });
+    }
+
+    const doc = await col.findOne(skuFilter);
     if (!doc) {
       return res.status(404).json({ success: false, message: 'Không tìm thấy đánh giá.' });
     }
 
-    const review = (doc.reviews || []).find(r => r._id === reviewIdStr);
-    if (!review) {
+    const reviewsArr = Array.isArray(doc.reviews) ? [...doc.reviews] : [];
+    const idx = reviewsArr.findIndex((r) => reviewIdEquals(r._id, reviewIdStr));
+    if (idx === -1) {
       return res.status(404).json({ success: false, message: 'Không tìm thấy review.' });
     }
 
+    const review = reviewsArr[idx];
+
     const reply = {
       _id: new mongoose.Types.ObjectId().toString(),
-      user_id: userId || null, // Capture user_id
+      user_id: userId ? String(userId).trim() : null,
       fullname: (fullname && String(fullname).trim()) || 'Khách',
       avatar: avatar || '',
-      content: content,
+      content: String(content).trim(),
       is_admin: !!isAdmin,
       time: new Date(),
-      likes: []
+      likes: [],
+      parent_review_id: String(review._id != null ? review._id : reviewIdStr),
     };
 
-    await col.updateOne(
-      { sku: skuStr, 'reviews._id': reviewIdStr },
-      { $push: { 'reviews.$.replies': reply }, $set: { updatedAt: new Date() } }
-    );
+    const prevReplies = Array.isArray(review.replies) ? review.replies : [];
+    const updatedReview = {
+      ...review,
+      replies: [...prevReplies, reply],
+      has_replies: true,
+      last_reply_at: new Date().toISOString(),
+    };
+    reviewsArr[idx] = updatedReview;
 
-    const updated = await col.findOne({ sku: skuStr });
+    await col.updateOne(skuFilter, {
+      $set: {
+        reviews: reviewsArr,
+        updatedAt: new Date(),
+      },
+    });
+
+    // Thông báo cho chủ đánh giá khi người khác trả lời (không gửi nếu tự trả lời / khách không có customer_id)
+    try {
+      const reviewAuthorId = review.customer_id ? String(review.customer_id).trim() : '';
+      const replierId = userId ? String(userId).trim() : '';
+      const replierName = (fullname && String(fullname).trim()) || 'Người dùng';
+      if (
+        reviewAuthorId &&
+        replierId &&
+        reviewAuthorId.toLowerCase() !== replierId.toLowerCase()
+      ) {
+        let productName = skuStr;
+        try {
+          const numSku = Number(skuStr);
+          const pFilter =
+            !isNaN(numSku) && String(numSku) === String(skuStr).trim()
+              ? { $or: [{ sku: skuStr }, { sku: numSku }] }
+              : { sku: skuStr };
+          const pdoc = await productsCollection().findOne(pFilter, {
+            projection: { name: 1, product_name: 1, productName: 1 },
+          });
+          if (pdoc) {
+            productName = pdoc.name || pdoc.product_name || pdoc.productName || productName;
+          }
+        } catch (_) {}
+        await noticesCollection().insertOne({
+          user_id: reviewAuthorId,
+          type: 'review_reply',
+          title: 'Có phản hồi cho đánh giá của bạn',
+          message: `${replierName} đã trả lời đánh giá của bạn về sản phẩm "${productName}".`,
+          createdAt: new Date().toISOString(),
+          read: false,
+          link: `/product/${skuStr}`,
+          linkLabel: 'Xem phản hồi',
+          meta: skuStr,
+          meta_label: productName,
+        });
+      }
+    } catch (e) {
+      console.warn('[POST /api/reviews/reply] Cannot create notice:', e.message);
+    }
+
+    const updated = await col.findOne(skuFilter);
     res.json(updated);
   } catch (err) {
     console.error('[POST /api/reviews/reply] Error:', err);
@@ -4146,30 +4557,89 @@ app.post('/api/reviews/like', async (req, res) => {
     }
 
     const col = reviewsCollection();
-    const doc = await col.findOne({ sku: skuStr });
+    const skuFilter = reviewsSkuFilter(skuStr);
+    if (!skuFilter) {
+      return res.status(400).json({ success: false, message: 'Thiếu sku.' });
+    }
+
+    const doc = await col.findOne(skuFilter);
     if (!doc) {
       return res.status(404).json({ success: false, message: 'Không tìm thấy đánh giá.' });
     }
 
-    const review = (doc.reviews || []).find(r => r._id === reviewIdStr);
-    if (!review) {
+    const reviewsArr = Array.isArray(doc.reviews) ? [...doc.reviews] : [];
+    const ridx = reviewsArr.findIndex((r) => reviewIdEquals(r._id, reviewIdStr));
+    if (ridx === -1) {
       return res.status(404).json({ success: false, message: 'Không tìm thấy review.' });
     }
 
+    const review = reviewsArr[ridx];
     const likes = Array.isArray(review.likes) ? [...review.likes] : [];
-    const idx = likes.indexOf(userIdStr);
+    const likeIdStr = (id) =>
+      id && typeof id === 'object' && id.$oid ? String(id.$oid) : String(id || '');
+    const idx = likes.findIndex((id) => likeIdStr(id) === userIdStr);
+    const addingLike = idx === -1;
     if (idx > -1) {
       likes.splice(idx, 1);
     } else {
       likes.push(userIdStr);
     }
+    reviewsArr[ridx] = { ...review, likes };
 
-    await col.updateOne(
-      { sku: skuStr, 'reviews._id': reviewIdStr },
-      { $set: { 'reviews.$.likes': likes, updatedAt: new Date() } }
-    );
+    await col.updateOne(skuFilter, {
+      $set: { reviews: reviewsArr, updatedAt: new Date() },
+    });
 
-    const updated = await col.findOne({ sku: skuStr });
+    if (addingLike) {
+      try {
+        const reviewAuthorId = review.customer_id ? String(review.customer_id).trim() : '';
+        if (
+          reviewAuthorId &&
+          reviewAuthorId.toLowerCase() !== userIdStr.toLowerCase()
+        ) {
+          let likerName = 'Người dùng';
+          try {
+            const userDoc = await usersCollection().findOne({ $or: [{ user_id: userIdStr }, { _id: userIdStr }] });
+            if (userDoc && (userDoc.full_name || userDoc.fullname)) {
+              likerName = String(userDoc.full_name || userDoc.fullname).trim() || likerName;
+            }
+          } catch (_) {}
+
+          let productName = skuStr;
+          try {
+            const numSku = Number(skuStr);
+            const pFilter =
+              !isNaN(numSku) && String(numSku) === String(skuStr).trim()
+                ? { $or: [{ sku: skuStr }, { sku: numSku }] }
+                : { sku: skuStr };
+            const pdoc = await productsCollection().findOne(pFilter, {
+              projection: { name: 1, product_name: 1, productName: 1 },
+            });
+            if (pdoc) {
+              productName = pdoc.name || pdoc.product_name || pdoc.productName || productName;
+            }
+          } catch (_) {}
+
+          await noticesCollection().insertOne({
+            user_id: reviewAuthorId,
+            type: 'review_reply',
+            noticeTag: 'helpful_like',
+            title: 'Có phản hồi cho đánh giá của bạn',
+            message: `${likerName} đánh dấu đánh giá của bạn là hữu ích về sản phẩm "${productName}".`,
+            createdAt: new Date().toISOString(),
+            read: false,
+            link: `/product/${skuStr}`,
+            linkLabel: 'Xem phản hồi',
+            meta: skuStr,
+            meta_label: productName,
+          });
+        }
+      } catch (e) {
+        console.warn('[POST /api/reviews/like] Cannot create notice:', e.message);
+      }
+    }
+
+    const updated = await col.findOne(skuFilter);
     res.json(updated);
   } catch (err) {
     console.error('[POST /api/reviews/like] Error:', err);
@@ -4191,36 +4661,97 @@ app.post('/api/reviews/reply/like', async (req, res) => {
     }
 
     const col = reviewsCollection();
-    const doc = await col.findOne({ sku: skuStr });
+    const skuFilter = reviewsSkuFilter(skuStr);
+    if (!skuFilter) {
+      return res.status(400).json({ success: false, message: 'Thiếu sku.' });
+    }
+
+    const doc = await col.findOne(skuFilter);
     if (!doc) {
       return res.status(404).json({ success: false, message: 'Không tìm thấy sản phẩm.' });
     }
 
-    const review = (doc.reviews || []).find(r => r._id === reviewIdStr);
-    if (!review) {
+    const reviewsArr = Array.isArray(doc.reviews) ? [...doc.reviews] : [];
+    const ridx = reviewsArr.findIndex((r) => reviewIdEquals(r._id, reviewIdStr));
+    if (ridx === -1) {
       return res.status(404).json({ success: false, message: 'Không tìm thấy đánh giá.' });
     }
 
-    const reply = (review.replies || []).find(rep => rep._id === replyIdStr);
-    if (!reply) {
+    const review = reviewsArr[ridx];
+    const replies = Array.isArray(review.replies) ? [...review.replies] : [];
+    const repIdx = replies.findIndex((rep) => reviewIdEquals(rep._id, replyIdStr));
+    if (repIdx === -1) {
       return res.status(404).json({ success: false, message: 'Không tìm thấy phản hồi.' });
     }
 
+    const reply = replies[repIdx];
     const likes = Array.isArray(reply.likes) ? [...reply.likes] : [];
-    const idx = likes.indexOf(userIdStr);
+    const likeIdStr = (id) =>
+      id && typeof id === 'object' && id.$oid ? String(id.$oid) : String(id || '');
+    const idx = likes.findIndex((id) => likeIdStr(id) === userIdStr);
+    const addingLike = idx === -1;
     if (idx > -1) {
       likes.splice(idx, 1);
     } else {
       likes.push(userIdStr);
     }
+    replies[repIdx] = { ...reply, likes };
+    reviewsArr[ridx] = { ...review, replies };
 
-    await col.updateOne(
-      { sku: skuStr },
-      { $set: { 'reviews.$[r].replies.$[rep].likes': likes, updatedAt: new Date() } },
-      { arrayFilters: [{ 'r._id': reviewIdStr }, { 'rep._id': replyIdStr }] }
-    );
+    await col.updateOne(skuFilter, {
+      $set: { reviews: reviewsArr, updatedAt: new Date() },
+    });
 
-    const updated = await col.findOne({ sku: skuStr });
+    if (addingLike) {
+      try {
+        const replyAuthorId = reply.user_id ? String(reply.user_id).trim() : '';
+        if (
+          replyAuthorId &&
+          replyAuthorId.toLowerCase() !== userIdStr.toLowerCase()
+        ) {
+          let likerName = 'Người dùng';
+          try {
+            const userDoc = await usersCollection().findOne({ $or: [{ user_id: userIdStr }, { _id: userIdStr }] });
+            if (userDoc && (userDoc.full_name || userDoc.fullname)) {
+              likerName = String(userDoc.full_name || userDoc.fullname).trim() || likerName;
+            }
+          } catch (_) {}
+
+          let productName = skuStr;
+          try {
+            const numSku = Number(skuStr);
+            const pFilter =
+              !isNaN(numSku) && String(numSku) === String(skuStr).trim()
+                ? { $or: [{ sku: skuStr }, { sku: numSku }] }
+                : { sku: skuStr };
+            const pdoc = await productsCollection().findOne(pFilter, {
+              projection: { name: 1, product_name: 1, productName: 1 },
+            });
+            if (pdoc) {
+              productName = pdoc.name || pdoc.product_name || pdoc.productName || productName;
+            }
+          } catch (_) {}
+
+          await noticesCollection().insertOne({
+            user_id: replyAuthorId,
+            type: 'review_reply',
+            noticeTag: 'helpful_like',
+            title: 'Có phản hồi cho đánh giá của bạn',
+            message: `${likerName} đánh dấu phản hồi của bạn là hữu ích về sản phẩm "${productName}".`,
+            createdAt: new Date().toISOString(),
+            read: false,
+            link: `/product/${skuStr}`,
+            linkLabel: 'Xem phản hồi',
+            meta: skuStr,
+            meta_label: productName,
+          });
+        }
+      } catch (e) {
+        console.warn('[POST /api/reviews/reply/like] Cannot create notice:', e.message);
+      }
+    }
+
+    const updated = await col.findOne(skuFilter);
     res.json(updated);
   } catch (err) {
     console.error('[POST /api/reviews/reply/like] Error:', err);
@@ -4377,6 +4908,7 @@ app.post('/api/consultations', async (req, res) => {
           link: `/product/${skuStr}`,
           linkLabel: 'Xem câu hỏi',
           meta: skuStr,
+          meta_label: productName,
         });
       } catch (e) {
         console.warn('[POST /api/consultations] Cannot create notice:', e.message);
@@ -4418,6 +4950,8 @@ app.post('/api/consultations/reply', async (req, res) => {
       return res.status(404).json({ success: false, message: `Không tìm thấy sản phẩm với SKU ${skuStr}` });
     }
 
+    const questionEntry = (doc.questions || []).find((q) => String(q.id || q._id || '') === qId);
+
     const reply = {
       _id: new mongoose.Types.ObjectId().toString(),
       content: String(content).trim(),
@@ -4448,6 +4982,47 @@ app.post('/api/consultations/reply', async (req, res) => {
     }
 
     const updated = await col.findOne(skuFilter);
+
+    // Thông báo cho chủ câu hỏi khi người khác trả lời
+    try {
+      const qRef =
+        questionEntry ||
+        (updated?.questions || []).find((q) => {
+          const id = String(q.id || '');
+          const oid = q._id != null ? String(q._id) : '';
+          return id === qId || oid === qId;
+        });
+      const authorId = qRef?.user_id ? String(qRef.user_id).trim() : '';
+      const replierId = String(reply.user_id || '').trim();
+      const replierName = (fullname && String(fullname).trim()) || 'Người dùng';
+      if (authorId && replierId && authorId.toLowerCase() !== replierId.toLowerCase()) {
+        let productName = doc.productName || skuStr;
+        try {
+          const pdoc = await productsCollection().findOne(
+            { sku: skuStr },
+            { projection: { name: 1, product_name: 1, productName: 1 } }
+          );
+          if (pdoc) {
+            productName = pdoc.name || pdoc.product_name || pdoc.productName || productName;
+          }
+        } catch (_) {}
+        await noticesCollection().insertOne({
+          user_id: authorId,
+          type: 'qa_reply',
+          title: 'Có phản hồi cho câu hỏi của bạn',
+          message: `${replierName} đã trả lời câu hỏi của bạn về sản phẩm "${productName}".`,
+          createdAt: new Date().toISOString(),
+          read: false,
+          link: `/product/${skuStr}`,
+          linkLabel: 'Xem phản hồi',
+          meta: skuStr,
+          meta_label: productName,
+        });
+      }
+    } catch (e) {
+      console.warn('[POST /api/consultations/reply] Cannot create notice:', e.message);
+    }
+
     res.json(updated);
   } catch (err) {
     console.error('[POST /api/consultations/reply] CRITICAL ERROR:', err);
@@ -4467,7 +5042,10 @@ app.post('/api/consultations/like', async (req, res) => {
     }
 
     const col = consultationsProductCollection();
-    const doc = await col.findOne({ sku: skuStr });
+    const skuNum = !isNaN(Number(skuStr)) ? Number(skuStr) : null;
+    const skuFilter = skuNum !== null ? { $or: [{ sku: skuStr }, { sku: skuNum }] } : { sku: skuStr };
+
+    const doc = await col.findOne(skuFilter);
     if (!doc) {
       return res.status(404).json({ success: false, message: 'Không tìm thấy câu hỏi.' });
     }
@@ -4479,7 +5057,10 @@ app.post('/api/consultations/like', async (req, res) => {
     }
 
     const likes = Array.isArray(question.likes) ? [...question.likes] : [];
-    const idx = likes.indexOf(userIdStr);
+    const likeIdStr = (id) =>
+      id && typeof id === 'object' && id.$oid ? String(id.$oid) : String(id || '');
+    const idx = likes.findIndex((id) => likeIdStr(id) === userIdStr);
+    const addingLike = idx === -1;
     if (idx > -1) {
       likes.splice(idx, 1);
     } else {
@@ -4493,13 +5074,59 @@ app.post('/api/consultations/like', async (req, res) => {
     }
 
     const updateResult = await col.updateOne(
-      { sku: skuStr },
+      skuFilter,
       { $set: { 'questions.$[q].likes': likes, updatedAt: new Date() } },
       { arrayFilters: [{ $or: qCriteria }] }
     );
     console.log(`[POST /api/consultations/like] Result: matched=${updateResult.matchedCount}, modified=${updateResult.modifiedCount}`);
 
-    const updated = await col.findOne({ sku: skuStr });
+    if (addingLike) {
+      try {
+        const authorId = question.user_id ? String(question.user_id).trim() : '';
+        if (authorId && authorId.toLowerCase() !== userIdStr.toLowerCase()) {
+          let likerName = 'Người dùng';
+          try {
+            const userDoc = await usersCollection().findOne({ $or: [{ user_id: userIdStr }, { _id: userIdStr }] });
+            if (userDoc && (userDoc.full_name || userDoc.fullname)) {
+              likerName = String(userDoc.full_name || userDoc.fullname).trim() || likerName;
+            }
+          } catch (_) {}
+
+          let productName = doc.productName || skuStr;
+          try {
+            const numSku = Number(skuStr);
+            const pFilter =
+              !isNaN(numSku) && String(numSku) === String(skuStr).trim()
+                ? { $or: [{ sku: skuStr }, { sku: numSku }] }
+                : { sku: skuStr };
+            const pdoc = await productsCollection().findOne(pFilter, {
+              projection: { name: 1, product_name: 1, productName: 1 },
+            });
+            if (pdoc) {
+              productName = pdoc.name || pdoc.product_name || pdoc.productName || productName;
+            }
+          } catch (_) {}
+
+          await noticesCollection().insertOne({
+            user_id: authorId,
+            type: 'qa_reply',
+            noticeTag: 'helpful_like',
+            title: 'Có phản hồi cho câu hỏi của bạn',
+            message: `${likerName} đánh dấu câu hỏi của bạn là hữu ích về sản phẩm "${productName}".`,
+            createdAt: new Date().toISOString(),
+            read: false,
+            link: `/product/${skuStr}`,
+            linkLabel: 'Xem phản hồi',
+            meta: skuStr,
+            meta_label: productName,
+          });
+        }
+      } catch (e) {
+        console.warn('[POST /api/consultations/like] Cannot create notice:', e.message);
+      }
+    }
+
+    const updated = await col.findOne(skuFilter);
     res.json(updated);
   } catch (err) {
     console.error('[POST /api/consultations/like] Error:', err);
@@ -4742,7 +5369,10 @@ app.post('/api/consultations/reply/like', async (req, res) => {
     }
 
     const likes = Array.isArray(reply.likes) ? [...reply.likes] : [];
-    const idx = likes.indexOf(userIdStr);
+    const likeIdStr = (id) =>
+      id && typeof id === 'object' && id.$oid ? String(id.$oid) : String(id || '');
+    const idx = likes.findIndex((id) => likeIdStr(id) === userIdStr);
+    const addingLike = idx === -1;
     if (idx > -1) {
       likes.splice(idx, 1);
     } else {
@@ -4762,6 +5392,52 @@ app.post('/api/consultations/reply/like', async (req, res) => {
     );
 
     console.log(`[POST /api/consultations/reply/like] Result: matched=${result.matchedCount}, modified=${result.modifiedCount}`);
+
+    if (addingLike) {
+      try {
+        const replyAuthorId = reply.user_id ? String(reply.user_id).trim() : '';
+        if (replyAuthorId && replyAuthorId.toLowerCase() !== userIdStr.toLowerCase()) {
+          let likerName = 'Người dùng';
+          try {
+            const userDoc = await usersCollection().findOne({ $or: [{ user_id: userIdStr }, { _id: userIdStr }] });
+            if (userDoc && (userDoc.full_name || userDoc.fullname)) {
+              likerName = String(userDoc.full_name || userDoc.fullname).trim() || likerName;
+            }
+          } catch (_) {}
+
+          let productName = doc.productName || skuStr;
+          try {
+            const numSku = Number(skuStr);
+            const pFilter =
+              !isNaN(numSku) && String(numSku) === String(skuStr).trim()
+                ? { $or: [{ sku: skuStr }, { sku: numSku }] }
+                : { sku: skuStr };
+            const pdoc = await productsCollection().findOne(pFilter, {
+              projection: { name: 1, product_name: 1, productName: 1 },
+            });
+            if (pdoc) {
+              productName = pdoc.name || pdoc.product_name || pdoc.productName || productName;
+            }
+          } catch (_) {}
+
+          await noticesCollection().insertOne({
+            user_id: replyAuthorId,
+            type: 'qa_reply',
+            noticeTag: 'helpful_like',
+            title: 'Có phản hồi cho câu hỏi của bạn',
+            message: `${likerName} đánh dấu phản hồi của bạn là hữu ích về sản phẩm "${productName}".`,
+            createdAt: new Date().toISOString(),
+            read: false,
+            link: `/product/${skuStr}`,
+            linkLabel: 'Xem phản hồi',
+            meta: skuStr,
+            meta_label: productName,
+          });
+        }
+      } catch (e) {
+        console.warn('[POST /api/consultations/reply/like] Cannot create notice:', e.message);
+      }
+    }
 
     const updated = await col.findOne(skuFilter);
     res.json(updated);
@@ -5316,6 +5992,19 @@ app.delete('/api/recently-viewed/all', async (req, res) => {
 });
 
 // ========= USER COINS & STREAKS (Users_memory) =========
+/** Cộng/trừ ngày trên chuỗi YYYY-MM-DD (theo lịch, không dùng UTC midnight của Date local — tránh lệch chuỗi xu). */
+function addDaysToDateKey(key, deltaDays) {
+  const parts = String(key || '').trim().split('-');
+  if (parts.length !== 3) return null;
+  const y = Number(parts[0]);
+  const m = Number(parts[1]);
+  const d = Number(parts[2]);
+  if (!y || !m || !d) return null;
+  const dt = new Date(Date.UTC(y, m - 1, d));
+  dt.setUTCDate(dt.getUTCDate() + (Number(deltaDays) || 0));
+  return dt.toISOString().slice(0, 10);
+}
+
 // GET /api/users-memory/coins?user_id=...
 app.get('/api/users-memory/coins', async (req, res) => {
   try {
@@ -5356,15 +6045,12 @@ app.post('/api/users-memory/coins/reward', async (req, res) => {
       return res.json({ success: true, message: 'Reward already applied for this date.', coins });
     }
 
-    // Streak logic
+    // Streak: so sánh ngày theo dateKey (VN) — KHÔNG dùng toISOString() (UTC) vì lệch ngày so với client.
     let newStreak = 1;
-    const today = new Date();
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayKey = yesterday.toISOString().split('T')[0];
-
-    if (coins.lastCompletedDate === yesterdayKey) {
-      newStreak = (coins.currentStreak || 0) + 1;
+    const prev = coins.lastCompletedDate;
+    const cur = String(dateKey || '').trim();
+    if (prev && cur && prev === addDaysToDateKey(cur, -1)) {
+      newStreak = Math.max(Number(coins.currentStreak) || 0, 1) + 1;
     }
 
     const amt = Number(amount) || 0;
@@ -5381,7 +6067,7 @@ app.post('/api/users-memory/coins/reward', async (req, res) => {
       balance: newBalance,
       lastCompletedDate: dateKey,
       currentStreak: newStreak,
-      history: [newEntry, ...(coins.history || [])].slice(0, 50)
+      history: [newEntry, ...(coins.history || [])]
     };
 
     await usersMemoryCollection().updateOne(
@@ -5432,7 +6118,7 @@ app.post('/api/users-memory/coins/order-reward', async (req, res) => {
     const newCoins = {
       ...coins,
       balance: (Number(coins.balance) || 0) + amt,
-      history: [newEntry, ...history].slice(0, 100)
+      history: [newEntry, ...history]
     };
 
     await usersMemoryCollection().updateOne(
@@ -5486,7 +6172,7 @@ app.post('/api/users-memory/coins/review-reward', async (req, res) => {
       ...coins,
       // Chỉ cộng balance + history, không đụng streak
       balance: (Number(coins.balance) || 0) + amt,
-      history: [newEntry, ...(coins.history || [])].slice(0, 100)
+      history: [newEntry, ...(coins.history || [])]
     };
 
     await usersMemoryCollection().updateOne(
@@ -5499,6 +6185,86 @@ app.post('/api/users-memory/coins/review-reward', async (req, res) => {
   } catch (err) {
     console.error('[POST /api/users-memory/coins/review-reward] Error:', err);
     res.status(500).json({ success: false, message: 'Lỗi máy chủ khi thưởng xu đánh giá.' });
+  }
+});
+
+// POST /api/users-memory/coins/quiz-reward
+// Body: { user_id, quiz_id, claimToken } — 50 xu/lần, tối đa 2 lần/ngày (100 xu), múi giờ VN; idempotent theo claimToken
+app.post('/api/users-memory/coins/quiz-reward', async (req, res) => {
+  try {
+    const QUIZ_COIN_AMOUNT = 50;
+    const QUIZ_DAILY_MAX = 2;
+    const QUIZ_REASON = 'Hoàn thành bài kiểm tra sức khỏe';
+
+    const vnDateKey = () =>
+      new Date().toLocaleString('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).slice(0, 10);
+
+    const isQuizHealthEntry = (h) => String(h?.reason || '').trim() === QUIZ_REASON;
+
+    const countQuizRewardsToday = (history) => {
+      const today = vnDateKey();
+      return (history || []).filter((h) => {
+        if (!isQuizHealthEntry(h)) return false;
+        if (!h.date) return false;
+        const vn = new Date(h.date)
+          .toLocaleString('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' })
+          .slice(0, 10);
+        return vn === today;
+      }).length;
+    };
+
+    const { user_id, quiz_id, claimToken } = req.body || {};
+    const uid = String(user_id || '').trim();
+    const qid = String(quiz_id || '').trim();
+    const tok = String(claimToken || '').trim();
+
+    if (!uid) return res.status(400).json({ success: false, message: 'Thiếu user_id.' });
+    if (!qid) return res.status(400).json({ success: false, message: 'Thiếu quiz_id.' });
+    if (!tok) return res.status(400).json({ success: false, message: 'Thiếu claimToken.' });
+
+    const dateKey = `quiz-health-${tok}`;
+    const memoryUser = await usersMemoryCollection().findOne({ user_id: uid });
+    let coins = memoryUser?.coins || { balance: 0, lastCompletedDate: null, currentStreak: 0, history: [] };
+    const history = Array.isArray(coins.history) ? coins.history : [];
+
+    const existed = history.some((h) => String(h?.dateKey || '') === dateKey);
+    if (existed) {
+      return res.json({ success: true, alreadyApplied: true, coins });
+    }
+
+    if (countQuizRewardsToday(history) >= QUIZ_DAILY_MAX) {
+      return res.json({
+        success: false,
+        message: 'Bạn đã nhận đủ 100 xu từ bài test hôm nay (tối đa 2 bài).',
+        coins,
+      });
+    }
+
+    const newEntry = {
+      amount: QUIZ_COIN_AMOUNT,
+      reason: QUIZ_REASON,
+      date: new Date().toISOString(),
+      dateKey,
+      transactionId: new mongoose.Types.ObjectId().toString(),
+      quiz_id: qid,
+    };
+
+    const newCoins = {
+      ...coins,
+      balance: (Number(coins.balance) || 0) + QUIZ_COIN_AMOUNT,
+      history: [newEntry, ...history],
+    };
+
+    await usersMemoryCollection().updateOne(
+      { user_id: uid },
+      { $set: { user_id: uid, coins: newCoins, updatedAt: new Date() } },
+      { upsert: true }
+    );
+
+    res.json({ success: true, alreadyApplied: false, coins: newCoins });
+  } catch (err) {
+    console.error('[POST /api/users-memory/coins/quiz-reward] Error:', err);
+    res.status(500).json({ success: false, message: 'Lỗi máy chủ khi thưởng xu bài test.' });
   }
 });
 
@@ -5807,6 +6573,116 @@ app.get('/api/diseases/:id', async (req, res) => {
   }
 });
 
+/** Đếm điểm đánh giá độ hữu ích bài bệnh (object userId → điểm 1–5). */
+function buildDiseaseArticleRatingPayload(votes, userIdOpt) {
+  const counts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+  const obj = votes && typeof votes === 'object' && !Array.isArray(votes) ? votes : {};
+  let total = 0;
+  let sum = 0;
+  for (const raw of Object.values(obj)) {
+    const s = Math.round(Number(raw));
+    if (!Number.isFinite(s) || s < 1 || s > 5) continue;
+    counts[s] = (counts[s] || 0) + 1;
+    total += 1;
+    sum += s;
+  }
+  const userId = String(userIdOpt || '').trim();
+  let userScore = null;
+  if (userId && Object.prototype.hasOwnProperty.call(obj, userId)) {
+    const u = Math.round(Number(obj[userId]));
+    if (Number.isFinite(u) && u >= 1 && u <= 5) userScore = u;
+  }
+  return {
+    counts,
+    total,
+    average: total ? Math.round((sum / total) * 10) / 10 : 0,
+    userScore,
+  };
+}
+
+// GET /api/diseases/article-rating/:sku — thống kê + (tuỳ chọn) điểm của user (?userId=)
+app.get('/api/diseases/article-rating/:sku', async (req, res) => {
+  try {
+    const sku = decodeURIComponent(String(req.params.sku || '').trim());
+    const userId = String(req.query.userId || '').trim();
+    if (!sku) {
+      return res.status(400).json({ success: false, message: 'Thiếu mã bài bệnh.' });
+    }
+    const doc = await DiseaseArticleRatingModel.findOne({ diseaseKey: sku }).lean();
+    const votes = doc?.votes;
+    const payload = buildDiseaseArticleRatingPayload(votes, userId);
+    res.json({ success: true, ...payload });
+  } catch (err) {
+    console.error('[GET /api/diseases/article-rating/:sku] Error:', err);
+    res.status(500).json({ success: false, message: 'Lỗi tải đánh giá.' });
+  }
+});
+
+// POST /api/diseases/article-rating — gửi / đổi điểm 1–5 (mỗi user một điểm)
+app.post('/api/diseases/article-rating', async (req, res) => {
+  try {
+    const { sku, score, userId } = req.body || {};
+    const skuStr = String(sku || '').trim();
+    const userIdStr = String(userId || '').trim();
+    const sc = Math.round(Number(score));
+    if (!skuStr || !userIdStr) {
+      return res.status(400).json({ success: false, message: 'Thiếu sku hoặc userId.' });
+    }
+    if (!Number.isFinite(sc) || sc < 1 || sc > 5) {
+      return res.status(400).json({ success: false, message: 'Điểm đánh giá từ 1 đến 5.' });
+    }
+
+    let doc = await DiseaseArticleRatingModel.findOne({ diseaseKey: skuStr });
+    if (!doc) {
+      doc = new DiseaseArticleRatingModel({ diseaseKey: skuStr, votes: {} });
+    }
+    if (!doc.votes || typeof doc.votes !== 'object' || Array.isArray(doc.votes)) {
+      doc.votes = {};
+    }
+    doc.votes[userIdStr] = sc;
+    doc.markModified('votes');
+    await doc.save();
+
+    const payload = buildDiseaseArticleRatingPayload(doc.votes, userIdStr);
+    res.json({ success: true, ...payload });
+  } catch (err) {
+    console.error('[POST /api/diseases/article-rating] Error:', err);
+    res.status(500).json({ success: false, message: 'Lỗi lưu đánh giá.' });
+  }
+});
+
+/** Slug trong URL Angular: /benh/:id — chuẩn hoá từ sku CMS (vd benh/bai-nao-tre-em-6.html) */
+function diseaseConsultationBenhPath(sku) {
+  let s = String(sku || '').trim();
+  if (!s) return { href: '/disease', routeId: '' };
+  if (s.toLowerCase().startsWith('benh/')) s = s.slice(5);
+  s = s.replace(/\.html$/i, '');
+  const parts = s.split('/').filter(Boolean);
+  const routeId = parts.length ? parts[parts.length - 1] : s;
+  return { href: `/benh/${routeId}`, routeId };
+}
+
+function normalizeDiseaseConsultationQuestion(q) {
+  if (!q || typeof q !== 'object') return q;
+  const o = { ...q };
+  const oid = o._id != null ? String(o._id) : '';
+  if (!o.id) o.id = oid;
+  if (!Array.isArray(o.likes)) o.likes = [];
+  if (!Array.isArray(o.replies)) o.replies = [];
+  return o;
+}
+
+function diseaseConsultationResponsePayload(doc) {
+  if (!doc) return { sku: '', productName: '', questions: [] };
+  const lean = typeof doc.toObject === 'function' ? doc.toObject() : doc;
+  const questions = (lean.questions || []).map((q) => normalizeDiseaseConsultationQuestion(q));
+  return {
+    sku: lean.sku,
+    productName: lean.productName,
+    questions,
+  };
+}
+
 // GET /api/consultations/disease/:id - Lấy danh sách câu hỏi về bệnh (id có thể là slug hoặc productId)
 app.get('/api/consultations/disease/:id', async (req, res) => {
   try {
@@ -5817,7 +6693,8 @@ app.get('/api/consultations/disease/:id', async (req, res) => {
       // Nếu không tìm thấy, trả về list rỗng thay vì lỗi 404 để frontend dễ xử lý
       return res.json({ success: true, questions: [] });
     }
-    res.json({ success: true, questions: consultation.questions || [] });
+    const questions = (consultation.questions || []).map((q) => normalizeDiseaseConsultationQuestion(q));
+    res.json({ success: true, questions });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -5850,7 +6727,8 @@ app.post('/api/consultations/disease', async (req, res) => {
       status: "pending",
       createdAt: new Date().toISOString(),
       answer: null,
-      replies: []
+      replies: [],
+      likes: [],
     };
 
     consultation.questions.push(newQuestion);
@@ -5861,16 +6739,19 @@ app.post('/api/consultations/disease', async (req, res) => {
     // Tạo thông báo cho user khi gửi câu hỏi về bệnh thành công
     if (user_id) {
       try {
+        const { href, routeId } = diseaseConsultationBenhPath(sku);
+        const displayName = String(productName || '').trim() || routeId || sku;
         await noticesCollection().insertOne({
           user_id: String(user_id),
-          type: 'order_updated',
+          type: 'qa_submitted',
           title: 'Câu hỏi đã được gửi',
           message: `Câu hỏi của bạn về "${productName || sku}" đã được gửi. Chúng tôi sẽ phản hồi sớm nhất có thể.`,
           createdAt: new Date().toISOString(),
           read: false,
-          link: '/account',
-          linkLabel: 'Xem thông báo',
-          meta: sku,
+          link: href,
+          linkLabel: 'Xem câu hỏi',
+          meta: routeId || sku,
+          meta_label: displayName,
         });
       } catch (e) {
         console.warn('[POST /api/consultations/disease] Cannot create notice:', e.message);
@@ -5880,6 +6761,163 @@ app.post('/api/consultations/disease', async (req, res) => {
     res.status(201).json({ success: true, data: newQuestion });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// POST /api/consultations/disease/reply — người dùng / dược sĩ trả lời câu hỏi về bệnh (lưu consultations_disease)
+app.post('/api/consultations/disease/reply', async (req, res) => {
+  try {
+    const { sku, questionId, content, fullname, isAdmin, avatar, user_id } = req.body || {};
+    const skuStr = String(sku || '').trim();
+    const qId = String(questionId || '').trim();
+    if (!skuStr || !qId) {
+      return res.status(400).json({ success: false, message: 'Thiếu sku hoặc questionId.' });
+    }
+    if (!content || !String(content).trim()) {
+      return res.status(400).json({ success: false, message: 'Thiếu nội dung trả lời.' });
+    }
+
+    const disease = await ConsultationDiseaseModel.findOne({ sku: skuStr });
+    if (!disease) {
+      return res.status(404).json({ success: false, message: 'Không tìm thấy hỏi đáp bệnh.' });
+    }
+
+    const questions = disease.questions || [];
+    const qIdx = questions.findIndex((q) => String(q._id || q.id || '') === qId);
+    if (qIdx === -1) {
+      return res.status(404).json({ success: false, message: 'Không tìm thấy câu hỏi.' });
+    }
+
+    const questionEntry = questions[qIdx];
+    const reply = {
+      _id: new mongoose.Types.ObjectId().toString(),
+      content: String(content).trim(),
+      fullname: (fullname && String(fullname).trim()) || 'Khách',
+      user_id: user_id ? String(user_id).trim() : null,
+      avatar: avatar || '',
+      is_admin: !!isAdmin,
+      time: new Date(),
+    };
+
+    if (!Array.isArray(disease.questions[qIdx].replies)) {
+      disease.questions[qIdx].replies = [];
+    }
+    disease.questions[qIdx].replies.push(reply);
+    disease.updatedAt = new Date();
+    await disease.save();
+
+    try {
+      const authorId = questionEntry.user_id ? String(questionEntry.user_id).trim() : '';
+      const replierId = user_id ? String(user_id).trim() : '';
+      const replierName = (fullname && String(fullname).trim()) || 'Người dùng';
+      if (
+        authorId &&
+        replierId &&
+        authorId.toLowerCase() !== replierId.toLowerCase()
+      ) {
+        const diseaseName = disease.productName || skuStr;
+        const { href, routeId } = diseaseConsultationBenhPath(skuStr);
+        await noticesCollection().insertOne({
+          user_id: authorId,
+          type: 'qa_reply',
+          title: 'Có phản hồi cho câu hỏi của bạn',
+          message: `${replierName} đã trả lời câu hỏi của bạn về bệnh "${diseaseName}".`,
+          createdAt: new Date().toISOString(),
+          read: false,
+          link: href,
+          linkLabel: 'Xem phản hồi',
+          meta: routeId || skuStr,
+          meta_label: diseaseName,
+        });
+      }
+    } catch (e) {
+      console.warn('[POST /api/consultations/disease/reply] Cannot create notice:', e.message);
+    }
+
+    const fresh = await ConsultationDiseaseModel.findOne({ sku: skuStr });
+    res.json(diseaseConsultationResponsePayload(fresh));
+  } catch (err) {
+    console.error('[POST /api/consultations/disease/reply] Error:', err);
+    res.status(500).json({ success: false, message: 'Lỗi máy chủ khi gửi phản hồi.' });
+  }
+});
+
+// POST /api/consultations/disease/like — hữu ích câu hỏi về bệnh
+app.post('/api/consultations/disease/like', async (req, res) => {
+  try {
+    const { sku, questionId, userId } = req.body || {};
+    const skuStr = String(sku || '').trim();
+    const qId = String(questionId || '').trim();
+    const userIdStr = String(userId || '').trim();
+    if (!skuStr || !qId || !userIdStr) {
+      return res.status(400).json({ success: false, message: 'Thiếu sku, questionId hoặc userId.' });
+    }
+
+    const disease = await ConsultationDiseaseModel.findOne({ sku: skuStr });
+    if (!disease) {
+      return res.status(404).json({ success: false, message: 'Không tìm thấy hỏi đáp bệnh.' });
+    }
+
+    const questions = disease.questions || [];
+    const qIdx = questions.findIndex((q) => String(q._id || q.id || '') === qId);
+    if (qIdx === -1) {
+      return res.status(404).json({ success: false, message: 'Không tìm thấy câu hỏi.' });
+    }
+
+    const question = disease.questions[qIdx];
+    const likes = Array.isArray(question.likes) ? [...question.likes] : [];
+    const likeIdStr = (id) =>
+      id && typeof id === 'object' && id.$oid ? String(id.$oid) : String(id || '');
+    const idx = likes.findIndex((id) => likeIdStr(id) === userIdStr);
+    const addingLike = idx === -1;
+    if (idx > -1) {
+      likes.splice(idx, 1);
+    } else {
+      likes.push(userIdStr);
+    }
+
+    disease.questions[qIdx].likes = likes;
+    disease.updatedAt = new Date();
+    await disease.save();
+
+    if (addingLike) {
+      try {
+        const authorId = question.user_id ? String(question.user_id).trim() : '';
+        if (authorId && authorId.toLowerCase() !== userIdStr.toLowerCase()) {
+          let likerName = 'Người dùng';
+          try {
+            const userDoc = await usersCollection().findOne({ $or: [{ user_id: userIdStr }, { _id: userIdStr }] });
+            if (userDoc && (userDoc.full_name || userDoc.fullname)) {
+              likerName = String(userDoc.full_name || userDoc.fullname).trim() || likerName;
+            }
+          } catch (_) {}
+
+          const diseaseName = disease.productName || skuStr;
+          const { href, routeId } = diseaseConsultationBenhPath(skuStr);
+          await noticesCollection().insertOne({
+            user_id: authorId,
+            type: 'qa_reply',
+            noticeTag: 'helpful_like',
+            title: 'Có phản hồi cho câu hỏi của bạn',
+            message: `${likerName} đánh dấu câu hỏi của bạn là hữu ích về bệnh "${diseaseName}".`,
+            createdAt: new Date().toISOString(),
+            read: false,
+            link: href,
+            linkLabel: 'Xem phản hồi',
+            meta: routeId || skuStr,
+            meta_label: diseaseName,
+          });
+        }
+      } catch (e) {
+        console.warn('[POST /api/consultations/disease/like] Cannot create notice:', e.message);
+      }
+    }
+
+    const fresh = await ConsultationDiseaseModel.findOne({ sku: skuStr });
+    res.json(diseaseConsultationResponsePayload(fresh));
+  } catch (err) {
+    console.error('[POST /api/consultations/disease/like] Error:', err);
+    res.status(500).json({ success: false, message: 'Lỗi máy chủ khi cập nhật thích.' });
   }
 });
 
@@ -7924,6 +8962,7 @@ app.patch('/api/admin/consultations_disease/reply', async (req, res) => {
     // Lưu notice cho user khi admin trả lời câu hỏi về bệnh
     if (userId) {
       try {
+        const { href, routeId } = diseaseConsultationBenhPath(sku);
         await noticesCollection().insertOne({
           user_id: String(userId),
           type: 'qa_reply',
@@ -7931,9 +8970,10 @@ app.patch('/api/admin/consultations_disease/reply', async (req, res) => {
           message: `Câu hỏi của bạn về bệnh "${diseaseName}" đã được ${answeredBy || 'dược sĩ'} giải đáp.`,
           createdAt: new Date().toISOString(),
           read: false,
-          link: `/benh/${sku}`,
+          link: href,
           linkLabel: 'Xem phản hồi',
-          meta: sku,
+          meta: routeId || sku,
+          meta_label: diseaseName,
         });
       } catch (e) {
         console.warn('[PATCH /api/admin/consultations_disease/reply] Cannot create notice:', e.message);

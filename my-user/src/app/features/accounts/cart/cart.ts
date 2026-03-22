@@ -113,9 +113,7 @@ export class Cart implements OnInit, OnDestroy {
   voucherDiscount = signal(0);
   useVitaXu = signal(false);
 
-  vitaXuBalance = computed(() => {
-    return Math.max(0, Number(this.coinService.coinData()?.balance || 0));
-  });
+  vitaXuBalance = computed(() => this.coinService.effectiveBalance());
 
   vitaXuDiscount = computed(() => {
     if (!this.useVitaXu()) return 0;
@@ -554,6 +552,11 @@ export class Cart implements OnInit, OnDestroy {
   }
 
   toggleUseVitaXu(checked: boolean): void {
+    if (!this.authService.currentUser()?.user_id) {
+      this.useVitaXu.set(false);
+      this.cdr.markForCheck();
+      return;
+    }
     this.useVitaXu.set(checked);
     this.cdr.markForCheck();
   }

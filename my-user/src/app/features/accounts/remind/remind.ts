@@ -168,7 +168,7 @@ export class Remind implements OnInit, AfterViewChecked {
   canClaimDailyReward = computed(() => {
     const dk = this.diarySelectedDate();
     if (!this.isTodayKey(dk)) return false;
-    if (this.coinService.coinData().lastCompletedDate === dk) return false;
+    if (this.coinService.isDateCompleted(dk)) return false;
     const items = this.diaryRemindersForDate();
     if (items.length === 0) return true; /* Hôm nay không có lịch: vẫn điểm danh nhận xu */
     return items.every((i) => i.completed);
@@ -178,7 +178,7 @@ export class Remind implements OnInit, AfterViewChecked {
   showDiaryClaimRow = computed(() => {
     const dk = this.diarySelectedDate();
     if (!this.isTodayKey(dk)) return false;
-    if (this.coinService.coinData().lastCompletedDate === dk) return false;
+    if (this.coinService.isDateCompleted(dk)) return false;
     return true;
   });
 
@@ -220,7 +220,7 @@ export class Remind implements OnInit, AfterViewChecked {
   showDiaryCheckInFrame = computed(() => {
     const dk = this.diarySelectedDate();
     if (!this.isTodayKey(dk)) return false;
-    if (this.coinService.coinData().lastCompletedDate === dk) return false;
+    if (this.coinService.isDateCompleted(dk)) return false;
     return this.diaryRemindersForDate().length === 0;
   });
 
@@ -1519,7 +1519,7 @@ export class Remind implements OnInit, AfterViewChecked {
   }
 
   isDateClaimed(dk: string): boolean {
-    return this.coinService.coinData().lastCompletedDate === dk;
+    return this.coinService.isDateCompleted(dk);
   }
 
   isDateCompleted(d: Date): boolean {

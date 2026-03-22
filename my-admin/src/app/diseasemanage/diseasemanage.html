@@ -39,7 +39,8 @@
                     [class.active]="isFilterOpen || selectedGroupIds.length > 0 || selectedStatus"
                     (click)="toggleFilter($event)">
                     <i class="bi bi-sliders"></i> Lọc
-                    <span class="selected-badge" *ngIf="selectedGroupIds.length > 0 || selectedStatus">{{ (selectedGroupIds.length > 0 ? 1 : 0) + (selectedStatus ? 1 : 0) }}</span>
+                    <span class="selected-badge" *ngIf="selectedGroupIds.length > 0 || selectedStatus">{{
+                        (selectedGroupIds.length > 0 ? 1 : 0) + (selectedStatus ? 1 : 0) }}</span>
                 </button>
                 <div class="dropdown-menu-multilevel" *ngIf="isFilterOpen" (click)="$event.stopPropagation()">
                     <div class="dropdown-item-parent">
@@ -76,10 +77,16 @@
                     </div>
 
                     <div class="dropdown-divider"></div>
-                    <button class="btn-clear-filter" (click)="clearAllFilters()">
-                        <i class="bi bi-trash"></i>
-                        <span>Xóa tất cả bộ lọc</span>
-                    </button>
+                    <div class="dropdown-actions">
+                        <button class="btn btn-sm btn-clear-filter" (click)="clearAllFilters()">
+                            <i class="bi bi-trash"></i>
+                            <span>Xóa lọc</span>
+                        </button>
+                        <button class="btn btn-sm btn-close-filter" (click)="isFilterOpen = false">
+                            <i class="bi bi-x"></i>
+                            <span>Đóng</span>
+                        </button>
+                    </div>
                 </div>
             </div>
             <button class="btn btn-sm action-btn icon-text" (click)="deleteSelected()" [disabled]="selectedCount === 0"
@@ -91,16 +98,20 @@
                     <i class="bi bi-arrow-down-up"></i> Sắp xếp
                 </button>
                 <div class="dropdown-menu-multilevel" *ngIf="isSortDropdownOpen" (click)="$event.stopPropagation()">
-                    <div class="dropdown-option" (click)="onSortSelect('newest')" [class.active]="sortColumn === 'created_at' && sortDirection === 'desc'">
+                    <div class="dropdown-option" (click)="onSortSelect('newest')"
+                        [class.active]="sortColumn === 'created_at' && sortDirection === 'desc'">
                         <i class="bi bi-sort-numeric-down-alt"></i> Mới nhất
                     </div>
-                    <div class="dropdown-option" (click)="onSortSelect('oldest')" [class.active]="sortColumn === 'created_at' && sortDirection === 'asc'">
+                    <div class="dropdown-option" (click)="onSortSelect('oldest')"
+                        [class.active]="sortColumn === 'created_at' && sortDirection === 'asc'">
                         <i class="bi bi-sort-numeric-down"></i> Cũ nhất
                     </div>
-                    <div class="dropdown-option" (click)="onSortSelect('nameAsc')" [class.active]="sortColumn === 'name' && sortDirection === 'asc'">
+                    <div class="dropdown-option" (click)="onSortSelect('nameAsc')"
+                        [class.active]="sortColumn === 'name' && sortDirection === 'asc'">
                         <i class="bi bi-sort-alpha-down"></i> Tựa đề (A-Z)
                     </div>
-                    <div class="dropdown-option" (click)="onSortSelect('nameDesc')" [class.active]="sortColumn === 'name' && sortDirection === 'desc'">
+                    <div class="dropdown-option" (click)="onSortSelect('nameDesc')"
+                        [class.active]="sortColumn === 'name' && sortDirection === 'desc'">
                         <i class="bi bi-sort-alpha-down-alt"></i> Tựa đề (Z-A)
                     </div>
                 </div>
@@ -134,29 +145,37 @@
             </thead>
             <tbody>
                 <tr *ngFor="let d of pagedDiseases" [class.selected]="d.selected" (click)="viewDetail(d._id || d.id)">
-                    <td (click)="$event.stopPropagation()" style="position: sticky; left: 0; background: inherit; z-index: 1;">
+                    <td (click)="$event.stopPropagation()"
+                        style="position: sticky; left: 0; background: inherit; z-index: 1;">
                         <input type="checkbox" [(ngModel)]="d.selected" (change)="onSelectChange()">
                     </td>
                     <td>
-                        <div class="disease-img-wrapper" style="width: 60px; height: 60px; border-radius: 8px; overflow: hidden; background: #eee;">
-                            <img *ngIf="d.imageUrl" [src]="d.imageUrl" style="width: 100%; height: 100%; object-fit: cover;" alt="Disease Cover">
-                            <div *ngIf="!d.imageUrl" class="flex items-center justify-center h-full text-neutral-40" style="font-size: 10px;">No image</div>
+                        <div class="disease-img-wrapper"
+                            style="width: 60px; height: 60px; border-radius: 8px; overflow: hidden; background: #eee;">
+                            <img *ngIf="d.imageUrl" [src]="d.imageUrl"
+                                style="width: 100%; height: 100%; object-fit: cover;" alt="Disease Cover">
+                            <div *ngIf="!d.imageUrl" class="flex items-center justify-center h-full text-neutral-40"
+                                style="font-size: 10px;">No image</div>
                         </div>
                     </td>
                     <td class="font-bold">
-                        <div class="blog-title" style="max-width: 320px; white-space: normal; font-size: 14px;">{{ d.name }}</div>
+                        <div class="blog-title" style="max-width: 320px; white-space: normal; font-size: 14px;">{{
+                            d.name }}</div>
                     </td>
                     <td>
                         <div class="category-pill-container" *ngIf="d.categoryName">
-                            <ng-container *ngFor="let part of d.categoryName.split(' > '); let last = last; let first = first">
-                                <span class="cat-pill" [class.cat-parent]="first" [class.cat-child]="!first">{{ part }}</span>
+                            <ng-container
+                                *ngFor="let part of d.categoryName.split(' > '); let last = last; let first = first">
+                                <span class="cat-pill" [class.cat-parent]="first" [class.cat-child]="!first">{{ part
+                                    }}</span>
                                 <span class="cat-sep" *ngIf="!last"><i class="bi bi-chevron-right"></i></span>
                             </ng-container>
                         </div>
                         <span class="text-neutral-40" *ngIf="!d.categoryName">Không có</span>
                     </td>
                     <td class="text-neutral-50" style="font-size: 14px;">{{ d.authorName }}</td>
-                    <td class="text-neutral-50" style="font-size: 14px;">{{ d.publishDate | date:'dd/MM/yyyy HH:mm' }}</td>
+                    <td class="text-neutral-50" style="font-size: 14px;">{{ d.publishDate | date:'dd/MM/yyyy HH:mm' }}
+                    </td>
                     <td class="text-center">
                         <div class="status-badge" [ngClass]="d.is_approved ? 'status-active' : 'status-inactive'">
                             <span class="status-dot"></span>
@@ -174,26 +193,33 @@
         <!-- Pagination -->
         <div class="pagination-controls" style="display: flex; justify-content: space-between; align-items: center; padding: 16px; border-top: 1px solid var(--color-neutral-30);">
             <div style="font-size: 13px; color: var(--color-text-secondary);">
-                Hiển thị {{ filteredDiseases.length > 0 ? ((currentPage - 1) * 20 + 1) : 0 }}–{{ ((currentPage - 1) * 20) + filteredDiseases.length }}
+                Hiển thị {{ filteredDiseases.length > 0 ? ((currentPage - 1) * 20 + 1) : 0 }}–{{ ((currentPage - 1) *
+                20) + filteredDiseases.length }}
                 trong tổng <strong>{{ totalItems }}</strong> bệnh
             </div>
             <div style="display: flex; align-items: center; gap: 4px;">
-                <button class="btn btn-sm action-btn" (click)="prevDisplayPage()" [disabled]="currentPage === 1" [class.disabled]="currentPage === 1" style="min-width: 32px; padding: 4px 10px;">
+                <button class="btn btn-sm action-btn" (click)="prevDisplayPage()" [disabled]="currentPage === 1"
+                    [class.disabled]="currentPage === 1" style="min-width: 32px; padding: 4px 10px;">
                     <i class="bi bi-chevron-left"></i>
                 </button>
                 <ng-container *ngIf="currentPage > 3">
-                    <button class="btn btn-sm action-btn" (click)="goToDisplayPage(1)" style="min-width: 32px; padding: 4px 10px;">1</button>
+                    <button class="btn btn-sm action-btn" (click)="goToDisplayPage(1)"
+                        style="min-width: 32px; padding: 4px 10px;">1</button>
                     <span style="padding: 0 4px; color: var(--color-neutral-40);">…</span>
                 </ng-container>
-                <button *ngFor="let p of displayPageNumbers" class="btn btn-sm action-btn" [class.active]="p === currentPage"
-                    (click)="goToDisplayPage(p)" style="min-width: 32px; padding: 4px 10px;"
+                <button *ngFor="let p of displayPageNumbers" class="btn btn-sm action-btn"
+                    [class.active]="p === currentPage" (click)="goToDisplayPage(p)"
+                    style="min-width: 32px; padding: 4px 10px;"
                     [style.background]="p === currentPage ? 'var(--color-primary)' : ''"
                     [style.color]="p === currentPage ? 'white' : ''">{{ p }}</button>
                 <ng-container *ngIf="currentPage < displayTotalPages - 2">
                     <span style="padding: 0 4px; color: var(--color-neutral-40);">…</span>
-                    <button class="btn btn-sm action-btn" (click)="goToDisplayPage(displayTotalPages)" style="min-width: 32px; padding: 4px 10px;">{{ displayTotalPages }}</button>
+                    <button class="btn btn-sm action-btn" (click)="goToDisplayPage(displayTotalPages)"
+                        style="min-width: 32px; padding: 4px 10px;">{{ displayTotalPages }}</button>
                 </ng-container>
-                <button class="btn btn-sm action-btn" (click)="nextDisplayPage()" [disabled]="currentPage === displayTotalPages" [class.disabled]="currentPage === displayTotalPages" style="min-width: 32px; padding: 4px 10px;">
+                <button class="btn btn-sm action-btn" (click)="nextDisplayPage()"
+                    [disabled]="currentPage === displayTotalPages" [class.disabled]="currentPage === displayTotalPages"
+                    style="min-width: 32px; padding: 4px 10px;">
                     <i class="bi bi-chevron-right"></i>
                 </button>
             </div>
@@ -204,21 +230,27 @@
     <div class="modal-wrapper" *ngIf="isConfirmModalOpen">
         <div class="modal-backdrop" (click)="closeConfirmModal()"></div>
         <div class="modal-content-wrapper compact">
-            <div class="modal-header compact-header" style="background: transparent; border-bottom: none; padding-bottom: 0; padding: 20px;">
-                <h5 class="modal-title danger" style="color: var(--color-danger); display: flex; align-items: center; gap: 10px; font-weight: 800;">
+            <div class="modal-header compact-header"
+                style="background: transparent; border-bottom: none; padding-bottom: 0; padding: 20px;">
+                <h5 class="modal-title danger"
+                    style="color: var(--color-danger); display: flex; align-items: center; gap: 10px; font-weight: 800;">
                     <i class="bi bi-exclamation-triangle-fill"></i> XÁC NHẬN XÓA
                 </h5>
                 <button type="button" class="close-btn" (click)="closeConfirmModal()">&times;</button>
             </div>
             <div class="modal-body compact-body" style="padding: 0 30px 20px;">
-                <p style="font-weight: 600; color: #333;">Bạn có chắc chắn muốn xóa <strong>{{ selectedCount }}</strong> bệnh đã chọn?</p>
-                <p class="sub-text" style="color: var(--color-text-secondary); font-size: 14px; margin-bottom: 0;">Thao tác này không thể hoàn tác.</p>
+                <p style="font-weight: 600; color: #333;">Bạn có chắc chắn muốn xóa <strong>{{ selectedCount }}</strong>
+                    bệnh đã chọn?</p>
+                <p class="sub-text" style="color: var(--color-text-secondary); font-size: 14px; margin-bottom: 0;">Thao
+                    tác này không thể hoàn tác.</p>
             </div>
-            <div class="modal-footer compact-footer" style="padding: 20px 30px; background: #f9f9f9; border-top: 1px solid #eee;">
+            <div class="modal-footer compact-footer"
+                style="padding: 20px 30px; background: #f9f9f9; border-top: 1px solid #eee;">
                 <button type="button" class="btn action-btn bg-neutral" (click)="closeConfirmModal()"
                     style="background: #eee; color: #666; border: none; padding: 10px 20px;">Hủy</button>
                 <button type="button" class="btn btn-danger" (click)="confirmDelete()"
-                    style="background-color: var(--color-danger); color: white; border: none; padding: 10px 25px; border-radius: 10px; font-weight: 800;">XÓA NGAY</button>
+                    style="background-color: var(--color-danger); color: white; border: none; padding: 10px 25px; border-radius: 10px; font-weight: 800;">XÓA
+                    NGAY</button>
             </div>
         </div>
     </div>

@@ -340,6 +340,7 @@
               <div class="vc_notify_item" *ngFor="let n of notificationsPreview"
                 [class.vc_notify_item--remind]="n.type === 'medication_reminder'"
                 [class.vc_notify_item--order]="n.type === 'order_created' || n.type === 'order_updated'"
+                [class.vc_notify_item--helpful]="bellHelpfulLikeNotice(n)"
                 [class.vc_notify_item--unread]="!n.read"
                 (click)="openNoticeFromBell(n)"
                 [class.vc_notify_item--order-delivering]="

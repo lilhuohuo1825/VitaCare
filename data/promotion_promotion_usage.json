@@ -1,46 +1,19 @@
-[
-    {
-        "_id": "690b1361ca42a26c89d2e87a",
-        "promotion_id": "PROMO_WELCOME",
-        "user_id": [
-            "CUS000001",
-            "CUS000003"
-        ],
-        "order_id": []
-    },
-    {
-        "_id": "690b1361ca42a26c89d2e87b",
-        "promotion_id": "PROMO_NY2026",
-        "user_id": [
-            "CUS000002",
-            "CUS000001",
-            "CUS000024"
-        ],
-        "order_id": [
-            "ORD0004",
-            "ORD0005"
-        ]
-    },
-    {
-        "_id": "usage_77323",
-        "promotion_id": "PROMO_SHIPFREE",
-        "user_id": [
-            "CUS000013"
-        ],
-        "order_id": [
-            "ORD0001"
-        ]
-    },
-    {
-        "_id": "usage_64009",
-        "promotion_id": "PROMO_FLASH",
-        "user_id": [
-            "CUS000021",
-            "CUS000015"
-        ],
-        "order_id": [
-            "ORD0002",
-            "ORD0003"
-        ]
-    }
-]
+[{
+  "_id": {
+    "$oid": "69ba3e2611484d75c2faf8d2"
+  },
+  "promotion_id": "PRM-30987833",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2026-03-18T05:54:46.872Z"
+  },
+  "order_id": [
+    "ORD000031"
+  ],
+  "updatedAt": {
+    "$date": "2026-03-18T05:54:46.872Z"
+  },
+  "user_id": [
+    "CUS000026"
+  ]
+}]

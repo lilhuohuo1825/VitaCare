@@ -1,6 +1,7 @@
 import { Component, Input, HostListener, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { HOME_URL } from '../../../core/constants/navigation.constants';
 
 @Component({
   selector: 'app-product-tabs-content',
@@ -74,7 +75,7 @@ export class ProductTabsContent {
       ) {
         newLink = `href=\"/category${cleanPath}\"`;
       } else if (path === '' || path === '/') {
-        newLink = `href=\"/\"`;
+        newLink = `href=\"${HOME_URL}\"`;
       }
 
       return newLink;

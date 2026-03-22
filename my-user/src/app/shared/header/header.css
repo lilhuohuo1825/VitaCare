@@ -750,6 +750,16 @@
   border-color: rgba(236, 72, 153, 0.22);
 }
 
+.vc_notify_icon--helpful {
+  background: rgba(245, 158, 11, 0.14);
+  color: #d97706;
+  border-color: rgba(245, 158, 11, 0.35);
+}
+
+.vc_notify_item--helpful.vc_notify_item--unread {
+  background: rgba(245, 158, 11, 0.08);
+}
+
 .vc_notify_empty,
 .vc_notify_loading {
   padding: 10px 14px;

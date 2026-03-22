@@ -1,16 +1,18 @@
 import {
+  AfterViewInit,
+  ChangeDetectorRef,
   Component,
   ElementRef,
-  ViewChild,
   inject,
-  OnInit,
-  signal,
-  effect,
-  untracked,
   Input,
   OnChanges,
+  OnDestroy,
+  OnInit,
   SimpleChanges,
-  ChangeDetectorRef,
+  ViewChild,
+  effect,
+  signal,
+  untracked,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -87,7 +89,7 @@ interface ReturnReason {
   templateUrl: './orders.html',
   styleUrl: './orders.css',
 })
-export class Orders implements OnInit, OnChanges {
+export class Orders implements OnInit, OnChanges, AfterViewInit, OnDestroy {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private orderService = inject(OrderService);
@@ -103,6 +105,15 @@ export class Orders implements OnInit, OnChanges {
   // Search
   searchQuery: string = '';
   @ViewChild('searchInput') searchInput!: ElementRef;
+
+  @ViewChild('ordersStickySentinel', { read: ElementRef }) ordersStickySentinelRef?: ElementRef<HTMLElement>;
+
+  /** Lớp nền che khi đã cuộn (sentinel không còn giao viewport dưới header site). */
+  stickyOrdersBackdrop = false;
+
+  private ordersStickyIntersectionObserver?: IntersectionObserver;
+  private resizeOrdersBackdropListener?: () => void;
+  private resizeOrdersBackdropTimer?: ReturnType<typeof setTimeout>;
 
   // Order Detail Modal
   @ViewChild(OrderDetailAcc) orderDetailModal!: OrderDetailAcc;
@@ -259,6 +270,54 @@ export class Orders implements OnInit, OnChanges {
     if (changes['userId'] && this.userId) {
       this.fetchOrders(this.userId);
     }
+  }
+
+  ngAfterViewInit(): void {
+    queueMicrotask(() => {
+      this.setupOrdersStickyBackdropObserver();
+      this.resizeOrdersBackdropListener = () => {
+        if (this.resizeOrdersBackdropTimer) clearTimeout(this.resizeOrdersBackdropTimer);
+        this.resizeOrdersBackdropTimer = setTimeout(() => this.setupOrdersStickyBackdropObserver(), 180);
+      };
+      window.addEventListener('resize', this.resizeOrdersBackdropListener, { passive: true });
+    });
+  }
+
+  ngOnDestroy(): void {
+    if (this.resizeOrdersBackdropListener) {
+      window.removeEventListener('resize', this.resizeOrdersBackdropListener);
+      this.resizeOrdersBackdropListener = undefined;
+    }
+    if (this.resizeOrdersBackdropTimer) {
+      clearTimeout(this.resizeOrdersBackdropTimer);
+      this.resizeOrdersBackdropTimer = undefined;
+    }
+    this.ordersStickyIntersectionObserver?.disconnect();
+    this.ordersStickyIntersectionObserver = undefined;
+  }
+
+  /** Giống Thông báo: sentinel trước khối neo — khi không còn intersect → bật khung giả. */
+  private setupOrdersStickyBackdropObserver(): void {
+    const el = this.ordersStickySentinelRef?.nativeElement;
+    if (!el || typeof IntersectionObserver === 'undefined') return;
+
+    const accountHost = el.closest('app-account');
+    const raw = accountHost
+      ? getComputedStyle(accountHost).getPropertyValue('--vc-account-sidebar-sticky-top').trim()
+      : '';
+    const parsed = parseInt(raw.replace('px', ''), 10);
+    const insetPx = Number.isFinite(parsed) && parsed > 0 ? parsed : 164;
+
+    this.ordersStickyIntersectionObserver?.disconnect();
+    this.ordersStickyIntersectionObserver = new IntersectionObserver(
+      (entries) => {
+        const e = entries[0];
+        this.stickyOrdersBackdrop = !e?.isIntersecting;
+        this.cdr.markForCheck();
+      },
+      { root: null, rootMargin: `-${insetPx}px 0px 0px 0px`, threshold: 0 },
+    );
+    this.ordersStickyIntersectionObserver.observe(el);
   }
 
   fetchOrders(userId: string): void {
