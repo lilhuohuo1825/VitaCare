@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BlogService } from '../services/blog.service';
+import { AuthService } from '../services/auth.service';
 
 @Component({
     selector: 'app-blogdetail',
@@ -32,7 +33,9 @@ export class Blogdetail implements OnInit {
         categories: [],
         parentCategory: null,
         isActive: true,
-        isApproved: false
+        isApproved: false,
+        approver: null,
+        approvedAt: null as string | null
     };
 
     isImageLibraryOpen: boolean = false;
@@ -63,11 +66,15 @@ export class Blogdetail implements OnInit {
     historySaveTimeout: any = null;
     private readonly backendBaseUrl = 'http://localhost:3000';
 
+    /** Trạng thái duyệt khi mở form (để biết lần đầu dược sĩ duyệt) */
+    private previousIsApproved = false;
+
     constructor(
         private route: ActivatedRoute,
         private router: Router,
         private cdr: ChangeDetectorRef,
-        @Inject(BlogService) private blogService: BlogService
+        @Inject(BlogService) private blogService: BlogService,
+        private auth: AuthService
     ) { }
 
     ngOnInit() {
@@ -111,7 +118,9 @@ export class Blogdetail implements OnInit {
             categories: [],
             parentCategory: null,
             isActive: true,
-            isApproved: false
+            isApproved: false,
+            approver: null,
+            approvedAt: null as string | null
         };
     }
 
@@ -275,6 +284,16 @@ export class Blogdetail implements OnInit {
                 this.isLoading = false;
             }
         });
+    }
+
+    /** Tên hiển thị người duyệt (object hoặc chuỗi từ MongoDB). */
+    getApproverDisplayName(): string {
+        const a = this.blogData?.approver;
+        if (a == null) return '';
+        if (typeof a === 'string') return String(a).trim();
+        return String(
+            a.fullName || a.full_name || a.name || a.displayName || ''
+        ).trim();
     }
 
     formatDateForInput(date: Date): string {
@@ -450,6 +469,9 @@ export class Blogdetail implements OnInit {
             this.onTagsTextChange();
         }
 
+        // Dược sĩ: tác giả khi tạo bài; người duyệt khi bật Duyệt và lưu
+        this.applyPharmacistBlogFields();
+
         // Keep shortDescription as primary excerpt field
         if (!this.blogData.shortDescription && this.blogData.excerpt) {
             this.blogData.shortDescription = this.blogData.excerpt;
@@ -469,6 +491,9 @@ export class Blogdetail implements OnInit {
         if (!this.blogData.slug && this.blogData.title) {
             this.blogData.slug = this.generateSlug(this.blogData.title);
         }
+
+        // Đồng bộ field snake_case nếu backend / Mongo dùng
+        this.blogData.is_approved = this.blogData.isApproved;
 
         const action = this.isEditMode && this.blogId
             ? this.blogService.updateBlog(this.blogId, this.blogData)
@@ -854,6 +879,35 @@ export class Blogdetail implements OnInit {
         document.execCommand('foreColor', false, color);
         this.saveToHistory();
         this.updateBlogContent({ target: this.contentEditor.nativeElement } as any);
+    }
+
+    /**
+     * Gắn author / approver theo session dược sĩ (Quản lý blog — vai trò Pharmacist).
+     */
+    private applyPharmacistBlogFields(): void {
+        if (!this.auth.isPharmacistAccount()) return;
+        const authorPh = this.auth.getPharmacistBlogPerson(false);
+        const approverPh = this.auth.getPharmacistBlogPerson(true);
+        if (!authorPh || !approverPh) return;
+
+        if (!this.isEditMode) {
+            this.blogData.author = { ...authorPh };
+            if (this.blogData.isApproved) {
+                this.blogData.approver = { ...approverPh };
+                this.blogData.approvedAt = new Date().toISOString();
+            }
+            return;
+        }
+
+        if (this.blogData.isApproved && !this.previousIsApproved) {
+            this.blogData.approver = { ...approverPh };
+            this.blogData.approvedAt = new Date().toISOString();
+        } else if (this.blogData.isApproved && !this.blogData.approver) {
+            this.blogData.approver = { ...approverPh };
+            if (!this.blogData.approvedAt) {
+                this.blogData.approvedAt = new Date().toISOString();
+            }
+        }
     }
 
     onTitleChange() {

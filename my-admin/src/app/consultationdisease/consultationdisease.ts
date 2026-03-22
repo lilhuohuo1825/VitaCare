@@ -43,6 +43,10 @@ export class Consultationdisease implements OnInit {
 
   showFilterDropdown = false;
   showSortDropdown = false;
+  currentAccountRole: 'admin' | 'pharmacist' = 'admin';
+  currentPharmacistId: string = '';
+  currentPharmacistName: string = '';
+  currentPharmacistEmail: string = '';
 
   filters = {
     status: [] as string[]
@@ -65,6 +69,7 @@ export class Consultationdisease implements OnInit {
   }
 
   ngOnInit() {
+    this.loadCurrentAccount();
     this.loadData();
   }
 
@@ -72,12 +77,15 @@ export class Consultationdisease implements OnInit {
     this.isLoading = true;
     forkJoin({
       pharmacists: this.consultationService.getPharmacists().pipe(catchError(() => of({ data: [] }))),
-      diseases: this.consultationService.getDiseaseConsultationStats().pipe(catchError(() => of({ success: true, data: [] })))
-    }).subscribe(({ pharmacists, diseases }) => {
+      diseases: this.consultationService.getDiseaseConsultationStats().pipe(catchError(() => of({ success: true, data: [] }))),
+      diseaseDetails: this.consultationService.getDiseaseConsultations().pipe(catchError(() => of({ success: true, data: [] })))
+    }).subscribe(({ pharmacists, diseases, diseaseDetails }) => {
       this.pharmacists = (pharmacists && pharmacists.data) ? pharmacists.data : (Array.isArray(pharmacists) ? pharmacists : []);
+      this.resolveCurrentPharmacistId();
 
       if (diseases && diseases.success) {
-        this.diseases = diseases.data;
+        const details = diseaseDetails?.success ? (diseaseDetails.data || []) : [];
+        this.diseases = this.mergeDiseaseStatsWithDetails(diseases.data || [], details);
         this.applyDiseaseFilters();
         this.calculateGlobalStats();
       }
@@ -88,10 +96,14 @@ export class Consultationdisease implements OnInit {
 
   fetchDiseases() {
     this.isLoading = true;
-    this.consultationService.getDiseaseConsultationStats().subscribe({
-      next: (res) => {
-        if (res.success) {
-          this.diseases = res.data;
+    forkJoin({
+      stats: this.consultationService.getDiseaseConsultationStats().pipe(catchError(() => of({ success: true, data: [] }))),
+      details: this.consultationService.getDiseaseConsultations().pipe(catchError(() => of({ success: true, data: [] })))
+    }).subscribe({
+      next: ({ stats, details }) => {
+        if (stats.success) {
+          const detailRows = details?.success ? (details.data || []) : [];
+          this.diseases = this.mergeDiseaseStatsWithDetails(stats.data || [], detailRows);
           this.applyDiseaseFilters();
           this.calculateGlobalStats();
           this.cdr.markForCheck();
@@ -116,8 +128,8 @@ export class Consultationdisease implements OnInit {
     if (this.diseaseSearchText.trim()) {
       const lower = this.diseaseSearchText.toLowerCase();
       result = result.filter(d =>
-        d.productName.toLowerCase().includes(lower) ||
-        d.sku.toLowerCase().includes(lower)
+        this.getDiseaseName(d).toLowerCase().includes(lower) ||
+        this.getDiseaseCategory(d).toLowerCase().includes(lower)
       );
     }
 
@@ -273,7 +285,8 @@ export class Consultationdisease implements OnInit {
     this.selectedQuestion = { ...item };
     this.replyContent = item.answer || '';
     const foundPharmacist = this.pharmacists.find(p => p.pharmacistName === item.answeredBy);
-    this.editedPharmacistId = foundPharmacist ? foundPharmacist._id : '';
+    const defaultPharmacistId = foundPharmacist?._id || this.getDefaultPharmacistIdForCurrentSession();
+    this.editedPharmacistId = defaultPharmacistId || '';
     this.isModalOpen = true;
   }
 
@@ -310,5 +323,110 @@ export class Consultationdisease implements OnInit {
   showNotification(message: string, type: 'success' | 'error' | 'warning' = 'success') {
     this.notification = { show: true, message, type };
     setTimeout(() => this.notification.show = false, 3000);
+  }
+
+  getDiseaseName(disease: any): string {
+    return String(
+      disease?.name ||
+      disease?.productName ||
+      disease?.diseaseName ||
+      disease?.title ||
+      'Chưa cập nhật'
+    );
+  }
+
+  getDiseaseCategory(disease: any): string {
+    const fromCategories = this.buildCategoryPathFromLevels(disease?.categories);
+    if (fromCategories) return fromCategories;
+    return String(
+      disease?.category ||
+      disease?.categoryName ||
+      disease?.groupName ||
+      disease?.diseaseGroup ||
+      'Chưa phân loại'
+    );
+  }
+
+  private mergeDiseaseStatsWithDetails(stats: any[], details: any[]): any[] {
+    const detailBySku = new Map<string, any>();
+    for (const row of details || []) {
+      const sku = String(row?.sku || '').trim();
+      if (sku) detailBySku.set(sku, row);
+    }
+
+    return (stats || []).map((stat: any) => {
+      const sku = String(stat?.sku || '').trim();
+      const detail = detailBySku.get(sku);
+      return {
+        ...stat,
+        name: stat?.name || detail?.name || stat?.productName || detail?.productName,
+        categories: Array.isArray(detail?.categories) ? detail.categories : stat?.categories
+      };
+    });
+  }
+
+  private buildCategoryPathFromLevels(categories: any): string {
+    if (!Array.isArray(categories) || categories.length === 0) return '';
+
+    const normalized = categories
+      .map((item: any) => ({
+        name: String(item?.name || item?.category?.name || '').trim(),
+        level: Number(item?.level ?? item?.category?.level ?? Number.MAX_SAFE_INTEGER)
+      }))
+      .filter((item: any) => !!item.name);
+
+    if (!normalized.length) return '';
+
+    normalized.sort((a: any, b: any) => a.level - b.level);
+    const uniquePath: string[] = [];
+    for (const item of normalized) {
+      if (!uniquePath.includes(item.name)) uniquePath.push(item.name);
+    }
+    return uniquePath.join(' > ');
+  }
+
+  private loadCurrentAccount() {
+    if (typeof window === 'undefined') return;
+    try {
+      const raw = localStorage.getItem('admin');
+      if (!raw) return;
+      const account = JSON.parse(raw);
+      this.currentAccountRole = account?.accountRole === 'pharmacist' ? 'pharmacist' : 'admin';
+      this.currentPharmacistId = String(account?._id || account?.pharmacist_id || '').trim();
+      this.currentPharmacistName = String(account?.pharmacistName || account?.adminname || '').trim();
+      this.currentPharmacistEmail = String(account?.pharmacistEmail || account?.email || account?.adminemail || '').trim().toLowerCase();
+    } catch (_) {
+      this.currentAccountRole = 'admin';
+    }
+  }
+
+  private resolveCurrentPharmacistId() {
+    if (this.currentAccountRole !== 'pharmacist' || !this.pharmacists?.length) return;
+    if (this.currentPharmacistId) {
+      const byId = this.pharmacists.find(p => String(p?._id || '') === this.currentPharmacistId);
+      if (byId) return;
+    }
+
+    const byEmail = this.currentPharmacistEmail
+      ? this.pharmacists.find(p => String(p?.pharmacistEmail || p?.email || '').trim().toLowerCase() === this.currentPharmacistEmail)
+      : null;
+    if (byEmail?._id) {
+      this.currentPharmacistId = String(byEmail._id);
+      return;
+    }
+
+    const byName = this.currentPharmacistName
+      ? this.pharmacists.find(p => String(p?.pharmacistName || '').trim().toLowerCase() === this.currentPharmacistName.toLowerCase())
+      : null;
+    if (byName?._id) {
+      this.currentPharmacistId = String(byName._id);
+    }
+  }
+
+  private getDefaultPharmacistIdForCurrentSession(): string {
+    if (this.currentAccountRole !== 'pharmacist') return '';
+    if (this.currentPharmacistId) return this.currentPharmacistId;
+    this.resolveCurrentPharmacistId();
+    return this.currentPharmacistId;
   }
 }

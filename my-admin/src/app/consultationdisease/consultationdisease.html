@@ -40,26 +40,34 @@
         <div class="filter-bar">
             <div class="search-box">
                 <i class="bi bi-search"></i>
-                <input type="text" placeholder="Tìm bệnh theo Tên hoặc SKU..." [(ngModel)]="diseaseSearchText"
+                <input type="text" placeholder="Tìm bệnh theo tên hoặc chuyên mục..." [(ngModel)]="diseaseSearchText"
                     (input)="applyDiseaseFilters()">
             </div>
         </div>
 
         <div class="table-scrollable">
-            <table class="data-table">
+            <table class="data-table consultation-disease-list-table">
                 <thead>
                     <tr>
-                        <th width="250">MÃ BỆNH (SKU)</th>
-                        <th>TÊN BỆNH</th>
-                        <th width="120" style="text-align: center;">TỔNG CÂU HỎI</th>
-                        <th width="120" style="text-align: center;">CẦN PHẢN HỒI</th>
+                        <th class="col-disease-name">TÊN BỆNH</th>
+                        <th class="col-chuyen-muc">CHUYÊN MỤC</th>
+                        <th width="100" style="text-align: center;">TỔNG CÂU HỎI</th>
+                        <th width="110" style="text-align: center;">CẦN PHẢN HỒI</th>
                         <th width="120" style="text-align: center;">THAO TÁC</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr *ngFor="let d of filteredDiseases" (click)="selectDisease(d)">
-                        <td><b>{{ d.sku }}</b></td>
-                        <td>{{ d.productName }}</td>
+                        <td class="cell-disease-name"><b>{{ getDiseaseName(d) }}</b></td>
+                        <td class="cell-chuyen-muc">
+                            <div class="category-pill-container" *ngIf="getDiseaseCategory(d) !== 'Chưa phân loại'">
+                                <ng-container *ngFor="let part of getDiseaseCategory(d).split(' > '); let last = last; let first = first">
+                                    <span class="cat-pill" [class.cat-parent]="first" [class.cat-child]="!first">{{ part }}</span>
+                                    <span class="cat-sep" *ngIf="!last"><i class="bi bi-chevron-right"></i></span>
+                                </ng-container>
+                            </div>
+                            <span class="text-neutral-40" *ngIf="getDiseaseCategory(d) === 'Chưa phân loại'">Chưa phân loại</span>
+                        </td>
                         <td style="text-align: center;">{{ d.totalQuestions }}</td>
                         <td style="text-align: center;">
                             <span *ngIf="d.unansweredCount > 0" style="color: #c62828; font-weight: bold;">{{

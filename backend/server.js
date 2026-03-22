@@ -1169,6 +1169,50 @@ app.get('/api/promo-images/:token', async (req, res) => {
   }
 });
 
+// data URL / ảnh lớn => lưu buffer trong Mongo, URL ngắn /api/promo-images/:token (dùng chung: KM, avatar, ...)
+const normalizePromotionImagesToShortLinks = async (images) => {
+  if (!Array.isArray(images)) return images;
+
+  const out = [];
+  for (const raw of images) {
+    const value = String(raw || '').trim();
+    if (!value) continue;
+
+    if (
+      value.startsWith('/api/promo-images/') ||
+      value.startsWith('http://') ||
+      value.startsWith('https://') ||
+      value.startsWith('/uploads/')
+    ) {
+      out.push(value);
+      continue;
+    }
+
+    const m = value.match(/^data:(.+?);base64,(.+)$/);
+    if (m) {
+      const mimeType = m[1] || 'image/jpeg';
+      const b64 = m[2] || '';
+      const buffer = Buffer.from(b64, 'base64');
+      const token = crypto.randomBytes(6).toString('base64url');
+
+      await promoBannerImagesCollection().insertOne({
+        token,
+        mimeType,
+        data: buffer,
+        size: buffer.length,
+        originalName: '',
+        createdAt: new Date().toISOString()
+      });
+
+      out.push(`/api/promo-images/${token}`);
+      continue;
+    }
+
+    out.push(value);
+  }
+  return out;
+};
+
 // GET /api/orders?user_id=...
 app.get('/api/orders', async (req, res) => {
   try {
@@ -7532,7 +7576,17 @@ app.patch('/api/users/me', async (req, res) => {
     if (email !== undefined) update.email = String(email);
     if (birthday !== undefined) update.birthday = birthday === '' ? null : String(birthday);
     if (gender !== undefined) update.gender = String(gender);
-    if (avatar !== undefined) update.avatar = avatar;
+    if (avatar !== undefined) {
+      if (avatar === null) {
+        update.avatar = null;
+      } else if (avatar === '') {
+        update.avatar = '';
+      } else {
+        const trimmed = String(avatar).trim();
+        const normalized = await normalizePromotionImagesToShortLinks([trimmed]);
+        update.avatar = normalized[0] ?? trimmed;
+      }
+    }
 
     if (Object.keys(update).length === 0) {
       return res.status(400).json({ success: false, message: 'Không có trường nào để cập nhật.' });
@@ -7549,6 +7603,41 @@ app.patch('/api/users/me', async (req, res) => {
     res.json({ success: true, user });
   } catch (err) {
     console.error('Update profile error:', err);
+    res.status(500).json({ success: false, message: 'Lỗi máy chủ.' });
+  }
+});
+
+// POST /api/users/me/upload-avatar — multipart giống KM: lưu Mongo + URL ngắn, tránh gửi base64 qua JSON
+app.post('/api/users/me/upload-avatar', uploadPromoBannerImage, async (req, res) => {
+  try {
+    const user_id = String(req.body?.user_id || '').trim();
+    if (!user_id) {
+      return res.status(400).json({ success: false, message: 'Thiếu user_id.' });
+    }
+    const file = req.file;
+    if (!file) {
+      return res.status(400).json({ success: false, message: 'Missing file' });
+    }
+
+    const token = crypto.randomBytes(6).toString('base64url');
+    await promoBannerImagesCollection().insertOne({
+      token,
+      mimeType: file.mimetype || 'image/jpeg',
+      data: file.buffer,
+      size: file.size,
+      originalName: file.originalname || '',
+      createdAt: new Date().toISOString()
+    });
+    const imageUrl = `/api/promo-images/${token}`;
+
+    const result = await usersCollection().updateOne({ user_id }, { $set: { avatar: imageUrl } });
+    if (result.matchedCount === 0) {
+      return res.status(404).json({ success: false, message: 'Người dùng không tồn tại.' });
+    }
+    const user = await usersCollection().findOne({ user_id }, { projection: { password: 0 } });
+    res.json({ success: true, imageUrl, user });
+  } catch (err) {
+    console.error('[POST /api/users/me/upload-avatar] Error:', err);
     res.status(500).json({ success: false, message: 'Lỗi máy chủ.' });
   }
 });
@@ -8217,7 +8306,7 @@ app.get('/api/admin/stats', async (req, res) => {
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-    const [products, users, orders, promos, blogs, pharmacists, consults_p, consults_pr, consults_d, revenue30dAgg, totalRevenueAgg] = await Promise.all([
+    const [products, users, orders, promos, blogs, pharmacists, consults_p, consults_pr, consults_d, revenue30dAgg, totalRevenueAgg, doctors, admins] = await Promise.all([
       ProductModel.countDocuments(),
       UserModel.countDocuments(),
       OrderModel.countDocuments(),
@@ -8247,7 +8336,9 @@ app.get('/api/admin/stats', async (req, res) => {
       OrderModel.aggregate([
         { $match: { $or: [{ statusPayment: 'paid' }, { status: 'delivered' }] } },
         { $group: { _id: null, total: { $sum: "$totalAmount" } } }
-      ])
+      ]),
+      doctorsCollection().countDocuments({}),
+      AdminModel.countDocuments()
     ]);
 
     // Fill gaps in revenue30d
@@ -8271,6 +8362,8 @@ app.get('/api/admin/stats', async (req, res) => {
         promotions: promos,
         blogs,
         pharmacists,
+        doctors,
+        admins,
         consultations_product: consults_p,
         consultations_prescription: consults_pr,
         consultations_disease: consults_d,
@@ -8369,11 +8462,21 @@ app.get('/api/admin/products', async (req, res) => {
     const totalItems = await ProductModel.countDocuments(query);
 
     const sortObj = {};
-    if (req.query.sortColumn) {
-      const col = req.query.sortColumn;
-      sortObj[col] = req.query.sortDirection === 'desc' ? -1 : 1;
+    const dirMult = req.query.sortDirection === 'desc' ? -1 : 1;
+    const allowedSortCols = new Set(['updatedAt', 'created_at', 'createDate', 'price', 'name', 'stock', 'sold', 'expiryDate']);
+    const colRaw = String(req.query.sortColumn || '').trim();
+    if (colRaw && allowedSortCols.has(colRaw)) {
+      if (colRaw === 'updatedAt') {
+        sortObj.updatedAt = dirMult;
+        sortObj.created_at = dirMult;
+        sortObj.createDate = dirMult;
+      } else {
+        sortObj[colRaw] = dirMult;
+      }
     } else {
+      sortObj.updatedAt = -1;
       sortObj.created_at = -1;
+      sortObj.createDate = -1;
     }
 
     const data = await ProductModel.find(query)
@@ -8624,53 +8727,6 @@ const sanitizePromotion = (p) => {
   return clean;
 };
 
-// Nếu admin dán data URL base64 => chuyển sang lưu ảnh trong Mongo và trả về link ngắn
-const normalizePromotionImagesToShortLinks = async (images) => {
-  if (!Array.isArray(images)) return images;
-
-  const out = [];
-  for (const raw of images) {
-    const value = String(raw || '').trim();
-    if (!value) continue;
-
-    // Giữ nguyên các URL đã ngắn hoặc đường dẫn bình thường
-    if (
-      value.startsWith('/api/promo-images/') ||
-      value.startsWith('http://') ||
-      value.startsWith('https://') ||
-      value.startsWith('/uploads/')
-    ) {
-      out.push(value);
-      continue;
-    }
-
-    // data:image/jpeg;base64,...
-    const m = value.match(/^data:(.+?);base64,(.+)$/);
-    if (m) {
-      const mimeType = m[1] || 'image/jpeg';
-      const b64 = m[2] || '';
-      const buffer = Buffer.from(b64, 'base64');
-      const token = crypto.randomBytes(6).toString('base64url');
-
-      await promoBannerImagesCollection().insertOne({
-        token,
-        mimeType,
-        data: buffer,
-        size: buffer.length,
-        originalName: '',
-        createdAt: new Date().toISOString()
-      });
-
-      out.push(`/api/promo-images/${token}`);
-      continue;
-    }
-
-    // Fallback: lưu nguyên giá trị
-    out.push(value);
-  }
-  return out;
-};
-
 app.post('/api/admin/promotions', async (req, res) => {
   try {
     const cleanBody = sanitizePromotion(req.body);
@@ -8816,15 +8872,25 @@ app.get('/api/admin/pharmacists', async (req, res) => {
 
 app.get('/api/admin/consultations_prescription', async (req, res) => {
   try {
-    const data = await ConsultationPrescriptionModel.find().sort({ createdAt: -1 });
+    const role = String(req.query.role || '').toLowerCase();
+    const pharmacistId = String(req.query.pharmacistId || '').trim();
+    let data = await ConsultationPrescriptionModel.find().sort({ createdAt: -1 }).lean();
+
+    if (role === 'pharmacist' && (pharmacistId || pharmacistEmail || pharmacistName)) {
+      data = data.filter((item) => {
+        const assignedId = String(item.pharmacist_id || item.pharmacistId || '').trim();
+        return assignedId === pharmacistId;
+      });
+    }
     res.json({ success: true, data });
   } catch (error) { res.status(500).json({ success: false, message: error.message }); }
 });
 
 app.patch('/api/admin/consultations_prescription/:id', async (req, res) => {
   try {
-    const { status, pharmacist_id, pharmacistName, pharmacistPhone, current_status, status_history } = req.body;
+    const { status, pharmacist_id, pharmacistId, pharmacistName, pharmacistPhone, current_status, status_history } = req.body;
     const id = String(req.params.id);
+    const normalizedPharmacistId = String(pharmacist_id || pharmacistId || '').trim();
 
     // Hỗ trợ cả ObjectId lẫn chuỗi/id đơn thuốc
     const query = [{ _id: id }, { prescriptionId: id }, { id }];
@@ -8836,7 +8902,8 @@ app.patch('/api/admin/consultations_prescription/:id', async (req, res) => {
       { $or: query },
       {
         status,
-        pharmacist_id,
+        pharmacist_id: normalizedPharmacistId,
+        pharmacistId: normalizedPharmacistId,
         pharmacistName,
         pharmacistPhone,
         current_status,
@@ -8883,11 +8950,16 @@ app.patch('/api/admin/consultations_prescription/:id', async (req, res) => {
     }
 
     // Gửi email cho dược sĩ được phân công nhưng không chặn response
-    if (pharmacist_id) {
+    if (normalizedPharmacistId) {
       (async () => {
         try {
-          const pharmacist = await Pharmacist.findOne({ _id: String(pharmacist_id) });
-          if (pharmacist && pharmacist.pharmacistEmail) {
+          const pharmacistQuery = [{ _id: String(normalizedPharmacistId) }];
+          if (mongoose.Types.ObjectId.isValid(String(normalizedPharmacistId))) {
+            pharmacistQuery.push({ _id: new mongoose.Types.ObjectId(String(normalizedPharmacistId)) });
+          }
+          const pharmacist = await Pharmacist.findOne({ $or: pharmacistQuery });
+          const recipientEmail = pharmacist?.pharmacistEmail || pharmacist?.email || '';
+          if (pharmacist && recipientEmail) {
             const prescriptionCode = updated.prescriptionId || updated.id || 'Đơn thuốc';
             const createdAt = updated.createdAt
               ? new Date(updated.createdAt).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })
@@ -8963,12 +9035,14 @@ app.patch('/api/admin/consultations_prescription/:id', async (req, res) => {
 
             const mailOptions = {
               from: 'vitacarehotro@gmail.com',
-              to: pharmacist.pharmacistEmail,
+              to: recipientEmail,
               subject: `[VitaCare] Phân công tư vấn MỚI: ${prescriptionCode}`,
               html
             };
 
-            transporter.sendMail(mailOptions).catch(() => { });
+            transporter.sendMail(mailOptions).catch((mailErr) => {
+              console.warn('[consultations_prescription] sendMail error:', mailErr?.message || mailErr);
+            });
           }
         } catch (mailErr) {
           console.warn('[consultations_prescription] sendMail error:', mailErr?.message || mailErr);
@@ -8982,31 +9056,108 @@ app.patch('/api/admin/consultations_prescription/:id', async (req, res) => {
 
 app.get('/api/admin/consultations_product', async (req, res) => {
   try {
-    const data = await ConsultationProductModel.find().sort({ updatedAt: -1 });
+    const role = String(req.query.role || '').toLowerCase();
+    const pharmacistId = String(req.query.pharmacistId || '').trim();
+    const pharmacistEmail = String(req.query.pharmacistEmail || '').trim().toLowerCase();
+    const pharmacistName = String(req.query.pharmacistName || '').trim().toLowerCase();
+    const data = await ConsultationProductModel.find().sort({ updatedAt: -1 }).lean();
+
+    if (role === 'pharmacist' && pharmacistId) {
+      const filtered = data
+        .map((product) => {
+          const questions = (product.questions || []).filter(
+            (q) => {
+              const assignedId = String(q.assignedPharmacistId || q.pharmacist_id || q.pharmacistId || '').trim();
+              const assignedEmail = String(q.assignedPharmacistEmail || '').trim().toLowerCase();
+              const assignedName = String(q.assignedPharmacistName || '').trim().toLowerCase();
+              return assignedId === pharmacistId
+                || (!!pharmacistEmail && assignedEmail === pharmacistEmail)
+                || (!!pharmacistName && assignedName === pharmacistName);
+            }
+          );
+          return { ...product, questions };
+        })
+        .filter((product) => (product.questions || []).length > 0);
+      return res.json({ success: true, data: filtered });
+    }
+
     res.json({ success: true, data });
   } catch (error) { res.status(500).json({ success: false, message: error.message }); }
 });
 
 app.get('/api/admin/consultations_product/stats', async (req, res) => {
   try {
+    const role = String(req.query.role || '').toLowerCase();
+    const pharmacistId = String(req.query.pharmacistId || '').trim();
+    const pharmacistEmail = String(req.query.pharmacistEmail || '').trim().toLowerCase();
+    const pharmacistName = String(req.query.pharmacistName || '').trim().toLowerCase();
     const products = await ConsultationProductModel.find().lean();
+
+    const skuKeys = [...new Set(products.map((p) => String(p.sku ?? '').trim()).filter(Boolean))];
+    const imageBySku = {};
+    if (skuKeys.length) {
+      const skuOr = [{ sku: { $in: skuKeys } }];
+      const asNum = skuKeys.map((s) => Number(s)).filter((n) => !Number.isNaN(n));
+      if (asNum.length) skuOr.push({ sku: { $in: asNum } });
+      const prodDocs = await productsCollection()
+        .find({ $or: skuOr }, { projection: { sku: 1, image: 1, images: 1, gallery: 1, imageUrl: 1 } })
+        .toArray();
+      for (const d of prodDocs) {
+        const primary =
+          d.image ||
+          (Array.isArray(d.images) && d.images.length ? d.images[0] : '') ||
+          (Array.isArray(d.gallery) && d.gallery.length ? d.gallery[0] : '') ||
+          d.imageUrl ||
+          '';
+        imageBySku[String(d.sku)] = primary;
+      }
+    }
+
     const stats = products.map(p => {
-      const unanswered = (p.questions || []).filter(q => q.status === 'pending' || !q.answer).length;
+      const scopedQuestions = (role === 'pharmacist' && (pharmacistId || pharmacistEmail || pharmacistName))
+        ? (p.questions || []).filter(q => {
+          const assignedId = String(q.assignedPharmacistId || q.pharmacist_id || q.pharmacistId || '').trim();
+          const assignedEmail = String(q.assignedPharmacistEmail || '').trim().toLowerCase();
+          const assignedName = String(q.assignedPharmacistName || '').trim().toLowerCase();
+          return assignedId === pharmacistId
+            || (!!pharmacistEmail && assignedEmail === pharmacistEmail)
+            || (!!pharmacistName && assignedName === pharmacistName);
+        })
+        : (p.questions || []);
+      const assigned = scopedQuestions.filter((q) => q.status === 'assigned' && !q.answer).length;
+      const pending = scopedQuestions.filter((q) => {
+        if (q.status === 'assigned') return false;
+        if (q.status === 'answered') return false;
+        return q.status === 'pending' || q.status === 'unreviewed' || !q.answer;
+      }).length;
+      const unanswered = pending + assigned;
+      const skuStr = String(p.sku ?? '');
       return {
         sku: p.sku,
         productName: p.productName,
+        image: imageBySku[skuStr] || imageBySku[String(Number(skuStr))] || '',
         unansweredCount: unanswered,
-        totalQuestions: (p.questions || []).length,
+        pendingCount: pending,
+        assignedCount: assigned,
+        totalQuestions: scopedQuestions.length,
         _id: p._id
       };
-    });
+    }).filter((p) => p.totalQuestions > 0);
     res.json({ success: true, data: stats });
   } catch (error) { res.status(500).json({ success: false, message: error.message }); }
 });
 
 app.patch('/api/admin/consultations_product/reply', async (req, res) => {
   try {
-    const { sku, questionId, answer, answeredBy } = req.body;
+    const {
+      sku,
+      questionId,
+      answer,
+      answeredBy,
+      assignedPharmacistId,
+      assignedBy,
+      actorRole
+    } = req.body;
     const product = await ConsultationProductModel.findOne({ sku });
     if (!product) return res.status(404).json({ success: false, message: 'Product not found' });
     const question = product.questions?.id ? product.questions.id(questionId) : product.questions.find(q => q.id === questionId || q._id === questionId);
@@ -9014,16 +9165,87 @@ app.patch('/api/admin/consultations_product/reply', async (req, res) => {
 
     const userId = question.user_id || null;
     const productName = product.productName || sku;
+    const normalizedRole = String(actorRole || '').toLowerCase();
 
+    // Admin phân công cho dược sĩ (không trả lời)
+    if (normalizedRole === 'admin' && !String(answer || '').trim()) {
+      if (!assignedPharmacistId) {
+        return res.status(400).json({ success: false, message: 'Thiếu dược sĩ được phân công.' });
+      }
+      const pharmacistQuery = [{ _id: String(assignedPharmacistId) }];
+      if (mongoose.Types.ObjectId.isValid(String(assignedPharmacistId))) {
+        pharmacistQuery.push({ _id: new mongoose.Types.ObjectId(String(assignedPharmacistId)) });
+      }
+      const pharmacist = await Pharmacist.findOne({ $or: pharmacistQuery });
+      if (!pharmacist) {
+        return res.status(404).json({ success: false, message: 'Không tìm thấy dược sĩ được phân công.' });
+      }
+
+      question.assignedPharmacistId = String(pharmacist._id);
+      question.pharmacist_id = String(pharmacist._id);
+      question.pharmacistId = String(pharmacist._id);
+      question.assignedPharmacistName = pharmacist.pharmacistName || '';
+      question.assignedPharmacistEmail = pharmacist.pharmacistEmail || pharmacist.email || '';
+      question.assignedPharmacistPhone = pharmacist.pharmacistPhone || '';
+      question.status = 'assigned';
+      question.assignedAt = new Date();
+      question.assignedBy = assignedBy || 'Admin';
+      question.answeredBy = '';
+      question.answer = '';
+      question.answeredAt = null;
+      product.updatedAt = new Date();
+      product.markModified('questions');
+      await product.save();
+
+      const recipientEmail = pharmacist.pharmacistEmail || pharmacist.email || '';
+      if (recipientEmail) {
+        const customerName = question.full_name || 'Khách vãng lai';
+        const html = `
+          <div style="font-family: system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background:#f4f6fb; padding:24px;">
+            <div style="max-width:640px; margin:0 auto; background:#ffffff; border-radius:16px; padding:24px 28px; box-shadow:0 12px 30px rgba(15,23,42,0.18);">
+              <h2 style="font-size:18px; margin:0 0 12px; color:#0f172a;">
+                Bạn vừa được phân công câu hỏi tư vấn sản phẩm
+              </h2>
+              <p style="font-size:14px; color:#334155; line-height:1.6;">
+                Xin chào <strong>${pharmacist.pharmacistName || 'Dược sĩ'}</strong>, hệ thống vừa giao cho bạn một câu hỏi mới cần tư vấn.
+              </p>
+              <div style="border-radius:12px; border:1px solid #e2e8f0; padding:14px 16px; background:#f8fafc;">
+                <p style="margin:0 0 8px; font-size:14px;"><strong>Sản phẩm:</strong> ${productName} (${sku})</p>
+                <p style="margin:0 0 8px; font-size:14px;"><strong>Khách hàng:</strong> ${customerName}</p>
+                <p style="margin:0; font-size:14px; white-space:pre-line;"><strong>Nội dung:</strong> ${question.question || ''}</p>
+              </div>
+              <p style="margin-top:16px; font-size:13px; color:#64748b;">
+                Vui lòng đăng nhập trang quản trị và vào mục "Tư vấn sản phẩm" để phản hồi khách hàng.
+              </p>
+            </div>
+          </div>
+        `;
+        transporter.sendMail({
+          from: 'vitacarehotro@gmail.com',
+          to: recipientEmail,
+          subject: `[VitaCare] Phân công tư vấn sản phẩm: ${sku}`,
+          html
+        }).catch((mailErr) => {
+          console.warn('[consultations_product] sendMail error:', mailErr?.message || mailErr);
+        });
+      } else {
+        console.warn('[consultations_product] Missing pharmacist email for:', pharmacist._id);
+      }
+
+      return res.json({ success: true, data: product, mode: 'assigned' });
+    }
+
+    // Trả lời câu hỏi (admin hoặc pharmacist)
     question.answer = answer;
     question.answeredBy = answeredBy;
     question.status = 'answered';
     question.answeredAt = new Date();
     product.updatedAt = new Date();
+    product.markModified('questions');
 
     await product.save();
 
-    // Lưu notice cho user khi admin trả lời câu hỏi sản phẩm
+    // Lưu notice cho user khi có phản hồi
     if (userId) {
       try {
         await noticesCollection().insertOne({
@@ -9042,7 +9264,7 @@ app.patch('/api/admin/consultations_product/reply', async (req, res) => {
       }
     }
 
-    res.json({ success: true, data: product });
+    res.json({ success: true, data: product, mode: 'answered' });
   } catch (error) { res.status(500).json({ success: false, message: error.message }); }
 });
 
@@ -9056,11 +9278,41 @@ app.get('/api/admin/consultations_disease', async (req, res) => {
 app.get('/api/admin/consultations_disease/stats', async (req, res) => {
   try {
     const diseases = await ConsultationDiseaseModel.find().lean();
+    const skuList = diseases.map((d) => String(d?.sku || '').trim()).filter(Boolean);
+
+    const slugCandidates = new Set();
+    for (const sku of skuList) {
+      const normalized = sku.replace(/^benh\//i, '').replace(/\.html$/i, '');
+      slugCandidates.add(sku);
+      slugCandidates.add(`benh/${normalized}.html`);
+      slugCandidates.add(`${normalized}.html`);
+      slugCandidates.add(`benh/${normalized}`);
+      slugCandidates.add(normalized);
+    }
+
+    const diseaseDocs = await DiseaseModel.find(
+      { slug: { $in: Array.from(slugCandidates) } },
+      { slug: 1, name: 1, categories: 1 }
+    ).lean();
+
+    const diseaseByKey = new Map();
+    const toKey = (value) => String(value || '')
+      .trim()
+      .toLowerCase()
+      .replace(/^benh\//i, '')
+      .replace(/\.html$/i, '');
+    for (const doc of diseaseDocs) {
+      const key = toKey(doc?.slug);
+      if (key && !diseaseByKey.has(key)) diseaseByKey.set(key, doc);
+    }
+
     const stats = diseases.map(d => {
+      const match = diseaseByKey.get(toKey(d?.sku));
       const unanswered = (d.questions || []).filter(q => q.status === 'pending' || !q.answer).length;
       return {
         sku: d.sku,
-        productName: d.productName,
+        productName: match?.name || d.productName,
+        categories: Array.isArray(match?.categories) ? match.categories : [],
         unansweredCount: unanswered,
         totalQuestions: (d.questions || []).length,
         _id: d._id
@@ -9597,32 +9849,107 @@ app.delete('/api/admin/product_groups/:id', async (req, res) => {
   } catch (error) { res.status(500).json({ success: false, message: error.message }); }
 });
 
-app.post('/api/admin/login', async (req, res) => {
-  const { email, password } = req.body;
+const ADMIN_ROLES = {
+  admin: {
+    model: AdminModel,
+    emailFields: ['adminemail', 'email'],
+    passwordField: 'password',
+    roleLabel: 'Admin'
+  },
+  pharmacist: {
+    model: Pharmacist,
+    emailFields: ['pharmacistEmail', 'email'],
+    passwordField: 'password',
+    roleLabel: 'Pharmacist'
+  }
+};
+
+function getRoleConfig(roleRaw) {
+  const role = String(roleRaw || 'admin').toLowerCase();
+  return ADMIN_ROLES[role] || null;
+}
+
+function getEmailQuery(email, emailFields) {
+  return {
+    $or: emailFields.map((field) => ({ [field]: email }))
+  };
+}
+
+app.post('/api/admin/check-role-email', async (req, res) => {
+  const { email, role } = req.body || {};
+  const normalizedEmail = String(email || '').trim();
+  const roleConfig = getRoleConfig(role);
+
+  if (!roleConfig) {
+    return res.status(400).json({ success: false, valid: false, message: 'Vai trò không hợp lệ.' });
+  }
+  if (!normalizedEmail) {
+    return res.status(400).json({ success: false, valid: false, message: 'Email là bắt buộc.' });
+  }
+
   try {
-    const admin = await AdminModel.findOne({ adminemail: email });
-    if (admin && admin.password === password) {
-      res.json({ success: true, message: 'Login success', admin });
-    } else {
-      res.status(401).json({ success: false, message: 'Invalid credentials' });
+    const user = await roleConfig.model.findOne(getEmailQuery(normalizedEmail, roleConfig.emailFields));
+    if (!user) {
+      return res.json({
+        success: false,
+        valid: false,
+        message: `Email này không thuộc vai trò ${roleConfig.roleLabel}.`
+      });
     }
-  } catch (error) { res.status(500).json({ success: false, message: error.message }); }
+    return res.json({ success: true, valid: true });
+  } catch (error) {
+    return res.status(500).json({ success: false, valid: false, message: error.message });
+  }
+});
+
+app.post('/api/admin/login', async (req, res) => {
+  const { email, password, role } = req.body || {};
+  const roleConfig = getRoleConfig(role);
+  if (!roleConfig) {
+    return res.status(400).json({ success: false, message: 'Vai trò không hợp lệ.' });
+  }
+
+  try {
+    const user = await roleConfig.model.findOne(getEmailQuery(email, roleConfig.emailFields));
+    if (!user) {
+      return res.status(401).json({ success: false, message: 'Email không thuộc vai trò đã chọn.' });
+    }
+    const storedPassword = user?.[roleConfig.passwordField];
+    if (storedPassword !== password) {
+      return res.status(401).json({ success: false, message: 'Mật khẩu không chính xác.' });
+    }
+    const responseUser = user.toObject ? user.toObject() : user;
+    responseUser.accountRole = String(role).toLowerCase();
+    res.json({ success: true, message: 'Login success', admin: responseUser });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
 });
 
 app.post('/api/admin/forgot-password', async (req, res) => {
-  const { email } = req.body;
-  try {
-    const admin = await AdminModel.findOne({ adminemail: email });
-    if (!admin) return res.status(404).json({ success: false, message: 'Email không tồn tại trong hệ thống' });
-  } catch (err) { return res.status(500).json({ success: false, message: 'Lỗi kiểm tra email' }); }
+  const { email, role } = req.body || {};
+  const roleConfig = getRoleConfig(role);
+  if (!roleConfig) {
+    return res.status(400).json({ success: false, message: 'Vai trò không hợp lệ.' });
+  }
 
+  try {
+    const user = await roleConfig.model.findOne(getEmailQuery(email, roleConfig.emailFields));
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'Email không tồn tại trong vai trò đã chọn.' });
+    }
+  } catch (err) {
+    return res.status(500).json({ success: false, message: 'Lỗi kiểm tra email' });
+  }
+
+  const roleKey = String(role).toLowerCase();
   const code = Math.floor(100000 + Math.random() * 900000).toString();
-  resetCodes[email] = code;
+  resetCodes[`${roleKey}:${email}`] = code;
 
   const mailOptions = {
     from: 'vitacarehotro@gmail.com',
     to: email,
-    subject: 'Yêu cầu đặt lại mật khẩu - VitaCare Admin',
+    subject: `Yêu cầu đặt lại mật khẩu - VitaCare ${roleConfig.roleLabel}`,
     html: `
         <div style="background-color: #e8f0fe; padding: 50px 20px; font-family: Arial, sans-serif;">
             <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
@@ -9632,7 +9959,7 @@ app.post('/api/admin/forgot-password', async (req, res) => {
                 <div style="padding: 50px 40px; text-align: center;">
                     <h2 style="color: #004695; margin: 0 0 25px 0; font-size: 26px; font-weight: bold;">Yêu cầu đặt lại mật khẩu</h2>
                     <p style="color: #777; font-size: 18px; margin: 0;">Xin chào,</p>
-                    <p style="color: #777; font-size: 17px; line-height: 1.6; margin: 10px 0 40px 0;">Chúng tôi nhận được yêu cầu đặt lại mật khẩu cho tài khoản VitaCare của bạn. Sử dụng mã OTP bên dưới để xác thực:</p>
+                    <p style="color: #777; font-size: 17px; line-height: 1.6; margin: 10px 0 40px 0;">Chúng tôi nhận được yêu cầu đặt lại mật khẩu cho tài khoản ${roleConfig.roleLabel} của bạn. Sử dụng mã OTP bên dưới để xác thực:</p>
                     <div style="background-color: #e3f2fd; padding: 25px 50px; border-radius: 12px; display: inline-block; margin-bottom: 40px;">
                         <span style="font-size: 52px; font-weight: 800; color: #1e5ba0; letter-spacing: 10px;">${code}</span>
                     </div>
@@ -9653,8 +9980,9 @@ app.post('/api/admin/forgot-password', async (req, res) => {
 });
 
 app.post('/api/admin/verify-code', (req, res) => {
-  const { email, code } = req.body;
-  if (resetCodes[email] && resetCodes[email] === code) {
+  const { email, code, role } = req.body || {};
+  const roleKey = String(role || 'admin').toLowerCase();
+  if (resetCodes[`${roleKey}:${email}`] && resetCodes[`${roleKey}:${email}`] === code) {
     res.json({ success: true });
   } else {
     res.status(400).json({ success: false, message: 'Mã xác thực không chính xác' });
@@ -9662,31 +9990,52 @@ app.post('/api/admin/verify-code', (req, res) => {
 });
 
 app.post('/api/admin/reset-password', async (req, res) => {
+  const { email, newPassword, role } = req.body || {};
+  const roleConfig = getRoleConfig(role);
+  if (!roleConfig) {
+    return res.status(400).json({ success: false, message: 'Vai trò không hợp lệ.' });
+  }
+
   try {
-    const updated = await AdminModel.findOneAndUpdate(
-      { adminemail: req.body.email },
-      { password: req.body.newPassword },
+    const updated = await roleConfig.model.findOneAndUpdate(
+      getEmailQuery(email, roleConfig.emailFields),
+      { [roleConfig.passwordField]: newPassword },
       { new: true }
     );
-    if (!updated) return res.status(404).json({ success: false, message: 'Không tìm thấy tài khoản admin' });
-    delete resetCodes[req.body.email];
+    if (!updated) {
+      return res.status(404).json({ success: false, message: `Không tìm thấy tài khoản ${roleConfig.roleLabel}` });
+    }
+    delete resetCodes[`${String(role).toLowerCase()}:${email}`];
     res.json({ success: true, message: 'Đổi mật khẩu thành công' });
-  } catch (error) { res.status(500).json({ success: false, message: error.message }); }
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
 });
 
 app.post('/api/admin/change-password', async (req, res) => {
+  const { email, oldPassword, newPassword, role } = req.body || {};
+  const roleConfig = getRoleConfig(role);
+  if (!roleConfig) {
+    return res.status(400).json({ success: false, message: 'Vai trò không hợp lệ.' });
+  }
+
   try {
-    const { email, oldPassword, newPassword } = req.body;
-    const admin = await AdminModel.findOne({ adminemail: email });
-    if (!admin) return res.status(404).json({ success: false, message: 'Không tìm thấy tài khoản' });
-    if (admin.password !== oldPassword) return res.status(400).json({ success: false, message: 'Mật khẩu hiện tại không chính xác' });
-    const updated = await AdminModel.findOneAndUpdate(
-      { adminemail: email },
-      { password: newPassword },
+    const user = await roleConfig.model.findOne(getEmailQuery(email, roleConfig.emailFields));
+    if (!user) return res.status(404).json({ success: false, message: 'Không tìm thấy tài khoản' });
+    if (user?.[roleConfig.passwordField] !== oldPassword) {
+      return res.status(400).json({ success: false, message: 'Mật khẩu hiện tại không chính xác' });
+    }
+    const updated = await roleConfig.model.findOneAndUpdate(
+      getEmailQuery(email, roleConfig.emailFields),
+      { [roleConfig.passwordField]: newPassword },
       { new: true }
     );
-    res.json({ success: true, message: 'Đổi mật khẩu thành công', admin: updated });
-  } catch (error) { res.status(500).json({ success: false, message: error.message }); }
+    const responseUser = updated?.toObject ? updated.toObject() : updated;
+    if (responseUser) responseUser.accountRole = String(role).toLowerCase();
+    res.json({ success: true, message: 'Đổi mật khẩu thành công', admin: responseUser });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
 });
 
 

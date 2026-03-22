@@ -67,6 +67,27 @@ body.dark-mode .date-group input {
     border-color: var(--color-neutral-30) !important;
 }
 
+body.dark-mode .blog-person-card {
+    background: rgba(142, 153, 243, 0.12) !important;
+    border-color: rgba(142, 153, 243, 0.45) !important;
+}
+
+body.dark-mode .blog-person-card .input-author,
+body.dark-mode .blog-person-card .input-email {
+    color: var(--color-text-primary) !important;
+    border-bottom-color: rgba(142, 153, 243, 0.35) !important;
+}
+
+body.dark-mode .blog-person-name {
+    color: var(--color-text-primary) !important;
+}
+
+body.dark-mode .blog-person-card--empty {
+    background: var(--color-bg-light) !important;
+    border-color: var(--color-neutral-30) !important;
+    color: var(--color-text-secondary) !important;
+}
+
 body.dark-mode .breadcrumb {
     color: var(--color-neutral-60) !important;
 }
@@ -175,6 +196,82 @@ body.dark-mode .breadcrumb {
     font-size: 14px;
     font-weight: 600;
     display: inline-block;
+}
+
+/* Thẻ tác giả / người duyệt — cùng UI */
+.blog-person-card {
+    background: rgba(74, 85, 162, 0.08);
+    border: 1px solid var(--color-primary-lighter, #A9B3E8);
+    border-radius: 8px;
+    padding: 12px 14px;
+    color: var(--color-text-primary);
+}
+
+.blog-person-card--readonly {
+    font-size: 14px;
+}
+
+.blog-person-name {
+    display: block;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--color-text-primary);
+}
+
+.blog-person-meta {
+    display: block;
+    font-size: 13px;
+    color: var(--color-text-secondary);
+    margin-top: 6px;
+}
+
+.blog-person-meta--small {
+    font-size: 12px;
+    margin-top: 8px;
+    color: var(--color-text-tertiary, var(--color-text-secondary));
+}
+
+.blog-person-card--empty {
+    background: var(--color-neutral-20);
+    border: 1px dashed var(--color-neutral-40);
+    color: var(--color-text-secondary);
+    font-size: 13px;
+    line-height: 1.45;
+}
+
+.blog-person-card .input-author {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    border: none;
+    border-bottom: 1px solid rgba(74, 85, 162, 0.22);
+    outline: none;
+    background: transparent;
+    margin-top: 0;
+    margin-bottom: 10px;
+    padding: 6px 4px 8px;
+    width: 100%;
+    border-radius: 0;
+}
+
+.blog-person-card .input-author::placeholder {
+    color: var(--color-text-tertiary);
+    font-weight: 500;
+}
+
+.blog-person-card .input-email {
+    font-size: 14px;
+    color: var(--color-text-secondary);
+    border: none;
+    outline: none;
+    background: transparent;
+    margin-bottom: 0;
+    padding: 6px 4px;
+    width: 100%;
+}
+
+.blog-person-card .input-email::placeholder {
+    color: var(--color-text-tertiary);
 }
 
 .input-author {

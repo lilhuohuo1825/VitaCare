@@ -4,6 +4,9 @@ import { ProductService } from '../services/product.service';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 
+/** Khóa sắp xếp trong UI (map sang field Mongo khi gọi API) */
+type SortKind = 'updated' | 'price' | 'name' | 'stock' | 'sold';
+
 interface Product {
   _id?: string;
   sku: string;
@@ -65,7 +68,8 @@ export class Productmanage implements OnInit {
   };
 
   isSortDropdownOpen: boolean = false;
-  sortColumn: string = 'importDate';
+  /** Mặc định: cập nhật gần đây nhất (updatedAt desc) */
+  sortKind: SortKind = 'updated';
   sortDirection: 'desc' | 'asc' = 'desc';
 
   // Group State
@@ -89,6 +93,8 @@ export class Productmanage implements OnInit {
     brand: '',
     categoryId: '',
     stock: 0,
+    sold: 0,
+    rating: 0,
     unit: 'Hộp',
     description: '',
     usage: '',
@@ -158,6 +164,12 @@ export class Productmanage implements OnInit {
       if (typeof params['search'] === 'string') {
         this.searchTerm = params['search'].toLowerCase();
       }
+      if (typeof params['sortColumn'] === 'string') {
+        this.applySortKindFromQuery(params['sortColumn']);
+      }
+      if (typeof params['sortDirection'] === 'string' && (params['sortDirection'] === 'asc' || params['sortDirection'] === 'desc')) {
+        this.sortDirection = params['sortDirection'];
+      }
       if (typeof params['stockStatus'] === 'string') {
         const statuses = params['stockStatus'].split(',').map((s: string) => s.trim());
         this.advancedFilters.stock = {
@@ -189,6 +201,11 @@ export class Productmanage implements OnInit {
     });
   }
 
+  /**
+   * Cây danh mục từ /api/categories — cùng dữ liệu với category bar + mega-menu trang chủ my-user
+   * (xem HeaderComponent.fetchCategoriesAndBuildMenu: L1 pill → L2 cột trái → L3 nhóm phải).
+   * categoryId trên sản phẩm: nên là _id danh mục lá (thường L3) để hiển thị/ lọc đúng trên storefront.
+   */
   buildCategoryTree() {
     const normalizeId = (value: any): string => {
       if (!value) return '';
@@ -210,6 +227,25 @@ export class Productmanage implements OnInit {
     this.categoriesL2 = this.allCategories.filter(c => c.parentId && l1Ids.has(c.parentId));
     const l2Ids = new Set(this.categoriesL2.map(c => c._id));
     this.categoriesL3 = this.allCategories.filter(c => c.parentId && l2Ids.has(c.parentId));
+
+    // Danh sách sản phẩm có thể đã tải xong trước khi có categoryMap — cập nhật lại đường dẫn danh mục
+    this.refreshProductCategoryPaths();
+  }
+
+  /** Gọi sau khi categoryMap đã sẵn sàng (tránh race với loadProducts). */
+  private refreshProductCategoryPaths(): void {
+    if (!this.products?.length) return;
+    this.products = this.products.map((p) => {
+      let catId = (p as any).categoryId;
+      if (catId && typeof catId === 'object' && (catId as any).$oid) catId = (catId as any).$oid;
+      else if (catId && typeof catId === 'object' && (catId as any)._id) catId = (catId as any)._id;
+      const pathSteps = this.getCategoryPathSteps(String(catId || ''));
+      return {
+        ...p,
+        categoryPath: pathSteps,
+        categoryName: pathSteps.join(' > ') || 'Chưa phân loại'
+      };
+    });
   }
 
   getCategoryPathSteps(catId: string): string[] {
@@ -240,7 +276,7 @@ export class Productmanage implements OnInit {
       maxPrice: this.advancedFilters.price_range.max,
       units: Object.keys(this.advancedFilters.unit).filter(k => this.advancedFilters.unit[k]),
       stockStatus: Object.keys(this.advancedFilters.stock).filter(k => this.advancedFilters.stock[k]),
-      sortColumn: this.sortColumn === 'importDate' ? 'created_at' : (this.sortColumn === 'expiryDate' ? 'expiryDate' : this.sortColumn),
+      sortColumn: this.apiSortColumn(),
       sortDirection: this.sortDirection
     };
 
@@ -355,11 +391,62 @@ export class Productmanage implements OnInit {
     this.loadProducts(1); // Server handles logic now
   }
 
-  onSortSelect(column: string, direction: 'asc' | 'desc') {
-    this.sortColumn = column;
+  /** Map SortKind → tên field gửi lên GET /api/admin/products */
+  private apiSortColumn(): string {
+    switch (this.sortKind) {
+      case 'updated': return 'updatedAt';
+      case 'price': return 'price';
+      case 'name': return 'name';
+      case 'stock': return 'stock';
+      case 'sold': return 'sold';
+      default: return 'updatedAt';
+    }
+  }
+
+  /** Lần đầu chọn một tiêu chí: hướng mặc định hợp lý */
+  private defaultDirectionForKind(kind: SortKind): 'asc' | 'desc' {
+    switch (kind) {
+      case 'updated': return 'desc';
+      case 'sold': return 'desc';
+      case 'stock': return 'desc';
+      case 'price': return 'asc';
+      case 'name': return 'asc';
+      default: return 'desc';
+    }
+  }
+
+  private applySortKindFromQuery(col: string): void {
+    const c = col.trim();
+    if (c === 'updated' || c === 'updatedAt' || c === 'importDate' || c === 'created_at') {
+      this.sortKind = 'updated';
+      return;
+    }
+    if (c === 'price' || c === 'name' || c === 'stock' || c === 'sold') {
+      this.sortKind = c;
+    }
+  }
+
+  /**
+   * Click hàng trong menu: cùng tiêu chí → đổi tăng/giảm; khác tiêu chí → áp dụng hướng mặc định.
+   */
+  onSortRowClick(kind: SortKind): void {
+    if (this.sortKind === kind) {
+      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.sortKind = kind;
+      this.sortDirection = this.defaultDirectionForKind(kind);
+    }
+    this.loadProducts(1);
+  }
+
+  /**
+   * Click mũi tên cụ thể: chọn tiêu chí + hướng (tăng / giảm).
+   */
+  setSortDirection(kind: SortKind, direction: 'asc' | 'desc', event?: Event): void {
+    event?.stopPropagation();
+    this.sortKind = kind;
     this.sortDirection = direction;
     this.loadProducts(1);
-    this.isSortDropdownOpen = false;
   }
 
   sortResults() { } // Handled by server or can be added as query param later
@@ -590,7 +677,9 @@ export class Productmanage implements OnInit {
           this.newProduct = {
             ...res.data,
             gallery: gallery,
-            image: res.data.image || (gallery.length > 0 ? gallery[0] : '')
+            image: res.data.image || (gallery.length > 0 ? gallery[0] : ''),
+            sold: Number(res.data.sold ?? 0),
+            rating: Number(res.data.rating ?? 0)
           };
           const catId = res.data.categoryId || '';
           this.newProduct.categoryId = catId;
@@ -703,6 +792,8 @@ export class Productmanage implements OnInit {
       brand: '',
       categoryId: '',
       stock: 0,
+      sold: 0,
+      rating: 0,
       unit: 'Hộp',
       description: '',
       usage: '',

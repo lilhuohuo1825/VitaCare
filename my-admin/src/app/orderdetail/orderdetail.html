@@ -386,32 +386,58 @@
                     <h4 style="font-size: 14px; font-weight: bold; margin-bottom: 12px;">Địa chỉ giao hàng</h4>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 15px;">
                         <div class="form-group">
-                            <select [(ngModel)]="newOrder.shippingInfo.city" (change)="onCityChange()"
-                                style="width: 100%; padding: 10px 14px; border: 1px solid var(--color-neutral-40); border-radius: 8px; outline: none; background-color: var(--color-bg-secondary); cursor: pointer;">
-                                <option value="" disabled selected>Chọn Tỉnh/Thành phố</option>
-                                <option *ngFor="let city of cities" [value]="city.name_with_type">{{ city.name_with_type
-                                    }}</option>
-                            </select>
+                            <div class="od-custom-select"
+                                [class.od-custom-select--open]="openCreateSelect === 'city'">
+                                <button type="button" class="od-custom-select__trigger"
+                                    (click)="toggleCreateSelect('city', $event)">
+                                    <span class="od-custom-select__value"
+                                        [class.od-custom-select__placeholder]="!newOrder.shippingInfo.city">{{
+                                        newOrder.shippingInfo.city || 'Chọn Tỉnh/Thành phố' }}</span>
+                                    <i class="bi bi-chevron-down od-custom-select__caret"></i>
+                                </button>
+                                <div class="od-custom-select__panel" *ngIf="openCreateSelect === 'city'" role="listbox">
+                                    <button type="button" class="od-custom-select__option" *ngFor="let city of cities"
+                                        (click)="pickCity(city, $event)">{{ city.name_with_type }}</button>
+                                </div>
+                            </div>
                         </div>
                         <div class="form-group">
-                            <select [(ngModel)]="newOrder.shippingInfo.district" (change)="onDistrictChange()"
-                                [disabled]="!newOrder.shippingInfo.city"
-                                style="width: 100%; padding: 10px 14px; border: 1px solid var(--color-neutral-40); border-radius: 8px; outline: none; background-color: var(--color-bg-secondary); cursor: pointer;">
-                                <option value="" disabled selected>Chọn Quận/Huyện</option>
-                                <option *ngFor="let d of districts" [value]="d.name_with_type">{{ d.name_with_type }}
-                                </option>
-                            </select>
+                            <div class="od-custom-select"
+                                [class.od-custom-select--open]="openCreateSelect === 'district'">
+                                <button type="button" class="od-custom-select__trigger"
+                                    [disabled]="!newOrder.shippingInfo.city"
+                                    [class.od-custom-select__trigger--disabled]="!newOrder.shippingInfo.city"
+                                    (click)="toggleCreateSelect('district', $event)">
+                                    <span class="od-custom-select__value"
+                                        [class.od-custom-select__placeholder]="!newOrder.shippingInfo.district">{{
+                                        newOrder.shippingInfo.district || 'Chọn Quận/Huyện' }}</span>
+                                    <i class="bi bi-chevron-down od-custom-select__caret"></i>
+                                </button>
+                                <div class="od-custom-select__panel" *ngIf="openCreateSelect === 'district'"
+                                    role="listbox">
+                                    <button type="button" class="od-custom-select__option" *ngFor="let d of districts"
+                                        (click)="pickDistrict(d, $event)">{{ d.name_with_type }}</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                         <div class="form-group">
-                            <select [(ngModel)]="newOrder.shippingInfo.ward"
-                                [disabled]="!newOrder.shippingInfo.district"
-                                style="width: 100%; padding: 10px 14px; border: 1px solid var(--color-neutral-40); border-radius: 8px; outline: none; background-color: var(--color-bg-secondary); cursor: pointer;">
-                                <option value="" disabled selected>Chọn Phường/Xã</option>
-                                <option *ngFor="let w of wards" [value]="w.name_with_type">{{ w.name_with_type }}
-                                </option>
-                            </select>
+                            <div class="od-custom-select" [class.od-custom-select--open]="openCreateSelect === 'ward'">
+                                <button type="button" class="od-custom-select__trigger"
+                                    [disabled]="!newOrder.shippingInfo.district"
+                                    [class.od-custom-select__trigger--disabled]="!newOrder.shippingInfo.district"
+                                    (click)="toggleCreateSelect('ward', $event)">
+                                    <span class="od-custom-select__value"
+                                        [class.od-custom-select__placeholder]="!newOrder.shippingInfo.ward">{{
+                                        newOrder.shippingInfo.ward || 'Chọn Phường/Xã' }}</span>
+                                    <i class="bi bi-chevron-down od-custom-select__caret"></i>
+                                </button>
+                                <div class="od-custom-select__panel" *ngIf="openCreateSelect === 'ward'" role="listbox">
+                                    <button type="button" class="od-custom-select__option" *ngFor="let w of wards"
+                                        (click)="pickWard(w, $event)">{{ w.name_with_type }}</button>
+                                </div>
+                            </div>
                         </div>
                         <div class="form-group">
                             <input type="text" [(ngModel)]="newOrder.shippingInfo.address"
@@ -490,11 +516,18 @@
                     <h3 class="card-title"
                         style="font-size: 16px; font-weight: bold; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid var(--color-neutral-30);">
                         Phương thức TT</h3>
-                    <select [(ngModel)]="newOrder.paymentMethod"
-                        style="width: 100%; padding: 10px; border: 1px solid var(--color-neutral-40); border-radius: 8px; outline: none; background-color: var(--color-bg-secondary); cursor: pointer;">
-                        <option value="COD">Thanh toán khi nhận hàng (COD)</option>
-                        <option value="Banking">Chuyển khoản</option>
-                    </select>
+                    <div class="od-custom-select"
+                        [class.od-custom-select--open]="openCreateSelect === 'payment'">
+                        <button type="button" class="od-custom-select__trigger"
+                            (click)="toggleCreateSelect('payment', $event)">
+                            <span class="od-custom-select__value">{{ paymentMethodDisplayLabel() }}</span>
+                            <i class="bi bi-chevron-down od-custom-select__caret"></i>
+                        </button>
+                        <div class="od-custom-select__panel" *ngIf="openCreateSelect === 'payment'" role="listbox">
+                            <button type="button" class="od-custom-select__option" *ngFor="let po of paymentOptions"
+                                (click)="pickPayment(po.value, $event)">{{ po.label }}</button>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Promotion -->
@@ -503,13 +536,32 @@
                     <h3 class="card-title"
                         style="font-size: 16px; font-weight: bold; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid var(--color-neutral-30);">
                         Mã khuyến mãi</h3>
-                    <select [(ngModel)]="selectedPromotionId" (change)="onPromotionChange()"
-                        style="width: 100%; padding: 10px; border: 1px solid var(--color-neutral-40); border-radius: 8px; outline: none; background-color: var(--color-bg-light); color: var(--color-text-primary); cursor: pointer;">
-                        <option value="">Chọn mã khuyến mãi</option>
-                        <option *ngFor="let promo of activePromotions" [value]="promo._id">
-                            {{ promo.code }} - {{ promo.promotion_name || promo.name }}
-                        </option>
-                    </select>
+                    <div class="od-custom-select"
+                        [class.od-custom-select--open]="openCreateSelect === 'promotion'">
+                        <button type="button" class="od-custom-select__trigger"
+                            (click)="toggleCreateSelect('promotion', $event)">
+                            <span class="od-custom-select__value"
+                                [class.od-custom-select__placeholder]="!selectedPromotionId">{{
+                                promotionTriggerLabel() || 'Chọn mã khuyến mãi' }}</span>
+                            <i class="bi bi-chevron-down od-custom-select__caret"></i>
+                        </button>
+                        <div class="od-custom-select__panel od-custom-select__panel--promo"
+                            *ngIf="openCreateSelect === 'promotion'" role="listbox">
+                            <button type="button" class="od-custom-select__option od-custom-select__option--neutral"
+                                (click)="pickPromotion('', $event)">Không dùng mã</button>
+                            <button type="button" class="od-custom-select__option"
+                                *ngFor="let promo of applicablePromotions"
+                                [class.od-custom-select__option--disabled]="!promo.isApplicable"
+                                (click)="pickPromotion(promo._id ?? '', $event)">
+                                <span class="od-promo-row-main">{{ promo.code }} — {{ promo.promotion_name || promo.name
+                                    }}</span>
+                                <span class="od-promo-row-meta" *ngIf="promo.isApplicable">Giảm {{
+                                    promo.discountAmount | number:'1.0-0' }}đ</span>
+                                <span class="od-promo-row-meta od-promo-row-reason" *ngIf="!promo.isApplicable && promo.reason">{{
+                                    promo.reason }}</span>
+                            </button>
+                        </div>
+                    </div>
                     <div *ngIf="selectedPromotionId"
                         style="margin-top: 10px; font-size: 12px; color: var(--color-primary);">
                         {{ getSelectedPromotionName() }}
@@ -517,34 +569,50 @@
                 </div>
 
                 <!-- Order Summary -->
-                <div class="info-card"
+                <div class="info-card od-checkout-card"
                     style="background-color: var(--color-bg-secondary); border-radius: 12px; padding: 20px; box-shadow: var(--shadow-sm);">
                     <h3 class="card-title"
                         style="font-size: 16px; font-weight: bold; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid var(--color-neutral-30);">
                         Tính tiền</h3>
-                    <div class="summary-row"
-                        style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                        <span style="color: var(--color-text-secondary);">Tổng cộng</span>
-                        <span class="font-bold">{{ newOrder.totalAmount | number:'1.0-0' }}đ</span>
+                    <div class="od-checkout-row od-checkout-row-total">
+                        <span>Tổng tiền</span>
+                        <strong>{{ newOrder.subtotal | number:'1.0-0' }}đ</strong>
                     </div>
-                    <div class="summary-row"
-                        style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                        <span style="color: var(--color-text-secondary);">Phí giao hàng</span>
-                        <span class="font-bold">{{ (newOrder.shippingFee || 30000) | number:'1.0-0' }}đ</span>
+                    <div class="od-checkout-row">
+                        <span>Giảm giá trực tiếp</span>
+                        <strong class="od-checkout-discount">
+                            <ng-container *ngIf="newOrder.directDiscount > 0">-{{ newOrder.directDiscount |
+                                number:'1.0-0' }}đ</ng-container>
+                            <ng-container *ngIf="!(newOrder.directDiscount > 0)">0đ</ng-container>
+                        </strong>
+                    </div>
+                    <div class="od-checkout-row">
+                        <span>Giảm giá voucher</span>
+                        <strong class="od-checkout-discount">
+                            <ng-container *ngIf="newOrder.voucherDiscount > 0">-{{ newOrder.voucherDiscount |
+                                number:'1.0-0' }}đ</ng-container>
+                            <ng-container *ngIf="!(newOrder.voucherDiscount > 0)">0đ</ng-container>
+                        </strong>
+                    </div>
+                    <div class="od-checkout-row">
+                        <span>Giảm Vita Xu</span>
+                        <strong class="od-checkout-discount">0đ</strong>
+                    </div>
+                    <div class="od-checkout-row">
+                        <span>Phí vận chuyển</span>
+                        <strong>{{ newOrder.shippingFee === 0 ? 'Miễn phí' : (newOrder.shippingFee | number:'1.0-0') + 'đ'
+                            }}</strong>
+                    </div>
+                    <div class="od-checkout-row od-checkout-row-note" *ngIf="newOrder.shippingDiscount > 0">
+                        <span>Giảm phí ship (voucher)</span>
+                        <strong class="od-checkout-discount">-{{ newOrder.shippingDiscount | number:'1.0-0' }}đ</strong>
                     </div>
 
-                    <!-- Discount Display -->
-                    <div class="summary-row" *ngIf="newOrder.discount > 0"
-                        style="display: flex; justify-content: space-between; margin-bottom: 10px; color: #dc3545;">
-                        <span>Giảm giá ({{ newOrder.code }})</span>
-                        <span class="font-bold">-{{ newOrder.discount | number:'1.0-0' }}đ</span>
-                    </div>
-
-                    <div class="summary-total" style="border-top: 1px solid #eee; padding-top: 15px; margin-top: 10px;">
+                    <div class="summary-total od-checkout-grand" style="border-top: 1px solid #eee; padding-top: 15px; margin-top: 10px;">
                         <div class="summary-row"
                             style="display: flex; justify-content: space-between; align-items: center;">
-                            <span style="font-size: 1.1rem; font-weight: bold;">CẦN THU</span>
-                            <span class="font-bold" style="font-size: 1.4rem; color: var(--color-primary);">{{
+                            <span style="font-size: 1.1rem; font-weight: bold;">Thành tiền</span>
+                            <span class="font-bold od-checkout-final" style="font-size: 1.35rem; color: var(--color-primary);">{{
                                 newOrder.totalAmount | number:'1.0-0' }}đ</span>
                         </div>
                     </div>

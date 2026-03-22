@@ -28,6 +28,7 @@ export class Consultationproduct implements OnInit {
 
   totalQuestions = 0;
   pendingCount = 0;
+  assignedCount = 0;
   answeredCount = 0;
 
   currentFilter: string = '';
@@ -47,6 +48,11 @@ export class Consultationproduct implements OnInit {
   filters = {
     status: [] as string[]
   };
+  currentRole: 'admin' | 'pharmacist' = 'admin';
+  currentPharmacistId = '';
+  currentPharmacistName = '';
+  currentPharmacistEmail = '';
+  currentDisplayName = 'Admin';
 
   get activeFilterCount(): number {
     return this.filters.status.length;
@@ -65,7 +71,36 @@ export class Consultationproduct implements OnInit {
   }
 
   ngOnInit() {
+    this.loadCurrentAccount();
     this.loadData();
+  }
+
+  private loadCurrentAccount() {
+    if (typeof window === 'undefined') return;
+    try {
+      const raw = localStorage.getItem('admin');
+      if (!raw) return;
+      const account = JSON.parse(raw);
+      this.currentRole = account?.accountRole === 'pharmacist' ? 'pharmacist' : 'admin';
+      this.currentPharmacistId = String(account?._id || account?.pharmacist_id || '').trim();
+      this.currentPharmacistName = String(account?.pharmacistName || account?.adminname || '').trim();
+      this.currentPharmacistEmail = String(account?.pharmacistEmail || account?.email || account?.adminemail || '').trim().toLowerCase();
+      this.currentDisplayName = account?.pharmacistName || account?.adminname || account?.fullname || account?.name || 'Admin';
+    } catch {
+      this.currentRole = 'admin';
+      this.currentPharmacistId = '';
+      this.currentPharmacistName = '';
+      this.currentPharmacistEmail = '';
+      this.currentDisplayName = 'Admin';
+    }
+  }
+
+  get isAdmin(): boolean {
+    return this.currentRole === 'admin';
+  }
+
+  get isPharmacist(): boolean {
+    return this.currentRole === 'pharmacist';
   }
 
   loadData() {
@@ -73,9 +108,13 @@ export class Consultationproduct implements OnInit {
     // Parallel fetch: pharmacists + products at the same time
     forkJoin({
       pharmacists: this.consultationService.getPharmacists().pipe(catchError(() => of({ data: [] }))),
-      products: this.consultationService.getProductConsultationStats().pipe(catchError(() => of({ success: true, data: [] })))
+      products: this.consultationService
+        .getProductConsultationStatsByRole(this.currentRole, this.currentPharmacistId, this.currentPharmacistEmail, this.currentPharmacistName)
+        .pipe(catchError(() => of({ success: true, data: [] })))
     }).subscribe(({ pharmacists, products }) => {
       this.pharmacists = (pharmacists && pharmacists.data) ? pharmacists.data : (Array.isArray(pharmacists) ? pharmacists : []);
+      const previousId = this.currentPharmacistId;
+      this.resolveCurrentPharmacistId();
 
       if (products && products.success) {
         this.products = products.data;
@@ -84,12 +123,17 @@ export class Consultationproduct implements OnInit {
       }
       this.isLoading = false;
       this.cdr.markForCheck(); // Force immediate view update
+
+      // If pharmacist id was resolved from email/name after loading list, reload scoped data.
+      if (this.isPharmacist && this.currentPharmacistId && this.currentPharmacistId !== previousId) {
+        this.fetchProducts();
+      }
     });
   }
 
   fetchProducts() {
     this.isLoading = true;
-    this.consultationService.getProductConsultationStats().subscribe({
+    this.consultationService.getProductConsultationStatsByRole(this.currentRole, this.currentPharmacistId, this.currentPharmacistEmail, this.currentPharmacistName).subscribe({
       next: (res) => {
         if (res.success) {
           this.products = res.data;
@@ -107,8 +151,9 @@ export class Consultationproduct implements OnInit {
 
   calculateGlobalStats() {
     this.totalQuestions = this.products.reduce((acc, p) => acc + (p.totalQuestions || 0), 0);
-    this.pendingCount = this.products.reduce((acc, p) => acc + (p.unansweredCount || 0), 0);
-    this.answeredCount = this.totalQuestions - this.pendingCount;
+    this.pendingCount = this.products.reduce((acc, p) => acc + (p.pendingCount ?? p.unansweredCount ?? 0), 0);
+    this.assignedCount = this.products.reduce((acc, p) => acc + (p.assignedCount || 0), 0);
+    this.answeredCount = this.totalQuestions - this.pendingCount - this.assignedCount;
   }
 
   applyProductFilters() {
@@ -125,9 +170,11 @@ export class Consultationproduct implements OnInit {
 
     // Filter by Status (Stat Cards)
     if (this.currentFilter === 'pending') {
-      result = result.filter(p => p.unansweredCount > 0);
+      result = result.filter(p => (p.pendingCount ?? p.unansweredCount ?? 0) > 0);
+    } else if (this.currentFilter === 'assigned') {
+      result = result.filter(p => (p.assignedCount || 0) > 0);
     } else if (this.currentFilter === 'answered') {
-      result = result.filter(p => (p.totalQuestions - p.unansweredCount) > 0);
+      result = result.filter(p => (p.totalQuestions - (p.pendingCount ?? p.unansweredCount ?? 0)) > 0);
     }
 
     this.filteredProducts = result;
@@ -136,7 +183,7 @@ export class Consultationproduct implements OnInit {
   selectProduct(product: any) {
     this.selectedProduct = product;
     this.isLoading = true;
-    this.consultationService.getProductConsultations().subscribe({
+    this.consultationService.getProductConsultationsByRole(this.currentRole, this.currentPharmacistId, this.currentPharmacistEmail, this.currentPharmacistName).subscribe({
       next: (res) => {
         if (res.success) {
           const foundProduct = res.data.find((p: any) => p.sku === product.sku);
@@ -224,20 +271,20 @@ export class Consultationproduct implements OnInit {
     if (!this.selectedProduct) return;
     let result = [...(this.questions || [])];
 
-    // Helper: a question is 'pending' if status is 'unreviewed', 'pending', or has no answer
-    const isPending = (q: any) => !q.answer || q.status === 'unreviewed' || q.status === 'pending';
-    const isAnswered = (q: any) => !isPending(q);
+    const getQuestionState = (q: any): 'pending' | 'assigned' | 'answered' => {
+      if (q?.status === 'answered' && q?.answer) return 'answered';
+      if (q?.status === 'assigned') return 'assigned';
+      return 'pending';
+    };
 
     // Status Filter (Multiple)
     if (this.filters.status.length > 0) {
       result = result.filter(q => {
-        const qStatus = isPending(q) ? 'pending' : 'answered';
-        return this.filters.status.includes(qStatus);
+        return this.filters.status.includes(getQuestionState(q));
       });
     } else if (this.currentFilter !== '') {
       result = result.filter(q => {
-        const qStatus = isPending(q) ? 'pending' : 'answered';
-        return qStatus === this.currentFilter;
+        return getQuestionState(q) === this.currentFilter;
       });
     }
 
@@ -267,7 +314,20 @@ export class Consultationproduct implements OnInit {
 
   getStatusLabel(status: string): string {
     if (status === 'answered') return 'Đã trả lời';
+    if (status === 'assigned') return 'Đã phân công';
     return 'Chờ xử lý'; // pending, unreviewed, or any other = pending
+  }
+
+  getQuestionStatusText(item: any): string {
+    if (item?.status === 'answered' && item?.answer) return 'Đã trả lời';
+    if (item?.status === 'assigned') return 'Đã phân công';
+    return 'Đang chờ';
+  }
+
+  getQuestionStatusClass(item: any): string {
+    if (item?.status === 'answered' && item?.answer) return 'status-answered';
+    if (item?.status === 'assigned') return 'status-assigned';
+    return 'status-pending';
   }
 
   formatDate(dateString: any): string {
@@ -278,8 +338,14 @@ export class Consultationproduct implements OnInit {
   openDetailModal(item: any) {
     this.selectedQuestion = { ...item };
     this.replyContent = item.answer || '';
-    const foundPharmacist = this.pharmacists.find(p => p.pharmacistName === item.answeredBy);
-    this.editedPharmacistId = foundPharmacist ? foundPharmacist._id : '';
+    if (this.isAdmin) {
+      const foundPharmacist = this.pharmacists.find(
+        p => String(p._id) === String(item.assignedPharmacistId || item.pharmacist_id || item.pharmacistId || '')
+      );
+      this.editedPharmacistId = foundPharmacist ? foundPharmacist._id : '';
+    } else {
+      this.editedPharmacistId = this.currentPharmacistId;
+    }
     this.isModalOpen = true;
   }
 
@@ -288,20 +354,44 @@ export class Consultationproduct implements OnInit {
   saveQuestion() {
     if (!this.selectedQuestion || !this.selectedProduct) return;
 
-    const pharmacist = this.pharmacists.find(p => p._id === this.editedPharmacistId);
-
-    const payload = {
+    const trimmedReply = (this.replyContent || '').trim();
+    const payload: any = {
       sku: this.selectedProduct.sku,
       questionId: this.selectedQuestion._id,
-      answer: this.replyContent,
-      answeredBy: pharmacist ? pharmacist.pharmacistName : 'Admin'
+      actorRole: this.currentRole
     };
+
+    if (this.isAdmin) {
+      if (trimmedReply) {
+        payload.answer = trimmedReply;
+        payload.answeredBy = 'Admin';
+      } else {
+        if (!this.editedPharmacistId) {
+          this.showNotification('Vui lòng chọn dược sĩ để phân công.', 'warning');
+          return;
+        }
+        payload.answer = '';
+        payload.assignedPharmacistId = this.editedPharmacistId;
+        payload.assignedBy = this.currentDisplayName || 'Admin';
+      }
+    } else {
+      if (!trimmedReply) {
+        this.showNotification('Vui lòng nhập nội dung trả lời.', 'warning');
+        return;
+      }
+      payload.answer = trimmedReply;
+      payload.answeredBy = this.currentDisplayName || 'Dược sĩ';
+    }
 
     this.consultationService.replyProductQuestion(payload).subscribe({
       next: (res) => {
         if (res.success) {
-          this.showNotification('Đã lưu phản hồi thành công');
+          const message = res.mode === 'assigned'
+            ? 'Đã phân công và gửi email cho dược sĩ thành công.'
+            : 'Đã cập nhật câu trả lời thành công.';
+          this.showNotification(message);
           this.selectProduct(this.selectedProduct); // Refresh questions
+          this.fetchProducts();
           this.closeModal();
         } else {
           this.showNotification('Lỗi khi lưu phản hồi', 'error');
@@ -316,5 +406,28 @@ export class Consultationproduct implements OnInit {
   showNotification(message: string, type: 'success' | 'error' | 'warning' = 'success') {
     this.notification = { show: true, message, type };
     setTimeout(() => this.notification.show = false, 3000);
+  }
+
+  private resolveCurrentPharmacistId() {
+    if (this.currentRole !== 'pharmacist' || !this.pharmacists?.length) return;
+    if (this.currentPharmacistId) {
+      const byId = this.pharmacists.find((p) => String(p?._id || '') === this.currentPharmacistId);
+      if (byId) return;
+    }
+
+    const byEmail = this.currentPharmacistEmail
+      ? this.pharmacists.find((p) => String(p?.pharmacistEmail || p?.email || '').trim().toLowerCase() === this.currentPharmacistEmail)
+      : null;
+    if (byEmail?._id) {
+      this.currentPharmacistId = String(byEmail._id);
+      return;
+    }
+
+    const byName = this.currentPharmacistName
+      ? this.pharmacists.find((p) => String(p?.pharmacistName || '').trim().toLowerCase() === this.currentPharmacistName.toLowerCase())
+      : null;
+    if (byName?._id) {
+      this.currentPharmacistId = String(byName._id);
+    }
   }
 }

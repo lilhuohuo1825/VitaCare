@@ -25,15 +25,25 @@
                 <!-- STEP 1: Login -->
                 <ng-container *ngIf="currentStep === 'login'">
                     <h2 class="form-title">ĐĂNG NHẬP</h2>
+                    <div class="role-actions">
+                        <button type="button" class="role-btn" [class.active]="selectedRole === 'admin'"
+                            (click)="selectRole('admin')">Admin</button>
+                        <button type="button" class="role-btn" [class.active]="selectedRole === 'pharmacist'"
+                            (click)="selectRole('pharmacist')">Pharmacist</button>
+                    </div>
 
                     <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
                         <div class="form-group">
                             <label for="email">Email<span class="required">*</span></label>
                             <input type="email" id="email" formControlName="email" placeholder="Nhập email của bạn"
+                                (blur)="validateEmailByRole()"
                                 [class.error]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
                             <div *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched"
                                 class="error-message">
                                 Email không hợp lệ
+                            </div>
+                            <div *ngIf="!loginForm.get('email')?.invalid && roleEmailError" class="error-message">
+                                {{ roleEmailError }}
                             </div>
                         </div>
 
@@ -57,7 +67,8 @@
                             <a (click)="goToForgotPassword()" class="forgot-link">Quên mật khẩu?</a>
                         </div>
 
-                        <button type="submit" class="submit-btn" [disabled]="loginForm.invalid || isLoading">Đăng
+                        <button type="submit" class="submit-btn"
+                            [disabled]="loginForm.invalid || isLoading || isRoleEmailValid !== true">Đăng
                             nhập</button>
                     </form>
                 </ng-container>
@@ -184,18 +195,19 @@
     </div>
 </div>
 
-<!-- Login Success Full-screen Loading -->
+<!-- Login Success: preload dashboard — thanh & mascot theo tiến độ API -->
 <div class="success-overlay" *ngIf="isLoginSuccess">
     <div class="success-content">
         <div class="success-logo">
             <img src="assets/favicon/Favicon.png" alt="VitaCare Logo">
         </div>
+        <p class="success-loading-hint">Đang tải dữ liệu tổng quan…</p>
         <div class="loading-container">
-            <div class="mascot-shipping">
+            <div class="mascot-shipping" [style.left.%]="(dashboardPreload.progress$ | async) ?? 0">
                 <img src="assets/images/mascot/shipping.png" alt="Shipping Mascot">
             </div>
             <div class="loading-bar-container">
-                <div class="loading-bar-fill"></div>
+                <div class="loading-bar-fill" [style.width.%]="(dashboardPreload.progress$ | async) ?? 0"></div>
             </div>
         </div>
     </div>

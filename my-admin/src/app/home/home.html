@@ -5,9 +5,22 @@
             <h1 class="page-title">TỔNG QUAN HOẠT ĐỘNG</h1>
         </div>
         <div class="header-right">
-            <button class="action-btn"><i class="bi bi-grid"></i> Dashboards</button>
-            <button class="btn btn-primary" (click)="printDashboard()"><i class="bi bi-download"></i> Xuất Báo
-                Cáo</button>
+            <div class="export-dropdown" (click)="$event.stopPropagation()">
+                <button type="button" class="btn btn-primary export-trigger" (click)="toggleExportMenu($event)">
+                    <i class="bi bi-download"></i> Xuất báo cáo
+                </button>
+                <div class="export-menu" *ngIf="exportMenuOpen" (click)="$event.stopPropagation()">
+                    <button type="button" class="export-menu-item" (click)="exportReport('pdf')">
+                        <i class="bi bi-file-earmark-pdf"></i> PDF (.pdf)
+                    </button>
+                    <button type="button" class="export-menu-item" (click)="exportReport('xlsx')">
+                        <i class="bi bi-file-earmark-spreadsheet"></i> Excel (.xlsx)
+                    </button>
+                    <button type="button" class="export-menu-item" (click)="exportReport('csv')">
+                        <i class="bi bi-filetype-csv"></i> CSV (.csv)
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -72,32 +85,10 @@
             </div>
         </div>
 
-        <!-- NEW: Insight Grid (New Charts) -->
-        <div class="insights-grid">
-            <div class="insight-card circle-chart-card">
-                <h4>Phương thức Thanh toán</h4>
-                <div class="canvas-holder">
-                    <canvas #paymentMethodChart></canvas>
-                </div>
-            </div>
-            <div class="insight-card circle-chart-card">
-                <h4>Phân hạng Thành viên</h4>
-                <div class="canvas-holder">
-                    <canvas #customerTierChart></canvas>
-                </div>
-            </div>
-            <div class="insight-card">
-                <h4>Giờ đặt hàng cao điểm</h4>
-                <div class="canvas-holder-lg">
-                    <canvas #peakHoursChart></canvas>
-                </div>
-            </div>
-        </div>
-
-        <!-- Middle Charts Row (Legacy small charts updated) -->
+        <!-- Row 1: Trạng thái Khuyến mãi / Đơn thuốc / Đơn hàng -->
         <div class="mid-charts-grid">
             <div class="chart-box-mini circle-chart-card">
-                <h4>Phân bổ Khuyến mãi</h4>
+                <h4>Trạng thái Khuyến mãi</h4>
                 <div class="mini-canvas-container">
                     <canvas #promoDistributionChart></canvas>
                 </div>
@@ -116,51 +107,79 @@
             </div>
         </div>
 
-        <!-- Bottom Section: Registration & Orders -->
-        <div class="bottom-grid">
-            <div class="bottom-card registration-card">
-                <h4>Đăng ký mới theo ngày</h4>
-                <div class="bar-chart-container">
-                    <canvas #customerBarChart></canvas>
+        <!-- Row 1b: Trạng thái tư vấn (đơn thuốc / sản phẩm / bệnh) -->
+        <div class="mid-charts-grid consultation-consult-row">
+            <div class="chart-box-mini circle-chart-card">
+                <h4>Trạng thái tư vấn đơn thuốc</h4>
+                <div class="mini-canvas-container">
+                    <canvas #prescriptionConsultChart></canvas>
                 </div>
             </div>
+            <div class="chart-box-mini circle-chart-card">
+                <h4>Trạng thái tư vấn sản phẩm</h4>
+                <div class="mini-canvas-container">
+                    <canvas #productConsultChart></canvas>
+                </div>
+            </div>
+            <div class="chart-box-mini circle-chart-card">
+                <h4>Trạng thái tư vấn bệnh</h4>
+                <div class="mini-canvas-container">
+                    <canvas #diseaseConsultChart></canvas>
+                </div>
+            </div>
+        </div>
 
-            <div class="bottom-card recent-orders-card">
+        <!-- Row 2: Tổng quan nội dung & Xu hướng Đơn hàng & Đăng ký -->
+        <div class="insights-grid">
+            <div class="insight-card content-summary-card">
+                <h4>Tổng quan nội dung</h4>
+                <div class="content-summary-list">
+                    <div class="content-summary-item">
+                        <span class="content-summary-label">Số lượng bác sĩ</span>
+                        <span class="content-summary-value">{{ totalDoctorsCount }}</span>
+                    </div>
+                    <div class="content-summary-item">
+                        <span class="content-summary-label">Số lượng dược sĩ</span>
+                        <span class="content-summary-value">{{ totalPharmacistsCount }}</span>
+                    </div>
+                    <div class="content-summary-item">
+                        <span class="content-summary-label">Số lượng quản trị viên</span>
+                        <span class="content-summary-value">{{ totalAdminsCount }}</span>
+                    </div>
+                    <div class="content-summary-item">
+                        <span class="content-summary-label">Bài viết đang hiển thị</span>
+                        <span class="content-summary-value">{{ totalVisibleBlogsCount }}</span>
+                    </div>
+                    <div class="content-summary-item">
+                        <span class="content-summary-label">Bài viết bệnh đang hiển thị</span>
+                        <span class="content-summary-value">{{ totalVisibleDiseasePostsCount }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="insight-card activity-summary-card">
+                <h4>Xu hướng Đơn hàng & Đăng ký</h4>
+                <div class="canvas-holder-lg">
+                    <canvas #activityTrendChart></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Section: Top Products & Phân hạng Thành viên -->
+        <div class="bottom-grid">
+            <div class="bottom-card top-products-main-card">
                 <div class="card-header-flex">
-                    <h4>Đơn hàng mới nhất</h4>
-                    <button class="btn-text" (click)="viewAllOrders()">Xem tất cả <i
+                    <h4>Sản phẩm bán chạy</h4>
+                    <button class="btn-text" (click)="viewAllProducts()">Xem tất cả <i
                             class="bi bi-chevron-right"></i></button>
                 </div>
-                <div class="table-responsive">
-                    <table class="dashboard-table">
-                        <thead>
-                            <tr>
-                                <th>Khách hàng</th>
-                                <th>Tổng tiền</th>
-                                <th>Trạng thái</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr *ngFor="let order of recentOrders" (click)="viewOrderDetail(order._id)"
-                                style="cursor: pointer;">
-                                <td>
-                                    <div class="td-user">
-                                        <div class="avatar-mini">
-                                            <i class="bi bi-person"></i>
-                                        </div>
-                                        <span>{{ order.shippingInfo?.fullName || 'Khách lẻ' }}</span>
-                                    </div>
-                                </td>
-                                <td class="fw-bold">{{ order.totalAmount | number }}đ</td>
-                                <td>
-                                    <span class="status-badge" [attr.data-status]="order.status || 'pending'">
-                                        {{ order.status === 'delivered' ? 'Hoàn tất' : (order.status === 'pending' ?
-                                        'Chờ duyệt' : 'Đang xử lý') }}
-                                    </span>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <div class="top-products-main-chart-container">
+                    <canvas #topProductsChart></canvas>
+                </div>
+            </div>
+            <div class="bottom-card circle-chart-card member-tier-card">
+                <h4>Phân hạng Thành viên</h4>
+                <div class="canvas-holder">
+                    <canvas #customerTierChart></canvas>
                 </div>
             </div>
         </div>
@@ -171,11 +190,14 @@
                 <div class="list-header">
                     <h4>Cảnh báo Tồn kho</h4>
                     <div class="list-header-actions">
-                        <span class="stock-total-count">Tổng: {{ totalOutOfStockCount }}</span>
+                        <span class="stock-total-count">Hết hàng: {{ totalOutOfStockCount }}</span>
                         <button class="btn-text-sm" (click)="viewOutOfStockProducts()">Xem thêm</button>
                     </div>
                 </div>
                 <div class="list-body stock-list-body">
+                    <div class="stock-fallback-note" *ngIf="showingLowStockFallback">
+                        Hiện chưa có sản phẩm hết hàng (stock = 0). Đang hiển thị sản phẩm sắp hết.
+                    </div>
                     <table class="dashboard-table plain">
                         <thead>
                             <tr>
@@ -210,18 +232,41 @@
             </div>
             <div class="list-card">
                 <div class="list-header">
-                    <h4>Sản phẩm bán chạy</h4>
-                    <button class="btn-text-sm" (click)="viewAllProducts()">Xem tất cả</button>
+                    <h4>Đơn hàng mới nhất</h4>
+                    <button class="btn-text-sm" (click)="viewAllOrders()">Xem tất cả</button>
                 </div>
-                <div class="list-body product-list-body">
-                    <div class="product-item" *ngFor="let prod of topProducts">
-                        <div class="img-wrapper">
-                            <img [src]="prod.image" onerror="this.src='assets/images/default-product.png'">
-                        </div>
-                        <div class="prod-info">
-                            <p class="name">{{ prod.name }}</p>
-                            <p class="sales">Đã bán: <strong>{{ prod.sales }}</strong> sản phẩm</p>
-                        </div>
+                <div class="list-body recent-orders-list-body">
+                    <div class="table-responsive">
+                        <table class="dashboard-table compact">
+                            <thead>
+                                <tr>
+                                    <th>Mã đơn hàng</th>
+                                    <th>Tên khách hàng</th>
+                                    <th>Tổng đơn</th>
+                                    <th>Trạng thái</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let order of recentOrders" (click)="viewOrderDetail(order._id)"
+                                    style="cursor: pointer;">
+                                    <td class="fw-semibold">{{ order.order_id || order.orderCode || order._id || order.id || '-' }}</td>
+                                    <td>
+                                        <div class="td-user">
+                                            <div class="avatar-mini">
+                                                <i class="bi bi-person"></i>
+                                            </div>
+                                            <span>{{ order.shippingInfo?.fullName || 'Khách lẻ' }}</span>
+                                        </div>
+                                    </td>
+                                    <td class="fw-bold">{{ order.totalAmount | number }}đ</td>
+                                    <td>
+                                        <span class="status-badge" [ngClass]="getOrderStatusClass(order)">
+                                            {{ getOrderStatusText(order) }}
+                                        </span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>

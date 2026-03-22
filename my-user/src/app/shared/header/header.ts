@@ -1187,6 +1187,17 @@ export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
 
   // ================= FETCH LOGIC =================
 
+  /**
+   * Category bar + mega-menu: cùng nguồn với quản lý sản phẩm (admin) — GET /api/categories.
+   *
+   * Cấu trúc 3 tầng (parentId trỏ lên cấp trên):
+   * - L1: danh mục gốc (pill), ví dụ "Thực phẩm chức năng" — parentId null.
+   * - L2: cột trái mega-menu (vd. "Vitamin & Khoáng chất") — parentId = _id của L1.
+   * - L3: nhóm trong panel phải (vd. "Dầu cá, Omega 3, DHA") — parentId = _id của L2; mỗi mục có slug + id.
+   *
+   * Sản phẩm trên storefront lọc theo categoryId (thường là _id danh mục LÁ — L3 khi có).
+   * Admin nên gán product.categoryId = _id của đúng mục L3 đó để khớp đường dẫn / lọc trên my-user.
+   */
   fetchCategoriesAndBuildMenu(): void {
     this.categoryService.getCategories().subscribe((categories: any[]) => {
       // 1. Identify Level 1 Roots

@@ -45,6 +45,14 @@ export class InfoApiService {
     return this.http.patch<UserMeResponse>(`${API}/users/me`, payload);
   }
 
+  /** Upload avatar (multipart) → backend lưu Mongo + trả URL ngắn /api/promo-images/... */
+  uploadAvatar(user_id: string, file: File): Observable<UserMeResponse & { imageUrl?: string }> {
+    const fd = new FormData();
+    fd.append('user_id', user_id);
+    fd.append('file', file, file.name || 'avatar.jpg');
+    return this.http.post<UserMeResponse & { imageUrl?: string }>(`${API}/users/me/upload-avatar`, fd);
+  }
+
   sendOtpAny(phone: string): Observable<SendOtpAnyResponse> {
     return this.http.post<SendOtpAnyResponse>(`${API}/auth/send-otp-any`, { phone });
   }

@@ -2,7 +2,9 @@ import { Component, ElementRef, QueryList, ViewChildren, ChangeDetectorRef } fro
 import { CommonModule } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators, FormBuilder, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { AuthService } from '../services/auth.service';
+import { take } from 'rxjs';
+import { AuthService, AuthRole } from '../services/auth.service';
+import { DashboardPreloadService } from '../services/dashboard-preload.service';
 
 @Component({
   selector: 'app-login',
@@ -21,6 +23,37 @@ export class Login {
   errorMessage = '';
   popupMessage: string | null = null;
   isLoginSuccess = false;
+  selectedRole: AuthRole = 'admin';
+  isRoleEmailValid: boolean | null = null;
+  roleEmailError = '';
+  selectRole(role: AuthRole) {
+    this.selectedRole = role;
+    this.errorMessage = '';
+    this.validateEmailByRole();
+  }
+
+  validateEmailByRole() {
+    if (this.currentStep !== 'login') return;
+    const emailControl = this.loginForm.get('email');
+    const email = (emailControl?.value || '').trim();
+
+    this.isRoleEmailValid = null;
+    this.roleEmailError = '';
+
+    if (!emailControl || emailControl.invalid || !email) return;
+
+    this.authService.checkEmailForRole(email, this.selectedRole).subscribe({
+      next: (res) => {
+        this.isRoleEmailValid = !!res.valid;
+        this.roleEmailError = this.isRoleEmailValid ? '' : (res.message || 'Email không thuộc vai trò đã chọn.');
+      },
+      error: (err) => {
+        this.isRoleEmailValid = false;
+        this.roleEmailError = err?.message || 'Email không thuộc vai trò đã chọn.';
+      }
+    });
+  }
+
 
   // Data for flow
   verificationEmail = '';
@@ -36,6 +69,7 @@ export class Login {
   constructor(
     private router: Router,
     private authService: AuthService,
+    public dashboardPreload: DashboardPreloadService,
     private fb: FormBuilder,
     private cdr: ChangeDetectorRef
   ) {
@@ -96,20 +130,38 @@ export class Login {
       return;
     }
 
+    if (this.isRoleEmailValid !== true) {
+      this.validateEmailByRole();
+      this.errorMessage = this.roleEmailError || 'Email không đúng với vai trò đã chọn.';
+      return;
+    }
+
     this.isLoading = true;
     this.errorMessage = '';
     const { email, password } = this.loginForm.value;
 
-    this.authService.login(email, password).subscribe({
+    this.authService.login(email, password, this.selectedRole).subscribe({
       next: (success) => {
         this.isLoading = false;
         if (success) {
           this.isLoginSuccess = true;
           this.cdr.detectChanges();
-          setTimeout(() => {
-            // Navigate to Admin Dashboard
-            this.router.navigate(['/admin/dashboard']);
-          }, 2000);
+          // Tải dữ liệu tổng quan trước; thanh tiến trình + mascot đồng bộ với preload
+          this.dashboardPreload
+            .preload()
+            .pipe(take(1))
+            .subscribe({
+              next: () => {
+                this.router.navigate(['/admin/dashboard']);
+                this.isLoginSuccess = false;
+                this.cdr.detectChanges();
+              },
+              error: () => {
+                this.router.navigate(['/admin/dashboard']);
+                this.isLoginSuccess = false;
+                this.cdr.detectChanges();
+              }
+            });
         }
       },
       error: (err) => {
@@ -124,6 +176,8 @@ export class Login {
   goToForgotPassword() {
     this.currentStep = 'forgot-email';
     this.errorMessage = '';
+    this.roleEmailError = '';
+    this.isRoleEmailValid = null;
     this.forgotEmailForm.reset();
   }
 
@@ -140,7 +194,7 @@ export class Login {
 
     console.log('Sending Code to:', email);
 
-    this.authService.sendVerificationCode(email).subscribe({
+    this.authService.sendVerificationCode(email, this.selectedRole).subscribe({
       next: (res) => {
         console.log('Code Sent Success. Moving to verify-code step.');
         this.isLoading = false;
@@ -180,7 +234,7 @@ export class Login {
 
     console.log(`Verifying code: ${code} for ${this.verificationEmail}`);
 
-    this.authService.verifyCode(this.verificationEmail, code).subscribe({
+    this.authService.verifyCode(this.verificationEmail, code, this.selectedRole).subscribe({
       next: () => {
         console.log('Code Verified Successfully. Moving to reset-password.');
         this.isLoading = false;
@@ -248,7 +302,7 @@ export class Login {
 
     console.log('Resetting Password for:', this.verificationEmail);
 
-    this.authService.resetPassword(this.verificationEmail, newPassword).subscribe({
+    this.authService.resetPassword(this.verificationEmail, newPassword, this.selectedRole).subscribe({
       next: () => {
         console.log('Password Reset Success');
         this.isLoading = false;
@@ -270,12 +324,14 @@ export class Login {
   backToLogin() {
     this.currentStep = 'login';
     this.errorMessage = '';
+    this.roleEmailError = '';
+    this.isRoleEmailValid = null;
     this.loginForm.reset();
   }
 
   resendCode() {
     // Logic to resend code
-    this.authService.sendVerificationCode(this.verificationEmail).subscribe({
+    this.authService.sendVerificationCode(this.verificationEmail, this.selectedRole).subscribe({
       next: () => {
         this.popupMessage = `Mã đã được gửi lại đến ${this.verificationEmail}`;
       },

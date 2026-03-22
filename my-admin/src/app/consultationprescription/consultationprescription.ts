@@ -56,10 +56,16 @@ export class Consultationprescription implements OnInit {
   // Selection
   selectedCount = 0;
 
+  isConfirmModalOpen = false;
+
   // Dialog cho trạng thái "Đang tư vấn"
   statusDialog = {
     show: false
   };
+  currentRole: 'admin' | 'pharmacist' = 'admin';
+  currentPharmacistId = '';
+  currentPharmacistName = '';
+  currentPharmacistEmail = '';
 
   constructor(
     @Inject(ConsultationService) private consultationService: ConsultationService,
@@ -74,7 +80,31 @@ export class Consultationprescription implements OnInit {
   }
 
   ngOnInit() {
+    this.loadCurrentAccount();
     this.loadData();
+  }
+
+  private loadCurrentAccount() {
+    if (typeof window === 'undefined') return;
+    try {
+      const raw = localStorage.getItem('admin');
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      this.currentRole = parsed?.accountRole === 'pharmacist' ? 'pharmacist' : 'admin';
+      this.currentPharmacistId = String(parsed?._id || parsed?.pharmacist_id || '').trim();
+      this.currentPharmacistName = String(parsed?.pharmacistName || parsed?.adminname || '').trim();
+      this.currentPharmacistEmail = String(parsed?.pharmacistEmail || parsed?.email || parsed?.adminemail || '').trim().toLowerCase();
+    } catch {
+      this.currentRole = 'admin';
+    }
+  }
+
+  get isAdmin(): boolean {
+    return this.currentRole === 'admin';
+  }
+
+  get isPharmacist(): boolean {
+    return this.currentRole === 'pharmacist';
   }
 
   loadData() {
@@ -82,9 +112,13 @@ export class Consultationprescription implements OnInit {
     // Parallel fetch: pharmacists + prescriptions at the same time
     forkJoin({
       pharmacists: this.consultationService.getPharmacists().pipe(catchError(() => of({ data: [] }))),
-      prescriptions: this.consultationService.getPrescriptionConsultations().pipe(catchError(() => of({ success: true, data: [] })))
+      prescriptions: this.consultationService
+        .getPrescriptionConsultationsByRole(this.currentRole, this.currentPharmacistId)
+        .pipe(catchError(() => of({ success: true, data: [] })))
     }).subscribe(({ pharmacists, prescriptions }) => {
       this.pharmacists = (pharmacists && pharmacists.data) ? pharmacists.data : (Array.isArray(pharmacists) ? pharmacists : []);
+      const previousId = this.currentPharmacistId;
+      this.resolveCurrentPharmacistId();
 
       let rawData: any[] = [];
       if (prescriptions && prescriptions.success && Array.isArray(prescriptions.data)) {
@@ -100,18 +134,22 @@ export class Consultationprescription implements OnInit {
         full_name: item.full_name || 'Khách vãng lai',
         selected: false,
         status: item.status || 'pending',
-        pharmacist_name: this.pharmacists.find((ph: any) => ph._id === item.pharmacist_id)?.full_name || 'Chưa phân công'
+        pharmacist_name: this.pharmacists.find((ph: any) => ph._id === (item.pharmacist_id || item.pharmacistId))?.pharmacistName || item.pharmacistName || 'Chưa phân công'
       }));
 
       this.applyFiltersAndSort();
       this.calculateStats();
       this.isLoading = false;
       this.cdr.markForCheck(); // Force immediate view update
+
+      if (this.isPharmacist && this.currentPharmacistId && this.currentPharmacistId !== previousId) {
+        this.fetchPrescriptions();
+      }
     });
   }
 
   fetchPrescriptions() {
-    this.consultationService.getPrescriptionConsultations().subscribe({
+    this.consultationService.getPrescriptionConsultationsByRole(this.currentRole, this.currentPharmacistId).subscribe({
       next: (conRes) => {
         let rawData: any[] = [];
         if (conRes && conRes.success && Array.isArray(conRes.data)) {
@@ -128,7 +166,7 @@ export class Consultationprescription implements OnInit {
           full_name: item.full_name || 'Khách vãng lai',
           selected: false,
           status: item.status || 'pending',
-          pharmacist_name: this.pharmacists.find(ph => ph._id === item.pharmacist_id)?.full_name || 'Chưa phân công'
+          pharmacist_name: this.pharmacists.find(ph => ph._id === (item.pharmacist_id || item.pharmacistId))?.pharmacistName || item.pharmacistName || 'Chưa phân công'
         }));
         this.applyFiltersAndSort();
         this.calculateStats();
@@ -289,34 +327,65 @@ export class Consultationprescription implements OnInit {
 
   onEditClick() {
     const selected = this.filteredPrescriptions.filter(p => p.selected);
-    if (selected.length === 1) {
-      this.openDetailModal(selected[0]);
+    if (selected.length !== 1) {
+      this.showNotification('Vui lòng chọn 1 đơn tư vấn đơn thuốc để chỉnh sửa', 'warning');
+      return;
     }
+    this.openDetailModal(selected[0]);
   }
 
   onDeleteClick() {
     const selected = this.filteredPrescriptions.filter(p => p.selected);
+    if (selected.length === 0) {
+      this.showNotification('Chưa chọn đơn tư vấn nào để xóa', 'warning');
+      return;
+    }
+    this.isConfirmModalOpen = true;
+    this.cdr.markForCheck();
+  }
+
+  closeConfirmModal() {
+    this.isConfirmModalOpen = false;
+    this.cdr.markForCheck();
+  }
+
+  confirmDelete() {
+    this.closeConfirmModal();
+    const selected = this.filteredPrescriptions.filter(p => p.selected);
     if (selected.length === 0) return;
 
-    if (confirm(`Bạn có chắc muốn xoá ${selected.length} đơn tư vấn?`)) {
-      this.isLoading = true;
-      let completed = 0;
-      selected.forEach(item => {
-        this.consultationService.deletePrescriptionConsultation(item.id).subscribe({
-          next: () => {
-            completed++;
-            if (completed === selected.length) {
-              this.showNotification('Xoá thành công');
-              this.loadData();
-            }
-          },
-          error: () => {
-            completed++;
-            if (completed === selected.length) this.loadData();
-          }
-        });
+    const ids = selected.map(p => p.id);
+    const selectedSet = new Set(ids);
+    this.isLoading = true;
+    this.cdr.markForCheck();
+
+    let errors = 0;
+    const deleteNext = (index: number) => {
+      if (index >= ids.length) {
+        this.isLoading = false;
+        if (errors === 0) {
+          this.showNotification('Đã xóa thành công các đơn tư vấn đã chọn!');
+        } else {
+          this.showNotification(`Đã xóa ${ids.length - errors} đơn. Lỗi ${errors} đơn.`, 'warning');
+        }
+        this.prescriptions = this.prescriptions.filter(p => !selectedSet.has(p.id));
+        this.applyFiltersAndSort();
+        this.calculateStats();
+        this.selectedCount = 0;
+        this.selectAll = false;
+        this.cdr.markForCheck();
+        return;
+      }
+
+      this.consultationService.deletePrescriptionConsultation(ids[index]).subscribe({
+        next: () => deleteNext(index + 1),
+        error: () => {
+          errors++;
+          deleteNext(index + 1);
+        }
       });
-    }
+    };
+    deleteNext(0);
   }
 
   onGroupClick() {
@@ -341,7 +410,7 @@ export class Consultationprescription implements OnInit {
 
   openDetailModal(item: any) {
     this.selectedPrescription = { ...item };
-    this.editedPharmacistId = item.pharmacist_id || '';
+    this.editedPharmacistId = item.pharmacist_id || item.pharmacistId || '';
     this.isModalOpen = true;
   }
 
@@ -358,50 +427,90 @@ export class Consultationprescription implements OnInit {
 
     if (!this.selectedPrescription) return;
 
-    if (!this.editedPharmacistId) {
-      this.showNotification('Vui lòng chọn dược sĩ trước khi gửi', 'warning');
-      return;
-    }
-
-    const pharmacist = this.pharmacists.find(p => p._id === this.editedPharmacistId);
-    if (!pharmacist) return;
-
     this.isSaving = true;
 
-    // Nếu truyền vào trạng thái mới thì dùng, ngược lại mặc định:
-    // pending -> waiting khi gửi yêu cầu lần đầu.
-    if (newStatus) {
-      this.selectedPrescription.status = newStatus;
-    } else if (this.selectedPrescription.status === 'pending') {
-      this.selectedPrescription.status = 'waiting';
-    }
+    const originalStatus = this.selectedPrescription.status || 'pending';
+    const originalHistory = Array.isArray(this.selectedPrescription.status_history)
+      ? this.selectedPrescription.status_history
+      : [];
+    const originalCurrentStatus = this.selectedPrescription.current_status || null;
+    const originalPharmacistId = this.selectedPrescription.pharmacist_id || '';
+    const originalPharmacistName = this.selectedPrescription.pharmacistName || '';
+    const originalPharmacistPhone = this.selectedPrescription.pharmacistPhone || '';
 
-    // Update status history safely
-    let adminName = 'Admin';
-    try {
-      const adminData = localStorage.getItem('admin');
-      if (adminData) {
-        const admin = JSON.parse(adminData);
-        adminName = admin.adminName || admin.fullname || 'Admin';
+    let payload: any = {
+      status: originalStatus,
+      pharmacist_id: originalPharmacistId,
+      pharmacistId: originalPharmacistId,
+      pharmacistName: originalPharmacistName,
+      pharmacistPhone: originalPharmacistPhone,
+      current_status: originalCurrentStatus,
+      status_history: originalHistory
+    };
+
+    // Admin: chỉ được phân công dược sĩ, không thay đổi trạng thái.
+    if (this.isAdmin) {
+      if (!this.editedPharmacistId) {
+        this.isSaving = false;
+        this.showNotification('Vui lòng chọn dược sĩ để phân công', 'warning');
+        return;
       }
-    } catch (e) { }
+      const pharmacist = this.pharmacists.find(p => p._id === this.editedPharmacistId);
+      if (!pharmacist) {
+        this.isSaving = false;
+        this.showNotification('Không tìm thấy thông tin dược sĩ', 'error');
+        return;
+      }
+      payload = {
+        ...payload,
+        pharmacist_id: this.editedPharmacistId,
+        pharmacistId: this.editedPharmacistId,
+        pharmacistName: pharmacist.pharmacistName,
+        pharmacistPhone: pharmacist.pharmacistPhone
+      };
+    } else {
+      // Pharmacist: chỉ được cập nhật trạng thái, giữ nguyên người được phân công.
+      if (!originalPharmacistId) {
+        this.isSaving = false;
+        this.showNotification('Đơn thuốc chưa được phân công dược sĩ.', 'warning');
+        return;
+      }
 
-    const appliedStatus = this.selectedPrescription.status;
+      let actorName = 'Dược sĩ';
+      try {
+        const adminData = localStorage.getItem('admin');
+        if (adminData) {
+          const admin = JSON.parse(adminData);
+          actorName =
+            admin.pharmacistName ||
+            admin.adminname ||
+            admin.adminName ||
+            admin.fullname ||
+            'Dược sĩ';
+        }
+      } catch (e) { }
 
-    const historyEntry = {
-      status: appliedStatus,
-      changedAt: new Date().toISOString(),
-      changedBy: adminName
-    };
+      let nextStatus = originalStatus;
+      if (newStatus) {
+        nextStatus = newStatus;
+      } else if (originalStatus === 'pending') {
+        // Trường hợp pharmacist nhận xử lý lần đầu.
+        nextStatus = 'waiting';
+      }
 
-    const payload = {
-      status: appliedStatus,
-      pharmacist_id: this.editedPharmacistId,
-      pharmacistName: pharmacist.pharmacistName,
-      pharmacistPhone: pharmacist.pharmacistPhone,
-      current_status: historyEntry,
-      status_history: [...(this.selectedPrescription.status_history || []), historyEntry]
-    };
+      const historyEntry = {
+        status: nextStatus,
+        changedAt: new Date().toISOString(),
+        changedBy: actorName
+      };
+
+      payload = {
+        ...payload,
+        status: nextStatus,
+        current_status: historyEntry,
+        status_history: [...originalHistory, historyEntry]
+      };
+    }
 
     this.consultationService.updatePrescription(this.selectedPrescription.id, payload).subscribe({
       next: (res) => {
@@ -413,9 +522,11 @@ export class Consultationprescription implements OnInit {
         }
 
         const finalMessage = successMessage ||
-          (appliedStatus === 'waiting'
-            ? 'Đã gửi yêu cầu tư vấn đến dược sĩ.'
-            : `Đã cập nhật trạng thái đơn thuốc sang ${this.getStatusLabel(appliedStatus)}.`);
+          (this.isAdmin
+            ? 'Đã phân công đơn thuốc cho dược sĩ.'
+            : (payload.status === 'waiting'
+              ? 'Đã nhận xử lý đơn thuốc.'
+              : `Đã cập nhật trạng thái đơn thuốc sang ${this.getStatusLabel(payload.status)}.`));
 
         this.showNotification(finalMessage);
         this.fetchPrescriptions();
@@ -434,10 +545,34 @@ export class Consultationprescription implements OnInit {
     setTimeout(() => this.notification.show = false, 3000);
   }
 
+  private resolveCurrentPharmacistId() {
+    if (this.currentRole !== 'pharmacist' || !this.pharmacists?.length) return;
+    if (this.currentPharmacistId) {
+      const byId = this.pharmacists.find((p) => String(p?._id || '') === this.currentPharmacistId);
+      if (byId) return;
+    }
+
+    const byEmail = this.currentPharmacistEmail
+      ? this.pharmacists.find((p) => String(p?.pharmacistEmail || p?.email || '').trim().toLowerCase() === this.currentPharmacistEmail)
+      : null;
+    if (byEmail?._id) {
+      this.currentPharmacistId = String(byEmail._id);
+      return;
+    }
+
+    const byName = this.currentPharmacistName
+      ? this.pharmacists.find((p) => String(p?.pharmacistName || '').trim().toLowerCase() === this.currentPharmacistName.toLowerCase())
+      : null;
+    if (byName?._id) {
+      this.currentPharmacistId = String(byName._id);
+    }
+  }
+
   // === Điều khiển nút chính trên modal ===
 
   get primaryButtonLabel(): string {
     if (!this.selectedPrescription) return 'Lưu';
+    if (this.isAdmin) return 'Phân công';
     if (this.selectedPrescription.status === 'pending') return 'Gửi yêu cầu';
     if (this.selectedPrescription.status === 'waiting') return 'Cập nhật trạng thái';
     return 'Lưu thay đổi';
@@ -445,6 +580,11 @@ export class Consultationprescription implements OnInit {
 
   onPrimaryButtonClick() {
     if (!this.selectedPrescription) return;
+
+    if (this.isAdmin) {
+      this.savePrescription();
+      return;
+    }
 
     // Với trạng thái "Đang tư vấn" thì hỏi tiếp Đã liên hệ / Chưa thể liên hệ
     if (this.selectedPrescription.status === 'waiting') {
