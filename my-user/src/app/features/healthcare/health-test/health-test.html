@@ -152,6 +152,103 @@
     </div>
 
 
+<<<<<<< HEAD
+=======
+
+    <!-- REGISTER SCREEN FOR GUESTS -->
+    <div class="ht-register-container" *ngIf="screen === 'register'"
+        style="max-width: 600px; margin: 0 auto; padding: 32px 20px;">
+        <div style="background: white; border-radius: 16px; padding: 32px; box-shadow: 0 4px 20px rgba(0,0,0,0.06);">
+            <h2 style="font-size: 22px; font-weight: 800; color: #00589F; margin-bottom: 8px;">Đăng ký nhận
+                kết quả</h2>
+            <p style="font-size: 14px; color: #00589F; margin-bottom: 24px;">Điền thông tin để nhận kết quả
+                kiểm tra {{ selectedQuiz.category }} của bạn</p>
+
+            <form (ngSubmit)="handleSubmitReg()">
+                <div class="form-group mb-3">
+                    <label style="font-size: 14px; font-weight: 600; color: #00589F; margin-bottom: 8px;"><span
+                            style="color: red;">*</span> Họ và tên</label>
+                    <input type="text" class="form-control" placeholder="Họ và tên" [(ngModel)]="form.name" name="name"
+                        style="border-radius: 8px; border: 1px solid var(--vc-neutral-30); padding: 12px; font-size: 14px; color: var(--vc-main);">
+                    <div style="color: red; font-size: 12px; margin-top: 4px;" *ngIf="formErrors.name">{{
+                        formErrors.name }}</div>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label style="font-size: 14px; font-weight: 600; color: #00589F; margin-bottom: 8px;"><span
+                            style="color: red;">*</span> Tỉnh/ Thành phố</label>
+                    <select class="form-select" [(ngModel)]="form.province" name="province"
+                        style="border-radius: 8px; border: 1px solid var(--vc-neutral-30); padding: 12px; font-size: 14px; color: var(--vc-main);">
+                        <option value="">Chọn Thành Phố/Tỉnh</option>
+                        <option *ngFor="let p of tinhThanhList" [value]="p">{{ p }}</option>
+                    </select>
+                    <div style="color: red; font-size: 12px; margin-top: 4px;" *ngIf="formErrors.province">{{
+                        formErrors.province }}</div>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label style="font-size: 14px; font-weight: 600; color: #00589F; margin-bottom: 8px;"><span
+                            style="color: red;">*</span> Số điện thoại</label>
+                    <input type="tel" class="form-control" placeholder="Nhập số điện thoại" [(ngModel)]="form.phone"
+                        name="phone"
+                        style="border-radius: 8px; border: 1px solid var(--vc-neutral-30); padding: 12px; font-size: 14px; color: var(--vc-main);">
+                    <div style="color: red; font-size: 12px; margin-top: 4px;" *ngIf="formErrors.phone">{{
+                        formErrors.phone }}</div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-6">
+                        <label style="font-size: 14px; font-weight: 600; color: #00589F; margin-bottom: 8px;">Ngày
+                            sinh</label>
+                        <input type="date" class="form-control" [(ngModel)]="form.dob" name="dob"
+                            style="border-radius: 8px; border: 1px solid var(--vc-neutral-30); padding: 12px; font-size: 14px; color: var(--vc-main);">
+                    </div>
+                    <div class="col-6">
+                        <label style="font-size: 14px; font-weight: 600; color: #00589F; margin-bottom: 8px;">Giới
+                            tính</label>
+                        <select class="form-select" [(ngModel)]="form.gender" name="gender"
+                            style="border-radius: 8px; border: 1px solid var(--vc-neutral-30); padding: 12px; font-size: 14px; color: var(--vc-main);">
+                            <option value="Nam">Nam</option>
+                            <option value="Nữ">Nữ</option>
+                            <option value="Khác">Khác</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group mb-4">
+                    <label style="font-size: 14px; font-weight: 600; color: #00589F; margin-bottom: 8px;">Mã
+                        giới thiệu (Tùy chọn)</label>
+                    <input type="text" class="form-control" placeholder="Nhập mã giới thiệu"
+                        [(ngModel)]="form.referralCode" name="referralCode"
+                        style="border-radius: 8px; border: 1px solid var(--vc-neutral-30); padding: 12px; font-size: 14px; color: var(--vc-main);">
+                </div>
+
+                <div class="form-check mb-4" style="display: flex; align-items: flex-start; gap: 8px;">
+                    <input class="form-check-input" type="checkbox" [(ngModel)]="form.agreed" name="agreed"
+                        id="agreeTOS" style="margin-top: 4px;">
+                    <label class="form-check-label" for="agreeTOS"
+                        style="font-size: 13px; color: var(--vc-main); line-height: 1.5;">
+                        Bằng cách tích vào ô chọn, bạn đã đồng ý với việc lưu thông tin và chấp nhận <a href="#"
+                            style="color: var(--vc-main); font-weight: 600; text-decoration: none;">Điều khoản
+                            VitaCare</a>
+                    </label>
+                </div>
+                <div style="color: red; font-size: 12px; margin-top: -16px; margin-bottom: 16px;"
+                    *ngIf="formErrors.agreed">{{ formErrors.agreed }}</div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 24px;">
+                    <button type="button" class="btn"
+                        style="background: var(--vc-neutral-20); color: var(--vc-main); font-weight: 600; padding: 12px 24px; border-radius: 8px;"
+                        (click)="beginQuiz()">Trả lời lại</button>
+                    <button type="submit" class="btn btn-primary-vc"
+                        style="padding: 12px 24px; border-radius: 8px; font-weight: 600;"
+                        [disabled]="!form.name || !form.province || !form.phone || !form.agreed">Nhận kết quả</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+>>>>>>> 6c84c12d749fff38442261dfd3973b4752b86acc
     <!-- RESULT SCREEN -->
     <div class="ht-result-container" *ngIf="screen === 'result'">
         <div class="ht-result-header">

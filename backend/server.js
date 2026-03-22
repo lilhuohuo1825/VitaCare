@@ -6529,6 +6529,84 @@ app.get('/api/diseases/:id', async (req, res) => {
   }
 });
 
+/** Đếm điểm đánh giá độ hữu ích bài bệnh (object userId → điểm 1–5). */
+function buildDiseaseArticleRatingPayload(votes, userIdOpt) {
+  const counts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+  const obj = votes && typeof votes === 'object' && !Array.isArray(votes) ? votes : {};
+  let total = 0;
+  let sum = 0;
+  for (const raw of Object.values(obj)) {
+    const s = Math.round(Number(raw));
+    if (!Number.isFinite(s) || s < 1 || s > 5) continue;
+    counts[s] = (counts[s] || 0) + 1;
+    total += 1;
+    sum += s;
+  }
+  const userId = String(userIdOpt || '').trim();
+  let userScore = null;
+  if (userId && Object.prototype.hasOwnProperty.call(obj, userId)) {
+    const u = Math.round(Number(obj[userId]));
+    if (Number.isFinite(u) && u >= 1 && u <= 5) userScore = u;
+  }
+  return {
+    counts,
+    total,
+    average: total ? Math.round((sum / total) * 10) / 10 : 0,
+    userScore,
+  };
+}
+
+// GET /api/diseases/article-rating/:sku — thống kê + (tuỳ chọn) điểm của user (?userId=)
+app.get('/api/diseases/article-rating/:sku', async (req, res) => {
+  try {
+    const sku = decodeURIComponent(String(req.params.sku || '').trim());
+    const userId = String(req.query.userId || '').trim();
+    if (!sku) {
+      return res.status(400).json({ success: false, message: 'Thiếu mã bài bệnh.' });
+    }
+    const doc = await DiseaseArticleRatingModel.findOne({ diseaseKey: sku }).lean();
+    const votes = doc?.votes;
+    const payload = buildDiseaseArticleRatingPayload(votes, userId);
+    res.json({ success: true, ...payload });
+  } catch (err) {
+    console.error('[GET /api/diseases/article-rating/:sku] Error:', err);
+    res.status(500).json({ success: false, message: 'Lỗi tải đánh giá.' });
+  }
+});
+
+// POST /api/diseases/article-rating — gửi / đổi điểm 1–5 (mỗi user một điểm)
+app.post('/api/diseases/article-rating', async (req, res) => {
+  try {
+    const { sku, score, userId } = req.body || {};
+    const skuStr = String(sku || '').trim();
+    const userIdStr = String(userId || '').trim();
+    const sc = Math.round(Number(score));
+    if (!skuStr || !userIdStr) {
+      return res.status(400).json({ success: false, message: 'Thiếu sku hoặc userId.' });
+    }
+    if (!Number.isFinite(sc) || sc < 1 || sc > 5) {
+      return res.status(400).json({ success: false, message: 'Điểm đánh giá từ 1 đến 5.' });
+    }
+
+    let doc = await DiseaseArticleRatingModel.findOne({ diseaseKey: skuStr });
+    if (!doc) {
+      doc = new DiseaseArticleRatingModel({ diseaseKey: skuStr, votes: {} });
+    }
+    if (!doc.votes || typeof doc.votes !== 'object' || Array.isArray(doc.votes)) {
+      doc.votes = {};
+    }
+    doc.votes[userIdStr] = sc;
+    doc.markModified('votes');
+    await doc.save();
+
+    const payload = buildDiseaseArticleRatingPayload(doc.votes, userIdStr);
+    res.json({ success: true, ...payload });
+  } catch (err) {
+    console.error('[POST /api/diseases/article-rating] Error:', err);
+    res.status(500).json({ success: false, message: 'Lỗi lưu đánh giá.' });
+  }
+});
+
 /** Slug trong URL Angular: /benh/:id — chuẩn hoá từ sku CMS (vd benh/bai-nao-tre-em-6.html) */
 function diseaseConsultationBenhPath(sku) {
   let s = String(sku || '').trim();

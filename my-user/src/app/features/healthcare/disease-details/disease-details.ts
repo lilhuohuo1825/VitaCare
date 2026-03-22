@@ -47,6 +47,20 @@ export class DiseaseDetails implements OnInit, OnDestroy {
   // FAQ state
   expandedFaqs: { [key: number]: boolean } = {};
 
+  /** Đánh giá độ hữu ích toàn bài bệnh (1 = thất vọng … 5 = rất hữu ích). */
+  readonly articleRatingOptions: { score: number; emoji: string; text: string }[] = [
+    { score: 1, emoji: '😓', text: 'Thất vọng' },
+    { score: 2, emoji: '🙁', text: 'Không hữu ích' },
+    { score: 3, emoji: '😐', text: 'Bình thường' },
+    { score: 4, emoji: '😉', text: 'Hữu ích' },
+    { score: 5, emoji: '🤩', text: 'Rất hữu ích' },
+  ];
+  articleRatingCounts: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+  articleRatingTotal = 0;
+  articleRatingAverage = 0;
+  userArticleRating: number | null = null;
+  articleRatingSubmitting = false;
+
   // Consultation (Q&A) State
   consultationsData: any = { sku: '', questions: [] };
   visibleConsultationsCount = 3;
@@ -269,6 +283,7 @@ export class DiseaseDetails implements OnInit, OnDestroy {
       this.audioDuration = '';
       this.disease = null;
       this.isContentExpanded = false;
+      this.resetArticleRatingState();
     }
 
     this.diseaseService.getDiseaseById(id).subscribe({
@@ -348,6 +363,7 @@ export class DiseaseDetails implements OnInit, OnDestroy {
 
             // Fetch consultations (cùng khóa với POST: slug ưu tiên)
             this.fetchConsultations(this.consultationSku(data));
+            this.fetchArticleRatingStats();
 
             // Setup scroll spy: no setup needed, using @HostListener
 
@@ -698,6 +714,85 @@ export class DiseaseDetails implements OnInit, OnDestroy {
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
     return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+  }
+
+  private resetArticleRatingState(): void {
+    this.articleRatingCounts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+    this.articleRatingTotal = 0;
+    this.articleRatingAverage = 0;
+    this.userArticleRating = null;
+    this.articleRatingSubmitting = false;
+  }
+
+  private applyArticleRatingPayload(res: any): void {
+    if (!res?.success) return;
+    const c = res.counts || {};
+    this.articleRatingCounts = {
+      1: Number(c[1]) || 0,
+      2: Number(c[2]) || 0,
+      3: Number(c[3]) || 0,
+      4: Number(c[4]) || 0,
+      5: Number(c[5]) || 0,
+    };
+    this.articleRatingTotal = Number(res.total) || 0;
+    this.articleRatingAverage = Number(res.average) || 0;
+    const us = res.userScore;
+    this.userArticleRating = us != null && Number.isFinite(Number(us)) ? Number(us) : null;
+  }
+
+  fetchArticleRatingStats(): void {
+    const sku = this.consultationSku(this.disease);
+    if (!sku) {
+      this.resetArticleRatingState();
+      return;
+    }
+    const userId = this.getCurrentUserIdOrGuest();
+    this.diseaseService.getDiseaseArticleRating(sku, userId).subscribe({
+      next: (res) => {
+        this.ngZone.run(() => {
+          this.applyArticleRatingPayload(res);
+          this.cdr.markForCheck();
+        });
+      },
+      error: () => {
+        this.ngZone.run(() => {
+          this.resetArticleRatingState();
+          this.cdr.markForCheck();
+        });
+      },
+    });
+  }
+
+  submitArticleRating(score: number): void {
+    if (this.articleRatingSubmitting) return;
+    const sku = this.consultationSku(this.disease);
+    const userId = this.getCurrentUserIdOrGuest();
+    if (!sku || !userId) return;
+    const prev = this.userArticleRating;
+    this.articleRatingSubmitting = true;
+    this.diseaseService.postDiseaseArticleRating({ sku, score, userId }).subscribe({
+      next: (res) => {
+        this.ngZone.run(() => {
+          this.articleRatingSubmitting = false;
+          if (res?.success) {
+            this.applyArticleRatingPayload(res);
+            this.toastService.showSuccess(
+              prev != null ? 'Đã cập nhật đánh giá của bạn.' : 'Cảm ơn bạn đã đánh giá bài viết!'
+            );
+          } else {
+            this.toastService.showError('Không lưu được đánh giá. Vui lòng thử lại.');
+          }
+          this.cdr.markForCheck();
+        });
+      },
+      error: () => {
+        this.ngZone.run(() => {
+          this.articleRatingSubmitting = false;
+          this.toastService.showError('Không lưu được đánh giá. Vui lòng thử lại.');
+          this.cdr.markForCheck();
+        });
+      },
+    });
   }
 
   // ======= CONSULTATION (Q&A) METHODS =======
