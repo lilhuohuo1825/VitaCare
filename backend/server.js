@@ -1610,16 +1610,18 @@ async function buildDueReminderNoticeItems(user_id, now) {
       // còn "hiển thị sớm" do điều kiện curMin >= slotMin - leadMin ở trên.
       const slotDate = new Date(`${todayKey}T${timeNorm}:00+07:00`);
       const dueTimeMs = slotDate.getTime();
+      const medName = String(r.med_name || '').trim() || 'Thuốc';
       out.push({
         id: `reminder-due-${rid}-${todayKey}-${timeNorm.replace(':', '')}`,
         type: 'medication_reminder',
         title: 'Nhắc uống thuốc',
-        message: `${r.med_name || 'Thuốc'} — ${r.dosage || ''}${r.unit ? ' ' + r.unit : ''} (lịch ${timeNorm})`,
+        message: `${medName} — ${r.dosage || ''}${r.unit ? ' ' + r.unit : ''} (lịch ${timeNorm})`,
         time: new Date(dueTimeMs).toISOString(),
         read: false,
         link: '/account',
         linkLabel: 'Mở lịch nhắc',
-        meta: `${timeNorm} · ${r.med_name || ''}`.trim(),
+        meta: `${timeNorm} · ${medName}`.trim(),
+        meta_label: medName,
       });
     }
   }
@@ -6625,6 +6627,12 @@ function normalizeDiseaseConsultationQuestion(q) {
   if (!o.id) o.id = oid;
   if (!Array.isArray(o.likes)) o.likes = [];
   if (!Array.isArray(o.replies)) o.replies = [];
+  o.replies = o.replies.map((r) => {
+    if (!r || typeof r !== 'object') return r;
+    const rr = { ...r };
+    if (!Array.isArray(rr.likes)) rr.likes = [];
+    return rr;
+  });
   return o;
 }
 
@@ -6721,6 +6729,8 @@ app.post('/api/consultations/disease', async (req, res) => {
 });
 
 // POST /api/consultations/disease/reply — người dùng / dược sĩ trả lời câu hỏi về bệnh (lưu consultations_disease)
+// Dùng driver MongoDB $push + arrayFilters (giống /api/consultations/reply). Mongoose .save() trên mảng lồng
+// questions[].replies thường không markModified → không ghi DB dù API vẫn 200.
 app.post('/api/consultations/disease/reply', async (req, res) => {
   try {
     const { sku, questionId, content, fullname, isAdmin, avatar, user_id } = req.body || {};
@@ -6733,18 +6743,28 @@ app.post('/api/consultations/disease/reply', async (req, res) => {
       return res.status(400).json({ success: false, message: 'Thiếu nội dung trả lời.' });
     }
 
-    const disease = await ConsultationDiseaseModel.findOne({ sku: skuStr });
-    if (!disease) {
+    const col = mongoose.connection.db.collection('consultations_disease');
+    const doc = await col.findOne({ sku: skuStr });
+    if (!doc) {
       return res.status(404).json({ success: false, message: 'Không tìm thấy hỏi đáp bệnh.' });
     }
 
-    const questions = disease.questions || [];
-    const qIdx = questions.findIndex((q) => String(q._id || q.id || '') === qId);
-    if (qIdx === -1) {
+    const questions = doc.questions || [];
+    const questionMatchesId = (q) => {
+      if (!q || typeof q !== 'object') return false;
+      const id = q.id != null ? String(q.id) : '';
+      let oid = '';
+      if (q._id != null) {
+        if (typeof q._id === 'object' && q._id.$oid) oid = String(q._id.$oid);
+        else oid = String(q._id);
+      }
+      return id === qId || oid === qId;
+    };
+    const questionEntry = questions.find(questionMatchesId);
+    if (!questionEntry) {
       return res.status(404).json({ success: false, message: 'Không tìm thấy câu hỏi.' });
     }
 
-    const questionEntry = questions[qIdx];
     const reply = {
       _id: new mongoose.Types.ObjectId().toString(),
       content: String(content).trim(),
@@ -6753,14 +6773,39 @@ app.post('/api/consultations/disease/reply', async (req, res) => {
       avatar: avatar || '',
       is_admin: !!isAdmin,
       time: new Date(),
+      likes: [],
     };
 
-    if (!Array.isArray(disease.questions[qIdx].replies)) {
-      disease.questions[qIdx].replies = [];
+    const qCriteria = [{ 'q.id': qId }, { 'q._id': qId }];
+    if (mongoose.Types.ObjectId.isValid(qId) && String(new mongoose.Types.ObjectId(qId)) === qId) {
+      qCriteria.push({ 'q._id': new mongoose.Types.ObjectId(qId) });
     }
-    disease.questions[qIdx].replies.push(reply);
-    disease.updatedAt = new Date();
-    await disease.save();
+
+    const updateResult = await col.updateOne(
+      { sku: skuStr },
+      { $push: { 'questions.$[q].replies': reply }, $set: { updatedAt: new Date() } },
+      { arrayFilters: [{ $or: qCriteria }] }
+    );
+
+    if (updateResult.matchedCount === 0) {
+      return res.status(404).json({ success: false, message: 'Không tìm thấy hỏi đáp bệnh.' });
+    }
+
+    const freshAfter = await col.findOne({ sku: skuStr });
+    const qAfter = (freshAfter?.questions || []).find(questionMatchesId);
+    const hasNew =
+      Array.isArray(qAfter?.replies) && qAfter.replies.some((r) => r && String(r._id) === reply._id);
+    if (!hasNew) {
+      console.error('[POST /api/consultations/disease/reply] Reply missing after update', {
+        sku: skuStr,
+        qId,
+        modifiedCount: updateResult.modifiedCount,
+      });
+      return res.status(500).json({
+        success: false,
+        message: 'Không ghi được phản hồi (lỗi khớp dữ liệu). Vui lòng thử lại.',
+      });
+    }
 
     try {
       const authorId = questionEntry.user_id ? String(questionEntry.user_id).trim() : '';
@@ -6771,7 +6816,7 @@ app.post('/api/consultations/disease/reply', async (req, res) => {
         replierId &&
         authorId.toLowerCase() !== replierId.toLowerCase()
       ) {
-        const diseaseName = disease.productName || skuStr;
+        const diseaseName = doc.productName || skuStr;
         const { href, routeId } = diseaseConsultationBenhPath(skuStr);
         await noticesCollection().insertOne({
           user_id: authorId,
@@ -6790,11 +6835,234 @@ app.post('/api/consultations/disease/reply', async (req, res) => {
       console.warn('[POST /api/consultations/disease/reply] Cannot create notice:', e.message);
     }
 
-    const fresh = await ConsultationDiseaseModel.findOne({ sku: skuStr });
-    res.json(diseaseConsultationResponsePayload(fresh));
+    res.json(diseaseConsultationResponsePayload(freshAfter));
   } catch (err) {
     console.error('[POST /api/consultations/disease/reply] Error:', err);
     res.status(500).json({ success: false, message: 'Lỗi máy chủ khi gửi phản hồi.' });
+  }
+});
+
+// PATCH /api/consultations/disease/reply — chỉnh sửa phản hồi (chỉ đúng user_id)
+app.patch('/api/consultations/disease/reply', async (req, res) => {
+  try {
+    const { sku, questionId, replyId, content, userId } = req.body || {};
+    const skuStr = String(sku || '').trim();
+    const qId = String(questionId || '').trim();
+    const rId = String(replyId || '').trim();
+    const userIdStr = String(userId || '').trim();
+
+    if (!skuStr || !qId || !rId || !userIdStr) {
+      return res.status(400).json({ success: false, message: 'Thiếu sku, questionId, replyId hoặc userId.' });
+    }
+    if (!content || !String(content).trim()) {
+      return res.status(400).json({ success: false, message: 'Thiếu nội dung phản hồi.' });
+    }
+
+    const col = mongoose.connection.db.collection('consultations_disease');
+    const doc = await col.findOne({ sku: skuStr });
+    if (!doc) return res.status(404).json({ success: false, message: 'Không tìm thấy hỏi đáp bệnh.' });
+
+    const question = (doc.questions || []).find((q) => {
+      const id = q?.id != null ? String(q.id) : '';
+      let oid = '';
+      if (q?._id != null) {
+        oid = typeof q._id === 'object' && q._id.$oid ? String(q._id.$oid) : String(q._id);
+      }
+      return id === qId || oid === qId;
+    });
+    if (!question) return res.status(404).json({ success: false, message: 'Không tìm thấy câu hỏi.' });
+
+    const reply = (question.replies || []).find((r) => String(r?._id || '') === rId);
+    if (!reply) return res.status(404).json({ success: false, message: 'Không tìm thấy phản hồi.' });
+
+    if (String(reply.user_id || '') !== userIdStr) {
+      return res.status(403).json({ success: false, message: 'Bạn không có quyền chỉnh sửa phản hồi này.' });
+    }
+
+    const qCriteria = [{ 'q.id': qId }, { 'q._id': qId }];
+    if (mongoose.Types.ObjectId.isValid(qId) && String(new mongoose.Types.ObjectId(qId)) === qId) {
+      qCriteria.push({ 'q._id': new mongoose.Types.ObjectId(qId) });
+    }
+    const rCriteria = [{ 'r._id': rId }];
+    if (mongoose.Types.ObjectId.isValid(rId) && String(new mongoose.Types.ObjectId(rId)) === rId) {
+      rCriteria.push({ 'r._id': new mongoose.Types.ObjectId(rId) });
+    }
+
+    await col.updateOne(
+      { sku: skuStr },
+      {
+        $set: {
+          'questions.$[q].replies.$[r].content': String(content).trim(),
+          'questions.$[q].replies.$[r].updatedAt': new Date(),
+          updatedAt: new Date(),
+        },
+      },
+      { arrayFilters: [{ $or: qCriteria }, { $or: rCriteria }] }
+    );
+
+    const fresh = await col.findOne({ sku: skuStr });
+    res.json(diseaseConsultationResponsePayload(fresh));
+  } catch (err) {
+    console.error('[PATCH /api/consultations/disease/reply] Error:', err);
+    res.status(500).json({ success: false, message: 'Lỗi máy chủ khi cập nhật phản hồi.' });
+  }
+});
+
+// DELETE /api/consultations/disease/reply?sku=&questionId=&replyId=&userId=
+app.delete('/api/consultations/disease/reply', async (req, res) => {
+  try {
+    const skuStr = String(req.query.sku || '').trim();
+    const qId = String(req.query.questionId || '').trim();
+    const rId = String(req.query.replyId || '').trim();
+    const userIdStr = String(req.query.userId || '').trim();
+
+    if (!skuStr || !qId || !rId || !userIdStr) {
+      return res.status(400).json({ success: false, message: 'Thiếu sku, questionId, replyId hoặc userId.' });
+    }
+
+    const col = mongoose.connection.db.collection('consultations_disease');
+    const doc = await col.findOne({ sku: skuStr });
+    if (!doc) return res.status(404).json({ success: false, message: 'Không tìm thấy hỏi đáp bệnh.' });
+
+    const question = (doc.questions || []).find((q) => {
+      const id = q?.id != null ? String(q.id) : '';
+      let oid = '';
+      if (q?._id != null) {
+        oid = typeof q._id === 'object' && q._id.$oid ? String(q._id.$oid) : String(q._id);
+      }
+      return id === qId || oid === qId;
+    });
+    if (!question) return res.status(404).json({ success: false, message: 'Không tìm thấy câu hỏi.' });
+
+    const reply = (question.replies || []).find((r) => String(r?._id || '') === rId);
+    if (!reply) return res.status(404).json({ success: false, message: 'Không tìm thấy phản hồi.' });
+
+    if (String(reply.user_id || '') !== userIdStr) {
+      return res.status(403).json({ success: false, message: 'Bạn không có quyền xóa phản hồi này.' });
+    }
+
+    const qCriteria = [{ 'q.id': qId }, { 'q._id': qId }];
+    if (mongoose.Types.ObjectId.isValid(qId) && String(new mongoose.Types.ObjectId(qId)) === qId) {
+      qCriteria.push({ 'q._id': new mongoose.Types.ObjectId(qId) });
+    }
+
+    await col.updateOne(
+      { sku: skuStr },
+      { $pull: { 'questions.$[q].replies': { _id: rId } }, $set: { updatedAt: new Date() } },
+      { arrayFilters: [{ $or: qCriteria }] }
+    );
+
+    const fresh = await col.findOne({ sku: skuStr });
+    res.json(diseaseConsultationResponsePayload(fresh));
+  } catch (err) {
+    console.error('[DELETE /api/consultations/disease/reply] Error:', err);
+    res.status(500).json({ success: false, message: 'Lỗi máy chủ khi xóa phản hồi.' });
+  }
+});
+
+// POST /api/consultations/disease/reply/like — hữu ích 1 phản hồi trong hỏi đáp bệnh
+app.post('/api/consultations/disease/reply/like', async (req, res) => {
+  try {
+    const { sku, questionId, replyId, userId } = req.body || {};
+    const skuStr = String(sku || '').trim();
+    const qId = String(questionId || '').trim();
+    const rId = String(replyId || '').trim();
+    const userIdStr = String(userId || '').trim();
+
+    if (!skuStr || !qId || !rId || !userIdStr) {
+      return res.status(400).json({ success: false, message: 'Thiếu sku, questionId, replyId hoặc userId.' });
+    }
+
+    const col = mongoose.connection.db.collection('consultations_disease');
+    const doc = await col.findOne({ sku: skuStr });
+    if (!doc) {
+      return res.status(404).json({ success: false, message: 'Không tìm thấy hỏi đáp bệnh.' });
+    }
+
+    const questionMatchesId = (q) => {
+      if (!q || typeof q !== 'object') return false;
+      const id = q.id != null ? String(q.id) : '';
+      let oid = '';
+      if (q._id != null) {
+        oid = typeof q._id === 'object' && q._id.$oid ? String(q._id.$oid) : String(q._id);
+      }
+      return id === qId || oid === qId;
+    };
+
+    const question = (doc.questions || []).find(questionMatchesId);
+    if (!question) {
+      return res.status(404).json({ success: false, message: 'Không tìm thấy câu hỏi.' });
+    }
+
+    const reply = (question.replies || []).find((r) => String(r?._id || '') === rId);
+    if (!reply) {
+      return res.status(404).json({ success: false, message: 'Không tìm thấy phản hồi.' });
+    }
+
+    const likes = Array.isArray(reply.likes) ? [...reply.likes] : [];
+    const likeIdStr = (id) =>
+      id && typeof id === 'object' && id.$oid ? String(id.$oid) : String(id || '');
+    const idx = likes.findIndex((id) => likeIdStr(id) === userIdStr);
+    const addingLike = idx === -1;
+    if (idx > -1) {
+      likes.splice(idx, 1);
+    } else {
+      likes.push(userIdStr);
+    }
+
+    const qCriteria = [{ 'q.id': qId }, { 'q._id': qId }];
+    if (mongoose.Types.ObjectId.isValid(qId) && String(new mongoose.Types.ObjectId(qId)) === qId) {
+      qCriteria.push({ 'q._id': new mongoose.Types.ObjectId(qId) });
+    }
+    const rCriteria = [{ 'r._id': rId }];
+    if (mongoose.Types.ObjectId.isValid(rId) && String(new mongoose.Types.ObjectId(rId)) === rId) {
+      rCriteria.push({ 'r._id': new mongoose.Types.ObjectId(rId) });
+    }
+
+    await col.updateOne(
+      { sku: skuStr },
+      { $set: { 'questions.$[q].replies.$[r].likes': likes, updatedAt: new Date() } },
+      { arrayFilters: [{ $or: qCriteria }, { $or: rCriteria }] }
+    );
+
+    if (addingLike) {
+      try {
+        const replyAuthorId = reply.user_id ? String(reply.user_id).trim() : '';
+        if (replyAuthorId && replyAuthorId.toLowerCase() !== userIdStr.toLowerCase()) {
+          let likerName = 'Người dùng';
+          try {
+            const userDoc = await usersCollection().findOne({ $or: [{ user_id: userIdStr }, { _id: userIdStr }] });
+            if (userDoc && (userDoc.full_name || userDoc.fullname)) {
+              likerName = String(userDoc.full_name || userDoc.fullname).trim() || likerName;
+            }
+          } catch (_) {}
+
+          const diseaseName = doc.productName || skuStr;
+          const { href, routeId } = diseaseConsultationBenhPath(skuStr);
+          await noticesCollection().insertOne({
+            user_id: replyAuthorId,
+            type: 'qa_reply',
+            noticeTag: 'helpful_like',
+            title: 'Có phản hồi cho câu hỏi của bạn',
+            message: `${likerName} đánh dấu phản hồi của bạn là hữu ích về bệnh "${diseaseName}".`,
+            createdAt: new Date().toISOString(),
+            read: false,
+            link: href,
+            linkLabel: 'Xem phản hồi',
+            meta: routeId || skuStr,
+            meta_label: diseaseName,
+          });
+        }
+      } catch (e) {
+        console.warn('[POST /api/consultations/disease/reply/like] Cannot create notice:', e.message);
+      }
+    }
+
+    const fresh = await col.findOne({ sku: skuStr });
+    res.json(diseaseConsultationResponsePayload(fresh));
+  } catch (err) {
+    console.error('[POST /api/consultations/disease/reply/like] Error:', err);
+    res.status(500).json({ success: false, message: 'Lỗi máy chủ khi thích phản hồi.' });
   }
 });
 
@@ -6834,6 +7102,7 @@ app.post('/api/consultations/disease/like', async (req, res) => {
 
     disease.questions[qIdx].likes = likes;
     disease.updatedAt = new Date();
+    disease.markModified('questions');
     await disease.save();
 
     if (addingLike) {
@@ -6874,6 +7143,119 @@ app.post('/api/consultations/disease/like', async (req, res) => {
   } catch (err) {
     console.error('[POST /api/consultations/disease/like] Error:', err);
     res.status(500).json({ success: false, message: 'Lỗi máy chủ khi cập nhật thích.' });
+  }
+});
+
+// PATCH /api/consultations/disease/question — sửa nội dung câu hỏi (chỉ chủ user_id)
+app.patch('/api/consultations/disease/question', async (req, res) => {
+  try {
+    const { sku, questionId, question, userId } = req.body || {};
+    const skuStr = String(sku || '').trim();
+    const qId = String(questionId || '').trim();
+    const userIdStr = String(userId || '').trim();
+
+    if (!skuStr || !qId || !userIdStr) {
+      return res.status(400).json({ success: false, message: 'Thiếu sku, questionId hoặc userId.' });
+    }
+    if (!question || !String(question).trim()) {
+      return res.status(400).json({ success: false, message: 'Thiếu nội dung câu hỏi.' });
+    }
+
+    const col = mongoose.connection.db.collection('consultations_disease');
+    const doc = await col.findOne({ sku: skuStr });
+    if (!doc) return res.status(404).json({ success: false, message: 'Không tìm thấy hỏi đáp bệnh.' });
+
+    const questionEntry = (doc.questions || []).find((q) => {
+      const id = q?.id != null ? String(q.id) : '';
+      let oid = '';
+      if (q?._id != null) {
+        oid = typeof q._id === 'object' && q._id.$oid ? String(q._id.$oid) : String(q._id);
+      }
+      return id === qId || oid === qId;
+    });
+    if (!questionEntry) {
+      return res.status(404).json({ success: false, message: 'Không tìm thấy câu hỏi.' });
+    }
+    if (String(questionEntry.user_id || '') !== userIdStr) {
+      return res.status(403).json({ success: false, message: 'Bạn không có quyền sửa câu hỏi này.' });
+    }
+
+    const qCriteria = [{ 'q.id': qId }, { 'q._id': qId }];
+    if (mongoose.Types.ObjectId.isValid(qId) && String(new mongoose.Types.ObjectId(qId)) === qId) {
+      qCriteria.push({ 'q._id': new mongoose.Types.ObjectId(qId) });
+    }
+
+    const r = await col.updateOne(
+      { sku: skuStr },
+      {
+        $set: {
+          'questions.$[q].question': String(question).trim(),
+          'questions.$[q].updatedAt': new Date(),
+          updatedAt: new Date(),
+        },
+      },
+      { arrayFilters: [{ $or: qCriteria }] }
+    );
+    if (r.matchedCount === 0) {
+      return res.status(404).json({ success: false, message: 'Không cập nhật được câu hỏi.' });
+    }
+
+    const fresh = await col.findOne({ sku: skuStr });
+    res.json(diseaseConsultationResponsePayload(fresh));
+  } catch (err) {
+    console.error('[PATCH /api/consultations/disease/question] Error:', err);
+    res.status(500).json({ success: false, message: 'Lỗi máy chủ khi sửa câu hỏi.' });
+  }
+});
+
+// DELETE /api/consultations/disease/question?sku=&questionId=&userId=
+app.delete('/api/consultations/disease/question', async (req, res) => {
+  try {
+    const skuStr = String(req.query.sku || '').trim();
+    const qId = String(req.query.questionId || '').trim();
+    const userIdStr = String(req.query.userId || '').trim();
+
+    if (!skuStr || !qId || !userIdStr) {
+      return res.status(400).json({ success: false, message: 'Thiếu sku, questionId hoặc userId.' });
+    }
+
+    const col = mongoose.connection.db.collection('consultations_disease');
+    const doc = await col.findOne({ sku: skuStr });
+    if (!doc) return res.status(404).json({ success: false, message: 'Không tìm thấy hỏi đáp bệnh.' });
+
+    const questionEntry = (doc.questions || []).find((q) => {
+      const id = q?.id != null ? String(q.id) : '';
+      let oid = '';
+      if (q?._id != null) {
+        oid = typeof q._id === 'object' && q._id.$oid ? String(q._id.$oid) : String(q._id);
+      }
+      return id === qId || oid === qId;
+    });
+    if (!questionEntry) {
+      return res.status(404).json({ success: false, message: 'Không tìm thấy câu hỏi.' });
+    }
+    if (String(questionEntry.user_id || '') !== userIdStr) {
+      return res.status(403).json({ success: false, message: 'Bạn không có quyền xóa câu hỏi này.' });
+    }
+
+    const pullCriteria = [{ id: qId }, { _id: qId }];
+    if (mongoose.Types.ObjectId.isValid(qId) && String(new mongoose.Types.ObjectId(qId)) === qId) {
+      pullCriteria.push({ _id: new mongoose.Types.ObjectId(qId) });
+    }
+
+    const r = await col.updateOne(
+      { sku: skuStr },
+      { $pull: { questions: { $or: pullCriteria } }, $set: { updatedAt: new Date() } }
+    );
+    if (r.modifiedCount === 0) {
+      return res.status(404).json({ success: false, message: 'Không xóa được câu hỏi.' });
+    }
+
+    const fresh = await col.findOne({ sku: skuStr });
+    res.json(diseaseConsultationResponsePayload(fresh));
+  } catch (err) {
+    console.error('[DELETE /api/consultations/disease/question] Error:', err);
+    res.status(500).json({ success: false, message: 'Lỗi máy chủ khi xóa câu hỏi.' });
   }
 });
 
