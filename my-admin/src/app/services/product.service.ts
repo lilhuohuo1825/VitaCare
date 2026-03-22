@@ -38,6 +38,11 @@ export class ProductService {
         return this.http.get<any>(`${this.apiUrl}/${id}`);
     }
 
+    /** Xuất xứ distinct từ DB (country + origin trên collection products) */
+    getProductCountries(): Observable<any> {
+        return this.http.get<any>('http://localhost:3000/api/admin/product-countries');
+    }
+
     createProduct(product: any): Observable<any> {
         return this.http.post<any>(this.apiUrl, product);
     }

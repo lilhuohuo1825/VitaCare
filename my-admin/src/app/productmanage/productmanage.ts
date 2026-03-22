@@ -1,10 +1,25 @@
-import { Component, OnInit, OnDestroy, Inject, HostListener, ChangeDetectorRef } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  AfterViewInit,
+  Inject,
+  HostListener,
+  ChangeDetectorRef,
+  ElementRef,
+  ViewChild,
+} from '@angular/core';
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { ProductService } from '../services/product.service';
 import { FormsModule } from '@angular/forms';
 import { QuillEditorComponent } from 'ngx-quill';
 import { ActivatedRoute } from '@angular/router';
+import { forkJoin, of } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
 import { getProductCategoryIconSrc } from './productmanage-icon';
+import { AdminMascotLoadingComponent } from '../shared/admin-mascot-loading/admin-mascot-loading.component';
+import { VcFlatpickrDirective } from '../shared/vc-flatpickr/vc-flatpickr.directive';
+import { VcSearchableSelectComponent } from '../shared/vc-searchable-select/vc-searchable-select.component';
 
 /** Khóa sắp xếp trong UI (map sang field Mongo khi gọi API) */
 type SortKind = 'updated' | 'price' | 'name' | 'stock' | 'sold';
@@ -33,15 +48,33 @@ interface Product {
 @Component({
   selector: 'app-productmanage',
   standalone: true,
-  imports: [CommonModule, FormsModule, QuillEditorComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    QuillEditorComponent,
+    AdminMascotLoadingComponent,
+    VcFlatpickrDirective,
+    VcSearchableSelectComponent,
+  ],
   providers: [ProductService],
   templateUrl: './productmanage.html',
   styleUrl: './productmanage.css',
 })
-export class Productmanage implements OnInit, OnDestroy {
+export class Productmanage implements OnInit, OnDestroy, AfterViewInit {
   products: Product[] = [];
   filteredProducts: Product[] = [];
   searchTerm: string = '';
+  @ViewChild('productManageRoot', { read: ElementRef }) private productManageRoot?: ElementRef<HTMLElement>;
+  @ViewChild('pmStickyNavBar', { read: ElementRef }) private pmStickyNavBar?: ElementRef<HTMLElement>;
+  @ViewChild('pmTableHeadHScroll') pmTableHeadHScroll?: ElementRef<HTMLElement>;
+  @ViewChild('pmTableBodyHScroll') pmTableBodyHScroll?: ElementRef<HTMLElement>;
+  private pmStickyNavResizeObserver: ResizeObserver | null = null;
+  private pmTableHScrollSyncLock = false;
+  /** Cache tên (và SKU) SP theo _id — dùng xem nhanh SP trong nhóm KM */
+  private productNameByIdCache = new Map<string, string>();
+  private productSkuByIdCache = new Map<string, string>();
+  private productImageByIdCache = new Map<string, string>();
+
   isLoading: boolean = false;
   /** Chỉ dùng khi bấm Lưu trong modal — tránh dùng chung isLoading (ẩn cả trang, dễ lệch trạng thái popup). */
   isSavingProduct: boolean = false;
@@ -54,6 +87,9 @@ export class Productmanage implements OnInit, OnDestroy {
   totalPages: number = 1;
   totalItems: number = 0;
   readonly ITEMS_PER_PAGE = 20;
+
+  /** Tồn kho dưới ngưỡng này: badge đỏ + nền cảnh báo (bảng / danh sách). */
+  readonly stockWarningThreshold = 20;
 
   selectedIds: Set<string> = new Set(); // To persist selection across pages
 
@@ -68,7 +104,13 @@ export class Productmanage implements OnInit, OnDestroy {
     modalL1Id: string;
     modalL2Id: string;
     modalL3Id: string;
+    restockQty: number | null;
   } | null = null;
+
+  /**
+   * Chỉnh sửa SP: số lượng nhập thêm — khi lưu server cộng dồn vào `stock` (không ghi đè tồn kho hiển thị).
+   */
+  restockQty: number | null = null;
 
   /** Form chi tiết đang ở chế độ chỉ xem (chưa bấm Chỉnh sửa thông tin) */
   get productModalFieldsLocked(): boolean {
@@ -116,15 +158,16 @@ export class Productmanage implements OnInit, OnDestroy {
     return !this.filterNeedConsultation && this.sortKind === 'price';
   }
 
-  // Nhóm / phân loại: nhóm KM (product_groups) + gán categoryId (L1 → L2 → L3)
+  // Nhóm KM (product_groups)
   isGroupModalOpen = false;
-  groupModalL1Id = '';
-  groupModalL2Id = '';
-  groupModalL3Id = '';
   isGroupModalApplying = false;
   productGroups: any[] = [];
   groupModalNewName = '';
   groupModalSelectedGroupId = '';
+  /** Popup xem SP thuộc nhóm (không mở list inline). */
+  groupProductPopupGroup: any | null = null;
+  groupModalPreviewProducts: { id: string; name: string; sku?: string; image?: string }[] = [];
+  groupModalPreviewLoading = false;
   isCreatingProductGroup = false;
   /** Đang gọi API xóa nhóm (khóa nút X theo dòng). */
   deletingGroupId = '';
@@ -142,7 +185,6 @@ export class Productmanage implements OnInit, OnDestroy {
     categoryId: '',
     stock: 0,
     sold: 0,
-    rating: 0,
     unit: 'Hộp',
     description: '',
     usage: '',
@@ -175,7 +217,8 @@ export class Productmanage implements OnInit, OnDestroy {
   allCategories: any[] = []; // Raw flat list from API
   categoryMap: { [key: string]: any } = {};
   units = ['Hộp', 'Vỉ', 'Viên', 'Chai', 'Tuýp', 'Gói', 'Lọ'];
-  countries = ['Việt Nam', 'Mỹ', 'Nhật Bản', 'Hàn Quốc', 'Pháp'];
+  private readonly defaultCountryOptions = ['Việt Nam', 'Mỹ', 'Nhật Bản', 'Hàn Quốc', 'Pháp'];
+  countries: string[] = [...this.defaultCountryOptions];
   brands = ['Vinapharma', 'Dược Hậu Giang', 'Traphaco', 'Pfizer'];
 
   // Modal Level IDs for sequential selection
@@ -285,9 +328,71 @@ export class Productmanage implements OnInit, OnDestroy {
     });
   }
 
+  ngAfterViewInit(): void {
+    this.syncPmStickyChromeHeight();
+    const bar = this.pmStickyNavBar?.nativeElement;
+    if (bar && typeof ResizeObserver !== 'undefined') {
+      this.pmStickyNavResizeObserver = new ResizeObserver(() => this.syncPmStickyChromeHeight());
+      this.pmStickyNavResizeObserver.observe(bar);
+    }
+  }
+
   ngOnDestroy(): void {
+    this.pmStickyNavResizeObserver?.disconnect();
+    this.pmStickyNavResizeObserver = null;
     this.cancelCloseMega();
     this.cancelFilterDropdownLeaveTimer();
+  }
+
+  /** Cập nhật --pm-sticky-chrome-height cho lớp gradient cuộn (pm-table-body-scroll-fade). */
+  private syncPmStickyChromeHeight(): void {
+    const root = this.productManageRoot?.nativeElement;
+    const bar = this.pmStickyNavBar?.nativeElement;
+    if (!root || !bar) return;
+    const mb = parseFloat(getComputedStyle(bar).marginBottom) || 0;
+    const h = Math.round(bar.offsetHeight + mb);
+    root.style.setProperty('--pm-sticky-chrome-height', `${Math.max(0, h)}px`);
+  }
+
+  /** Sau khi DOM cập nhật (đổi view / tải SP) — đo lại chrome + reset cuộn ngang bảng. */
+  private schedulePmStickyLayoutSync(): void {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        this.syncPmStickyChromeHeight();
+        this.resetPmTableHorizontalScroll();
+      });
+    });
+  }
+
+  /** Đồng bộ scrollLeft: thanh header (ẩn scrollbar) theo vùng body khi kéo ngang. */
+  onPmTableBodyScroll(): void {
+    this.syncPmTableHorizontalScroll('body');
+  }
+
+  onPmTableHeadHScroll(): void {
+    this.syncPmTableHorizontalScroll('head');
+  }
+
+  private syncPmTableHorizontalScroll(source: 'head' | 'body'): void {
+    if (this.pmTableHScrollSyncLock) return;
+    const headEl = this.pmTableHeadHScroll?.nativeElement;
+    const bodyEl = this.pmTableBodyHScroll?.nativeElement;
+    if (!headEl || !bodyEl) return;
+    const src = source === 'head' ? headEl : bodyEl;
+    const dst = source === 'head' ? bodyEl : headEl;
+    if (src.scrollLeft === dst.scrollLeft) return;
+    this.pmTableHScrollSyncLock = true;
+    dst.scrollLeft = src.scrollLeft;
+    requestAnimationFrame(() => {
+      this.pmTableHScrollSyncLock = false;
+    });
+  }
+
+  private resetPmTableHorizontalScroll(): void {
+    const headEl = this.pmTableHeadHScroll?.nativeElement;
+    const bodyEl = this.pmTableBodyHScroll?.nativeElement;
+    if (headEl) headEl.scrollLeft = 0;
+    if (bodyEl) bodyEl.scrollLeft = 0;
   }
 
   private cancelFilterDropdownLeaveTimer(): void {
@@ -322,6 +427,43 @@ export class Productmanage implements OnInit, OnDestroy {
         this.cdr.markForCheck();
       }
     });
+  }
+
+  /** Hợp nhất xuất xứ từ Mongo (distinct country + origin) với danh mục mặc định */
+  private fetchProductCountries(): void {
+    this.productService.getProductCountries().subscribe({
+      next: (res: any) => {
+        const fromDb: string[] = res?.success && Array.isArray(res.data) ? res.data : [];
+        const set = new Set<string>([...this.defaultCountryOptions, ...fromDb]);
+        this.countries = [...set].sort((a, b) => a.localeCompare(b, 'vi', { sensitivity: 'base' }));
+        this.cdr.markForCheck();
+      },
+      error: () => {
+        this.countries = [...this.defaultCountryOptions];
+        this.cdr.markForCheck();
+      },
+    });
+  }
+
+  /** Giá trị SP không có trong dropdown → thêm để select hiển thị đúng */
+  private ensureCountryInOptions(value: string): void {
+    const v = String(value || '').trim();
+    if (!v) return;
+    if (!this.countries.includes(v)) {
+      this.countries = [...this.countries, v].sort((a, b) => a.localeCompare(b, 'vi', { sensitivity: 'base' }));
+    }
+  }
+
+  /** Ô xuất xứ: cho phép nhập tự do — blur thì trim và thêm vào gợi ý lần sau */
+  onOriginBlur(): void {
+    const v = String(this.newProduct.origin ?? '').trim();
+    this.newProduct.origin = v;
+    this.ensureCountryInOptions(v);
+  }
+
+  /** Gợi ý xuất xứ (dropdown HTML, không dùng select/datalist native) */
+  get originSelectOptions(): { value: string; label: string }[] {
+    return this.countries.map((c) => ({ value: c, label: c }));
   }
 
   /**
@@ -393,24 +535,118 @@ export class Productmanage implements OnInit, OnDestroy {
     return this.allCategories.filter(c => c.parentId === parentId);
   }
 
-  /** L3 con của L2 — sắp tên cho dễ chọn trong modal nhóm. */
-  getSortedL3ForL2(l2Id: string): any[] {
-    if (!l2Id) return [];
-    return [...this.getSubCategories(l2Id)].sort((a, b) =>
-      String(a.name || '').localeCompare(String(b.name || ''), 'vi')
-    );
-  }
-
-  private resetGroupModalCategoryIds(): void {
-    this.groupModalL1Id = '';
-    this.groupModalL2Id = '';
-    this.groupModalL3Id = '';
-  }
-
   private resetGroupModalForm(): void {
-    this.resetGroupModalCategoryIds();
     this.groupModalNewName = '';
     this.groupModalSelectedGroupId = '';
+    this.closeGroupProductPopup();
+  }
+
+  closeGroupProductPopup(): void {
+    this.groupProductPopupGroup = null;
+    this.groupModalPreviewProducts = [];
+    this.groupModalPreviewLoading = false;
+    this.cdr.markForCheck();
+  }
+
+  /** Bấm vào khung nhóm (trừ radio / Xóa) → popup danh sách SP. */
+  onGroupRowCardClick(g: any, ev: MouseEvent): void {
+    const t = ev.target as HTMLElement;
+    if (t.closest('.pm-group-row-delete')) return;
+    if (t.closest('input[type="radio"]')) return;
+    this.openGroupProductsPopup(g, ev);
+  }
+
+  openGroupProductsPopup(g: any, event?: Event): void {
+    event?.preventDefault();
+    event?.stopPropagation();
+    const gid = this.groupRowId(g);
+    if (!gid || this.isGroupModalApplying) return;
+    if (this.groupProductCount(g) <= 0) return;
+    if (this.groupProductPopupGroup && this.groupRowId(this.groupProductPopupGroup) === gid) {
+      this.closeGroupProductPopup();
+      return;
+    }
+    this.groupProductPopupGroup = g;
+    this.loadGroupPreviewProductsForIds(this.groupProductIdsList(g));
+  }
+
+  private loadGroupPreviewProductsForIds(ids: string[]): void {
+    if (!ids.length) {
+      this.groupModalPreviewProducts = [];
+      this.groupModalPreviewLoading = false;
+      this.cdr.markForCheck();
+      return;
+    }
+    const nameFor = (id: string) => this.productNameByIdCache.get(id);
+    const missing = ids.filter((id) => !nameFor(id));
+    const buildRow = (id: string, name: string, sku?: string, image?: string) => ({ id, name, sku, image });
+    if (!missing.length) {
+      this.groupModalPreviewProducts = ids.map((id) =>
+        buildRow(
+          id,
+          nameFor(id) || 'Không tên',
+          this.productSkuByIdCache.get(id),
+          this.productImageByIdCache.get(id),
+        ),
+      );
+      this.groupModalPreviewLoading = false;
+      this.cdr.markForCheck();
+      return;
+    }
+    this.groupModalPreviewLoading = true;
+    this.groupModalPreviewProducts = ids.map((id) =>
+      buildRow(
+        id,
+        nameFor(id) || '…',
+        this.productSkuByIdCache.get(id),
+        this.productImageByIdCache.get(id),
+      ),
+    );
+    this.cdr.markForCheck();
+    forkJoin(
+      missing.map((id) =>
+        this.productService.getProductById(id).pipe(
+          map((res: any) => {
+            const d = res?.data;
+            const name = d?.name != null ? String(d.name).trim() : 'Không tên';
+            const sku = d?.sku != null ? String(d.sku).trim() : '';
+            const thumb = this.productThumbUrlFromData(d);
+            this.productNameByIdCache.set(id, name);
+            if (sku) this.productSkuByIdCache.set(id, sku);
+            if (thumb) this.productImageByIdCache.set(id, thumb);
+            return { id, name, sku: sku || undefined, image: thumb };
+          }),
+          catchError(() =>
+            of({
+              id,
+              name: `Sản phẩm (${id.length > 8 ? id.slice(-8) : id})`,
+              sku: undefined as string | undefined,
+              image: undefined as string | undefined,
+            }),
+          ),
+        ),
+      ),
+    ).subscribe({
+      next: (fetched) => {
+        const hit = new Map(fetched.map((r) => [r.id, r]));
+        this.groupModalPreviewProducts = ids.map((id) => {
+          const f = hit.get(id);
+          if (f) return f;
+          return buildRow(
+            id,
+            this.productNameByIdCache.get(id) || 'Không tên',
+            this.productSkuByIdCache.get(id),
+            this.productImageByIdCache.get(id),
+          );
+        });
+        this.groupModalPreviewLoading = false;
+        this.cdr.markForCheck();
+      },
+      error: () => {
+        this.groupModalPreviewLoading = false;
+        this.cdr.markForCheck();
+      },
+    });
   }
 
   private loadProductGroupsForModal(): void {
@@ -435,35 +671,37 @@ export class Productmanage implements OnInit, OnDestroy {
     return n || 'Không tên';
   }
 
-  groupProductCount(g: any): number {
+  groupProductIdsList(g: any): string[] {
     const raw = g?.productIds ?? g?.products ?? g?.product_ids ?? g?.items;
-    return Array.isArray(raw) ? raw.length : 0;
+    if (!Array.isArray(raw)) return [];
+    return raw
+      .map((x: any) => {
+        if (x == null) return '';
+        if (typeof x === 'object' && x.$oid) return String(x.$oid);
+        if (typeof x === 'object' && x._id != null) return String(x._id);
+        return String(x);
+      })
+      .filter(Boolean);
+  }
+
+  groupProductCount(g: any): number {
+    return this.groupProductIdsList(g).length;
+  }
+
+  /** Ảnh đại diện từ payload API (image hoặc gallery[0]). */
+  private productThumbUrlFromData(d: any): string | undefined {
+    if (!d) return undefined;
+    const img = d.image;
+    if (typeof img === 'string' && img.trim()) return img.trim();
+    const g = d.gallery;
+    if (Array.isArray(g) && g.length > 0 && typeof g[0] === 'string' && g[0].trim()) return g[0].trim();
+    return undefined;
   }
 
   groupModalCanSubmit(): boolean {
-    const hasCat = !!this.resolvedGroupCategoryId();
     const hasSel = !!String(this.groupModalSelectedGroupId || '').trim();
     const hasNew = !!String(this.groupModalNewName || '').trim();
-    return hasCat || hasSel || hasNew;
-  }
-
-  onGroupModalL1Change(): void {
-    this.groupModalL2Id = '';
-    this.groupModalL3Id = '';
-  }
-
-  onGroupModalL2Change(): void {
-    this.groupModalL3Id = '';
-  }
-
-  /** Danh mục đích: ưu tiên cấp sâu nhất đang chọn. */
-  resolvedGroupCategoryId(): string | null {
-    const l3 = String(this.groupModalL3Id || '').trim();
-    if (l3) return l3;
-    const l2 = String(this.groupModalL2Id || '').trim();
-    if (l2) return l2;
-    const l1 = String(this.groupModalL1Id || '').trim();
-    return l1 || null;
+    return hasSel || hasNew;
   }
 
   /** L2 con của L1; TPCN sắp xếp giống trang user. */
@@ -645,6 +883,13 @@ export class Productmanage implements OnInit, OnDestroy {
               _id: safeId
             };
           });
+          for (const p of this.products) {
+            const pid = p._id != null ? String(p._id) : '';
+            if (!pid) continue;
+            if (p.name) this.productNameByIdCache.set(pid, p.name);
+            if (p.sku) this.productSkuByIdCache.set(pid, p.sku);
+            if (p.image) this.productImageByIdCache.set(pid, p.image);
+          }
           this.totalItems = res.totalItems || (res.pagination ? res.pagination.total : 0);
           this.totalPages = res.totalPages || (res.pagination ? res.pagination.totalPages : 1);
           if (this.pendingOpenProductId) {
@@ -655,6 +900,7 @@ export class Productmanage implements OnInit, OnDestroy {
           this.cdr.markForCheck();
         }
         this.isLoading = false;
+        this.schedulePmStickyLayoutSync();
       },
       error: (err) => {
         console.error('Error loading products', err);
@@ -819,25 +1065,27 @@ export class Productmanage implements OnInit, OnDestroy {
   setViewMode(mode: 'list' | 'table', event?: Event): void {
     event?.stopPropagation();
     this.viewMode = mode;
+    this.schedulePmStickyLayoutSync();
   }
 
   /** Badge tồn kho (màu giống cột trạng thái đơn hàng) */
   productStockBadgeClass(p: Product): string {
-    if (p.stock === 0) return 'status-red';
-    if (p.stock > 0 && p.stock < 10) return 'status-yellow';
+    const n = Number(p?.stock);
+    if (n < this.stockWarningThreshold) return 'status-red';
     return 'status-green';
   }
 
   productStockBadgeLabel(p: Product): string {
-    if (p.stock === 0) return 'Hết hàng';
-    if (p.stock > 0 && p.stock < 10) return 'Sắp hết';
+    const n = Number(p?.stock);
+    if (n === 0) return 'Hết hàng';
+    if (n > 0 && n < this.stockWarningThreshold) return 'Sắp hết';
     return 'Còn hàng';
   }
 
-  /** Cùng ngưỡng bộ lọc Tồn kho (low_stock): 0 < stock < 10 */
+  /** Hàng cần cảnh báo tồn: 0 < stock < stockWarningThreshold (đồng bộ bộ lọc low_stock) */
   isLowStockProduct(p: Pick<Product, 'stock'>): boolean {
     const n = Number(p?.stock);
-    return n > 0 && n < 10;
+    return n > 0 && n < this.stockWarningThreshold;
   }
 
   sortResults() { } // Handled by server or can be added as query param later
@@ -1031,19 +1279,14 @@ export class Productmanage implements OnInit, OnDestroy {
   }
 
   confirmGroup() {
-    const categoryId = this.resolvedGroupCategoryId();
     const productIds = Array.from(this.selectedIds);
     const selectedGid = String(this.groupModalSelectedGroupId || '').trim();
     const newName = String(this.groupModalNewName || '').trim();
-    const hasCategory = !!categoryId;
     const hasGroupPick = !!selectedGid;
     const hasNewName = !!newName;
 
-    if (!hasCategory && !hasGroupPick && !hasNewName) {
-      this.showNotification(
-        'Chọn nhóm có sẵn, hoặc nhập tên nhóm mới, hoặc chọn danh mục (ít nhất một mục).',
-        'warning',
-      );
+    if (!hasGroupPick && !hasNewName) {
+      this.showNotification('Chọn nhóm có sẵn hoặc nhập tên nhóm mới.', 'warning');
       return;
     }
 
@@ -1065,23 +1308,6 @@ export class Productmanage implements OnInit, OnDestroy {
       this.cdr.markForCheck();
     };
 
-    const runCategory = (onDone: () => void) => {
-      if (!hasCategory || !categoryId) {
-        onDone();
-        return;
-      }
-      this.productService.bulkUpdateProductCategory(productIds, categoryId).subscribe({
-        next: (res) => {
-          if (!res.success) {
-            fail(res.message || 'Không cập nhật được phân loại.');
-            return;
-          }
-          onDone();
-        },
-        error: (err) => fail(err?.error?.message || 'Lỗi khi cập nhật phân loại'),
-      });
-    };
-
     const runBulkGroup = (gid: string, onDone: () => void) => {
       this.productService.bulkAssignProductGroup(productIds, gid).subscribe({
         next: (res) => {
@@ -1096,39 +1322,21 @@ export class Productmanage implements OnInit, OnDestroy {
     };
 
     if (hasGroupPick) {
-      runBulkGroup(selectedGid, () =>
-        runCategory(() => {
-          const parts: string[] = [];
-          parts.push('Đã gán nhóm khuyến mãi');
-          if (hasCategory) parts.push('và cập nhật phân loại danh mục');
-          finishOk(`${parts.join(' ')}.`);
-        }),
-      );
+      runBulkGroup(selectedGid, () => finishOk('Đã gán nhóm khuyến mãi.'));
       return;
     }
 
-    if (hasNewName) {
-      this.productService.createGroup({ name: newName }).subscribe({
-        next: (res: any) => {
-          const gid = res?.data?._id != null ? String(res.data._id) : '';
-          if (!res?.success || !gid) {
-            fail(res?.message || 'Không tạo được nhóm');
-            return;
-          }
-          runBulkGroup(gid, () =>
-            runCategory(() => {
-              const parts: string[] = ['Đã tạo nhóm và gán sản phẩm'];
-              if (hasCategory) parts.push('đồng thời cập nhật phân loại');
-              finishOk(`${parts.join(', ')}.`);
-            }),
-          );
-        },
-        error: (err) => fail(err?.error?.message || 'Lỗi tạo nhóm'),
-      });
-      return;
-    }
-
-    runCategory(() => finishOk('Đã cập nhật phân loại danh mục.'));
+    this.productService.createGroup({ name: newName }).subscribe({
+      next: (res: any) => {
+        const gid = res?.data?._id != null ? String(res.data._id) : '';
+        if (!res?.success || !gid) {
+          fail(res?.message || 'Không tạo được nhóm');
+          return;
+        }
+        runBulkGroup(gid, () => finishOk('Đã tạo nhóm và gán sản phẩm.'));
+      },
+      error: (err) => fail(err?.error?.message || 'Lỗi tạo nhóm'),
+    });
   }
 
   closeGroupModal() {
@@ -1224,11 +1432,14 @@ export class Productmanage implements OnInit, OnDestroy {
             ...res.data,
             gallery: gallery,
             image: res.data.image || (gallery.length > 0 ? gallery[0] : ''),
-            sold: Number(res.data.sold ?? 0),
-            rating: Number(res.data.rating ?? 0)
+            sold: Number(res.data.sold ?? 0)
           };
+          delete this.newProduct.rating;
           const catId = res.data.categoryId || '';
           this.newProduct.categoryId = catId;
+          const originVal = String(res.data.origin ?? res.data.country ?? '').trim();
+          this.newProduct.origin = originVal;
+          this.ensureCountryInOptions(originVal);
 
           this.modalL1Id = '';
           this.modalL2Id = '';
@@ -1248,8 +1459,16 @@ export class Productmanage implements OnInit, OnDestroy {
             }
           }
 
-          if (this.newProduct.manufactureDate) this.newProduct.manufactureDate = new Date(this.newProduct.manufactureDate).toISOString().split('T')[0];
-          if (this.newProduct.expiryDate) this.newProduct.expiryDate = new Date(this.newProduct.expiryDate).toISOString().split('T')[0];
+          const raw = res.data;
+          const mSrc =
+            raw.manufactureDate ??
+            raw.productionDate ??
+            raw.manufacturedDate ??
+            raw.createDate ??
+            raw.created_at;
+          const eSrc = raw.expiryDate ?? raw.expiredDate ?? raw.expireDate;
+          this.newProduct.manufactureDate = this.toDateInputString(mSrc);
+          this.newProduct.expiryDate = this.toDateInputString(eSrc);
 
           this.normalizeRichTextFields(this.newProduct);
 
@@ -1265,6 +1484,19 @@ export class Productmanage implements OnInit, OnDestroy {
         this.showNotification('Lỗi tải thông tin sản phẩm', 'error');
       }
     });
+  }
+
+  /** Chuẩn hóa ngày từ Mongo (Date / ISO / { $date }) → `yyyy-MM-dd` cho `<input type="date">` */
+  private toDateInputString(v: unknown): string {
+    if (v == null || v === '') return '';
+    if (typeof v === 'object' && v !== null && '$date' in (v as Record<string, unknown>)) {
+      const inner = (v as { $date?: string | number | Date }).$date;
+      if (inner == null) return '';
+      const d = new Date(inner as string | number | Date);
+      return Number.isNaN(d.getTime()) ? '' : d.toISOString().split('T')[0];
+    }
+    const d = new Date(v as string | number | Date);
+    return Number.isNaN(d.getTime()) ? '' : d.toISOString().split('T')[0];
   }
 
   /** Plain text / HTML lẫn lộn từ DB → HTML hợp lệ cho Quill */
@@ -1305,6 +1537,7 @@ export class Productmanage implements OnInit, OnDestroy {
     this.isDetailViewLocked = false;
     this.detailFormSnapshot = null;
     this.isSavingProduct = false;
+    this.restockQty = null;
     this.cdr.markForCheck();
   }
 
@@ -1336,6 +1569,7 @@ export class Productmanage implements OnInit, OnDestroy {
       modalL1Id: this.modalL1Id,
       modalL2Id: this.modalL2Id,
       modalL3Id: this.modalL3Id,
+      restockQty: this.restockQty,
     };
     this.isDetailViewLocked = false;
     this.cdr.markForCheck();
@@ -1348,6 +1582,7 @@ export class Productmanage implements OnInit, OnDestroy {
       this.modalL1Id = s.modalL1Id;
       this.modalL2Id = s.modalL2Id;
       this.modalL3Id = s.modalL3Id;
+      this.restockQty = s.restockQty;
       this.detailFormSnapshot = null;
     }
     this.isDetailViewLocked = true;
@@ -1369,6 +1604,39 @@ export class Productmanage implements OnInit, OnDestroy {
     this.isConfirmModalOpen = true;
   }
 
+  /** Bỏ các trường do khách hàng / hệ thống đánh giá; khi sửa SP + nhập hàng: gửi `restockBy` và bỏ `stock` để server $inc. */
+  private productBodyWithoutCustomerFields(p: any): any {
+    const body = { ...(p || {}) };
+    delete body.rating;
+    if (this.isEditMode && this.restockQty != null) {
+      const n = Number(this.restockQty);
+      if (Number.isFinite(n) && n > 0) {
+        const inc = Math.floor(n);
+        if (inc > 0) {
+          body.restockBy = inc;
+          delete body.stock;
+        }
+      }
+    }
+    const ox = String(body.origin ?? body.country ?? '').trim();
+    body.origin = ox;
+    body.country = ox;
+
+    const md = String(body.manufactureDate ?? '').trim();
+    const ed = String(body.expiryDate ?? '').trim();
+    if (md) body.manufactureDate = md;
+    else delete body.manufactureDate;
+    if (ed) {
+      body.expiryDate = ed;
+      body.expiredDate = ed;
+    } else {
+      delete body.expiryDate;
+      delete body.expiredDate;
+    }
+
+    return body;
+  }
+
   saveProduct() {
     if (this.isEditMode && this.isDetailViewLocked) {
       this.showNotification('Nhấn "Chỉnh sửa thông tin" để có thể lưu thay đổi', 'warning');
@@ -1381,11 +1649,13 @@ export class Productmanage implements OnInit, OnDestroy {
     }
 
     this.isSavingProduct = true;
+    const productPayload = this.productBodyWithoutCustomerFields(this.newProduct);
     if (this.isEditMode && this.currentProductId) {
-      this.productService.updateProduct(this.currentProductId, this.newProduct).subscribe({
+      this.productService.updateProduct(this.currentProductId, productPayload).subscribe({
         next: () => {
           this.pendingOpenProductId = null;
           this.detailFormSnapshot = null;
+          this.restockQty = null;
           this.showNotification('Cập nhật sản phẩm thành công');
           this.closeProductModal();
           this.fetchProducts();
@@ -1397,7 +1667,7 @@ export class Productmanage implements OnInit, OnDestroy {
         }
       });
     } else {
-      this.productService.createProduct(this.newProduct).subscribe({
+      this.productService.createProduct(productPayload).subscribe({
         next: () => {
           this.pendingOpenProductId = null;
           this.showNotification('Thêm sản phẩm thành công');
@@ -1417,6 +1687,7 @@ export class Productmanage implements OnInit, OnDestroy {
     this.modalL1Id = '';
     this.modalL2Id = '';
     this.modalL3Id = '';
+    this.restockQty = null;
     this.newProduct = {
       name: '',
       sku: '',
@@ -1425,7 +1696,6 @@ export class Productmanage implements OnInit, OnDestroy {
       categoryId: '',
       stock: 0,
       sold: 0,
-      rating: 0,
       unit: 'Hộp',
       description: '',
       usage: '',
@@ -1514,12 +1784,17 @@ export class Productmanage implements OnInit, OnDestroy {
   }
 
   triggerGalleryAdd() {
+    if (this.productModalFieldsLocked) return;
     const fileInput = document.getElementById('imageUploadInput') as HTMLInputElement;
     if (fileInput) {
       (fileInput as any)._slotIndex = undefined;
       fileInput.value = '';
       fileInput.click();
     }
+  }
+
+  trackGalleryIndex(index: number, _url: string): number {
+    return index;
   }
 
   removeGalleryImage(index: number) {
@@ -1530,11 +1805,4 @@ export class Productmanage implements OnInit, OnDestroy {
     this.cdr.markForCheck();
   }
 
-  get gallerySlots(): (string | null)[] {
-    const gallery = this.newProduct.gallery || [];
-    // Always show 4 slots, fill with nulls
-    const slots: (string | null)[] = [...gallery.slice(0, 4)];
-    while (slots.length < 4) slots.push(null);
-    return slots;
-  }
 }

@@ -1,5 +1,7 @@
 /* Product Manage Styles - Based on Order Manage for Consistency */
 .product-manage-container {
+    /* Fallback trước khi JS đo — dùng cho .pm-table-body-scroll-fade { top } */
+    --pm-sticky-chrome-height: 152px;
     display: flex;
     flex-direction: column;
     gap: 0;
@@ -10,15 +12,49 @@
     box-sizing: border-box;
 }
 
+/* Khi .content-body không còn padding-top (route products): hơi cách mép dưới top-bar */
+.product-manage-container > .breadcrumb {
+    padding-top: 8px;
+    position: relative;
+    z-index: 69;
+}
+
+@media (max-width: 1100px) {
+    .product-manage-container {
+        --pm-sticky-chrome-height: 220px;
+    }
+}
+
+/*
+ * Khối neo: danh mục + lọc + header bảng. Mega-menu (z-index cao trong scope) đè nội dung bảng.
+ */
+/* Cùng nền khối Danh mục / Lọc (.pm-cat-nav-inner, .pm-filter-bar) — nhìn một khối thống nhất */
+.product-manage-container .pm-sticky-chrome {
+    position: sticky;
+    top: 0;
+    z-index: 68;
+    margin-bottom: 0;
+    padding-bottom: 0;
+    background-color: #e8eef6;
+    box-shadow: 0 4px 18px rgba(15, 23, 42, 0.05);
+}
+
+
+/* Thanh tiêu đề — z-index cao hơn .pm-sticky-chrome để không bị chồng khi cuộn */
+.product-manage-container > .product-list-toolbar {
+    position: relative;
+    z-index: 69;
+}
+
 /* Thanh tiêu đề (toggle xem / pill nhanh nằm ở thanh filter bên dưới) */
 .product-list-toolbar {
     display: flex;
     flex-wrap: wrap;
     align-items: flex-end;
     justify-content: space-between;
-    gap: 16px 24px;
-    padding: 16px 20px;
-    margin-bottom: 10px;
+    gap: 14px 20px;
+    padding: 12px 18px;
+    margin-bottom: 6px;
     background: #e8eef6;
     border-radius: 12px;
 }
@@ -175,7 +211,7 @@
     position: relative;
     /* Cao hơn hàng filter/bảng bên dưới để mega-menu đè lên khi mở */
     z-index: 100;
-    margin-bottom: 10px;
+    margin-bottom: 2px;
     max-width: 100%;
     min-width: 0;
 }
@@ -183,8 +219,9 @@
 .pm-cat-nav-inner {
     position: relative;
     background: #e8eef6;
+    border: 1px solid var(--color-neutral-30);
     border-radius: 12px;
-    padding: 10px 12px 12px;
+    padding: 8px 12px 10px;
     box-shadow: var(--shadow-sm, 0 1px 4px rgba(0, 0, 0, 0.06));
     max-width: 100%;
     min-width: 0;
@@ -479,8 +516,8 @@
     flex-wrap: wrap;
     align-items: center;
     gap: 8px 12px;
-    margin-top: 8px;
-    padding: 8px 12px;
+    margin-top: 4px;
+    padding: 6px 10px;
     background: #eef6ff;
     border-radius: 10px;
     border: 1px solid #dbeafe;
@@ -600,7 +637,7 @@
     box-shadow: 0 0 0 2px rgba(0, 88, 159, 0.14);
 }
 
-/* Tồn kho sắp hết (0 < stock < 10): khung / nền đỏ nhạt */
+/* Tồn kho sắp hết (0 < stock < 20): khung / nền đỏ nhạt */
 .product-feed-item--low-stock:not(.product-feed-item--selected) {
     border-color: rgba(248, 113, 113, 0.55);
     background: #fff5f5;
@@ -1303,8 +1340,19 @@
 .pm-filter-bar {
     flex-wrap: nowrap;
     gap: 10px 12px;
-    padding: 2px 0 6px;
-    margin-bottom: 4px;
+    padding: 0;
+    margin-bottom: 0;
+}
+
+/* Khung thanh lọc — viền + nền đồng bộ khối danh mục; sát khối danh mục và sát bảng */
+.product-manage-container .pm-sticky-chrome .filter-bar.pm-filter-bar {
+    background: #e8eef6;
+    border: 1px solid var(--color-neutral-30);
+    border-radius: 12px;
+    padding: 8px 12px 10px;
+    margin-top: 0;
+    margin-bottom: 0;
+    box-sizing: border-box;
 }
 
 .pm-filter-bar-start {
@@ -1422,7 +1470,7 @@
 }
 
 
-/* Bảng: không khung card; không scroll dọc riêng — cuộn chung với .content-body (admin layout), header xanh sticky */
+/* Bảng: cuộn dọc chung .content-body; header neo bằng .pm-table-head-sticky (ngoài overflow-x) */
 .product-manage-container .table-scrollable {
     border: none;
     border-radius: 0;
@@ -1436,29 +1484,155 @@
     overflow-x: visible !important;
 }
 
-.product-manage-container .table-scrollable table thead tr:first-child th:first-child,
-.product-manage-container .table-scrollable table thead tr:first-child th:last-child {
+/* Chỉ reset bo góc cho bảng embed khác — giữ bo góc header xanh cho .pm-product-table-host */
+.product-manage-container .table-scrollable:not(.pm-product-table-host) table thead tr:first-child th:first-child,
+.product-manage-container .table-scrollable:not(.pm-product-table-host) table thead tr:first-child th:last-child {
     border-top-left-radius: 0;
     border-top-right-radius: 0;
 }
 
-.product-manage-container .table-scrollable tr:last-child td:first-child,
-.product-manage-container .table-scrollable tr:last-child td:last-child {
+.product-manage-container .table-scrollable:not(.pm-product-table-host) tr:last-child td:first-child,
+.product-manage-container .table-scrollable:not(.pm-product-table-host) tr:last-child td:last-child {
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
 }
 
-/* Bảng SP (list): khung + bo góc như trang đơn hàng */
+/* Bảng SP: phần thân — viền nối với header (header nằm trong .pm-sticky-chrome) */
 .product-manage-container .pm-product-table-host.table-scrollable {
+    position: relative;
     border: 1px solid var(--color-neutral-30);
-    border-radius: var(--radius-lg);
+    border-top: none;
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
     background-color: var(--color-bg-secondary);
     box-shadow: var(--shadow-sm);
+    overflow: visible;
+    max-height: none !important;
+    background-clip: padding-box;
+    margin-top: 0;
+}
+
+/*
+ * Gradient mờ khi hàng cuộn lên sát header xanh — sticky tại mép dưới khối .pm-sticky-chrome.
+ * pointer-events: none để không chặn checkbox / hàng.
+ */
+.product-manage-container .pm-product-table-host .pm-table-body-scroll-fade {
+    position: sticky;
+    top: var(--pm-sticky-chrome-height, 200px);
+    z-index: 4;
+    height: 0;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+    pointer-events: none;
+    flex-shrink: 0;
+}
+
+.product-manage-container .pm-product-table-host .pm-table-body-scroll-fade::after {
+    content: '';
+    display: block;
+    height: 76px;
+    margin-top: -76px;
+    background: linear-gradient(
+        to bottom,
+        var(--color-bg-secondary) 0%,
+        var(--color-bg-secondary) 10%,
+        color-mix(in srgb, var(--color-bg-secondary) 32%, transparent) 62%,
+        transparent 100%
+    );
+}
+
+@supports not (color: color-mix(in srgb, white, black)) {
+    .product-manage-container .pm-product-table-host .pm-table-body-scroll-fade::after {
+        background: linear-gradient(
+            to bottom,
+            var(--color-bg-secondary) 0%,
+            var(--color-bg-secondary) 10%,
+            rgba(255, 255, 255, 0.72) 58%,
+            rgba(255, 255, 255, 0) 100%
+        );
+    }
+}
+
+/* Khung xanh header: viền ngoài + bo góc trên (neo chung trong .pm-sticky-chrome) */
+.product-manage-container .pm-sticky-chrome .pm-table-head-sticky--in-chrome {
+    position: relative;
+    z-index: 1;
+    margin-top: 0;
+    background-color: var(--color-bg-secondary);
+    border: 1px solid var(--color-neutral-30);
+    border-bottom: none;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+}
+
+/* Viền trong sát ô xanh + bo góc */
+.product-manage-container .pm-sticky-chrome .pm-table-head-sticky--in-chrome .pm-table-h-scroll--head {
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    overflow: hidden;
+    box-shadow: inset 0 1px 0 0 var(--color-neutral-30);
+}
+
+/* thead ẩn trên bảng body: giữ độ rộng cột khớp bảng header (visibility: collapse) */
+.product-manage-container .pm-product-table-host .pm-table-col-align-hack {
+    visibility: collapse;
+}
+
+.product-manage-container .pm-product-table-host .pm-table-h-scroll {
     overflow-x: auto;
     overflow-y: visible;
-    max-height: none !important;
-    /* Bo góc cắt nội dung cuộn — header xanh khớp mép khung trắng */
-    background-clip: padding-box;
+    max-width: 100%;
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(148, 163, 184, 0.55) transparent;
+}
+
+.product-manage-container .pm-sticky-chrome .pm-table-h-scroll--head {
+    scrollbar-width: none;
+    scrollbar-color: transparent transparent;
+}
+
+.product-manage-container .pm-sticky-chrome .pm-table-h-scroll--head::-webkit-scrollbar {
+    display: none;
+    height: 0;
+}
+
+.product-manage-container .pm-product-table-host .pm-table-h-scroll::-webkit-scrollbar {
+    height: 6px;
+    width: 6px;
+}
+
+.product-manage-container .pm-product-table-host .pm-table-h-scroll::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.product-manage-container .pm-product-table-host .pm-table-h-scroll::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.55);
+    border-radius: 999px;
+}
+
+.product-manage-container .pm-product-table-host .pm-table-h-scroll::-webkit-scrollbar-thumb:hover {
+    background: rgba(100, 116, 139, 0.75);
+}
+
+/* Nền ô dữ liệu + z-index thấp — khi cuộn, hàng nằm dưới header sticky (không lọt khe) */
+.product-manage-container .pm-product-table-host.table-scrollable tbody tr {
+    position: relative;
+    z-index: 0;
+}
+
+.product-manage-container .pm-product-table-host.table-scrollable tbody td {
+    background-color: var(--color-bg-secondary);
+}
+
+.product-manage-container .pm-product-table-host tbody tr.pm-product-row--selected td {
+    background-color: rgba(0, 88, 159, 0.06);
+}
+
+.product-manage-container .pm-product-table-host.table-scrollable tbody tr:hover td {
+    background-color: var(--color-bg-light) !important;
 }
 
 .product-manage-container .pm-product-table-host.table-scrollable table thead tr:first-child th:first-child {
@@ -1477,36 +1651,14 @@
     border-bottom-right-radius: var(--radius-lg);
 }
 
-/* Ghi đè .product-table-embed (overflow-x: visible !important) — bảng min-width lớn phải cuộn trong khung, không đẩy tràn layout */
+/* Host: không scroll — cuộn ngang trong .pm-table-h-scroll */
 .product-manage-container .pm-product-table-host.table-scrollable.product-table-embed {
-    overflow-x: auto !important;
-    overflow-y: visible !important;
+    overflow: visible !important;
     max-width: 100%;
     width: 100%;
     min-width: 0;
     box-sizing: border-box;
-    /* Không padding phải: tránh khe trắng giữa viền bo ngoài và hàng header xanh */
     padding-right: 0;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(148, 163, 184, 0.55) transparent;
-}
-
-.product-manage-container .pm-product-table-host.table-scrollable.product-table-embed::-webkit-scrollbar {
-    height: 6px;
-    width: 6px;
-}
-
-.product-manage-container .pm-product-table-host.table-scrollable.product-table-embed::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-.product-manage-container .pm-product-table-host.table-scrollable.product-table-embed::-webkit-scrollbar-thumb {
-    background: rgba(148, 163, 184, 0.55);
-    border-radius: 999px;
-}
-
-.product-manage-container .pm-product-table-host.table-scrollable.product-table-embed::-webkit-scrollbar-thumb:hover {
-    background: rgba(100, 116, 139, 0.75);
 }
 
 /* Table */
@@ -1524,7 +1676,7 @@ table {
     border-collapse: collapse;
 }
 
-/* Ghi đè utilities.css (.table-scrollable dùng border-collapse: separate) — tránh khe trắng giữa các ô thead sticky */
+/* Ghi đè utilities.css (.table-scrollable dùng border-collapse: separate) — tránh khe trắng giữa các ô thead */
 .product-manage-container .table-scrollable table {
     border-collapse: collapse;
     border-spacing: 0;
@@ -1821,11 +1973,11 @@ thead th {
     letter-spacing: 0.5px;
 }
 
-/* Header xanh: neo theo vùng cuộn chính (main .content-body) */
+/* Header xanh bảng SP: ô th thường — neo dọc do .pm-table-head-sticky (không sticky trên th) */
 .product-manage-container .table-scrollable thead th {
-    position: sticky;
-    top: 0;
-    z-index: 12;
+    position: static;
+    top: auto;
+    z-index: auto;
     text-align: center;
     vertical-align: middle;
     padding: 12px 8px;
@@ -1836,7 +1988,9 @@ thead th {
     word-break: break-word;
     overflow-wrap: break-word;
     background-color: var(--color-primary);
-    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.12);
+    box-shadow:
+        0 1px 0 rgba(0, 0, 0, 0.12),
+        0 4px 0 0 var(--color-primary);
 }
 
 .product-manage-container .table-scrollable thead th.col-check {
@@ -2206,6 +2360,34 @@ input[type="checkbox"] {
     grid-column: span 2;
 }
 
+/* Modal SP: một hàng 3 cột — SKU + xuất xứ + thương hiệu; 3 cấp danh mục */
+.pm-product-modal .form-grid>.pm-form-row-3 {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px 14px;
+    align-items: start;
+    margin-bottom: var(--spacing-4);
+}
+
+.pm-product-modal .form-grid>.pm-form-row-3>.form-group {
+    margin-bottom: 0;
+    min-width: 0;
+}
+
+.pm-product-modal .form-grid>.pm-form-row-3 .form-control {
+    min-width: 0;
+}
+
+/* Một hàng: tồn kho + nhập hàng + đơn vị (sửa SP); thêm mới: tồn kho + đơn vị */
+.pm-product-modal .form-grid>.pm-form-row-3--inventory {
+    margin-bottom: var(--spacing-4);
+}
+
+.pm-product-modal .form-grid>.pm-form-row-3--inventory.pm-form-row-3--inventory-add {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .form-group {
     margin-bottom: var(--spacing-4);
 }
@@ -2232,6 +2414,16 @@ input[type="checkbox"] {
     border-color: var(--color-primary);
     box-shadow: 0 0 0 3px var(--color-primary-bg);
     outline: none;
+}
+
+/* Tồn kho khi sửa SP: disabled — không focus, không gõ, không click chỉnh */
+.pm-stock-display.pm-stock-display--readonly,
+.pm-stock-display:disabled {
+    background-color: var(--color-neutral-20, #e9ecef);
+    color: var(--color-text-secondary, #5c6370);
+    cursor: not-allowed;
+    opacity: 1;
+    pointer-events: none;
 }
 
 /* Khối Quill tách fieldset — giữ cùng lưới 2 cột với phần form */
@@ -2367,9 +2559,11 @@ input[type="checkbox"] {
     margin: 0;
 }
 
-/* Image Upload Grid */
+/* Image Upload Grid — không giới hạn số ảnh, xuống dòng khi nhiều */
 .image-upload-grid {
     display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
     gap: 10px;
 }
 
@@ -2388,9 +2582,39 @@ input[type="checkbox"] {
     font-size: 10px;
     text-align: center;
     gap: 2px;
+    box-sizing: border-box;
 }
 
-.image-box:hover {
+.image-box--thumb {
+    position: relative;
+    overflow: hidden;
+    border-style: solid;
+    border-color: var(--color-neutral-40);
+    padding: 0;
+    cursor: pointer;
+}
+
+.image-box--add {
+    background: var(--color-bg-light, #f8fafc);
+    border: 1px dashed var(--color-primary-light, #93c5fd);
+    color: var(--color-primary);
+    font-weight: 600;
+}
+
+.image-box--add:hover:not(:disabled) {
+    border-color: var(--color-primary);
+    background-color: var(--color-primary-bg);
+}
+
+/* Luôn hiện ô +; khi chỉ xem (khóa modal) — mờ, không bấm */
+.image-box--add.image-box--add-muted,
+.image-box--add:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.image-box:hover:not(.image-box--thumb) {
     border-color: var(--color-primary);
     color: var(--color-primary);
     background-color: var(--color-primary-bg);
@@ -2401,6 +2625,10 @@ input[type="checkbox"] {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     gap: 16px;
+}
+
+.pm-product-modal .form-grid>.pricing-grid.full-width {
+    grid-column: 1 / -1;
 }
 
 /* Notification Toast */
@@ -3203,11 +3431,18 @@ input[type="checkbox"] {
     color: #94a3b8;
 }
 
+:host-context(body.dark-mode) .product-manage-container .pm-sticky-chrome {
+    background-color: var(--color-bg-secondary);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+}
+
 /* Dark: header cột bảng — bỏ nền primary sáng, dùng gradient slate */
 :host-context(body.dark-mode) .product-manage-container .table-scrollable thead th {
     background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%) !important;
     color: #f1f5f9 !important;
-    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.45);
+    box-shadow:
+        0 1px 0 rgba(0, 0, 0, 0.45),
+        0 4px 0 0 #0f172a;
     border-bottom: 1px solid #020617;
 }
 
@@ -3308,24 +3543,62 @@ input[type="checkbox"] {
 /* Dark: khung bảng — viền đen thay vì viền/xám sáng lệch tone */
 :host-context(body.dark-mode) .product-manage-container .pm-product-table-host.table-scrollable {
     border: 1px solid #020617;
+    border-top: none;
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.55);
     background-color: var(--color-bg-secondary);
 }
 
-:host-context(body.dark-mode) .product-manage-container .pm-product-table-host.table-scrollable.product-table-embed {
+:host-context(body.dark-mode) .product-manage-container .pm-sticky-chrome .pm-table-head-sticky--in-chrome {
+    background-color: var(--color-bg-secondary);
+    border-color: #020617;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.45);
+}
+
+:host-context(body.dark-mode) .product-manage-container .pm-sticky-chrome .pm-table-head-sticky--in-chrome .pm-table-h-scroll--head {
+    box-shadow: inset 0 1px 0 0 rgba(51, 65, 85, 0.95);
+}
+
+:host-context(body.dark-mode) .product-manage-container .pm-product-table-host .pm-table-h-scroll {
     scrollbar-color: rgba(71, 85, 105, 0.7) transparent;
 }
 
-:host-context(body.dark-mode) .product-manage-container .pm-product-table-host.table-scrollable.product-table-embed::-webkit-scrollbar-thumb {
+:host-context(body.dark-mode) .product-manage-container .pm-product-table-host .pm-table-h-scroll::-webkit-scrollbar-thumb {
     background: rgba(71, 85, 105, 0.75);
 }
 
-:host-context(body.dark-mode) .product-manage-container .pm-product-table-host.table-scrollable.product-table-embed::-webkit-scrollbar-thumb:hover {
+:host-context(body.dark-mode) .product-manage-container .pm-product-table-host .pm-table-h-scroll::-webkit-scrollbar-thumb:hover {
     background: rgba(100, 116, 139, 0.9);
 }
 
 :host-context(body.dark-mode) .product-manage-container .pm-product-table-host tbody tr {
     border-bottom-color: rgba(15, 23, 42, 0.98);
+}
+
+:host-context(body.dark-mode) .product-manage-container .pm-product-table-host.table-scrollable tbody td {
+    background-color: var(--color-bg-secondary);
+}
+
+:host-context(body.dark-mode) .product-manage-container .pm-product-table-host .pm-table-body-scroll-fade::after {
+    background: linear-gradient(
+        to bottom,
+        var(--color-bg-secondary) 0%,
+        var(--color-bg-secondary) 10%,
+        color-mix(in srgb, var(--color-bg-secondary) 34%, transparent) 60%,
+        transparent 100%
+    );
+}
+
+@supports not (color: color-mix(in srgb, white, black)) {
+    :host-context(body.dark-mode) .product-manage-container .pm-product-table-host .pm-table-body-scroll-fade::after {
+        background: linear-gradient(
+            to bottom,
+            var(--color-bg-secondary) 0%,
+            var(--color-bg-secondary) 10%,
+            rgba(15, 23, 42, 0.8) 56%,
+            rgba(15, 23, 42, 0) 100%
+        );
+    }
 }
 
 /* Dark: nút chuyển chế độ xem (bảng / danh sách) — nền tối */
@@ -3379,6 +3652,12 @@ input[type="checkbox"] {
 
 :host-context(body.dark-mode) .pm-cat-nav-inner {
     background: var(--color-bg-secondary);
+    border: 1px solid rgba(148, 163, 184, 0.28);
+}
+
+:host-context(body.dark-mode) .product-manage-container .pm-sticky-chrome .filter-bar.pm-filter-bar {
+    background: var(--color-bg-secondary);
+    border: 1px solid rgba(148, 163, 184, 0.28);
 }
 
 :host-context(body.dark-mode) .pm-cat-pill {
@@ -3493,9 +3772,18 @@ input[type="checkbox"] {
     }
 }
 
-/* --- Modal "Nhóm sản phẩm" (nhóm KM + danh mục) --- */
+/* --- Modal "Nhóm sản phẩm" (nhóm KM) --- */
+/* Giữ position:fixed từ .modal-wrapper — không dùng relative (sẽ gây 100vw tràn ngang + không mở overlay đúng). */
 .pm-group-modal-wrap {
     z-index: 2500;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    max-width: 100%;
+    height: 100%;
+    min-height: 100dvh;
+    box-sizing: border-box;
 }
 
 .modal-content-wrapper.grouping-modal {
@@ -3596,17 +3884,45 @@ input[type="checkbox"] {
     background: var(--color-neutral-30);
 }
 
-.pm-group-divider--subtle {
-    margin-top: 8px;
-}
-
+/* Không viền ngoài — chỉ mỗi .pm-group-row-card (một stroke #00589F khi chọn) */
 .pm-group-pick-list {
     max-height: 180px;
     overflow-y: auto;
-    padding: 4px 2px;
-    border: 1px solid var(--color-neutral-30);
-    border-radius: 10px;
-    background: var(--color-bg-primary, #fff);
+    overflow-x: hidden;
+    padding: 2px 0;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+}
+
+/* Chỉ còn thông báo trống: bỏ khung “hộp đen” ngoài, để một empty state rõ ràng */
+.pm-group-pick-list:has(> .pm-group-empty:only-child) {
+    padding: 0;
+    border: none;
+    background: transparent;
+    box-shadow: none;
+    max-height: none;
+}
+
+/* Empty state — không giống nút / dòng đã chọn; chữ đọc được trên mọi nền */
+.grouping-modal .pm-group-pick-list > .pm-group-empty:only-child {
+    margin: 0;
+    padding: 1.25rem 1.1rem;
+    text-align: center;
+    font-size: 13px;
+    line-height: 1.55;
+    font-weight: 500;
+    color: var(--color-text-secondary, #64748b);
+    border-radius: 12px;
+    border: 1px dashed color-mix(in srgb, var(--color-neutral-40, #94a3b8) 55%, transparent);
+    background: linear-gradient(165deg, #f8fafc 0%, #f1f5f9 55%, #eef2f7 100%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85);
+}
+
+@supports not (color: color-mix(in srgb, white, black)) {
+    .grouping-modal .pm-group-pick-list > .pm-group-empty:only-child {
+        border-color: rgba(148, 163, 184, 0.55);
+    }
 }
 
 .pm-group-empty {
@@ -3616,104 +3932,259 @@ input[type="checkbox"] {
     line-height: 1.45;
 }
 
-.pm-group-pick-row {
-    display: flex;
-    align-items: stretch;
-    gap: 4px;
-    margin-bottom: 6px;
+.pm-group-pick-block {
+    margin-bottom: 8px;
 }
 
-.pm-group-pick-row:last-child {
+.pm-group-pick-block:last-child {
     margin-bottom: 0;
 }
 
-.pm-group-pick-row .pm-group-radio-row {
+/* Một khung: nền trắng, viền #00589F khi chọn; dấu X đen */
+.pm-group-row-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    box-sizing: border-box;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.pm-group-row-card:hover {
+    border-color: #cbd5e1;
+}
+
+.pm-group-row-card--selected {
+    border: 2px solid #00589f;
+    box-shadow: 0 2px 10px rgba(0, 88, 159, 0.14);
+    padding: 9px 11px;
+}
+
+.pm-group-radio-input {
+    flex-shrink: 0;
+    margin: 0;
+    width: 18px;
+    height: 18px;
+    accent-color: #00589f;
+    cursor: pointer;
+}
+
+.pm-group-row-card__main {
     flex: 1;
     min-width: 0;
-}
-
-.pm-group-radio-row {
     display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    padding: 10px 12px;
-    margin: 0;
-    cursor: pointer;
-    border-radius: 8px;
-    transition: background 0.15s ease, color 0.15s ease;
+    flex-direction: column;
+    gap: 4px;
 }
 
-.pm-group-radio-row:hover {
-    background: var(--color-bg-light, #f8fafc);
+.pm-group-radio-name--card {
+    font-weight: 700;
+    font-size: 14px;
+    color: #0f172a;
 }
 
-.pm-group-radio-row--selected {
-    background: var(--color-primary, #4e59a7) !important;
-    box-shadow: 0 2px 8px rgba(78, 89, 167, 0.35);
+.pm-group-row-card__hint {
+    font-size: 11px;
+    font-weight: 600;
+    color: #00589f;
 }
 
-.pm-group-radio-row--selected:hover {
-    background: var(--color-primary, #4e59a7) !important;
-    filter: brightness(1.03);
+.pm-group-row-card__hint--muted {
+    color: #64748b;
+    font-weight: 500;
 }
 
-.pm-group-radio-row--selected .pm-group-radio-name,
-.pm-group-radio-row--selected .pm-group-radio-meta {
-    color: rgba(255, 255, 255, 0.92);
-}
-
-.pm-group-radio-row--selected input {
-    accent-color: #fff;
-}
-
-.pm-group-row-delete {
+.pm-group-row-card .pm-group-row-delete {
     flex-shrink: 0;
-    align-self: stretch;
-    min-width: 40px;
+    width: 36px;
+    min-width: 36px;
+    height: 36px;
     margin: 0;
-    padding: 0 8px;
+    padding: 0;
     border: none;
     border-radius: 8px;
     background: transparent;
-    color: var(--color-text-tertiary);
+    color: #0f172a;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-size: 1rem;
+    font-size: 1.25rem;
     line-height: 1;
     transition: color 0.15s ease, background 0.15s ease;
 }
 
-.pm-group-row-delete:hover:not(:disabled) {
-    background: rgba(231, 76, 60, 0.12);
-    color: var(--color-danger, #e74c3c);
+.pm-group-row-card .pm-group-row-delete:hover:not(:disabled) {
+    background: rgba(0, 0, 0, 0.06);
+    color: #000;
 }
 
-.pm-group-row-delete:disabled {
-    opacity: 0.45;
+.pm-group-row-card .pm-group-row-delete:disabled {
+    opacity: 0.4;
     cursor: not-allowed;
 }
 
-.pm-group-pick-row:has(.pm-group-radio-row--selected) .pm-group-row-delete {
-    color: rgba(255, 255, 255, 0.88);
+/* Popup danh sách SP trong nhóm */
+.pm-group-products-popup {
+    position: fixed;
+    inset: 0;
+    z-index: 2600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    background: rgba(15, 23, 42, 0.5);
 }
 
-.pm-group-pick-row:has(.pm-group-radio-row--selected) .pm-group-row-delete:hover:not(:disabled) {
-    background: rgba(255, 255, 255, 0.18);
-    color: #fff;
-}
-
-.pm-group-radio-row input {
-    margin-top: 3px;
-    accent-color: var(--color-primary);
-}
-
-.pm-group-radio-label {
+.pm-group-products-popup__panel {
+    width: min(440px, 94vw);
+    max-height: min(75vh, 560px);
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.22);
+    border: none;
+    overflow: hidden;
+}
+
+.pm-group-products-popup__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 14px;
+    background: #e8f4fc;
+    border-bottom: 1px solid #b8d4e8;
+}
+
+.pm-group-products-popup__title {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 800;
+    color: #00589f;
+    line-height: 1.35;
+}
+
+.pm-group-products-popup__close {
+    border: none;
+    background: transparent;
+    font-size: 1.5rem;
+    line-height: 1;
+    color: #0f172a;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 6px;
+}
+
+.pm-group-products-popup__close:hover {
+    background: rgba(0, 0, 0, 0.07);
+}
+
+.pm-group-products-popup__body {
+    padding: 12px 14px;
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
+    background: #f7fbfd;
+    scroll-behavior: smooth;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 88, 159, 0.45) transparent;
+}
+
+.pm-group-products-popup__body::-webkit-scrollbar {
+    width: 6px;
+}
+
+.pm-group-products-popup__body::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.pm-group-products-popup__body::-webkit-scrollbar-thumb {
+    background: rgba(0, 88, 159, 0.38);
+    border-radius: 999px;
+}
+
+.pm-group-products-popup__body::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 88, 159, 0.58);
+}
+
+.pm-group-preview-loading {
+    font-size: 12px;
+    color: var(--color-text-secondary);
+    padding: 4px 0;
+}
+
+.pm-group-preview-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.pm-group-preview-item {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    background: #fff;
+    border: 1px solid #bfdbfe;
+    font-size: 13px;
+    line-height: 1.35;
+    box-shadow: 0 1px 2px rgba(14, 165, 233, 0.06);
+}
+
+.pm-group-preview-thumb-wrap {
+    flex-shrink: 0;
+    width: 52px;
+    height: 52px;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #f0f9ff;
+    border: 1px solid #bae6fd;
+}
+
+.pm-group-preview-thumb {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.pm-group-preview-thumb--empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #94a3b8;
+    font-size: 1.35rem;
+    background: linear-gradient(145deg, #f8fafc 0%, #e2e8f0 100%);
+}
+
+.pm-group-preview-body {
+    flex: 1;
     min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.pm-group-preview-name {
+    font-weight: 600;
+    color: var(--color-text-primary);
+}
+
+.pm-group-preview-sku {
+    font-size: 11px;
+    color: var(--color-text-tertiary);
+    font-weight: 600;
 }
 
 .pm-group-radio-name {
@@ -3787,22 +4258,129 @@ input[type="checkbox"] {
 }
 
 :host-context(body.dark-mode) .pm-group-modal-lead,
-:host-context(body.dark-mode) .pm-group-modal-hint,
 :host-context(body.dark-mode) .pm-group-label {
     color: #94a3b8;
 }
 
 :host-context(body.dark-mode) .pm-group-pick-list {
-    background: #0f172a;
-    border-color: rgba(51, 65, 85, 0.9);
+    background: transparent;
+    border: none;
 }
 
-:host-context(body.dark-mode) .pm-group-radio-row:hover {
-    background: rgba(99, 102, 241, 0.12);
+:host-context(body.dark-mode) .pm-group-pick-list:has(> .pm-group-empty:only-child) {
+    background: transparent;
+    border-color: transparent;
 }
 
-:host-context(body.dark-mode) .pm-group-radio-name {
+:host-context(body.dark-mode) .grouping-modal .pm-group-pick-list > .pm-group-empty:only-child {
+    color: #cbd5e1;
+    border-color: rgba(100, 116, 139, 0.55);
+    background: linear-gradient(165deg, rgba(30, 41, 59, 0.92) 0%, rgba(15, 23, 42, 0.88) 100%);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.06),
+        0 1px 0 rgba(0, 0, 0, 0.2);
+}
+
+:host-context(body.dark-mode) .pm-group-row-card {
+    background: #1e293b;
+    border-color: rgba(71, 85, 105, 0.85);
+}
+
+:host-context(body.dark-mode) .pm-group-row-card:hover {
+    border-color: rgba(148, 163, 184, 0.5);
+}
+
+:host-context(body.dark-mode) .pm-group-row-card--selected {
+    border-color: #2e9cdb;
+    box-shadow: 0 2px 14px rgba(46, 156, 219, 0.2);
+}
+
+:host-context(body.dark-mode) .pm-group-radio-name--card {
     color: #e2e8f0;
+}
+
+:host-context(body.dark-mode) .pm-group-row-card__hint {
+    color: #7dd3fc;
+}
+
+:host-context(body.dark-mode) .pm-group-row-card__hint--muted {
+    color: #94a3b8;
+}
+
+:host-context(body.dark-mode) .pm-group-row-card .pm-group-row-delete {
+    color: #e2e8f0;
+}
+
+:host-context(body.dark-mode) .pm-group-row-card .pm-group-row-delete:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+}
+
+:host-context(body.dark-mode) .pm-group-products-popup {
+    background: rgba(0, 0, 0, 0.6);
+}
+
+:host-context(body.dark-mode) .pm-group-products-popup__panel {
+    background: #0f172a;
+    border: none;
+}
+
+:host-context(body.dark-mode) .pm-group-products-popup__head {
+    background: rgba(30, 41, 59, 0.95);
+    border-bottom-color: rgba(71, 85, 105, 0.9);
+}
+
+:host-context(body.dark-mode) .pm-group-products-popup__title {
+    color: #7dd3fc;
+}
+
+:host-context(body.dark-mode) .pm-group-products-popup__close {
+    color: #e2e8f0;
+}
+
+:host-context(body.dark-mode) .pm-group-products-popup__close:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+:host-context(body.dark-mode) .pm-group-products-popup__body {
+    background: #0f172a;
+    scrollbar-color: rgba(125, 211, 252, 0.45) transparent;
+}
+
+:host-context(body.dark-mode) .pm-group-products-popup__body::-webkit-scrollbar-thumb {
+    background: rgba(125, 211, 252, 0.35);
+}
+
+:host-context(body.dark-mode) .pm-group-products-popup__body::-webkit-scrollbar-thumb:hover {
+    background: rgba(125, 211, 252, 0.55);
+}
+
+:host-context(body.dark-mode) .pm-group-preview-loading {
+    color: #94a3b8;
+}
+
+:host-context(body.dark-mode) .pm-group-preview-item {
+    background: rgba(30, 41, 59, 0.92);
+    border-color: rgba(56, 189, 248, 0.25);
+    box-shadow: none;
+}
+
+:host-context(body.dark-mode) .pm-group-preview-thumb-wrap {
+    background: rgba(15, 23, 42, 0.9);
+    border-color: rgba(71, 85, 105, 0.9);
+}
+
+:host-context(body.dark-mode) .pm-group-preview-thumb--empty {
+    color: #64748b;
+    background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
+}
+
+:host-context(body.dark-mode) .pm-group-preview-name {
+    color: #e2e8f0;
+}
+
+:host-context(body.dark-mode) .pm-group-preview-sku {
+    color: #94a3b8;
 }
 
 :host-context(body.dark-mode) .pm-group-divider::before,
@@ -3814,8 +4392,7 @@ input[type="checkbox"] {
     color: #64748b;
 }
 
-:host-context(body.dark-mode) .grouping-modal .form-control,
-:host-context(body.dark-mode) .grouping-modal .pm-group-select {
+:host-context(body.dark-mode) .grouping-modal .form-control {
     background: #1e293b;
     border-color: rgba(71, 85, 105, 0.95);
     color: #e2e8f0;
