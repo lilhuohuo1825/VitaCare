@@ -80,44 +80,44 @@
     transition: color 0.3s;
 }
 
-/* Status Specific Colors */
+/* Status Specific Colors — design tokens: color-system.css */
 .summary-card:nth-child(1) {
-    border-top: 4px solid #64748b;
+    border-top: 4px solid var(--vc-info-main);
 }
 
 /* Total */
 .summary-card:nth-child(1) .summary-card-value {
-    color: #64748b;
+    color: var(--vc-info-hover);
 }
 
 .summary-card:nth-child(2) {
-    border-top: 4px solid #ef4444;
-    /* Đã kết thúc - đỏ */
+    border-top: 4px solid var(--vc-danger-main);
+    /* Đã kết thúc */
 }
 
 /* Ended */
 .summary-card:nth-child(2) .summary-card-value {
-    color: #ef4444;
+    color: var(--vc-danger-main);
 }
 
 .summary-card:nth-child(3) {
-    border-top: 4px solid #22c55e;
-    /* Đang diễn ra - xanh lá */
+    border-top: 4px solid var(--vc-primary-main);
+    /* Đang diễn ra */
 }
 
 /* Ongoing */
 .summary-card:nth-child(3) .summary-card-value {
-    color: #22c55e;
+    color: var(--vc-primary-main);
 }
 
 .summary-card:nth-child(4) {
-    border-top: 4px solid #3b82f6;
-    /* Sắp diễn ra - xanh biển */
+    border-top: 4px solid var(--vc-primary-light);
+    /* Sắp diễn ra */
 }
 
 /* Upcoming */
 .summary-card:nth-child(4) .summary-card-value {
-    color: #3b82f6;
+    color: var(--vc-primary-light);
 }
 
 /* Dark mode forced specifics */

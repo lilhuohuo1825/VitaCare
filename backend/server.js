@@ -223,6 +223,73 @@ async function ensureUsersResultTestCollection() {
 const locationsCollection = () => mongoose.connection.db.collection('tree_complete');
 const ordersCollection = () => mongoose.connection.db.collection('orders');
 const noticesCollection = () => mongoose.connection.db.collection('notice');
+
+/** Bộ lọc tìm document sản phẩm theo _id (string / ObjectId / $oid JSON) */
+function productIdFiltersFromRaw(rawId) {
+  const idStr = String(rawId);
+  const filters = [{ _id: idStr }];
+  if (mongoose.Types.ObjectId.isValid(idStr)) {
+    filters.push({ _id: new mongoose.Types.ObjectId(idStr) });
+  }
+  filters.push({ '_id.$oid': idStr });
+  return filters;
+}
+
+function getProductStockFromDoc(p) {
+  if (!p) return 0;
+  if (p.stock === undefined || p.stock === null) return 99;
+  const n = Number(p.stock);
+  return Number.isFinite(n) ? n : 0;
+}
+
+/** Kiểm tra đủ tồn kho trước khi tạo đơn (không cho âm kho khi đặt). */
+async function assertInventoryAvailableForOrderItems(items) {
+  if (!Array.isArray(items) || items.length === 0) {
+    return { ok: false, message: 'Đơn hàng chưa có sản phẩm.' };
+  }
+  for (const it of items) {
+    const rawId = it.productId || it.product_id || it._id;
+    const qty = Number(it.quantity) || 1;
+    if (!rawId || qty <= 0) continue;
+    const idStr = String(rawId);
+    const filters = productIdFiltersFromRaw(idStr);
+    const p = await productsCollection().findOne({ $or: filters }, { projection: { stock: 1, name: 1 } });
+    const available = getProductStockFromDoc(p);
+    if (available < qty) {
+      const name = (p && p.name) || it.productName || it.sku || idStr;
+      return {
+        ok: false,
+        message: `Sản phẩm "${String(name).slice(0, 100)}" chỉ còn ${available} trong kho, không đủ ${qty} sản phẩm.`,
+      };
+    }
+  }
+  return { ok: true };
+}
+
+/**
+ * Hoàn lại tồn kho + giảm lượt bán khi huỷ đơn / hoàn đơn (sold không âm).
+ */
+async function restoreInventoryForOrderLineItems(items) {
+  if (!Array.isArray(items) || items.length === 0) return;
+  for (const it of items) {
+    const rawId = it.productId || it.product_id || it._id;
+    const qty = Number(it.quantity) || 1;
+    if (!rawId || qty <= 0) continue;
+    const idStr = String(rawId);
+    const filters = productIdFiltersFromRaw(idStr);
+    await productsCollection().updateOne(
+      { $or: filters },
+      [
+        {
+          $set: {
+            stock: { $add: [{ $ifNull: ['$stock', 0] }, qty] },
+            sold: { $max: [0, { $subtract: [{ $ifNull: ['$sold', 0] }, qty] }] },
+          },
+        },
+      ],
+    );
+  }
+}
 const storeSystemCollection = () => mongoose.connection.db.collection('storesystem_full');
 const doctorsCollection = () => mongoose.connection.db.collection('doctors');
 const remindersCollection = () => mongoose.connection.db.collection('reminders');
@@ -1254,6 +1321,8 @@ app.post('/api/orders', async (req, res) => {
       user_id, paymentMethod, statusPayment, atPharmacy, pharmacyAddress,
       subtotal, directDiscount, voucherDiscount, vitaXuDiscount, shippingFee, shippingDiscount, totalAmount,
       note, requestInvoice, hideProductInfo, item, shippingInfo, promotion,
+      pharmacistWalkIn, createdByAdmin, createdByPharmacist, pickupStoreId,
+      status: bodyStatus,
     } = req.body || {};
 
     const uid = (user_id != null && user_id !== '') ? String(user_id).trim() : null;
@@ -1263,17 +1332,62 @@ app.post('/api/orders', async (req, res) => {
     if (!paymentMethod) {
       return res.status(400).json({ success: false, message: 'Chưa chọn phương thức thanh toán.' });
     }
+
+    const normCreator = (o) => {
+      if (!o || typeof o !== 'object') return null;
+      const id = o.id != null ? String(o.id).trim() : '';
+      const name = o.name != null ? String(o.name).trim() : '';
+      if (!id && !name) return null;
+      return { id: id || '', name: name || '' };
+    };
+    const normalizedPharmacist = normCreator(createdByPharmacist);
+    const normalizedAdmin = normCreator(createdByAdmin);
+    const asBool = (v) => v === true || v === 'true' || v === 1 || v === '1';
+    const atPharmacyBool = asBool(atPharmacy);
+    const walkInFlag = asBool(pharmacistWalkIn);
+    const hasPickupStore = String(pickupStoreId || '').trim() !== '';
+    /** Có người tạo là dược sĩ + nhận tại CH + mã cửa — coi như đơn quầy dù flag pharmacistWalkIn lỗi encoding */
+    const pharmacistPickup =
+      (walkInFlag && atPharmacyBool) ||
+      (atPharmacyBool && hasPickupStore && normalizedPharmacist != null);
+    // Alias cũ (lưu DB / validate địa chỉ quầy)
+    const walkInPharmacist = pharmacistPickup;
+
+    const explicitCounterComplete =
+      String(bodyStatus || '').toLowerCase() === 'delivered' &&
+      String(statusPayment || '').toLowerCase() === 'paid' &&
+      atPharmacyBool &&
+      hasPickupStore;
+    const pharmacistCounterComplete =
+      walkInPharmacist ||
+      (explicitCounterComplete && (normalizedPharmacist != null || walkInFlag));
+
     // Khách vãng lai: bắt buộc shippingInfo có fullName, phone (và address nếu giao tận nơi)
-    const ship = shippingInfo || {};
+    // Đơn tạo bởi dược sĩ (admin panel): có thể bỏ qua tên/SĐT → mặc định "Khách vãng lai", nhận tại cửa hàng
+    let ship = { ...(shippingInfo || {}) };
     if (!uid) {
-      if (!ship.fullName || !String(ship.fullName).trim()) {
-        return res.status(400).json({ success: false, message: 'Vui lòng nhập tên người nhận.' });
-      }
-      if (!ship.phone || !String(ship.phone).trim()) {
-        return res.status(400).json({ success: false, message: 'Vui lòng nhập số điện thoại.' });
-      }
-      if (!atPharmacy && (!ship.address || !String(ship.address).trim())) {
-        return res.status(400).json({ success: false, message: 'Vui lòng nhập địa chỉ giao hàng.' });
+      if (pharmacistCounterComplete) {
+        const phAddr = String(pharmacyAddress || '').trim();
+        if (!phAddr) {
+          return res.status(400).json({ success: false, message: 'Vui lòng chọn cửa hàng nhận hàng.' });
+        }
+        ship = {
+          ...ship,
+          fullName: (ship.fullName && String(ship.fullName).trim()) || 'Khách vãng lai',
+          phone: ship.phone != null ? String(ship.phone).trim() : '',
+          email: ship.email != null ? String(ship.email).trim() : '',
+          address: phAddr,
+        };
+      } else {
+        if (!ship.fullName || !String(ship.fullName).trim()) {
+          return res.status(400).json({ success: false, message: 'Vui lòng nhập tên người nhận.' });
+        }
+        if (!ship.phone || !String(ship.phone).trim()) {
+          return res.status(400).json({ success: false, message: 'Vui lòng nhập số điện thoại.' });
+        }
+        if (!atPharmacyBool && (!ship.address || !String(ship.address).trim())) {
+          return res.status(400).json({ success: false, message: 'Vui lòng nhập địa chỉ giao hàng.' });
+        }
       }
     }
 
@@ -1283,13 +1397,27 @@ app.post('/api/orders', async (req, res) => {
     const now = new Date().toISOString();
 
     const pmNorm = String(paymentMethod || 'cod').trim().toLowerCase();
+
+    /** Đơn tạo bởi dược sĩ tại quầy: coi như đã giao & đã thanh toán ngay (không qua chờ xác nhận / đang giao). */
+    const statusPaymentResolved = pharmacistCounterComplete
+      ? 'paid'
+      : ((pmNorm && pmNorm !== 'cod') ? 'paid' : (statusPayment || 'unpaid'));
+    const orderStatusResolved = pharmacistCounterComplete ? 'delivered' : 'pending';
+    const routeResolved = pharmacistCounterComplete
+      ? { pending: now, confirmed: now, shipping: now, delivered: now }
+      : { pending: now };
+
     const orderDoc = {
       order_id: orderId,
       user_id: uid || null,
       paymentMethod: pmNorm || 'cod',
-      statusPayment: (pmNorm && pmNorm !== 'cod') ? 'paid' : (statusPayment || 'unpaid'),
-      atPharmacy: Boolean(atPharmacy),
-      pharmacyAddress: pharmacyAddress || '',
+      statusPayment: statusPaymentResolved,
+      atPharmacy: atPharmacyBool,
+      pharmacyAddress: pharmacistCounterComplete ? String(pharmacyAddress || '').trim() : (pharmacyAddress || ''),
+      pharmacistWalkIn: pharmacistCounterComplete,
+      pickupStoreId: pickupStoreId != null ? String(pickupStoreId).trim() : '',
+      createdByAdmin: normalizedAdmin,
+      createdByPharmacist: normalizedPharmacist,
       subtotal: Number(subtotal) || 0,
       directDiscount: Number(directDiscount) || 0,
       voucherDiscount: Number(voucherDiscount) || 0,
@@ -1298,7 +1426,7 @@ app.post('/api/orders', async (req, res) => {
       shippingFee: Number(shippingFee) || 0,
       shippingDiscount: Number(shippingDiscount) || 0,
       totalAmount: Number(totalAmount) || 0,
-      status: 'pending',
+      status: orderStatusResolved,
       returnReason: '',
       cancelReason: '',
       note: note || '',
@@ -1315,13 +1443,17 @@ app.post('/api/orders', async (req, res) => {
         hasPromotion: Boolean(i.hasPromotion),
         image: i.image || '',
       })),
-      shippingInfo: shippingInfo || {},
-      route: {
-        pending: now,
-      },
+      shippingInfo: ship,
+      route: routeResolved,
       createdAt: now,
       updatedAt: now,
+      inventoryReleased: false,
     };
+
+    const invCheck = await assertInventoryAvailableForOrderItems(orderDoc.item);
+    if (!invCheck.ok) {
+      return res.status(400).json({ success: false, message: invCheck.message });
+    }
 
     // Vita Xu: trừ số dư + prepend history; giữ lastCompletedDate / currentStreak.
     // Dùng pipeline $concatArrays để không ghi đè nhầm history; chuẩn hoá history nếu DB lưu object thay vì array.
@@ -1418,14 +1550,10 @@ app.post('/api/orders', async (req, res) => {
           const qty = Number(it.quantity) || 1;
           if (!rawId || qty <= 0) continue;
           const idStr = String(rawId);
-          const filters = [{ _id: idStr }];
-          if (mongoose.Types.ObjectId.isValid(idStr)) {
-            filters.push({ _id: new mongoose.Types.ObjectId(idStr) });
-          }
-          filters.push({ '_id.$oid': idStr });
+          const filters = productIdFiltersFromRaw(idStr);
           await productsCollection().updateOne(
             { $or: filters },
-            { $inc: { stock: -qty } },
+            { $inc: { stock: -qty, sold: qty } },
           );
         }
       }
@@ -1465,11 +1593,15 @@ app.post('/api/orders', async (req, res) => {
     if (uid) {
       try {
         const ncol = noticesCollection();
+        const noticeTitle = pharmacistCounterComplete ? 'Đơn hàng hoàn tất tại quầy' : 'Đặt hàng thành công';
+        const noticeMsg = pharmacistCounterComplete
+          ? `Đơn hàng ${orderId} đã giao và thanh toán tại nhà thuốc.`
+          : `Đơn hàng ${orderId} đã được tạo và đang chờ xác nhận.`;
         await ncol.insertOne({
           user_id: uid,
           type: 'order_created',
-          title: 'Đặt hàng thành công',
-          message: `Đơn hàng ${orderId} đã được tạo và đang chờ xác nhận.`,
+          title: noticeTitle,
+          message: noticeMsg,
           createdAt: now,
           read: false,
           link: '/account',
@@ -1884,13 +2016,24 @@ app.put('/api/orders/:id/cancel', async (req, res) => {
       : { order_id: id };
     const doc = await col.findOne(filter);
     if (!doc) return res.status(404).json({ success: false, message: 'Không tìm thấy đơn hàng.' });
+    if (doc.status === 'cancelled') {
+      return res.json({ success: true, message: 'Đơn đã được huỷ trước đó.' });
+    }
     const now = new Date().toISOString();
+    if (!doc.inventoryReleased) {
+      try {
+        await restoreInventoryForOrderLineItems(doc.item || []);
+      } catch (e) {
+        console.warn('[PUT /api/orders/:id/cancel] restore inventory:', e.message);
+      }
+    }
     await col.updateOne(filter, {
       $set: {
         status: 'cancelled',
         cancelReason: reason || '',
         'route.cancelled': now,
         updatedAt: now,
+        inventoryReleased: true,
       },
     });
     // Tạo thông báo huỷ đơn hàng
@@ -2027,38 +2170,45 @@ app.put('/api/orders/:id/confirm-received', async (req, res) => {
 // PUT /api/orders/:id/confirm-returned - User xác nhận đã nhận hàng hoàn trả (từ returning -> returned)
 app.put('/api/orders/:id/confirm-returned', async (req, res) => {
   try {
-    const db = mongoose.connection.db;
-    const orderId = req.params.id;
-
-    const result = await db.collection('orders').findOneAndUpdate(
-      { $or: [{ _id: orderId }, { order_id: orderId }] },
-      {
-        $set: {
-          status: 'returned',
-          'route.returned': new Date().toISOString()
-        }
-      },
-      { returnDocument: 'after' }
-    );
-
-    if (!result) {
-      return res.status(404).json({ success: false, message: 'Không tìm thấy đơn hàng' });
+    const id = req.params.id;
+    const col = mongoose.connection.db.collection('orders');
+    const filter = mongoose.Types.ObjectId.isValid(id)
+      ? { $or: [{ _id: new mongoose.Types.ObjectId(id) }, { order_id: id }] }
+      : { order_id: id };
+    const doc = await col.findOne(filter);
+    if (!doc) return res.status(404).json({ success: false, message: 'Không tìm thấy đơn hàng' });
+    if (doc.status === 'returned') {
+      return res.json({ success: true, message: 'Đơn hàng đã ở trạng thái hoàn trả.' });
     }
+    const now = new Date().toISOString();
+    if (!doc.inventoryReleased) {
+      try {
+        await restoreInventoryForOrderLineItems(doc.item || []);
+      } catch (e) {
+        console.warn('[PUT /api/orders/:id/confirm-returned] restore inventory:', e.message);
+      }
+    }
+    await col.updateOne(filter, {
+      $set: {
+        status: 'returned',
+        'route.returned': now,
+        updatedAt: now,
+        inventoryReleased: true,
+      },
+    });
 
-    // Ghi log notice (tuỳ chọn)
     try {
-      const orderData = result.value || result;
-      const user_id = orderData.user_id || 'guest';
+      const user_id = doc.user_id || doc.userId || 'guest';
       await noticesCollection().insertOne({
         user_id,
         type: 'order_updated',
         title: 'Xác nhận nhận hàng hoàn trả',
-        message: `Bạn đã xác nhận nhận hàng hoàn trả cho đơn ${orderId} thành công.`,
-        createdAt: new Date().toISOString(),
+        message: `Bạn đã xác nhận nhận hàng hoàn trả cho đơn ${doc.order_id || id} thành công.`,
+        createdAt: now,
         read: false,
         link: '/account',
         linkLabel: 'Xem đơn hàng',
-        meta: orderId,
+        meta: doc.order_id || id,
       });
     } catch (e) {
       console.warn('[PUT /api/orders/:id/confirm-returned] Cannot create notice:', e.message);
@@ -6966,6 +7116,9 @@ app.post('/api/auth/login', async (req, res) => {
   }
 });
 
+const registerOAuthRoutes = require('./oauth-social');
+registerOAuthRoutes(app, { usersCollection, cartsCollection, bcrypt, crypto });
+
 // POST /api/auth/register-otp - Bước 1: Gửi OTP cho đăng ký (kiểm tra SĐT chưa tồn tại)
 app.post('/api/auth/register-otp', async (req, res) => {
   try {
@@ -8228,13 +8381,31 @@ app.put('/api/admin/orders/:id', async (req, res) => {
       query.push({ _id: new mongoose.Types.ObjectId(id) });
     }
 
-    // Lấy doc cũ trước để so sánh trạng thái
+    // Lấy doc cũ trước để so sánh trạng thái + hoàn kho khi huỷ/hoàn đơn
     const oldDoc = await OrderModel.findOne({ $or: query }).lean();
-    const data = await OrderModel.findOneAndUpdate({ $or: query }, req.body, { new: true });
+    if (!oldDoc) return res.status(404).json({ success: false, message: 'Order not found' });
+
+    const newStatus = req.body?.status;
+    const releaseStatuses = ['cancelled', 'returned', 'refunded'];
+    const body = { ...req.body };
+    if (
+      newStatus &&
+      releaseStatuses.includes(String(newStatus)) &&
+      String(newStatus) !== String(oldDoc.status || '') &&
+      !oldDoc.inventoryReleased
+    ) {
+      try {
+        await restoreInventoryForOrderLineItems(oldDoc.item || []);
+      } catch (e) {
+        console.warn('[PUT /api/admin/orders/:id] restore inventory:', e.message);
+      }
+      body.inventoryReleased = true;
+    }
+
+    const data = await OrderModel.findOneAndUpdate({ $or: query }, body, { new: true });
     if (!data) return res.status(404).json({ success: false, message: 'Order not found' });
 
     // Lưu notice cho user khi admin thay đổi trạng thái đơn hàng
-    const newStatus = req.body.status;
     if (newStatus && oldDoc && newStatus !== oldDoc.status) {
       const userId = data.user_id || oldDoc.user_id;
       if (userId) {

@@ -27,13 +27,23 @@ import {
 } from '../services/dashboard-export.service';
 import { DashboardPreloadService } from '../services/dashboard-preload.service';
 import { AdminMascotLoadingComponent } from '../shared/admin-mascot-loading/admin-mascot-loading.component';
+import { DashboardVnMapComponent } from './dashboard-vn-map/dashboard-vn-map.component';
+import {
+  VC,
+  chartAnimation,
+  doughnutSegmentBorder,
+  prescriptionStatusColors,
+  revenueFillGradient,
+  revenueLineStrokeGradient,
+  vcRgba
+} from './dashboard-chart-theme';
 
 declare var Chart: any;
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, AdminMascotLoadingComponent],
+  imports: [CommonModule, AdminMascotLoadingComponent, DashboardVnMapComponent],
   providers: [DecimalPipe],
   templateUrl: './home.html',
   styleUrl: './home.css',
@@ -99,6 +109,11 @@ export class Home implements OnInit {
     private dashboardExport: DashboardExportService,
     private dashboardPreload: DashboardPreloadService
   ) { }
+
+  /** Đơn hàng cho widget bản đồ (đọc từ dữ liệu đã tải). */
+  get ordersForMap(): any[] {
+    return this.currentOrders;
+  }
 
   @HostListener('document:click')
   onDocumentClick(): void {
@@ -176,8 +191,8 @@ export class Home implements OnInit {
   private updateChartDefaults(isDark: boolean) {
     if (typeof Chart === 'undefined') return;
     Chart.defaults.font.family = "'Inter', -apple-system, sans-serif";
-    Chart.defaults.color = isDark ? '#cbd5e1' : '#64748b';
-    Chart.defaults.borderColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+    Chart.defaults.color = isDark ? '#cbd5e1' : VC.neutral;
+    Chart.defaults.borderColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(10, 10, 10, 0.08)';
   }
 
   loadData() {
@@ -365,27 +380,54 @@ export class Home implements OnInit {
         datasets: [{
           label: 'Doanh thu (đ)',
           data: data,
-          borderColor: '#6366f1',
-          backgroundColor: isDark ? 'rgba(99, 102, 241, 0.15)' : 'rgba(99, 102, 241, 0.1)',
+          borderColor: (context: any) => {
+            const chart = context.chart;
+            const { ctx: c, chartArea } = chart;
+            if (!chartArea || chartArea.left === undefined) {
+              return VC.primary;
+            }
+            return revenueLineStrokeGradient(c, chartArea);
+          },
+          backgroundColor: (context: any) => {
+            const chart = context.chart;
+            const { ctx: c, chartArea } = chart;
+            if (!chartArea) {
+              return vcRgba(VC.primarySoft, 0.35);
+            }
+            return revenueFillGradient(c, chartArea);
+          },
           fill: true,
-          tension: 0.4,
+          cubicInterpolationMode: 'monotone',
           borderWidth: 3,
           pointRadius: 4,
-          pointHoverRadius: 6,
-          pointBackgroundColor: isDark ? '#1e293b' : '#fff',
-          pointBorderColor: '#6366f1'
+          pointHoverRadius: 7,
+          pointBackgroundColor: isDark ? '#1e293b' : '#ffffff',
+          pointBorderColor: (context: any) => {
+            const i = context.dataIndex;
+            const n = context.dataset.data.length;
+            if (n <= 1) return VC.primaryLight;
+            const t = i / (n - 1);
+            return t < 0.5 ? VC.primaryLight : VC.infoStrong;
+          },
+          pointBorderWidth: 2,
+          pointHoverBorderColor: VC.infoStrong
         }]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        animation: chartAnimation,
+        interaction: { mode: 'index', intersect: false },
         plugins: {
           legend: { display: false },
           tooltip: {
-            backgroundColor: isDark ? '#334155' : '#1e293b',
+            backgroundColor: isDark ? VC.primaryHover : '#1e293b',
             padding: 12,
             titleFont: { size: 14, weight: 'bold' },
             bodyFont: { size: 13 },
+            borderColor: vcRgba(VC.primaryLight, 0.45),
+            borderWidth: 1,
+            displayColors: false,
             callbacks: {
               label: (ctx: any) => ` Doanh thu: ${ctx.raw.toLocaleString()}đ`
             }
@@ -395,17 +437,17 @@ export class Home implements OnInit {
           x: {
             grid: { display: false },
             ticks: {
-              color: isDark ? '#94a3b8' : '#64748b',
+              color: isDark ? '#94a3b8' : VC.neutral,
               font: { size: 11 }
             }
           },
           y: {
             beginAtZero: true,
             grid: {
-              color: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)'
+              color: isDark ? 'rgba(255,255,255,0.06)' : vcRgba(VC.primary, 0.06)
             },
             ticks: {
-              color: isDark ? '#94a3b8' : '#64748b',
+              color: isDark ? '#94a3b8' : VC.neutral,
               font: { size: 11 },
               callback: (v: any) => v >= 1000000 ? (v / 1000000).toFixed(1) + 'M' : v.toLocaleString()
             }
@@ -445,29 +487,24 @@ export class Home implements OnInit {
         labels,
         datasets: [{
           data,
-          backgroundColor: [
-            'rgba(99, 102, 241, 0.95)',
-            'rgba(99, 102, 241, 0.8)',
-            'rgba(99, 102, 241, 0.62)',
-            'rgba(99, 102, 241, 0.45)',
-            'rgba(99, 102, 241, 0.3)'
-          ],
-          borderColor: isDark ? '#1e293b' : '#ffffff',
+          backgroundColor: [...prescriptionStatusColors],
+          borderColor: doughnutSegmentBorder(isDark),
           borderWidth: 2,
-          hoverOffset: 6
+          hoverOffset: 10
         }]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
         cutout: '72%',
+        animation: chartAnimation,
         plugins: {
           legend: {
             position: 'bottom',
             labels: {
               boxWidth: 10,
               padding: 8,
-              color: isDark ? '#cbd5e1' : '#64748b',
+              color: isDark ? '#cbd5e1' : VC.neutral,
               font: { size: 10 }
             }
           }
@@ -515,23 +552,25 @@ export class Home implements OnInit {
         datasets: [{
           data: [activeCount, upcomingCount, endedCount],
           backgroundColor: [
-            'rgba(99, 102, 241, 0.95)',
-            'rgba(99, 102, 241, 0.6)',
-            isDark ? 'rgba(99, 102, 241, 0.28)' : 'rgba(99, 102, 241, 0.22)'
+            vcRgba(VC.primary, 0.94),
+            vcRgba(VC.warning, 0.9),
+            vcRgba(VC.infoStrong, isDark ? 0.55 : 0.48)
           ],
-          borderWidth: 0,
-          hoverOffset: 4
+          borderColor: doughnutSegmentBorder(isDark),
+          borderWidth: 2,
+          hoverOffset: 10
         }]
       },
       options: {
         cutout: '72%',
+        animation: chartAnimation,
         plugins: {
           legend: {
             position: 'bottom',
             labels: {
               boxWidth: 10,
               padding: 8,
-              color: isDark ? '#cbd5e1' : '#64748b',
+              color: isDark ? '#cbd5e1' : VC.neutral,
               font: { size: 10 }
             }
           }
@@ -558,23 +597,25 @@ export class Home implements OnInit {
         datasets: [{
           data: [delivered, pending, other],
           backgroundColor: [
-            'rgba(99, 102, 241, 0.95)',
-            'rgba(99, 102, 241, 0.6)',
-            'rgba(99, 102, 241, 0.25)'
+            vcRgba(VC.primaryLight, 0.95),
+            vcRgba(VC.warning, 0.9),
+            vcRgba(VC.info, 0.82)
           ],
           borderWidth: 2,
-          borderColor: isDark ? '#1e293b' : '#ffffff'
+          borderColor: doughnutSegmentBorder(isDark),
+          hoverOffset: 10
         }]
       },
       options: {
         cutout: '72%',
+        animation: chartAnimation,
         plugins: {
           legend: {
             position: 'bottom',
             labels: {
               boxWidth: 10,
               padding: 8,
-              color: isDark ? '#cbd5e1' : '#64748b',
+              color: isDark ? '#cbd5e1' : VC.neutral,
               font: { size: 10 }
             }
           }
@@ -614,29 +655,24 @@ export class Home implements OnInit {
         labels,
         datasets: [{
           data,
-          backgroundColor: [
-            'rgba(99, 102, 241, 0.95)',
-            'rgba(99, 102, 241, 0.8)',
-            'rgba(99, 102, 241, 0.62)',
-            'rgba(99, 102, 241, 0.45)',
-            'rgba(99, 102, 241, 0.3)'
-          ],
-          borderColor: isDark ? '#1e293b' : '#ffffff',
+          backgroundColor: [...prescriptionStatusColors],
+          borderColor: doughnutSegmentBorder(isDark),
           borderWidth: 2,
-          hoverOffset: 6
+          hoverOffset: 10
         }]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
         cutout: '72%',
+        animation: chartAnimation,
         plugins: {
           legend: {
             position: 'bottom',
             labels: {
               boxWidth: 10,
               padding: 8,
-              color: isDark ? '#cbd5e1' : '#64748b',
+              color: isDark ? '#cbd5e1' : VC.neutral,
               font: { size: 10 }
             }
           }
@@ -677,26 +713,27 @@ export class Home implements OnInit {
         datasets: [{
           data,
           backgroundColor: [
-            'rgba(99, 102, 241, 0.95)',
-            'rgba(99, 102, 241, 0.65)',
-            'rgba(99, 102, 241, 0.35)'
+            vcRgba(VC.warning, 0.92),
+            vcRgba(VC.primary, 0.9),
+            vcRgba(VC.primaryLight, 0.88)
           ],
-          borderColor: isDark ? '#1e293b' : '#ffffff',
+          borderColor: doughnutSegmentBorder(isDark),
           borderWidth: 2,
-          hoverOffset: 6
+          hoverOffset: 10
         }]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
         cutout: '72%',
+        animation: chartAnimation,
         plugins: {
           legend: {
             position: 'bottom',
             labels: {
               boxWidth: 10,
               padding: 8,
-              color: isDark ? '#cbd5e1' : '#64748b',
+              color: isDark ? '#cbd5e1' : VC.neutral,
               font: { size: 10 }
             }
           }
@@ -732,25 +769,26 @@ export class Home implements OnInit {
         datasets: [{
           data: [pending, answered],
           backgroundColor: [
-            'rgba(99, 102, 241, 0.85)',
-            'rgba(99, 102, 241, 0.4)'
+            vcRgba(VC.warning, 0.9),
+            vcRgba(VC.primaryLight, 0.88)
           ],
-          borderColor: isDark ? '#1e293b' : '#ffffff',
+          borderColor: doughnutSegmentBorder(isDark),
           borderWidth: 2,
-          hoverOffset: 6
+          hoverOffset: 10
         }]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
         cutout: '72%',
+        animation: chartAnimation,
         plugins: {
           legend: {
             position: 'bottom',
             labels: {
               boxWidth: 10,
               padding: 8,
-              color: isDark ? '#cbd5e1' : '#64748b',
+              color: isDark ? '#cbd5e1' : VC.neutral,
               font: { size: 10 }
             }
           }
@@ -786,23 +824,27 @@ export class Home implements OnInit {
           {
             label: 'Đơn hàng',
             data: orderHours,
-            borderColor: 'rgba(99, 102, 241, 0.95)',
-            backgroundColor: 'rgba(99, 102, 241, 0.2)',
+            borderColor: VC.primary,
+            backgroundColor: vcRgba(VC.primary, 0.12),
             borderWidth: 3,
-            tension: 0.35,
-            pointRadius: 2,
-            pointHoverRadius: 4,
+            tension: 0.4,
+            pointRadius: 0,
+            pointHoverRadius: 6,
+            pointHoverBackgroundColor: VC.primarySoft,
+            pointHoverBorderColor: VC.primary,
             fill: false
           },
           {
             label: 'Đăng ký',
             data: registrationHours,
-            borderColor: 'rgba(99, 102, 241, 0.55)',
-            backgroundColor: 'rgba(99, 102, 241, 0.12)',
-            borderWidth: 2,
-            tension: 0.35,
-            pointRadius: 2,
-            pointHoverRadius: 4,
+            borderColor: VC.infoStrong,
+            backgroundColor: vcRgba(VC.infoStrong, 0.1),
+            borderWidth: 2.5,
+            tension: 0.4,
+            pointRadius: 0,
+            pointHoverRadius: 6,
+            pointHoverBackgroundColor: VC.info,
+            pointHoverBorderColor: VC.infoStrong,
             fill: false
           }
         ]
@@ -810,10 +852,18 @@ export class Home implements OnInit {
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        animation: chartAnimation,
+        interaction: { mode: 'index', intersect: false },
         plugins: {
           legend: {
             position: 'top',
-            labels: { color: isDark ? '#cbd5e1' : '#64748b', boxWidth: 10, padding: 12 }
+            labels: {
+              color: isDark ? '#cbd5e1' : VC.neutral,
+              boxWidth: 10,
+              padding: 12,
+              usePointStyle: true,
+              pointStyle: 'circle'
+            }
           }
         },
         scales: {
@@ -822,14 +872,16 @@ export class Home implements OnInit {
             ticks: {
               autoSkip: true,
               maxTicksLimit: 12,
-              color: isDark ? '#94a3b8' : '#64748b',
+              color: isDark ? '#94a3b8' : VC.neutral,
               font: { size: 10 }
             }
           },
           y: {
             beginAtZero: true,
-            grid: { color: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)' },
-            ticks: { precision: 0, color: isDark ? '#94a3b8' : '#64748b' }
+            grid: {
+              color: isDark ? 'rgba(255,255,255,0.06)' : vcRgba(VC.primary, 0.06)
+            },
+            ticks: { precision: 0, color: isDark ? '#94a3b8' : VC.neutral }
           }
         }
       }
@@ -904,21 +956,25 @@ export class Home implements OnInit {
         datasets: [{
           data: Object.values(tiers),
           backgroundColor: [
-            'rgba(99, 102, 241, 0.35)', // Đồng
-            'rgba(99, 102, 241, 0.55)', // Bạc
-            'rgba(99, 102, 241, 0.8)'   // Vàng
-          ]
+            vcRgba(VC.warning, 0.85),
+            vcRgba(VC.primaryLight, 0.88),
+            vcRgba(VC.primary, 0.92)
+          ],
+          borderColor: doughnutSegmentBorder(isDark),
+          borderWidth: 2,
+          hoverOffset: 10
         }]
       },
       options: {
         cutout: '72%',
+        animation: chartAnimation,
         plugins: {
           legend: {
             position: 'bottom',
             labels: {
               boxWidth: 12,
               padding: 8,
-              color: isDark ? '#cbd5e1' : '#64748b',
+              color: isDark ? '#cbd5e1' : VC.neutral,
               font: { size: 10 }
             }
           }
@@ -951,9 +1007,9 @@ export class Home implements OnInit {
           label: 'Lượt bán',
           data,
           backgroundColor: [
-            'rgba(99, 102, 241, 0.95)',
-            'rgba(99, 102, 241, 0.75)',
-            'rgba(99, 102, 241, 0.5)'
+            vcRgba(VC.primary, 0.94),
+            vcRgba(VC.primaryLight, 0.88),
+            vcRgba(VC.infoStrong, 0.78)
           ],
           borderRadius: 8,
           borderSkipped: false,
@@ -964,14 +1020,20 @@ export class Home implements OnInit {
         indexAxis: 'y',
         responsive: true,
         maintainAspectRatio: false,
+        animation: {
+          ...chartAnimation,
+          delay: (ctx: any) => ctx.dataIndex * 80
+        },
         plugins: {
           legend: { display: false }
         },
         scales: {
           x: {
             beginAtZero: true,
-            grid: { color: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)' },
-            ticks: { color: isDark ? '#94a3b8' : '#64748b', font: { size: 10 } }
+            grid: {
+              color: isDark ? 'rgba(255,255,255,0.06)' : vcRgba(VC.primary, 0.06)
+            },
+            ticks: { color: isDark ? '#94a3b8' : VC.neutral, font: { size: 10 } }
           },
           y: {
             grid: { display: false },
